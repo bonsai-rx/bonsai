@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that takes the single next element from the sequence if this
     /// element is produced within a specified time interval after the gate produces an element.
     /// </summary>
-    [DefaultProperty("TimeSpan")]
+    [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Allows an element of the sequence to propagate if it is produced within a specified interval after the gate sequence produces an element.")]
     public class TimedGate : BinaryCombinator
@@ -26,7 +26,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the maximum gate time span.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("TimeSpan")]
+        [XmlElement(nameof(TimeSpan))]
         public string TimeSpanXml
         {
             get { return XmlConvert.ToString(TimeSpan); }

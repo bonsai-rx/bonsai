@@ -6,7 +6,7 @@ namespace Bonsai.Expressions
     sealed class SubjectTargetAttribute : Attribute
     {
         public SubjectTargetAttribute(Type targetType)
-            : this(targetType != null ? targetType.AssemblyQualifiedName : null)
+            : this(targetType?.AssemblyQualifiedName)
         {
         }
 

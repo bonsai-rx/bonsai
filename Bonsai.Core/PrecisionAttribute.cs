@@ -17,7 +17,7 @@ namespace Bonsai
         /// The number of decimal places to display in the editor.
         /// </param>
         /// <param name="increment">
-        /// The <see cref="Int32"/> value by which to increment or decrement the current
+        /// The <see cref="int"/> value by which to increment or decrement the current
         /// value on each editor step.
         /// </param>
         public PrecisionAttribute(int decimalPlaces, int increment)
@@ -33,7 +33,7 @@ namespace Bonsai
         /// The number of decimal places to display in the editor.
         /// </param>
         /// <param name="increment">
-        /// The <see cref="Double"/> value by which to increment or decrement the current
+        /// The <see cref="double"/> value by which to increment or decrement the current
         /// value on each editor step.
         /// </param>
         public PrecisionAttribute(int decimalPlaces, double increment)
@@ -49,7 +49,7 @@ namespace Bonsai
         /// The number of decimal places to display in the editor.
         /// </param>
         /// <param name="increment">
-        /// The <see cref="Decimal"/> value by which to increment or decrement the current
+        /// The <see cref="decimal"/> value by which to increment or decrement the current
         /// value on each editor step.
         /// </param>
         public PrecisionAttribute(int decimalPlaces, decimal increment)

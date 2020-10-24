@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
     [Description("Applies the arithmetic addition operation on paired elements of an observable sequence.")]
     public class AddBuilder : BinaryOperatorBuilder
     {
-        static readonly MethodInfo stringConcat = typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) });
+        static readonly MethodInfo stringConcat = typeof(string).GetMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         /// <summary>
         /// Returns the expression that applies the arithmetic addition operation

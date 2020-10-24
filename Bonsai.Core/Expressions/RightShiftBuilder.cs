@@ -30,7 +30,7 @@ namespace Bonsai.Expressions
         protected override Expression BuildSelector(Expression expression)
         {
             var builder = Expression.Constant(this);
-            var value = Expression.Property(builder, "Value");
+            var value = Expression.Property(builder, nameof(Value));
             return Expression.RightShift(expression, value);
         }
     }

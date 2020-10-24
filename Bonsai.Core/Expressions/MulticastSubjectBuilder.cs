@@ -63,7 +63,7 @@ namespace Bonsai.Expressions
                 observableType = subjectType;
             }
 
-            return Expression.Call(typeof(MulticastSubjectBuilder), "Process", new[] { observableType }, source, subjectExpression);
+            return Expression.Call(typeof(MulticastSubjectBuilder), nameof(Process), new[] { observableType }, source, subjectExpression);
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObserver<TSource> subject)

@@ -95,7 +95,7 @@ namespace Bonsai.Dag
         {
             if (node == null)
             {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             nodes.Add(node);
@@ -118,22 +118,22 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (to == null)
             {
-                throw new ArgumentNullException("to");
+                throw new ArgumentNullException(nameof(to));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(to))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "to");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
             }
 
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
@@ -153,22 +153,22 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (edge == null)
             {
-                throw new ArgumentNullException("edge");
+                throw new ArgumentNullException(nameof(edge));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(edge.Target))
             {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", "edge");
+                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
             }
 
             from.Successors.Add(edge);
@@ -189,27 +189,27 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (to == null)
             {
-                throw new ArgumentNullException("to");
+                throw new ArgumentNullException(nameof(to));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(to))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "to");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
             }
 
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
             }
 
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
@@ -233,27 +233,27 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (edge == null)
             {
-                throw new ArgumentNullException("edge");
+                throw new ArgumentNullException(nameof(edge));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(edge.Target))
             {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", "edge");
+                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
             }
 
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
             }
 
             from.Successors.Insert(edgeIndex, edge);
@@ -274,27 +274,27 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (to == null)
             {
-                throw new ArgumentNullException("to");
+                throw new ArgumentNullException(nameof(to));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(to))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "to");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
             }
 
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
             }
 
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
@@ -318,27 +318,27 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (edge == null)
             {
-                throw new ArgumentNullException("edge");
+                throw new ArgumentNullException(nameof(edge));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(edge.Target))
             {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", "edge");
+                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
             }
 
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
             }
 
             from.Successors[edgeIndex] = edge;
@@ -404,22 +404,22 @@ namespace Bonsai.Dag
         {
             if (from == null)
             {
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
             }
 
             if (edge == null)
             {
-                throw new ArgumentNullException("edge");
+                throw new ArgumentNullException(nameof(edge));
             }
 
             if (!nodes.Contains(from))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
             }
 
             if (!nodes.Contains(edge.Target))
             {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", "edge");
+                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
             }
 
             return from.Successors.Remove(edge);

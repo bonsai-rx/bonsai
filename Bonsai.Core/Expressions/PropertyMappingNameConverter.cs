@@ -4,8 +4,7 @@
     {
         protected override bool ContainsMapping(ExpressionBuilder builder, PropertyMapping mapping)
         {
-            var mappingBuilder = builder as PropertyMappingBuilder;
-            return mappingBuilder != null && mappingBuilder.PropertyMappings.Contains(mapping);
+            return builder is PropertyMappingBuilder mappingBuilder && mappingBuilder.PropertyMappings.Contains(mapping);
         }
     }
 }

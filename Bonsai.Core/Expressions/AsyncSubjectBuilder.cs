@@ -27,7 +27,7 @@ namespace Bonsai.Expressions
         {
             var builderExpression = Expression.Constant(this);
             var parameterType = expression.Type.GetGenericArguments()[0];
-            return Expression.Call(builderExpression, "CreateSubject", new[] { parameterType });
+            return Expression.Call(builderExpression, nameof(CreateSubject), new[] { parameterType });
         }
 
         AsyncSubject<TSource> CreateSubject<TSource>()

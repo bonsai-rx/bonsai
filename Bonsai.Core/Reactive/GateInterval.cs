@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that takes the single next element from the sequence every
     /// time the specified interval elapses.
     /// </summary>
-    [DefaultProperty("Interval")]
+    [DefaultProperty(nameof(Interval))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Takes the single next element from the sequence every time the specified interval elapses.")]
     public class GateInterval : Combinator
@@ -25,7 +25,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the interval.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Interval")]
+        [XmlElement(nameof(Interval))]
         public string IntervalXml
         {
             get { return XmlConvert.ToString(Interval); }

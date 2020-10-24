@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that raises an error if the next element is not received
     /// within the specified timeout duration from the previous element.
     /// </summary>
-    [DefaultProperty("DueTime")]
+    [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Raises an error if the next element is not received within the specified timeout duration from the previous element.")]
     public class Timeout : Combinator
@@ -26,7 +26,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the timeout duration.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }

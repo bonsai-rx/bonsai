@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that groups the elements of an observable
     /// sequence according to the specified key.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Groups the elements of an observable sequence according to the specified key.")]
     public class GroupBy : SingleArgumentExpressionBuilder
@@ -56,7 +56,7 @@ namespace Bonsai.Reactive
                 var elementSelectorLambda = Expression.Lambda(elementSelectorBody, parameter);
                 return Expression.Call(
                     combinator,
-                    "Process",
+                    nameof(Process),
                     new[] { parameter.Type, keySelectorLambda.ReturnType, elementSelectorLambda.ReturnType },
                     source,
                     keySelectorLambda,
@@ -64,7 +64,7 @@ namespace Bonsai.Reactive
             }
             else return Expression.Call(
                 combinator,
-                "Process",
+                nameof(Process),
                 new[] { parameter.Type, keySelectorLambda.ReturnType },
                 source,
                 keySelectorLambda);

@@ -12,24 +12,15 @@ namespace Bonsai.Dag
     [Obsolete]
     public class DirectedGraphDescriptor<TNodeValue, TEdgeLabel>
     {
-        readonly Collection<TNodeValue> nodes = new Collection<TNodeValue>();
-        readonly Collection<EdgeDescriptor<TEdgeLabel>> edges = new Collection<EdgeDescriptor<TEdgeLabel>>();
-
         /// <summary>
         /// Gets the collection of labels associated with each node in the directed graph.
         /// </summary>
-        public Collection<TNodeValue> Nodes
-        {
-            get { return nodes; }
-        }
+        public Collection<TNodeValue> Nodes { get; } = new Collection<TNodeValue>();
 
         /// <summary>
         /// Gets a collection of descriptors corresponding to each edge in the directed graph.
         /// </summary>
         [XmlArrayItem("Edge")]
-        public Collection<EdgeDescriptor<TEdgeLabel>> Edges
-        {
-            get { return edges; }
-        }
+        public Collection<EdgeDescriptor<TEdgeLabel>> Edges { get; } = new Collection<EdgeDescriptor<TEdgeLabel>>();
     }
 }

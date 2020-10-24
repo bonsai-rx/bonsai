@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that returns an observable sequence that
     /// contains only distinct elements according to the specified key.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns a sequence that contains only distinct elements according to the specified key.")]
     public class DistinctBy : SingleArgumentExpressionBuilder
@@ -43,7 +43,7 @@ namespace Bonsai.Reactive
             var combinator = Expression.Constant(this);
             return Expression.Call(
                 combinator,
-                "Process",
+                nameof(Process),
                 new[] { parameter.Type, keySelectorLambda.ReturnType },
                 source,
                 keySelectorLambda);

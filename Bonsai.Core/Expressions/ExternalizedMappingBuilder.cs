@@ -12,15 +12,13 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Specifies a set of properties to be externalized from a workflow element.
     /// </summary>
-    [DefaultProperty("ExternalizedProperties")]
+    [DefaultProperty(nameof(ExternalizedProperties))]
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("ExternalizedMapping", Namespace = Constants.XmlNamespace)]
     [Description("Specifies a set of properties to be externalized from a workflow element.")]
     [TypeDescriptionProvider(typeof(ExternalizedMappingTypeDescriptionProvider))]
     public class ExternalizedMappingBuilder : ZeroArgumentExpressionBuilder, INamedElement, IArgumentBuilder, IExternalizedMappingBuilder
     {
-        readonly ExternalizedMappingCollection externalizedProperties = new ExternalizedMappingCollection();
-
         /// <summary>
         /// Gets the collection of properties to be externalized from the workflow element.
         /// </summary>
@@ -28,20 +26,17 @@ namespace Bonsai.Expressions
         [XmlElement("Property")]
         [Description("Specifies the set of properties to be externalized.")]
         [Editor("Bonsai.Design.MappingCollectionEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        public ExternalizedMappingCollection ExternalizedProperties
-        {
-            get { return externalizedProperties; }
-        }
+        public ExternalizedMappingCollection ExternalizedProperties { get; } = new ExternalizedMappingCollection();
 
         string INamedElement.Name
         {
             get
             {
-                if (externalizedProperties.Count > 0)
+                if (ExternalizedProperties.Count > 0)
                 {
                     return string.Join(
                         ExpressionHelper.ArgumentSeparator,
-                        externalizedProperties.Select(property => string.IsNullOrEmpty(property.ExternalizedName)
+                        ExternalizedProperties.Select(property => string.IsNullOrEmpty(property.ExternalizedName)
                             ? property.Name
                             : property.ExternalizedName));
                 }
@@ -65,7 +60,7 @@ namespace Bonsai.Expressions
 
         IEnumerable<ExternalizedMapping> IExternalizedMappingBuilder.GetExternalizedProperties()
         {
-            return externalizedProperties;
+            return ExternalizedProperties;
         }
 
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
@@ -93,7 +88,7 @@ namespace Bonsai.Expressions
 
         class ExternalizedMappingCollectionTypeDescriptor : CustomTypeDescriptor
         {
-            ExternalizedMappingCollection instance;
+            readonly ExternalizedMappingCollection instance;
 
             public ExternalizedMappingCollectionTypeDescriptor(ExternalizedMappingCollection collection)
             {
@@ -185,8 +180,7 @@ namespace Bonsai.Expressions
         {
             public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             {
-                var mapping = value as ExternalizedMapping;
-                if (destinationType == typeof(string) && mapping != null)
+                if (destinationType == typeof(string) && value is ExternalizedMapping mapping)
                 {
                     var displayName = mapping.DisplayName;
                     if (string.IsNullOrEmpty(displayName)) displayName = mapping.Name;
@@ -202,7 +196,7 @@ namespace Bonsai.Expressions
                 var properties = new PropertyDescriptorCollection(null);
                 foreach (PropertyDescriptor baseProperty in baseProperties)
                 {
-                    if (baseProperty.Name == "Name") continue;
+                    if (baseProperty.Name == nameof(INamedElement.Name)) continue;
                     var property = TypeDescriptor.CreateProperty(
                         baseProperty.ComponentType,
                         baseProperty,

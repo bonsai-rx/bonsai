@@ -19,7 +19,6 @@ namespace Bonsai.Expressions
     {
         static readonly MethodInfo GetEnumeratorMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
         static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         /// <summary>
         /// Gets or sets the value of the right hand operand which will be paired with elements
@@ -41,10 +40,7 @@ namespace Bonsai.Expressions
         [Obsolete]
         [Browsable(false)]
         [XmlArrayItem("PropertyMapping")]
-        public PropertyMappingCollection PropertyMappings
-        {
-            get { return propertyMappings; }
-        }
+        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         /// <summary>
         /// When overridden in a derived class, returns the expression that applies a binary

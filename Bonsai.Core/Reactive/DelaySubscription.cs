@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that time-shifts the observable sequence by delaying the
     /// subscription with the specified relative time duration.
     /// </summary>
-    [DefaultProperty("DueTime")]
+    [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Time-shifts the observable sequence by delaying the subscription with the specified relative time duration.")]
     public class DelaySubscription : Combinator

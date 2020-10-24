@@ -57,12 +57,13 @@ namespace Bonsai.Expressions
         static void EnsureTypes(ExpressionBuilder builder)
         {
             var workflowElement = GetWorkflowElement(builder);
-            var unknownType = workflowElement as UnknownTypeBuilder;
-            if (unknownType != null) unknownType.Build();
+            if (workflowElement is UnknownTypeBuilder unknownType)
+            {
+                unknownType.Build();
+            }
             else
             {
-                var workflowBuilder = workflowElement as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null && workflowBuilder.Workflow != null)
+                if (workflowElement is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow != null)
                 {
                     foreach (var node in workflowBuilder.Workflow)
                     {

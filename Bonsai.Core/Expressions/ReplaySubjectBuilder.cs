@@ -32,7 +32,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the XML serializable representation of the replay window interval.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Window")]
+        [XmlElement(nameof(Window))]
         public string WindowXml
         {
             get
@@ -62,7 +62,7 @@ namespace Bonsai.Expressions
         {
             var builderExpression = Expression.Constant(this);
             var parameterType = expression.Type.GetGenericArguments()[0];
-            return Expression.Call(builderExpression, "CreateSubject", new[] { parameterType });
+            return Expression.Call(builderExpression, nameof(CreateSubject), new[] { parameterType });
         }
 
         ReplaySubject<TSource> CreateSubject<TSource>()

@@ -15,10 +15,10 @@ namespace Bonsai.Reactive
     public class Average
     {
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="Decimal"/> values.
+        /// Computes the average of an observable sequence of nullable <see cref="decimal"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Decimal"/> values to calculate the average of.
+        /// A sequence of <see cref="decimal"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -30,10 +30,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="Decimal"/> values.
+        /// Computes the average of an observable sequence of <see cref="decimal"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Decimal"/> values to calculate the average of.
+        /// A sequence of <see cref="decimal"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -45,10 +45,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="Double"/> values.
+        /// Computes the average of an observable sequence of nullable <see cref="double"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Double"/> values to calculate the average of.
+        /// A sequence of <see cref="double"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -60,10 +60,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="Double"/> values.
+        /// Computes the average of an observable sequence of <see cref="double"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Double"/> values to calculate the average of.
+        /// A sequence of <see cref="double"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -75,10 +75,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="Single"/> values.
+        /// Computes the average of an observable sequence of nullable <see cref="float"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Single"/> values to calculate the average of.
+        /// A sequence of <see cref="float"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -90,10 +90,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="Single"/> values.
+        /// Computes the average of an observable sequence of <see cref="float"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Single"/> values to calculate the average of.
+        /// A sequence of <see cref="float"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -105,10 +105,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="Int32"/> values.
+        /// Computes the average of an observable sequence of nullable <see cref="int"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int32"/> values to calculate the average of.
+        /// A sequence of <see cref="int"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -120,10 +120,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="Int32"/> values.
+        /// Computes the average of an observable sequence of <see cref="int"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int32"/> values to calculate the average of.
+        /// A sequence of <see cref="int"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -135,10 +135,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="Int64"/> values.
+        /// Computes the average of an observable sequence of nullable <see cref="long"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int64"/> values to calculate the average of.
+        /// A sequence of <see cref="long"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the
@@ -150,10 +150,10 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="Int64"/> values.
+        /// Computes the average of an observable sequence of <see cref="long"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int64"/> values to calculate the average of.
+        /// A sequence of <see cref="long"/> values to calculate the average of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the average of the

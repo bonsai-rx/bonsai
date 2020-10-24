@@ -26,7 +26,7 @@ namespace Bonsai.Expressions
             var sourceType = source.Type.GetGenericArguments()[0];
             var resultType = selector.ReturnType.GetGenericArguments()[0];
             var builder = Expression.Constant(this);
-            return Expression.Call(builder, "Multicast", new[] { sourceType, resultType }, source, selector);
+            return Expression.Call(builder, nameof(Multicast), new[] { sourceType, resultType }, source, selector);
         }
 
         internal abstract IObservable<TResult> Multicast<TSource, TResult>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TResult>> selector);

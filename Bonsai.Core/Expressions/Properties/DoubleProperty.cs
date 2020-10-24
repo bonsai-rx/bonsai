@@ -40,11 +40,7 @@ namespace Bonsai.Expressions
 
         void OnValueChanged(double value)
         {
-            var handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            ValueChanged?.Invoke(value);
         }
 
         /// <summary>

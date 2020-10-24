@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     /// </summary>
     public sealed class InspectBuilder : ExpressionBuilder, INamedElement
     {
-        static readonly MethodInfo CreateSubjectMethod = typeof(InspectBuilder).GetMethod("CreateInspectorSubject", BindingFlags.NonPublic | BindingFlags.Instance);
+        static readonly MethodInfo CreateSubjectMethod = typeof(InspectBuilder).GetMethod(nameof(CreateInspectorSubject), BindingFlags.NonPublic | BindingFlags.Instance);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InspectBuilder"/> class with the
@@ -100,7 +100,7 @@ namespace Bonsai.Expressions
             ObservableType = null;
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
-            if (ExpressionBuilder.IsReducible(source))
+            if (IsReducible(source))
             {
                 ObservableType = source.Type.GetGenericArguments()[0];
             }
@@ -126,7 +126,7 @@ namespace Bonsai.Expressions
                 source = HandleObservableCreationException(source);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
                 var subjectExpression = Expression.Constant(subject);
-                return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source, subjectExpression);
+                return Expression.Call(Expression.Constant(this), nameof(Process), new[] { ObservableType }, source, subjectExpression);
             }
             else
             {
@@ -134,7 +134,7 @@ namespace Bonsai.Expressions
                 ErrorEx = Observable.Empty<Exception>();
                 if (VisualizerElement != null)
                 {
-                    return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source);
+                    return Expression.Call(Expression.Constant(this), nameof(Process), new[] { ObservableType }, source);
                 }
                 return source;
             }
@@ -142,14 +142,12 @@ namespace Bonsai.Expressions
 
         static InspectBuilder GetInspectBuilder(Expression source)
         {
-            MulticastBranchExpression multicastExpression;
-            while ((multicastExpression = source as MulticastBranchExpression) != null)
+            while (source is MulticastBranchExpression multicastExpression)
             {
                 source = multicastExpression.Source;
             }
 
-            MethodCallExpression methodCall;
-            while ((methodCall = source as MethodCallExpression) != null)
+            while (source is MethodCallExpression methodCall)
             {
                 if (methodCall.Object == null)
                 {

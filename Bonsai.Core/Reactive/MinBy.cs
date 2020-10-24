@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that returns the elements in the observable
     /// sequence with the minimum key value.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the elements in the observable sequence with the minimum key value.")]
     public class MinBy : SingleArgumentExpressionBuilder

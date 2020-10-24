@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// <summary>
     /// Represents an observable sequence of integral numbers within a specified range.
     /// </summary>
-    [DefaultProperty("Count")]
+    [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Generates an observable sequence of integral numbers within a specified range.")]
     public class Range : Source<int>

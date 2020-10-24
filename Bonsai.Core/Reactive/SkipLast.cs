@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that bypasses the specified number of elements at the end
     /// of an observable sequence.
     /// </summary>
-    [DefaultProperty("Count")]
+    [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Bypasses the specified number of contiguous elements at the end of the sequence.")]
     public class SkipLast : Combinator

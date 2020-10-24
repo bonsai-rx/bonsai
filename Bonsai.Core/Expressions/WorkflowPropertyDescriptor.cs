@@ -6,10 +6,10 @@ namespace Bonsai.Expressions
 {
     class WorkflowPropertyDescriptor : PropertyDescriptor
     {
-        Type componentType;
-        Type propertyType;
-        Func<object> getValue;
-        Action<object> setValue;
+        readonly Type componentType;
+        readonly Type propertyType;
+        readonly Func<object> getValue;
+        readonly Action<object> setValue;
 
         public WorkflowPropertyDescriptor(string name, Attribute[] attrs, object property)
             : base(name, attrs)

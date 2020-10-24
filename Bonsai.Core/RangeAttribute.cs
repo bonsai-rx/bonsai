@@ -17,10 +17,10 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="RangeAttribute"/> class with the
         /// specified minimum and maximum values.
         /// </summary>
-        /// <param name="min">An <see cref="Int32"/> that is the minimum value.</param>
-        /// <param name="max">An <see cref="Int32"/> that is the maximum value.</param>
+        /// <param name="min">An <see cref="int"/> that is the minimum value.</param>
+        /// <param name="max">An <see cref="int"/> that is the maximum value.</param>
         public RangeAttribute(int min, int max)
-            : this((decimal)min, (decimal)max)
+            : this(min, (decimal)max)
         {
         }
 
@@ -28,10 +28,10 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="RangeAttribute"/> class with the
         /// specified minimum and maximum values.
         /// </summary>
-        /// <param name="min">An <see cref="Int64"/> that is the minimum value.</param>
-        /// <param name="max">An <see cref="Int64"/> that is the maximum value.</param>
+        /// <param name="min">An <see cref="long"/> that is the minimum value.</param>
+        /// <param name="max">An <see cref="long"/> that is the maximum value.</param>
         public RangeAttribute(long min, long max)
-            : this((decimal)min, (decimal)max)
+            : this(min, (decimal)max)
         {
         }
 
@@ -39,8 +39,8 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="RangeAttribute"/> class with the
         /// specified minimum and maximum values.
         /// </summary>
-        /// <param name="min">A <see cref="Single"/> that is the minimum value.</param>
-        /// <param name="max">A <see cref="Single"/> that is the maximum value.</param>
+        /// <param name="min">A <see cref="float"/> that is the minimum value.</param>
+        /// <param name="max">A <see cref="float"/> that is the maximum value.</param>
         public RangeAttribute(float min, float max)
             : this((decimal)min, (decimal)max)
         {
@@ -50,8 +50,8 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="RangeAttribute"/> class with the
         /// specified minimum and maximum values.
         /// </summary>
-        /// <param name="min">A <see cref="Double"/> that is the minimum value.</param>
-        /// <param name="max">A <see cref="Double"/> that is the maximum value.</param>
+        /// <param name="min">A <see cref="double"/> that is the minimum value.</param>
+        /// <param name="max">A <see cref="double"/> that is the maximum value.</param>
         public RangeAttribute(double min, double max)
             : this((decimal)min, (decimal)max)
         {
@@ -61,8 +61,8 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="RangeAttribute"/> class with the
         /// specified minimum and maximum values.
         /// </summary>
-        /// <param name="min">A <see cref="Decimal"/> that is the minimum value.</param>
-        /// <param name="max">A <see cref="Decimal"/> that is the maximum value.</param>
+        /// <param name="min">A <see cref="decimal"/> that is the minimum value.</param>
+        /// <param name="max">A <see cref="decimal"/> that is the maximum value.</param>
         public RangeAttribute(decimal min, decimal max)
         {
             Minimum = min;

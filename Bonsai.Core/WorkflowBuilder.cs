@@ -53,12 +53,7 @@ namespace Bonsai
         /// </param>
         public WorkflowBuilder(ExpressionBuilderGraph workflow)
         {
-            if (workflow == null)
-            {
-                throw new ArgumentNullException("workflow");
-            }
-
-            this.workflow = workflow;
+            this.workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
         }
 
         /// <summary>
@@ -93,10 +88,8 @@ namespace Bonsai
         /// </returns>
         public static WorkflowMetadata ReadMetadata(string inputUri)
         {
-            using (var reader = XmlReader.Create(inputUri))
-            {
-                return ReadMetadata(reader);
-            }
+            using var reader = XmlReader.Create(inputUri);
+            return ReadMetadata(reader);
         }
 
         /// <summary>
@@ -200,8 +193,7 @@ namespace Bonsai
                 }
             }
 
-            Dictionary<string, GenericTypeCode> genericTypes;
-            var serializer = GetXmlSerializer(types, out genericTypes);
+            var serializer = GetXmlSerializer(types, out Dictionary<string, GenericTypeCode> genericTypes);
             writer = new XmlExtensionWriter(writer, genericTypes);
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -343,8 +335,7 @@ namespace Bonsai
 
         static XmlSerializer GetXmlSerializer(HashSet<Type> types)
         {
-            Dictionary<string, GenericTypeCode> genericTypes;
-            return GetXmlSerializer(types, out genericTypes);
+            return GetXmlSerializer(types, out _);
         }
 
         static XmlSerializer GetXmlSerializer(HashSet<Type> types, out Dictionary<string, GenericTypeCode> genericTypes)
@@ -393,8 +384,7 @@ namespace Bonsai
             var element = ExpressionBuilder.GetWorkflowElement(builder);
             if (element != builder) yield return element;
 
-            var workflowBuilder = element as WorkflowExpressionBuilder;
-            if (workflowBuilder != null)
+            if (element is WorkflowExpressionBuilder workflowBuilder)
             {
                 foreach (var nestedElement in workflowBuilder.Workflow.SelectMany(node => GetWorkflowElements(node.Value)))
                 {
@@ -402,8 +392,7 @@ namespace Bonsai
                 }
             }
 
-            var serializableElement = element as ISerializableElement;
-            if (serializableElement != null && (element = serializableElement.Element) != null)
+            if (element is ISerializableElement serializableElement && (element = serializableElement.Element) != null)
             {
                 yield return element;
             }
@@ -431,8 +420,7 @@ namespace Bonsai
 
             AssemblyBuilder GetDynamicAssembly(string name)
             {
-                AssemblyBuilder assemblyBuilder;
-                if (!dynamicAssemblies.TryGetValue(name, out assemblyBuilder))
+                if (!dynamicAssemblies.TryGetValue(name, out AssemblyBuilder assemblyBuilder))
                 {
                     var assemblyName = new AssemblyName(DynamicAssemblyPrefix + name);
                     assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
@@ -480,8 +468,7 @@ namespace Bonsai
 
                     if (!dynamicTypes.TryGetValue(typeName, out type))
                     {
-                        ModuleBuilder moduleBuilder;
-                        if (!dynamicModules.TryGetValue(assembly.FullName, out moduleBuilder))
+                        if (!dynamicModules.TryGetValue(assembly.FullName, out ModuleBuilder moduleBuilder))
                         {
                             moduleBuilder = assemblyBuilder.DefineDynamicModule(assembly.FullName);
                             dynamicModules.Add(assembly.FullName, moduleBuilder);
@@ -599,12 +586,6 @@ namespace Bonsai
             return Split(value, index, 1, out prefix);
         }
 
-        static string Split(string value, string separator, out string prefix)
-        {
-            var index = value.IndexOf(separator);
-            return Split(value, index, separator.Length, out prefix);
-        }
-
         static string Split(string value, int index, int offset, out string prefix)
         {
             if (index >= 0)
@@ -628,10 +609,10 @@ namespace Bonsai
         static Type[] ParseTypeArguments(XmlReader reader, string value)
         {
             var i = 0;
-            var hasNext = false;
             var builder = new StringBuilder(value.Length);
             var typeArguments = new List<Type>();
             var stack = new Stack<GenericTypeToken>();
+            bool hasNext;
             do
             {
                 hasNext = i < value.Length;
@@ -675,8 +656,7 @@ namespace Bonsai
 
         static Type LookupType(XmlReader reader, string name, params Type[] typeArguments)
         {
-            ClrNamespace clrNamespace;
-            name = ResolveTypeName(reader, name, out clrNamespace);
+            name = ResolveTypeName(reader, name, out ClrNamespace clrNamespace);
             return LookupType(name, clrNamespace, typeArguments);
         }
 
@@ -710,8 +690,7 @@ namespace Bonsai
 
         static string ResolveTypeName(XmlReader reader, string value, out ClrNamespace clrNamespace)
         {
-            string prefix;
-            var name = Split(value, ':', out prefix);
+            var name = Split(value, ':', out string prefix);
             var ns = reader.LookupNamespace(prefix);
             if (ns == Constants.XmlNamespace) clrNamespace = ClrNamespace.Default;
             else clrNamespace = ClrNamespace.FromUri(ns);
@@ -720,8 +699,7 @@ namespace Bonsai
 
         static Type ResolveXmlExtension(XmlReader reader, string value, string typeArguments)
         {
-            ClrNamespace clrNamespace;
-            var name = ResolveTypeName(reader, value, out clrNamespace);
+            var name = ResolveTypeName(reader, value, out ClrNamespace clrNamespace);
             if (clrNamespace != ClrNamespace.Default || !string.IsNullOrEmpty(typeArguments))
             {
                 Type[] genericArguments = null;
@@ -1188,8 +1166,7 @@ namespace Bonsai
                 {
                     if (Fragment)
                     {
-                        string typePrefix;
-                        var name = Split(text, ':', out typePrefix);
+                        var name = Split(text, ':', out string typePrefix);
                         if (fragmentPrefixMap.TryGetValue(typePrefix, out typePrefix))
                         {
                             text = typePrefix + ":" + name;
@@ -1200,9 +1177,8 @@ namespace Bonsai
                         Fragment = true;
                     }
 
-                    GenericTypeCode type;
                     var typeName = XmlConvert.DecodeName(text);
-                    if (genericTypes.TryGetValue(typeName, out type))
+                    if (genericTypes.TryGetValue(typeName, out GenericTypeCode type))
                     {
                         text = EncodeGenericType(type);
                         if (type.TypeArguments.Length > 0)
@@ -1259,8 +1235,7 @@ namespace Bonsai
 
             internal static Assembly ResolveAssembly(AssemblyName assemblyName)
             {
-                string assemblyString;
-                if (FrameworkAssemblyNames.TryGetValue(assemblyName.Name, out assemblyString))
+                if (FrameworkAssemblyNames.TryGetValue(assemblyName.Name, out string assemblyString))
                 {
                     return Assembly.Load(assemblyString);
                 }
@@ -1279,8 +1254,7 @@ namespace Bonsai
 
             public static ClrNamespace FromUri(string clrNamespace)
             {
-                string prefix;
-                var path = Split(clrNamespace, ':', out prefix);
+                var path = Split(clrNamespace, ':', out string prefix);
                 if (prefix != SchemePrefix)
                 {
                     throw new ArgumentException(Resources.Exception_InvalidTypeNamespace, "clrNamespace");
@@ -1305,12 +1279,7 @@ namespace Bonsai
 
             public override bool Equals(object obj)
             {
-                if (obj is ClrNamespace)
-                {
-                    return Equals((ClrNamespace)obj);
-                }
-
-                return false;
+                return obj is ClrNamespace ? Equals((ClrNamespace)obj) : false;
             }
 
             public bool Equals(ClrNamespace other)

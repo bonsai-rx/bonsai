@@ -38,7 +38,7 @@ namespace Bonsai
 
     abstract class StopwatchScheduler : LocalScheduler
     {
-        IScheduler scheduler;
+        readonly IScheduler scheduler;
 
         internal StopwatchScheduler(IScheduler scheduler)
         {
@@ -47,10 +47,7 @@ namespace Bonsai
 
         public override DateTimeOffset Now
         {
-            get
-            {
-                return HighResolutionScheduler.Now;
-            }
+            get { return HighResolutionScheduler.Now; }
         }
 
         public override IDisposable Schedule<TState>(TState state, DateTimeOffset dueTime, Func<IScheduler, TState, IDisposable> action)

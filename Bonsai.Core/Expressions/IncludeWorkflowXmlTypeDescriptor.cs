@@ -9,8 +9,8 @@ namespace Bonsai.Expressions
 {
     class IncludeWorkflowXmlTypeDescriptor : CustomTypeDescriptor
     {
-        AttributeCollection attributes;
-        IncludeWorkflowBuilder includeBuilder;
+        readonly AttributeCollection attributes;
+        readonly IncludeWorkflowBuilder includeBuilder;
         static readonly Attribute[] EmptyAttributes = new Attribute[0];
 
         public IncludeWorkflowXmlTypeDescriptor(IncludeWorkflowBuilder builder, params Attribute[] attrs)
@@ -40,7 +40,7 @@ namespace Bonsai.Expressions
 
         class XmlPropertyDescriptor : PropertyDescriptor
         {
-            int propertyIndex;
+            readonly int propertyIndex;
 
             public XmlPropertyDescriptor(XName name, int index, params Attribute[] attrs)
                 : base(name.LocalName, attrs)
@@ -90,10 +90,9 @@ namespace Bonsai.Expressions
 
             public override void SetValue(object component, object value)
             {
-                var element = value as XElement;
-                if (element == null)
+                if (!(value is XElement element))
                 {
-                    throw new ArgumentException("Incompatible types found in workflow property assignment.", "value");
+                    throw new ArgumentException("Incompatible types found in workflow property assignment.", nameof(value));
                 }
 
                 var xmlProperties = GetXmlProperties(component);
@@ -182,8 +181,7 @@ namespace Bonsai.Expressions
 
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                var data = value as string;
-                if (data != null)
+                if (value is string data)
                 {
                     return new XProperty(data);
                 }

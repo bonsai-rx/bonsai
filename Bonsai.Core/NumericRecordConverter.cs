@@ -31,7 +31,7 @@ namespace Bonsai
 
         FieldInfo[] GetRecordFields(Type type)
         {
-            return fieldCache ?? (fieldCache = GetRecordType(type).GetFields(BindingFlags.Instance | BindingFlags.Public));
+            return fieldCache ??= GetRecordType(type).GetFields(BindingFlags.Instance | BindingFlags.Public);
         }
 
         /// <summary>
@@ -63,12 +63,11 @@ namespace Bonsai
         /// <param name="culture">
         /// The <see cref="CultureInfo"/> to use as the current culture.
         /// </param>
-        /// <param name="value">The <see cref="Object"/> to convert.</param>
-        /// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+        /// <param name="value">The <see cref="object"/> to convert.</param>
+        /// <returns>An <see cref="object"/> that represents the converted value.</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            var valueString = value as string;
-            if (valueString != null && context != null)
+            if (value is string valueString && context != null)
             {
                 valueString = valueString.Trim();
                 var propertyType = context.PropertyDescriptor.PropertyType;
@@ -109,9 +108,9 @@ namespace Bonsai
         /// A <see cref="CultureInfo"/>. If <b>null</b> is passed, the current culture
         /// is assumed.
         /// </param>
-        /// <param name="value">The <see cref="Object"/> to convert.</param>
+        /// <param name="value">The <see cref="object"/> to convert.</param>
         /// <param name="destinationType">The <see cref="Type"/> to convert the value parameter to.</param>
-        /// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+        /// <returns>An <see cref="object"/> that represents the converted value.</returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (value != null && destinationType == typeof(string))
@@ -135,7 +134,7 @@ namespace Bonsai
         /// </param>
         /// <param name="propertyValues">An <see cref="IDictionary"/> of new property values.</param>
         /// <returns>
-        /// An <see cref="Object"/> representing the given <see cref="IDictionary"/>,
+        /// An <see cref="object"/> representing the given <see cref="IDictionary"/>,
         /// or <b>null</b> if the object cannot be created.
         /// </returns>
         public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
@@ -177,7 +176,7 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <returns>
-        /// <b>true</b> if <see cref="TypeConverter.GetProperties(Object)"/> should be called
+        /// <b>true</b> if <see cref="TypeConverter.GetProperties(object)"/> should be called
         /// to find the properties of this object; otherwise, <b>false</b>.
         /// </returns>
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
@@ -193,7 +192,7 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <param name="value">
-        /// An <see cref="Object"/> that specifies the type of numeric record for which to get properties.
+        /// An <see cref="object"/> that specifies the type of numeric record for which to get properties.
         /// </param>
         /// <param name="attributes">
         /// An array of type <see cref="Attribute"/> that is used as a filter.
@@ -218,8 +217,8 @@ namespace Bonsai
 
         class FieldPropertyDescriptor : SimplePropertyDescriptor
         {
-            FieldInfo field;
-            ITypeDescriptorContext recordContext;
+            readonly FieldInfo field;
+            readonly ITypeDescriptorContext recordContext;
 
             public FieldPropertyDescriptor(Type componentType, FieldInfo fieldInfo, ITypeDescriptorContext context)
                 : base(componentType, fieldInfo.Name, fieldInfo.FieldType)
@@ -248,7 +247,7 @@ namespace Bonsai
         /// </summary>
         protected class PropertyDescriptorWrapper : SimplePropertyDescriptor
         {
-            PropertyDescriptor descriptor;
+            readonly PropertyDescriptor descriptor;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="PropertyDescriptorWrapper"/> class.

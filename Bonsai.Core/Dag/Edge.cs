@@ -40,13 +40,8 @@ namespace Bonsai.Dag
         /// <param name="label">The value of the edge label.</param>
         public Edge(Node<TNodeValue, TEdgeLabel> target, TEdgeLabel label)
         {
-            if (target == null)
-            {
-                throw new ArgumentNullException("target");
-            }
-
             Label = label;
-            Target = target;
+            Target = target ?? throw new ArgumentNullException(nameof(target));
         }
 
         /// <summary>
@@ -70,8 +65,7 @@ namespace Bonsai.Dag
         /// </returns>
         public override bool Equals(object obj)
         {
-            var edge = obj as Edge<TNodeValue, TEdgeLabel>;
-            if (edge == null) return false;
+            if (!(obj is Edge<TNodeValue, TEdgeLabel> edge)) return false;
             return Target == edge.Target && EqualityComparer<TEdgeLabel>.Default.Equals(Label, edge.Label);
         }
 
@@ -92,7 +86,7 @@ namespace Bonsai.Dag
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{{Label = {0}, Target = {1}}}", Label, Target);
+            return $"{{Label = {Label}, Target = {Target}}}";
         }
     }
 }

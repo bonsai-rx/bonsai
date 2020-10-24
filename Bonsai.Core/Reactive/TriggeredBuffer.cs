@@ -36,7 +36,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of buffer time span.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("TimeSpan")]
+        [XmlElement(nameof(TimeSpan))]
         public string TimeSpanXml
         {
             get

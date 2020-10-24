@@ -102,10 +102,9 @@ namespace Bonsai.Reactive
                 return 1;
             }
 
-            var accumulator = other as ElementAccumulation<TAccumulation, TElement>;
-            if (accumulator == null)
+            if (!(other is ElementAccumulation<TAccumulation, TElement> accumulator))
             {
-                throw new ArgumentException(string.Format("Argument must be of type {0}.", GetType()), "other");
+                throw new ArgumentException(string.Format("Argument must be of type {0}.", GetType()), nameof(other));
             }
 
             var result = comparer.Compare(accumulation, accumulator.accumulation);
@@ -122,7 +121,7 @@ namespace Bonsai.Reactive
         /// </returns>
         public override string ToString()
         {
-            return string.Format("(A:{0}, V:{1})", accumulation, value);
+            return $"(A:{accumulation}, V:{value})";
         }
     }
 }

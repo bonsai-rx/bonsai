@@ -68,9 +68,9 @@ namespace Bonsai.Expressions
                 if (source != null)
                 {
                     var sourceType = source.Type.GetGenericArguments()[0];
-                    return Expression.Call(typeof(CreateAsyncBuilder), "Process", new[] { sourceType, resultType }, source, factory);
+                    return Expression.Call(typeof(CreateAsyncBuilder), nameof(Process), new[] { sourceType, resultType }, source, factory);
                 }
-                else return Expression.Call(typeof(CreateAsyncBuilder), "Process", new[] { resultType }, factory);
+                else return Expression.Call(typeof(CreateAsyncBuilder), nameof(Process), new[] { resultType }, factory);
             });
         }
 

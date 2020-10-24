@@ -199,8 +199,9 @@ namespace Bonsai.Expressions
         {
             var descriptors = Array.ConvertAll(properties, property =>
             {
-                var externalizedDescriptor = property as ExternalizedPropertyDescriptor;
-                return externalizedDescriptor != null ? externalizedDescriptor.Convert(converter) : converter(property);
+                return property is ExternalizedPropertyDescriptor externalizedDescriptor
+                    ? externalizedDescriptor.Convert(converter)
+                    : converter(property);
             });
             return new ExternalizedPropertyDescriptor(this, descriptors);
         }
@@ -235,8 +236,7 @@ namespace Bonsai.Expressions
                         return GetDefaultAttribute(attributeType);
                     }
 
-                    Attribute attribute;
-                    if (searchCache != null && searchCache.TryGetValue(attributeType, out attribute))
+                    if (searchCache != null && searchCache.TryGetValue(attributeType, out Attribute attribute))
                     {
                         return attribute;
                     }

@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents an observable sequence that periodically produces a value after the
     /// specified initial relative due time has elapsed.
     /// </summary>
-    [DefaultProperty("DueTime")]
+    [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Generates an observable sequence that periodically produces a value after the specified initial relative due time has elapsed.")]
     public class Timer : Source<long>
@@ -36,7 +36,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the due time.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }
@@ -47,7 +47,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the period.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Period")]
+        [XmlElement(nameof(Period))]
         public string PeriodXml
         {
             get { return XmlConvert.ToString(Period); }

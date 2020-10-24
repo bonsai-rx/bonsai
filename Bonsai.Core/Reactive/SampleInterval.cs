@@ -11,7 +11,7 @@ namespace Bonsai.Reactive
     /// sampling tick, the latest element (if any) in the source sequence during the last sampling
     /// interval is sent to the resulting sequence.
     /// </summary>
-    [DefaultProperty("Interval")]
+    [DefaultProperty(nameof(Interval))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Samples the latest element of the sequence each time the specified interval elapses.")]
     public class SampleInterval : Combinator
@@ -28,7 +28,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the interval.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Interval")]
+        [XmlElement(nameof(Interval))]
         public string IntervalXml
         {
             get { return XmlConvert.ToString(Interval); }

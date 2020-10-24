@@ -9,7 +9,6 @@ namespace Bonsai.Expressions
 {
     class BuildContext : IBuildContext
     {
-        IBuildContext parent;
         Expression buildResult;
         VariableCollection variables;
 
@@ -20,12 +19,7 @@ namespace Bonsai.Expressions
 
         public BuildContext(IBuildContext parentContext)
         {
-            if (parentContext == null)
-            {
-                throw new ArgumentNullException("parentContext");
-            }
-
-            parent = parentContext;
+            ParentContext = parentContext ?? throw new ArgumentNullException(nameof(parentContext));
             BuildTarget = parentContext.BuildTarget;
         }
 
@@ -37,17 +31,14 @@ namespace Bonsai.Expressions
             set
             {
                 buildResult = value;
-                if (parent != null)
+                if (ParentContext != null)
                 {
-                    parent.BuildResult = buildResult;
+                    ParentContext.BuildResult = buildResult;
                 }
             }
         }
 
-        public IBuildContext ParentContext
-        {
-            get { return parent; }
-        }
+        public IBuildContext ParentContext { get; }
 
         public ParameterExpression AddVariable(string name, Expression expression)
         {
@@ -60,7 +51,7 @@ namespace Bonsai.Expressions
             {
                 throw new ArgumentException(
                     string.Format("A variable with the specified name '{0}' already exists.", name),
-                    "name");
+                    nameof(name));
             }
 
             var variable = new Variable(name, expression);
@@ -72,13 +63,13 @@ namespace Bonsai.Expressions
         {
             if (variables == null || !variables.Contains(name))
             {
-                if (parent != null)
+                if (ParentContext != null)
                 {
-                    return parent.GetVariable(name);
+                    return ParentContext.GetVariable(name);
                 }
                 else throw new ArgumentException(
                     string.Format("The specified variable '{0}' was not found in the current build context.", name),
-                    "name");
+                    nameof(name));
             }
 
             return variables[name].Parameter;
@@ -97,7 +88,7 @@ namespace Bonsai.Expressions
             var disposableExpression = Expression.New(disposableConstructor, Expression.NewArrayInit(typeof(IDisposable), parameters));
             var finallyExpression = (Expression)Expression.Call(
                 typeof(BuildContext),
-                "Finally",
+                nameof(Finally),
                 new[] { sourceType },
                 source, disposableExpression);
             return Expression.Block(

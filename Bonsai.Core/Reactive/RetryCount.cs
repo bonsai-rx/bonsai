@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that repeats an observable sequence the specified
     /// number of times or until it successfully terminates.
     /// </summary>
-    [DefaultProperty("Count")]
+    [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Repeats the observable sequence the specified number of times or until it successfully terminates.")]
     public class RetryCount : Combinator

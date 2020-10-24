@@ -16,10 +16,10 @@ namespace Bonsai.Reactive
     {
         /// <summary>
         /// Returns the maximum value in an observable sequence of nullable
-        /// <see cref="Decimal"/> values.
+        /// <see cref="decimal"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of nullable <see cref="Decimal"/> values to determine the
+        /// A sequence of nullable <see cref="decimal"/> values to determine the
         /// maximum value of.
         /// </param>
         /// <returns>
@@ -32,11 +32,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the maximum value in an observable sequence of <see cref="Decimal"/>
+        /// Returns the maximum value in an observable sequence of <see cref="decimal"/>
         /// values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Decimal"/> values to determine the maximum value of.
+        /// A sequence of <see cref="decimal"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the maximum value
@@ -49,10 +49,10 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Returns the maximum value in an observable sequence of nullable
-        /// <see cref="Double"/> values.
+        /// <see cref="double"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of nullable <see cref="Double"/> values to determine the
+        /// A sequence of nullable <see cref="double"/> values to determine the
         /// maximum value of.
         /// </param>
         /// <returns>
@@ -65,11 +65,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the maximum value in an observable sequence of <see cref="Double"/>
+        /// Returns the maximum value in an observable sequence of <see cref="double"/>
         /// values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Double"/> values to determine the maximum value of.
+        /// A sequence of <see cref="double"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the maximum value
@@ -82,10 +82,10 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Returns the maximum value in an observable sequence of nullable
-        /// <see cref="Single"/> values.
+        /// <see cref="float"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of nullable <see cref="Single"/> values to determine the
+        /// A sequence of nullable <see cref="float"/> values to determine the
         /// maximum value of.
         /// </param>
         /// <returns>
@@ -98,11 +98,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the maximum value in an observable sequence of <see cref="Single"/>
+        /// Returns the maximum value in an observable sequence of <see cref="float"/>
         /// values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Single"/> values to determine the maximum value of.
+        /// A sequence of <see cref="float"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the maximum value
@@ -115,10 +115,10 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Returns the maximum value in an observable sequence of nullable
-        /// <see cref="Int32"/> values.
+        /// <see cref="int"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of nullable <see cref="Int32"/> values to determine the
+        /// A sequence of nullable <see cref="int"/> values to determine the
         /// maximum value of.
         /// </param>
         /// <returns>
@@ -131,11 +131,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the maximum value in an observable sequence of <see cref="Int32"/>
+        /// Returns the maximum value in an observable sequence of <see cref="int"/>
         /// values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int32"/> values to determine the maximum value of.
+        /// A sequence of <see cref="int"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the maximum value
@@ -148,10 +148,10 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Returns the maximum value in an observable sequence of nullable
-        /// <see cref="Int64"/> values.
+        /// <see cref="long"/> values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of nullable <see cref="Int64"/> values to determine the
+        /// A sequence of nullable <see cref="long"/> values to determine the
         /// maximum value of.
         /// </param>
         /// <returns>
@@ -164,11 +164,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the maximum value in an observable sequence of <see cref="Int64"/>
+        /// Returns the maximum value in an observable sequence of <see cref="long"/>
         /// values.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="Int64"/> values to determine the maximum value of.
+        /// A sequence of <see cref="long"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
         /// An observable sequence containing a single element with the maximum value

@@ -17,7 +17,7 @@ namespace Bonsai
         /// this attribute is bound to.
         /// </param>
         public TypeVisualizerAttribute(Type visualizer)
-            : this(visualizer != null ? visualizer.AssemblyQualifiedName : null)
+            : this(visualizer?.AssemblyQualifiedName)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Bonsai
         /// specified visualizer type name.
         /// </summary>
         /// <param name="visualizerTypeName">
-        /// A <see cref="String"/> specifying the assembly qualified name of a visualizer that can
+        /// A <see cref="string"/> specifying the assembly qualified name of a visualizer that can
         /// be used to display the type this attribute is bound to.
         /// </param>
         public TypeVisualizerAttribute(string visualizerTypeName)
@@ -50,7 +50,7 @@ namespace Bonsai
         public Type Target
         {
             get { return Type.GetType(TargetTypeName); }
-            set { TargetTypeName = value != null ? value.AssemblyQualifiedName : null; }
+            set { TargetTypeName = value?.AssemblyQualifiedName; }
         }
     }
 }

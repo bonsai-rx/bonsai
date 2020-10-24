@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that returns the specified number of contiguous elements
     /// from the start of an observable sequence.
     /// </summary>
-    [DefaultProperty("Count")]
+    [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the specified number of contiguous elements from the start of the sequence.")]
     public class Take : Combinator

@@ -65,7 +65,7 @@ namespace Bonsai.Expressions
                     throw new InvalidOperationException("The specified condition workflow must have a single boolean output.");
                 }
 
-                return Expression.Call(GetType(), "Process", source.Type.GetGenericArguments(), source, selector);
+                return Expression.Call(GetType(), nameof(Process), source.Type.GetGenericArguments(), source, selector);
             });
         }
 

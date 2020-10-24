@@ -33,12 +33,12 @@ namespace Bonsai
         {
             if (comparer == null)
             {
-                throw new ArgumentNullException("comparer");
+                throw new ArgumentNullException(nameof(comparer));
             }
 
             if (comparer.Compare(lowerBound, upperBound) > 0)
             {
-                throw new ArgumentException("Lower bound must be lower or equal to upper bound.", "lowerBound");
+                throw new ArgumentException("Lower bound must be lower or equal to upper bound.", nameof(lowerBound));
             }
 
             LowerBound = lowerBound;
@@ -71,15 +71,15 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of this <see cref="Range{TValue}"/>.
+        /// Creates a <see cref="string"/> representation of this <see cref="Range{TValue}"/>.
         /// </summary>
         /// <returns>
-        /// A <see cref="String"/> containing the <see cref="LowerBound"/> and
+        /// A <see cref="string"/> containing the <see cref="LowerBound"/> and
         /// <see cref="UpperBound"/> values of this <see cref="Range{TValue}"/>.
         /// </returns>
         public override string ToString()
         {
-            return string.Format("[{0}, {1}]", LowerBound, UpperBound);
+            return $"[{LowerBound}, {UpperBound}]";
         }
     }
 

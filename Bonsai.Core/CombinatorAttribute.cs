@@ -28,7 +28,7 @@ namespace Bonsai
         /// from this combinator.
         /// </param>
         public CombinatorAttribute(Type builderType)
-            : this(builderType != null ? builderType.AssemblyQualifiedName : null)
+            : this(builderType?.AssemblyQualifiedName)
         {
         }
 

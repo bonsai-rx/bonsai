@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that projects each element of an observable sequence into zero
     /// or more windows based on timing information.
     /// </summary>
-    [DefaultProperty("TimeSpan")]
+    [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into zero or more windows based on timing information.")]
     public class TimeSpanWindow : WindowCombinator
@@ -33,7 +33,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of window time span.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("TimeSpan")]
+        [XmlElement(nameof(TimeSpan))]
         public string TimeSpanXml
         {
             get { return XmlConvert.ToString(TimeSpan); }
@@ -44,7 +44,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of window interval.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("TimeShift")]
+        [XmlElement(nameof(TimeShift))]
         public string TimeShiftXml
         {
             get

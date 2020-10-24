@@ -50,11 +50,10 @@ namespace Bonsai.Dag
                         }
                         else
                         {
-                            NodeMark successorMark;
                             stack.Push(current.Node, current.Index + 1);
                             var successorIndex = successors.Count - current.Index - 1;
                             var successor = successors[successorIndex].Target;
-                            if (marks.TryGetValue(successor, out successorMark))
+                            if (marks.TryGetValue(successor, out NodeMark successorMark))
                             {
                                 if (successorMark.Flag == TemporaryMark)
                                 {
@@ -123,18 +122,14 @@ namespace Bonsai.Dag
         class ComponentOrdering
         {
             readonly List<NodeOrdering> orderingStack;
-            readonly int index;
 
             public ComponentOrdering(int componentIndex)
             {
                 orderingStack = new List<NodeOrdering>();
-                index = componentIndex;
+                Index = componentIndex;
             }
 
-            public int Index
-            {
-                get { return index; }
-            }
+            public int Index { get; }
 
             public void Add(NodeOrdering ordering)
             {

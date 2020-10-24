@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
         {
             if (objectType != typeof(PropertySource) && instance != null)
             {
-                var parentDescriptor = base.GetTypeDescriptor(typeof(PropertySource));
+                var parentDescriptor = GetTypeDescriptor(typeof(PropertySource));
                 return new PropertySourceTypeDescriptor(instance, parentDescriptor);
             }
 
@@ -26,16 +26,16 @@ namespace Bonsai.Expressions
         class PropertySourceTypeDescriptor : CustomTypeDescriptor
         {
             static readonly Attribute[] emptyAttributes = new Attribute[0];
-            PropertyDescriptorCollection parentProperties;
-            PropertyDescriptor valuePropertyDescriptor;
-            PropertySource propertySource;
+            readonly PropertyDescriptorCollection parentProperties;
+            readonly PropertyDescriptor valuePropertyDescriptor;
+            readonly PropertySource propertySource;
 
             public PropertySourceTypeDescriptor(object instance, ICustomTypeDescriptor parent)
                 : base(parent)
             {
                 if (instance == null)
                 {
-                    throw new ArgumentNullException("instance");
+                    throw new ArgumentNullException(nameof(instance));
                 }
 
                 propertySource = (PropertySource)instance;

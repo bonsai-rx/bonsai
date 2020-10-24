@@ -12,12 +12,12 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that applies a string formatting operation on
     /// elements of an observable sequence.
     /// </summary>
-    [DefaultProperty("Selector")]
+    [DefaultProperty(nameof(Selector))]
     [XmlType("Format", Namespace = Constants.XmlNamespace)]
     [Description("Applies a string formatting operation on elements of an observable sequence.")]
     public class FormatBuilder : SelectBuilder
     {
-        static readonly MethodInfo formatMethod = typeof(string).GetMethod("Format", new[] {
+        static readonly MethodInfo formatMethod = typeof(string).GetMethod(nameof(string.Format), new[] {
             typeof(IFormatProvider),
             typeof(string),
             typeof(object[]) });
@@ -51,12 +51,12 @@ namespace Bonsai.Expressions
             var format = Format;
             if (string.IsNullOrEmpty(format))
             {
-                var toStringMethod = expression.Type.GetMethod("ToString", new[] { typeof(IFormatProvider) });
+                var toStringMethod = expression.Type.GetMethod(nameof(ToString), new[] { typeof(IFormatProvider) });
                 if (toStringMethod != null)
                 {
                     return Expression.Call(expression, toStringMethod, Expression.Constant(CultureInfo.InvariantCulture));
                 }
-                else return Expression.Call(expression, "ToString", null);
+                else return Expression.Call(expression, nameof(ToString), null);
             }
 
             var formatExpression = Expression.Constant(format);

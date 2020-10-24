@@ -5,7 +5,7 @@ namespace Bonsai
 {
     /// <summary>
     /// Provides methods for converting between instances of the <see cref="Array"/> class
-    /// and <see cref="String"/>.
+    /// and <see cref="string"/>.
     /// </summary>
     public static class ArrayConvert
     {
@@ -13,7 +13,7 @@ namespace Bonsai
         const string ColumnSeparator = ",";
 
         /// <summary>
-        /// Converts the <see cref="Array"/> to a <see cref="String"/>.
+        /// Converts the <see cref="Array"/> to a <see cref="string"/>.
         /// </summary>
         /// <param name="array">The <see cref="Array"/> to be converted.</param>
         /// <returns>
@@ -26,7 +26,7 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Converts the <see cref="Array"/> to a <see cref="String"/> using the specified
+        /// Converts the <see cref="Array"/> to a <see cref="string"/> using the specified
         /// culture-specific format information.
         /// </summary>
         /// <param name="array">The <see cref="Array"/> to be converted.</param>
@@ -41,7 +41,7 @@ namespace Bonsai
             {
                 if (array.Rank > 2)
                 {
-                    throw new ArgumentException("Array cannot have rank greater than two.", "array");
+                    throw new ArgumentException("Array cannot have rank greater than two.", nameof(array));
                 }
 
                 var text = string.Empty;
@@ -77,7 +77,7 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Converts the <see cref="String"/> to an <see cref="Array"/> equivalent with
+        /// Converts the <see cref="string"/> to an <see cref="Array"/> equivalent with
         /// the specified <paramref name="rank"/> and <paramref name="elementType"/>.
         /// </summary>
         /// <param name="value">The string to convert.</param>
@@ -90,7 +90,7 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Converts the <see cref="String"/> to an <see cref="Array"/> equivalent with
+        /// Converts the <see cref="string"/> to an <see cref="Array"/> equivalent with
         /// the specified <paramref name="rank"/> and <paramref name="elementType"/> using
         /// a <paramref name="provider"/> of culture-specific formatting information.
         /// </summary>
@@ -103,7 +103,7 @@ namespace Bonsai
         {
             if (rank > 2)
             {
-                throw new ArgumentException("Rank cannot be greater than two.", "rank");
+                throw new ArgumentException("Rank cannot be greater than two.", nameof(rank));
             }
 
             if (value != null)
@@ -131,7 +131,7 @@ namespace Bonsai
                         var columns = row.Split(new[] { ColumnSeparator }, StringSplitOptions.RemoveEmptyEntries);
                         if (numColumns != null && numColumns != columns.Length)
                         {
-                            throw new ArgumentException("Matrix specification must be rectangular.", "value");
+                            throw new ArgumentException("Matrix specification must be rectangular.", nameof(value));
                         }
 
                         numColumns = columns.Length;

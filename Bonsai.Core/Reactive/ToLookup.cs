@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that creates a lookup from an observable
     /// sequence according to the specified key, and optional element selector function.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Creats a lookup from an observable sequence according to the specified key.")]
     public class ToLookup : SingleArgumentExpressionBuilder

@@ -11,7 +11,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that defines a simple selector on the elements
     /// of an observable sequence by mapping specified member values into the output data type.
     /// </summary>
-    [DefaultProperty("Selector")]
+    [DefaultProperty(nameof(Selector))]
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
     [Description("Selects inner properties of elements of the sequence and optionally maps them into the specified output type.")]
     public class MemberSelectorBuilder : SelectBuilder, INamedElement, ISerializableElement
@@ -70,7 +70,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            var targetType = TypeMapping != null ? TypeMapping.TargetType : null;
+            var targetType = TypeMapping?.TargetType;
             return BuildTypeMapping(expression, targetType, Selector);
         }
     }

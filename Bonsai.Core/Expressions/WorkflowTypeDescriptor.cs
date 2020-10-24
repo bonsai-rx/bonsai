@@ -6,8 +6,8 @@ namespace Bonsai.Expressions
 {
     class WorkflowTypeDescriptor : CustomTypeDescriptor
     {
-        AttributeCollection attributes;
-        ExpressionBuilderGraph workflow;
+        readonly AttributeCollection attributes;
+        readonly ExpressionBuilderGraph workflow;
         static readonly Attribute[] EmptyAttributes = new Attribute[0];
         static readonly PropertyDescriptor[] EmptyProperties = new PropertyDescriptor[0];
         static readonly Attribute[] ExternalizableAttributes = new Attribute[] { BrowsableAttribute.Yes, ExternalizableAttribute.Default };
@@ -15,8 +15,7 @@ namespace Bonsai.Expressions
         public WorkflowTypeDescriptor(object instance, params Attribute[] attrs)
         {
             attributes = new AttributeCollection(attrs ?? EmptyAttributes);
-            var builder = instance as IWorkflowExpressionBuilder;
-            if (builder != null)
+            if (instance is IWorkflowExpressionBuilder builder)
             {
                 workflow = builder.Workflow;
             }

@@ -5,11 +5,9 @@ namespace Bonsai.Expressions
 {
     class DisableExpression : Expression
     {
-        readonly Expression[] arguments;
-
         public DisableExpression(Expression[] arguments)
         {
-            this.arguments = arguments;
+            Arguments = arguments;
         }
 
         public override ExpressionType NodeType
@@ -22,9 +20,6 @@ namespace Bonsai.Expressions
             get { throw new InvalidOperationException("Unable to evaluate disabled expression. Ensure there are no conflicting inputs to disabled nodes."); }
         }
 
-        public Expression[] Arguments
-        {
-            get { return arguments; }
-        }
+        public Expression[] Arguments { get; }
     }
 }

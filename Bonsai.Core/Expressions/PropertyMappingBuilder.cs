@@ -12,15 +12,13 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that assigns values of an observable sequence
     /// to properties of a workflow element.
     /// </summary>
-    [DefaultProperty("PropertyMappings")]
+    [DefaultProperty(nameof(PropertyMappings))]
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("PropertyMapping", Namespace = Constants.XmlNamespace)]
     [Description("Assigns values of an observable sequence to properties of a workflow element.")]
     [TypeDescriptionProvider(typeof(PropertyMappingTypeDescriptionProvider))]
     public class PropertyMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder
     {
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
-
         /// <summary>
         /// Gets a collection of property mappings that specify how input values are assigned
         /// to properties of the workflow element.
@@ -28,20 +26,17 @@ namespace Bonsai.Expressions
         [XmlArrayItem("Property")]
         [Description("Specifies how input values are assigned to properties of the workflow element.")]
         [Editor("Bonsai.Design.MappingCollectionEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        public PropertyMappingCollection PropertyMappings
-        {
-            get { return propertyMappings; }
-        }
+        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         string INamedElement.Name
         {
             get
             {
-                if (propertyMappings.Count > 0)
+                if (PropertyMappings.Count > 0)
                 {
                     return string.Join(
                         ExpressionHelper.ArgumentSeparator,
-                        propertyMappings.Select(mapping => mapping.Name));
+                        PropertyMappings.Select(mapping => mapping.Name));
                 }
 
                 return GetElementDisplayName(GetType());
@@ -71,7 +66,7 @@ namespace Bonsai.Expressions
             argument = source;
             var workflowElement = GetWorkflowElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
-            foreach (var mapping in propertyMappings)
+            foreach (var mapping in PropertyMappings)
             {
                 argument = BuildPropertyMapping(argument, instance, mapping.Name, mapping.Selector);
             }
@@ -98,7 +93,7 @@ namespace Bonsai.Expressions
 
         internal class PropertyMappingCollectionTypeDescriptor : CustomTypeDescriptor
         {
-            PropertyMappingCollection instance;
+            readonly PropertyMappingCollection instance;
 
             public PropertyMappingCollectionTypeDescriptor(PropertyMappingCollection collection)
             {

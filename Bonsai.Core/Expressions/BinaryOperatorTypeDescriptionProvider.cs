@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
 
         class BinaryOperatorTypeDescriptor : CustomTypeDescriptor
         {
-            BinaryOperatorBuilder builder;
+            readonly BinaryOperatorBuilder builder;
             static readonly Attribute[] valueAttributes = new[]
             {
                 new DescriptionAttribute("The value of the right hand operand in the binary operator.")
@@ -29,7 +29,7 @@ namespace Bonsai.Expressions
             {
                 if (instance == null)
                 {
-                    throw new ArgumentNullException("instance");
+                    throw new ArgumentNullException(nameof(instance));
                 }
 
                 builder = (BinaryOperatorBuilder)instance;

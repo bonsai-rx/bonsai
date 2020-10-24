@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that ensures that only distinct contiguous
     /// elements according to the specified key are propagated.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Ensures that only distinct contiguous elements according to the specified key are propagated.")]
     public class DistinctUntilChangedBy : SingleArgumentExpressionBuilder
@@ -43,7 +43,7 @@ namespace Bonsai.Reactive
             var combinator = Expression.Constant(this);
             return Expression.Call(
                 combinator,
-                "Process",
+                nameof(Process),
                 new[] { parameter.Type, keySelectorLambda.ReturnType },
                 source,
                 keySelectorLambda);

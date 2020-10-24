@@ -9,7 +9,7 @@ namespace Bonsai.Reactive
     /// <summary>
     /// Represents a combinator that extracts a range of elements from an observable sequence.
     /// </summary>
-    [DefaultProperty("Step")]
+    [DefaultProperty(nameof(Step))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Extracts a range of elements from an observable sequence.")]
     public class Slice : Combinator

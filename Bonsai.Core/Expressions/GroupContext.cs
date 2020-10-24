@@ -5,17 +5,11 @@ namespace Bonsai.Expressions
 {
     class GroupContext : IBuildContext
     {
-        IBuildContext parent;
         Expression buildResult;
 
         public GroupContext(IBuildContext parentContext)
         {
-            if (parentContext == null)
-            {
-                throw new ArgumentNullException("parentContext");
-            }
-
-            parent = parentContext;
+            ParentContext = parentContext ?? throw new ArgumentNullException(nameof(parentContext));
             BuildTarget = parentContext.BuildTarget;
         }
 
@@ -27,26 +21,23 @@ namespace Bonsai.Expressions
             set
             {
                 buildResult = value;
-                if (parent != null)
+                if (ParentContext != null)
                 {
-                    parent.BuildResult = buildResult;
+                    ParentContext.BuildResult = buildResult;
                 }
             }
         }
 
-        public IBuildContext ParentContext
-        {
-            get { return parent; }
-        }
+        public IBuildContext ParentContext { get; }
 
         public ParameterExpression AddVariable(string name, Expression expression)
         {
-            return parent.AddVariable(name, expression);
+            return ParentContext.AddVariable(name, expression);
         }
 
         public ParameterExpression GetVariable(string name)
         {
-            return parent.GetVariable(name);
+            return ParentContext.GetVariable(name);
         }
 
         public Expression CloseContext(Expression source)

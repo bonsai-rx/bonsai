@@ -38,7 +38,7 @@ namespace Bonsai
         /// this attribute is bound to.
         /// </param>
         public WorkflowElementIconAttribute(Type type, string name)
-            : this(type != null ? type.AssemblyQualifiedName : null, name)
+            : this(type?.AssemblyQualifiedName, name)
         {
         }
 

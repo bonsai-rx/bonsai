@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that generates a sequence of values
     /// by subscribing to a shared subject.
     /// </summary>
-    [DefaultProperty("Name")]
+    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("SubscribeSubject", Namespace = Constants.XmlNamespace)]
     [Description("Generates a sequence of values by subscribing to a shared subject.")]
@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
             if (string.IsNullOrEmpty(name)) return UndefinedExpression.Instance;
             var subjectExpression = buildContext.GetVariable(name);
 
-            var processMethod = GetType().GetMethod("Process", BindingFlags.Static | BindingFlags.NonPublic);
+            var processMethod = GetType().GetMethod(nameof(Process), BindingFlags.Static | BindingFlags.NonPublic);
             if (processMethod.IsGenericMethod)
             {
                 var typeArgument = subjectExpression.Type.GetGenericArguments()[0];

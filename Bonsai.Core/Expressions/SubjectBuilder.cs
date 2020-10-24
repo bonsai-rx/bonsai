@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that broadcast the values of an observable
     /// sequence to multiple subscribers using a shared subject. This is an abstract class.
     /// </summary>
-    [DefaultProperty("Name")]
+    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("Subject", Namespace = Constants.XmlNamespace)]
     public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
@@ -64,7 +64,7 @@ namespace Bonsai.Expressions
             var subjectFactory = BuildSubject(source);
             var parameterType = source.Type.GetGenericArguments()[0];
             var subjectExpression = buildContext.AddVariable(Name, subjectFactory);
-            return Expression.Call(typeof(SubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
+            return Expression.Call(typeof(SubjectBuilder), nameof(Process), new[] { parameterType }, source, subjectExpression);
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ISubject<TSource> subject)

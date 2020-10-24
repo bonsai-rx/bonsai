@@ -66,7 +66,7 @@ namespace Bonsai
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             var enumerableBindings = ExpressionBuilder.GetParameterBindings(typeof(IEnumerable<>), type);
@@ -85,7 +85,7 @@ namespace Bonsai
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return typeof(System.Collections.IList).IsAssignableFrom(type);
@@ -119,7 +119,7 @@ namespace Bonsai
                     arguments = selectedArguments;
                 }
                 var memberTypes = Array.ConvertAll(arguments, member => member.Type);
-                return Expression.Call(typeof(Tuple), "Create", memberTypes, arguments);
+                return Expression.Call(typeof(Tuple), nameof(Tuple.Create), memberTypes, arguments);
             }
         }
 
@@ -210,7 +210,7 @@ namespace Bonsai
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             if (!string.IsNullOrWhiteSpace(memberPath) && memberPath != ImplicitParameterName)
@@ -221,15 +221,15 @@ namespace Bonsai
                     var memberName = memberNames[i];
                     if (string.IsNullOrEmpty(memberName))
                     {
-                        throw new ArgumentException("Member path contains invalid or duplicate member separator character.", "memberPath");
+                        throw new ArgumentException("Member path contains invalid or duplicate member separator character.", nameof(memberPath));
                     }
 
                     var indexBegin = memberName.IndexOf(IndexBegin);
-                    if (indexBegin == 0) throw new ArgumentException("Index accessor must be preceded by a member name.", "memberPath");
+                    if (indexBegin == 0) throw new ArgumentException("Index accessor must be preceded by a member name.", nameof(memberPath));
                     var propertyName = indexBegin < 0 ? memberName : memberName.Substring(0, indexBegin);
                     if (propertyName != ImplicitParameterName || i > 0)
                     {
-                        instance = ExpressionHelper.PropertyOrField(instance, propertyName);
+                        instance = PropertyOrField(instance, propertyName);
                         if (indexBegin < 0) continue;
                     }
 
@@ -238,7 +238,7 @@ namespace Bonsai
                         var indexEnd = memberName.IndexOf(IndexEnd, indexBegin + 1);
                         if (indexEnd < 0)
                         {
-                            throw new ArgumentException("Member path has badly formatted index accessor.", "memberPath");
+                            throw new ArgumentException("Member path has badly formatted index accessor.", nameof(memberPath));
                         }
 
                         var indexerArguments = memberName
@@ -273,7 +273,7 @@ namespace Bonsai
 
                 throw new ArgumentException(
                     string.Format("'{0}' is not a member of type '{1}'", propertyOrFieldName, instance.Type),
-                    "propertyOrFieldName");
+                    nameof(propertyOrFieldName));
             }
             else return Expression.PropertyOrField(instance, propertyOrFieldName);
         }
@@ -345,12 +345,12 @@ namespace Bonsai
         {
             if (expression == null)
             {
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
             }
 
             if (expression.Type != typeof(string))
             {
-                throw new ArgumentException("The input expression must be a string type.", "expression");
+                throw new ArgumentException("The input expression must be a string type.", nameof(expression));
             }
 
             if (pattern == null)
@@ -397,9 +397,9 @@ namespace Bonsai
             var regex = new Regex(regexPattern.ToString(), RegexOptions.Singleline);
             var regexExpression = Expression.Constant(regex);
             var matchVariable = Expression.Variable(typeof(Match));
-            var matchExpression = Expression.Call(regexExpression, "Match", null, expression);
+            var matchExpression = Expression.Call(regexExpression, nameof(Regex.Match), null, expression);
             var matchAssignment = Expression.Assign(matchVariable, matchExpression);
-            var matchResult = Expression.Property(matchVariable, "Success");
+            var matchResult = Expression.Property(matchVariable, nameof(Match.Success));
             var invariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
 
             var inputValidation = Expression.IfThen(
@@ -410,17 +410,17 @@ namespace Bonsai
             int groupIndex = 1;
             var groupParsers = Array.ConvertAll(typeArguments, tokenType =>
             {
-                var groupExpression = Expression.Property(matchVariable, "Groups");
+                var groupExpression = Expression.Property(matchVariable, nameof(Match.Groups));
                 var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex++));
-                var groupValueExpression = Expression.Property(groupIndexer, "Value");
+                var groupValueExpression = Expression.Property(groupIndexer, nameof(Group.Value));
                 if (tokenType == typeof(string)) return (Expression)groupValueExpression;
                 if (tokenType == typeof(int) || tokenType == typeof(long) ||
                     tokenType == typeof(float) || tokenType == typeof(double) ||
                     tokenType == typeof(DateTimeOffset) || tokenType == typeof(TimeSpan))
                 {
-                    return Expression.Call(tokenType, "Parse", null, groupValueExpression, invariantCulture);
+                    return Expression.Call(tokenType, nameof(int.Parse), null, groupValueExpression, invariantCulture);
                 }
-                else return Expression.Call(tokenType, "Parse", null, groupValueExpression);
+                else return Expression.Call(tokenType, nameof(bool.Parse), null, groupValueExpression);
             });
 
             var matchValidation = Expression.IfThen(
@@ -434,7 +434,7 @@ namespace Bonsai
                 case 0: resultExpression = Expression.Constant(Unit.Default); break;
                 case 1: resultExpression = groupParsers[0]; break;
                 default:
-                    resultExpression = (Expression)Expression.Call(typeof(Tuple), "Create", typeArguments, groupParsers);
+                    resultExpression = (Expression)Expression.Call(typeof(Tuple), nameof(Tuple.Create), typeArguments, groupParsers);
                     break;
             }
 
@@ -445,9 +445,9 @@ namespace Bonsai
                 resultExpression);
         }
 
-        static readonly MethodInfo convertAllMethod = typeof(Array).GetMethod("ConvertAll");
+        static readonly MethodInfo convertAllMethod = typeof(Array).GetMethod(nameof(Array.ConvertAll));
         static readonly MethodInfo splitMethod = (from method in typeof(string).GetMethods()
-                                                  where method.Name == "Split"
+                                                  where method.Name == nameof(string.Split)
                                                   let parameters = method.GetParameters()
                                                   where parameters.Length == 2 && parameters[0].ParameterType == typeof(string[])
                                                   select method).Single();
@@ -479,12 +479,12 @@ namespace Bonsai
         {
             if (expression == null)
             {
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
             }
 
             if (separator == null)
             {
-                throw new ArgumentNullException("separator");
+                throw new ArgumentNullException(nameof(separator));
             }
 
             if (separator.Length > 0)

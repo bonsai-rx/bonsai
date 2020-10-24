@@ -12,8 +12,6 @@ namespace Bonsai.Expressions
     /// </summary>
     public abstract class CombinatorExpressionBuilder : VariableArgumentExpressionBuilder, IPropertyMappingBuilder
     {
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CombinatorExpressionBuilder"/> class
         /// with the specified argument range.
@@ -33,10 +31,7 @@ namespace Bonsai.Expressions
         [Obsolete]
         [Browsable(false)]
         [XmlArrayItem("PropertyMapping")]
-        public PropertyMappingCollection PropertyMappings
-        {
-            get { return propertyMappings; }
-        }
+        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.

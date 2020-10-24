@@ -95,7 +95,7 @@ namespace Bonsai.Expressions
                 {
                     return Expression.Call(
                         typeof(ScanBuilder),
-                        "Scan",
+                        nameof(Scan),
                         new[] { sourceType },
                         source, selector);
                 }
@@ -103,7 +103,7 @@ namespace Bonsai.Expressions
                 {
                     return Expression.Call(
                         typeof(ScanBuilder),
-                        "Scan",
+                        nameof(Scan),
                         new[] { sourceType, seedType },
                         source,
                         seed,

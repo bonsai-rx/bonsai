@@ -50,8 +50,7 @@ namespace Bonsai.Expressions
 
         void UpdateArgumentRange()
         {
-            var combinatorBuilder = combinator as ExpressionBuilder;
-            if (combinatorBuilder != null)
+            if (combinator is ExpressionBuilder combinatorBuilder)
             {
                 var range = combinatorBuilder.ArgumentRange;
                 SetArgumentRange(range.LowerBound, range.UpperBound);
@@ -123,8 +122,7 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var combinatorBuilder = combinator as ExpressionBuilder;
-            if (combinatorBuilder != null)
+            if (combinator is ExpressionBuilder combinatorBuilder)
             {
                 return combinatorBuilder.Build(arguments);
             }

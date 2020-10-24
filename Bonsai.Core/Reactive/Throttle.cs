@@ -10,7 +10,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that ignores elements from an observable sequence which
     /// are followed by another element before the specified duration elapses.
     /// </summary>
-    [DefaultProperty("DueTime")]
+    [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Ignores elements from the sequence which are followed by another element before the specified duration elapses.")]
     public class Throttle : Combinator
@@ -26,7 +26,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the throttling duration.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }

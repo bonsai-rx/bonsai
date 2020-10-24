@@ -46,7 +46,7 @@ namespace Bonsai.Expressions
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 var sourceType = source.Type.GetGenericArguments()[0];
                 var resultType = selector.ReturnType.GetGenericArguments()[0];
-                return Expression.Call(builder, "Multicast", new[] { sourceType, resultType }, source, selector);
+                return Expression.Call(builder, nameof(Multicast), new[] { sourceType, resultType }, source, selector);
             });
         }
 

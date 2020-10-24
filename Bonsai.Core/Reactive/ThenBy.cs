@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that sorts the elements of the input enumerable
     /// sequences according to the specified key.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Performs a subsequent ordering of the elements of the input enumerable sequences, in ascending order.")]
     public class ThenBy : SingleArgumentExpressionBuilder
@@ -49,7 +49,7 @@ namespace Bonsai.Reactive
             var combinator = Expression.Constant(this);
             return Expression.Call(
                 combinator,
-                "Process",
+                nameof(Process),
                 new[] { parameter.Type, keySelectorLambda.ReturnType },
                 source,
                 keySelectorLambda);

@@ -86,11 +86,7 @@ namespace Bonsai.Expressions
 
         void OnValueChanged(TValue value)
         {
-            var handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            ValueChanged?.Invoke(value);
         }
 
         internal override Type ElementType

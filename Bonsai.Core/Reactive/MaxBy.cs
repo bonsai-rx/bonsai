@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that returns the elements in the observable
     /// sequence with the maximum key value.
     /// </summary>
-    [DefaultProperty("KeySelector")]
+    [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the elements in the observable sequence with the maximum key value.")]
     public class MaxBy : SingleArgumentExpressionBuilder

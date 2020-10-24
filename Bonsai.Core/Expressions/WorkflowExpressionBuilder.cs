@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that generate their output by means
     /// of an encapsulated workflow.
     /// </summary>
-    [DefaultProperty("Name")]
+    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
@@ -20,7 +20,6 @@ namespace Bonsai.Expressions
     {
         IBuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WorkflowExpressionBuilder"/> class.
@@ -40,12 +39,7 @@ namespace Bonsai.Expressions
         /// </param>
         protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
         {
-            if (workflow == null)
-            {
-                throw new ArgumentNullException("workflow");
-            }
-
-            this.workflow = workflow;
+            this.workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
         }
 
         /// <summary>
@@ -105,10 +99,7 @@ namespace Bonsai.Expressions
         [Obsolete]
         [Browsable(false)]
         [XmlArrayItem("PropertyMapping")]
-        public PropertyMappingCollection PropertyMappings
-        {
-            get { return propertyMappings; }
-        }
+        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         /// <summary>
         /// Gets the range of input arguments that this expression builder accepts.

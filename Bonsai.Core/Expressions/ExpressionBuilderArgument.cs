@@ -67,7 +67,7 @@ namespace Bonsai.Expressions
             {
                 if (!value.StartsWith(ArgumentNamePrefix))
                 {
-                    throw new ArgumentException(string.Format("Argument name prefix must start with '{0}'.", ArgumentNamePrefix), "value");
+                    throw new ArgumentException(string.Format("Argument name prefix must start with '{0}'.", ArgumentNamePrefix), nameof(value));
                 }
 
                 int index;
@@ -75,7 +75,7 @@ namespace Bonsai.Expressions
                 if (string.IsNullOrEmpty(indexString)) index = 1;
                 else if (!int.TryParse(indexString, out index))
                 {
-                    throw new ArgumentException("Argument name has an incorrect format.", "value");
+                    throw new ArgumentException("Argument name has an incorrect format.", nameof(value));
                 }
 
                 Index = index - 1;
@@ -94,7 +94,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public int CompareTo(ExpressionBuilderArgument other)
         {
-            if (object.ReferenceEquals(other, null))
+            if (other is null)
             {
                 return 1;
             }
@@ -152,11 +152,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static bool operator ==(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
-            if (object.ReferenceEquals(left, null))
-            {
-                return object.ReferenceEquals(right, null);
-            }
-
+            if (left is null) return right is null;
             return left.Equals(right);
         }
 
@@ -171,11 +167,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static bool operator !=(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
-            if (object.ReferenceEquals(left, null))
-            {
-                return !object.ReferenceEquals(right, null);
-            }
-
+            if (left is null) return right is object;
             return !left.Equals(right);
         }
 
@@ -195,11 +187,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static bool operator <(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
-            if (object.ReferenceEquals(left, null))
-            {
-                return !object.ReferenceEquals(right, null);
-            }
-
+            if (left is null) return right is object;
             return left.CompareTo(right) < 0;
         }
 
@@ -219,11 +207,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static bool operator >(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
-            if (object.ReferenceEquals(left, null))
-            {
-                return false;
-            }
-
+            if (left is null) return false;
             return left.CompareTo(right) > 0;
         }
     }

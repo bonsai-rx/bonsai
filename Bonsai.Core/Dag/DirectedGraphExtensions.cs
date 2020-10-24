@@ -24,12 +24,12 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (!source.Contains(node))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "node");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(node));
             }
 
             foreach (var predecessor in source)
@@ -62,12 +62,12 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (!source.Contains(node))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "node");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(node));
             }
 
             foreach (var predecessor in source)
@@ -103,12 +103,12 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (!source.Contains(node))
             {
-                throw new ArgumentException("The specified node does not belong to the graph.", "node");
+                throw new ArgumentException("The specified node does not belong to the graph.", nameof(node));
             }
 
             foreach (var successor in node.Successors)
@@ -131,7 +131,7 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             foreach (var node in source)
@@ -157,7 +157,7 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             foreach (var node in source)
@@ -205,7 +205,7 @@ namespace Bonsai.Dag
         {
             if (node == null)
             {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
@@ -227,7 +227,7 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
@@ -252,11 +252,10 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
-            IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder;
-            if (!Bonsai.Dag.TopologicalSort.TrySort(source, out topologicalOrder))
+            if (!Dag.TopologicalSort.TrySort(source, out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder))
             {
                 return Enumerable.Empty<Node<TNodeValue, TEdgeLabel>>();
             }
@@ -276,11 +275,10 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
-            IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder;
-            return source.Count == 0 || Bonsai.Dag.TopologicalSort.TrySort(source, out topologicalOrder);
+            return source.Count == 0 || Dag.TopologicalSort.TrySort(source, out _);
         }
 
         /// <summary>
@@ -295,7 +293,7 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             var descriptor = new DirectedGraphDescriptor<TNodeValue, TEdgeLabel>();
@@ -315,12 +313,12 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (descriptor == null)
             {
-                throw new ArgumentNullException("descriptor");
+                throw new ArgumentNullException(nameof(descriptor));
             }
 
             var nodes = source.ToArray();
@@ -360,12 +358,12 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (descriptor == null)
             {
-                throw new ArgumentNullException("descriptor");
+                throw new ArgumentNullException(nameof(descriptor));
             }
 
             var nodes = descriptor.Nodes.Select(value => source.Add(value)).ToArray();
@@ -392,7 +390,7 @@ namespace Bonsai.Dag
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             var graph = new DirectedGraph<TNodeValue, TEdgeLabel>();

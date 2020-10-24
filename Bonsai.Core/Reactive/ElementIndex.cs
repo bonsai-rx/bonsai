@@ -84,19 +84,14 @@ namespace Bonsai.Reactive
         /// Tests to see whether the specified object is an <see cref="ElementIndex{T}"/> structure
         /// with the same value and index as this <see cref="ElementIndex{T}"/> structure.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to test.</param>
+        /// <param name="obj">The <see cref="object"/> to test.</param>
         /// <returns>
         /// <b>true</b> if <paramref name="obj"/> is an <see cref="ElementIndex{T}"/> and has the
         /// same value and index as this <see cref="ElementIndex{T}"/>; otherwise, <b>false</b>.
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is ElementIndex<T>)
-            {
-                return Equals((ElementIndex<T>)obj);
-            }
-
-            return false;
+            return obj is ElementIndex<T> ? Equals((ElementIndex<T>)obj) : false;
         }
 
         /// <summary>
@@ -109,16 +104,16 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of this <see cref="ElementIndex{T}"/>
+        /// Creates a <see cref="string"/> representation of this <see cref="ElementIndex{T}"/>
         /// structure.
         /// </summary>
         /// <returns>
-        /// A <see cref="String"/> containing the <see cref="Value"/> and <see cref="Index"/>
+        /// A <see cref="string"/> containing the <see cref="Value"/> and <see cref="Index"/>
         /// properties of this <see cref="ElementIndex{T}"/> structure.
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}@{1}", value, index);
+            return $"{value}@{index}";
         }
 
         /// <summary>

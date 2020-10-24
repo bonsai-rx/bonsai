@@ -16,12 +16,10 @@ namespace Bonsai.Expressions
         {
             foreach (var node in source)
             {
-                var inspectBuilder = node.Value as InspectBuilder;
-                if (inspectBuilder == null) continue;
+                if (!(node.Value is InspectBuilder inspectBuilder)) continue;
                 yield return inspectBuilder;
 
-                var groupBuilder = inspectBuilder.Builder as IGroupWorkflowBuilder;
-                if (groupBuilder != null)
+                if (inspectBuilder.Builder is IGroupWorkflowBuilder groupBuilder)
                 {
                     var workflow = groupBuilder.Workflow;
                     if (workflow == null) continue;
@@ -44,11 +42,9 @@ namespace Bonsai.Expressions
             foreach (var inspectBuilder in SelectContextElements(source))
             {
                 var element = inspectBuilder.Builder;
-                var groupBuilder = element as IGroupWorkflowBuilder;
-                if (groupBuilder != null && groupBuilder.Workflow == target) return true;
+                if (element is IGroupWorkflowBuilder groupBuilder && groupBuilder.Workflow == target) return true;
 
-                var workflowBuilder = element as WorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (element is WorkflowExpressionBuilder workflowBuilder)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
                     {

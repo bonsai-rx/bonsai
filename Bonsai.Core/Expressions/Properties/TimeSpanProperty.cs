@@ -11,7 +11,7 @@ namespace Bonsai.Expressions
     /// Represents a workflow property containing a time interval.
     /// </summary>
     [DisplayName("TimeSpan")]
-    [DefaultProperty("Value")]
+    [DefaultProperty(nameof(Value))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Represents a workflow property containing a time interval.")]
     public class TimeSpanProperty : WorkflowProperty
@@ -52,11 +52,7 @@ namespace Bonsai.Expressions
 
         void OnValueChanged(TimeSpan value)
         {
-            var handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            ValueChanged?.Invoke(value);
         }
 
         /// <summary>

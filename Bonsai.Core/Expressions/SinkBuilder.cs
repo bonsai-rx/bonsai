@@ -61,7 +61,7 @@ namespace Bonsai.Expressions
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
                 return Expression.Call(
-                    typeof(SinkBuilder), "Process",
+                    typeof(SinkBuilder), nameof(Process),
                     new [] { source.Type.GetGenericArguments()[0], selectorObservableType },
                     source, selector);
             });

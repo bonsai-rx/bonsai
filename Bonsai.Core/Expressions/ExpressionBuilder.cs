@@ -38,7 +38,7 @@ namespace Bonsai.Expressions
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             InstanceNumber = builder.InstanceNumber;
@@ -88,12 +88,10 @@ namespace Bonsai.Expressions
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
-            var inspectBuilder = builder as InspectBuilder;
-            if (inspectBuilder != null) return Unwrap(inspectBuilder.Builder);
-
+            if (builder is InspectBuilder inspectBuilder) return Unwrap(inspectBuilder.Builder);
             return builder;
         }
 
@@ -104,19 +102,14 @@ namespace Bonsai.Expressions
         /// The <see cref="ExpressionBuilder"/> for which to retrieve the editor browsable element.
         /// </param>
         /// <returns>
-        /// An <see cref="Object"/> that is the editor browsable element for the specified
+        /// An <see cref="object"/> that is the editor browsable element for the specified
         /// <paramref name="builder"/>.
         /// </returns>
         public static object GetWorkflowElement(ExpressionBuilder builder)
         {
             builder = Unwrap(builder);
-
-            var disableBuilder = builder as DisableBuilder;
-            if (disableBuilder != null) builder = disableBuilder.Builder;
-
-            var combinatorBuilder = builder as CombinatorBuilder;
-            if (combinatorBuilder != null) return combinatorBuilder.Combinator;
-
+            if (builder is DisableBuilder disableBuilder) builder = disableBuilder.Builder;
+            if (builder is CombinatorBuilder combinatorBuilder) return combinatorBuilder.Combinator;
             return builder;
         }
 
@@ -165,7 +158,7 @@ namespace Bonsai.Expressions
         {
             if (element == null)
             {
-                throw new ArgumentNullException("element");
+                throw new ArgumentNullException(nameof(element));
             }
 
             var elementType = element.GetType();
@@ -219,11 +212,10 @@ namespace Bonsai.Expressions
         {
             if (element == null)
             {
-                throw new ArgumentNullException("component");
+                throw new ArgumentNullException(nameof(element));
             }
 
-            var namedElement = element as INamedElement;
-            if (namedElement != null)
+            if (element is INamedElement namedElement)
             {
                 var name = namedElement.Name;
                 if (!string.IsNullOrEmpty(name)) return name;
@@ -257,9 +249,9 @@ namespace Bonsai.Expressions
         static TSource DefaultIfNotSingle<TSource>(IEnumerable<TSource> source)
         {
             var enumerator = source.GetEnumerator();
-            if (!enumerator.MoveNext()) return default(TSource);
+            if (!enumerator.MoveNext()) return default;
             var result = enumerator.Current;
-            if (enumerator.MoveNext()) return default(TSource);
+            if (enumerator.MoveNext()) return default;
             return result;
         }
 
@@ -267,12 +259,12 @@ namespace Bonsai.Expressions
         {
             if (methodInfo == null)
             {
-                throw new ArgumentNullException("methodInfo");
+                throw new ArgumentNullException(nameof(methodInfo));
             }
 
             if (arguments == null)
             {
-                throw new ArgumentNullException("arguments");
+                throw new ArgumentNullException(nameof(arguments));
             }
 
             var methodParameters = methodInfo.GetParameters();
@@ -296,7 +288,7 @@ namespace Bonsai.Expressions
         {
             if (!parameterType.IsGenericParameter)
             {
-                throw new ArgumentException("The specified parameter is not generic.", "parameterType");
+                throw new ArgumentException("The specified parameter is not generic.", nameof(parameterType));
             }
 
             if (!parameterType.BaseType.IsAssignableFrom(argumentType))
@@ -567,8 +559,8 @@ namespace Bonsai.Expressions
         static MethodInfo GetUserConversion(Type from, Type to)
         {
             var conversion = GetUnaryOperator(from, "op_Implicit", from, to);
-            conversion = conversion ?? GetUnaryOperator(from, "op_Explicit", from, to);
-            conversion = conversion ?? GetUnaryOperator(to, "op_Implicit", from, to);
+            conversion ??= GetUnaryOperator(from, "op_Explicit", from, to);
+            conversion ??= GetUnaryOperator(to, "op_Implicit", from, to);
             return conversion ?? GetUnaryOperator(to, "op_Explicit", from, to);
         }
 
@@ -631,8 +623,7 @@ namespace Bonsai.Expressions
         {
             if (to.IsAssignableFrom(from)) return true;
 
-            Type[] conversions;
-            if (ImplicitNumericConversions.TryGetValue(from, out conversions))
+            if (ImplicitNumericConversions.TryGetValue(from, out Type[] conversions))
             {
                 return Array.Exists(conversions, type => type == to);
             }
@@ -902,7 +893,10 @@ namespace Bonsai.Expressions
         {
             var ignoredConnections = (from connection in connections.Where(IsReducible)
                                       let observableType = connection.Type.GetGenericArguments()[0]
-                                      select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection))
+                                      select Expression.Call(
+                                          typeof(ExpressionBuilder),
+                                          nameof(IgnoreConnection),
+                                          new[] { observableType }, connection))
                                       .ToArray();
             if (output != null && ignoredConnections.Length == 0)
             {
@@ -913,9 +907,9 @@ namespace Bonsai.Expressions
             if (output != null)
             {
                 var outputType = output.Type.GetGenericArguments()[0];
-                return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", new[] { outputType }, output, connectionArrayExpression);
+                return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), new[] { outputType }, output, connectionArrayExpression);
             }
-            else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
+            else return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), null, connectionArrayExpression);
         }
 
         #endregion
@@ -993,8 +987,7 @@ namespace Bonsai.Expressions
         internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName, string sourceSelector)
         {
             var element = instance.Value;
-            var workflowBuilder = element as IWorkflowExpressionBuilder;
-            if (workflowBuilder != null && workflowBuilder.Workflow != null)
+            if (element is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow != null)
             {
                 var inputBuilder = (from node in workflowBuilder.Workflow
                                     let externalizedBuilder = Unwrap(node.Value) as IExternalizedMappingBuilder
@@ -1015,7 +1008,7 @@ namespace Bonsai.Expressions
                 var argument = source;
                 foreach (var successor in inputBuilder.node.Successors)
                 {
-                    var successorElement = ExpressionBuilder.GetWorkflowElement(successor.Target.Value);
+                    var successorElement = GetWorkflowElement(successor.Target.Value);
                     var successorInstance = Expression.Constant(successorElement);
                     argument = BuildPropertyMapping(argument, successorInstance, inputBuilder.workflowProperty.Name, sourceSelector);
                 }
@@ -1023,8 +1016,7 @@ namespace Bonsai.Expressions
             }
 
             //TODO: The special case for binary operator operands should be avoided in the future
-            var binaryOperator = element as BinaryOperatorBuilder;
-            if (binaryOperator != null && binaryOperator.Operand != null)
+            if (element is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
             {
                 instance = Expression.Constant(binaryOperator.Operand);
             }
@@ -1040,7 +1032,7 @@ namespace Bonsai.Expressions
             var action = Expression.Lambda(actionType, body, parameter);
             return Expression.Call(
                 typeof(ExpressionBuilder),
-                "PropertyMapping",
+                nameof(PropertyMapping),
                 new[] { sourceType },
                 source,
                 action);
@@ -1104,7 +1096,7 @@ namespace Bonsai.Expressions
             var outputType = output.Type.GetGenericArguments()[0];
             return Expression.Call(
                 typeof(ExpressionBuilder),
-                "BuildDependency",
+                nameof(BuildDependency),
                 new[] { sourceType, outputType },
                 source);
         }
@@ -1123,7 +1115,7 @@ namespace Bonsai.Expressions
             var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
             return Expression.Call(
                 typeof(ExpressionBuilder),
-                "MergeDependencies",
+                nameof(MergeDependencies),
                 new[] { outputType },
                 source,
                 mappingArray);
@@ -1133,7 +1125,7 @@ namespace Bonsai.Expressions
         {
             if (dependencies == null)
             {
-                throw new ArgumentNullException("dependencies");
+                throw new ArgumentNullException(nameof(dependencies));
             }
 
             if (dependencies.Length == 0)

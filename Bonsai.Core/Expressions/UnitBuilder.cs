@@ -48,7 +48,7 @@ namespace Bonsai.Expressions
             {
                 return Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
             }
-            else return Expression.Call(typeof(UnitBuilder), "Process", source.Type.GetGenericArguments(), source);
+            else return Expression.Call(typeof(UnitBuilder), nameof(Process), source.Type.GetGenericArguments(), source);
         }
 
         static IObservable<Unit> Process<TSource>(IObservable<TSource> source)

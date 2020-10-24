@@ -9,7 +9,7 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents a workflow property containing a timestamp in Coordinated Universal Time (UTC).
     /// </summary>
-    [DefaultProperty("Value")]
+    [DefaultProperty(nameof(Value))]
     [DisplayName("DateTimeOffset")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Represents a workflow property containing a timestamp in Coordinated Universal Time (UTC).")]
@@ -51,11 +51,7 @@ namespace Bonsai.Expressions
 
         void OnValueChanged(DateTimeOffset value)
         {
-            var handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            ValueChanged?.Invoke(value);
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that uses an encapsulated workflow stored
     /// externally to generate its output.
     /// </summary>
-    [DefaultProperty("Path")]
+    [DefaultProperty(nameof(Path))]
     [WorkflowElementCategory(ElementCategory.Workflow)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
@@ -26,7 +26,6 @@ namespace Bonsai.Expressions
         const char AssemblySeparator = ':';
         static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
-        XElement[] xmlProperties;
 
         IBuildContext buildContext;
         ExpressionBuilderGraph workflow;
@@ -58,7 +57,7 @@ namespace Bonsai.Expressions
             name = builder.name;
             path = builder.path;
             description = builder.description;
-            xmlProperties = builder.xmlProperties;
+            InternalXmlProperties = builder.InternalXmlProperties;
         }
 
         /// <summary>
@@ -99,7 +98,7 @@ namespace Bonsai.Expressions
                 if (buildContext != null)
                 {
                     EnsureWorkflow();
-                    xmlProperties = null;
+                    InternalXmlProperties = null;
                 }
             }
         }
@@ -133,20 +132,17 @@ namespace Bonsai.Expressions
         {
             get
             {
-                if (xmlProperties != null) return xmlProperties;
+                if (InternalXmlProperties != null) return InternalXmlProperties;
                 else if (workflow != null)
                 {
                     return GetXmlProperties();
                 }
                 else return EmptyProperties;
             }
-            set { xmlProperties = value; }
+            set { InternalXmlProperties = value; }
         }
 
-        internal XElement[] InternalXmlProperties
-        {
-            get { return xmlProperties; }
-        }
+        internal XElement[] InternalXmlProperties { get; private set; }
 
         static XmlSerializerNamespaces GetXmlSerializerNamespaces()
         {
@@ -167,8 +163,7 @@ namespace Bonsai.Expressions
             var serializableProperties = GetXmlSerializableProperties(properties).ToDictionary(property => property.Name);
             for (int i = 0; i < xmlProperties.Length; i++)
             {
-                ExternalizedPropertyDescriptor property;
-                if (serializableProperties.TryGetValue(xmlProperties[i].Name.LocalName, out property))
+                if (serializableProperties.TryGetValue(xmlProperties[i].Name.LocalName, out ExternalizedPropertyDescriptor property))
                 {
                     if (xmlProperties[i].NodeType == XmlNodeType.Text)
                     {
@@ -233,8 +228,7 @@ namespace Bonsai.Expressions
                     }
 
                     collection.Clear();
-                    var collectionElements = value as IEnumerable;
-                    if (collectionElements != null)
+                    if (value is IEnumerable collectionElements)
                     {
                         foreach (var collectionElement in collectionElements)
                         {
@@ -347,7 +341,7 @@ namespace Bonsai.Expressions
                 var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
-                    var properties = workflow != null ? GetXmlProperties() : xmlProperties;
+                    var properties = workflow != null ? GetXmlProperties() : InternalXmlProperties;
                     using (var stream = GetWorkflowStream(path, embeddedResource))
                     using (var reader = XmlReader.Create(stream))
                     {
@@ -465,17 +459,12 @@ namespace Bonsai.Expressions
 
         class IncludeWorkflowDescriptionAttribute : DescriptionAttribute
         {
-            IncludeWorkflowBuilder includeBuilder;
+            readonly IncludeWorkflowBuilder includeBuilder;
 
             public IncludeWorkflowDescriptionAttribute(IncludeWorkflowBuilder builder, string description)
                 : base(description)
             {
-                if (builder == null)
-                {
-                    throw new ArgumentNullException("builder");
-                }
-
-                includeBuilder = builder;
+                includeBuilder = builder ?? throw new ArgumentNullException(nameof(builder));
             }
 
             public override string Description
