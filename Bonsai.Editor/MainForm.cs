@@ -1829,7 +1829,8 @@ namespace Bonsai.Editor
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
             var arguments = GetToolboxArguments(searchTextBox);
-            try { model.InsertGraphNode(typeNode, predecessor, branch, group, arguments); }
+            var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+            try { model.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);

@@ -136,7 +136,7 @@ namespace Bonsai.Editor.GraphView
 
         #region Model
 
-        private static ElementCategory GetToolboxElementCategory(TreeNode typeNode)
+        public static ElementCategory GetToolboxElementCategory(TreeNode typeNode)
         {
             var elementCategories = (ElementCategory[])typeNode.Tag;
             for (int i = 0; i < elementCategories.Length; i++)
@@ -1087,13 +1087,6 @@ namespace Bonsai.Editor.GraphView
             commandExecutor.EndCompositeCommand();
         }
 
-        ExpressionBuilder CreateBuilder(TreeNode typeNode)
-        {
-            var typeName = typeNode.Name;
-            var elementCategory = GetToolboxElementCategory(typeNode);
-            return CreateBuilder(typeName, elementCategory);
-        }
-
         ExpressionBuilder CreateBuilder(string typeName, ElementCategory elementCategory)
         {
             var type = Type.GetType(typeName);
@@ -1123,40 +1116,39 @@ namespace Bonsai.Editor.GraphView
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
         }
 
-        public void InsertGraphNode(TreeNode typeNode, CreateGraphNodeType nodeType, bool branch, bool group)
+        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
         {
-            InsertGraphNode(typeNode, nodeType, branch, group, null);
+            InsertGraphNode(typeName, elementCategory, nodeType, branch, group, null);
         }
 
-        public void InsertGraphNode(TreeNode typeNode, CreateGraphNodeType nodeType, bool branch, bool group, string arguments)
+        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group, string arguments)
         {
-            if (typeNode == null)
+            if (string.IsNullOrEmpty(typeName))
             {
-                throw new ArgumentNullException("typeNode");
+                throw new ArgumentNullException(nameof(typeName));
             }
-
+            
             var selectedNodes = graphView.SelectedNodes.ToArray();
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
-            var elementCategory = GetToolboxElementCategory(typeNode);
             if (group && selectedNode != null && elementCategory != ~ElementCategory.Source)
             {
-                CreateOrReplaceGroupNode(selectedNodes, typeNode);
+                CreateOrReplaceGroupNode(selectedNodes, typeName);
                 return;
             }
 
             ExpressionBuilder builder;
             if (elementCategory == ~ElementCategory.Workflow)
             {
-                builder = new IncludeWorkflowBuilder { Path = typeNode.Name };
+                builder = new IncludeWorkflowBuilder { Path = typeName };
             }
             else if (elementCategory == ~ElementCategory.Source)
             {
-                if (group) builder = new MulticastSubjectBuilder { Name = typeNode.Name };
-                else builder = new SubscribeSubjectBuilder { Name = typeNode.Name };
+                if (group) builder = new MulticastSubjectBuilder { Name = typeName };
+                else builder = new SubscribeSubjectBuilder { Name = typeName };
             }
             else
             {
-                builder = CreateBuilder(typeNode);
+                builder = CreateBuilder(typeName, elementCategory);
                 if (!string.IsNullOrEmpty(arguments))
                 {
                     //TODO: This special case for binary operator operands should be avoided in the future
@@ -1191,7 +1183,7 @@ namespace Bonsai.Editor.GraphView
                 }
             }
 
-            var externalizedMapping = typeNode.Name == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+            var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
             if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes, nodeType, branch);
             commandExecutor.BeginCompositeCommand();
@@ -1632,19 +1624,13 @@ namespace Bonsai.Editor.GraphView
                      select successor).Any();
         }
 
-        public void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, TreeNode typeNode)
-        {
-            CreateOrReplaceGroupNode(selectedNodes, typeNode.Name);
-        }
-
         private void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, string typeName)
         {
             var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
             var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
 
-            var includeBuilder = selectedNodeBuilder as IncludeWorkflowBuilder;
-            if (includeBuilder != null && includeBuilder.Workflow != null &&
-                typeName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName)
+            if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder &&
+                includeBuilder.Workflow != null && typeName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName)
             {
                 var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
                 groupBuilder.Name = includeBuilder.Name;
@@ -1653,8 +1639,10 @@ namespace Bonsai.Editor.GraphView
             }
             else if (selectedNodeBuilder == null || selectedNodeBuilder.GetType().AssemblyQualifiedName != typeName)
             {
-                var workflowBuilder = selectedNodeBuilder as WorkflowExpressionBuilder;
-                if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeName);
+                if (selectedNodeBuilder is WorkflowExpressionBuilder)
+                {
+                    ReplaceGroupNode(selectedNode, typeName);
+                }
                 else GroupGraphNodes(selectedNodes, typeName);
             }
         }
@@ -1665,11 +1653,8 @@ namespace Bonsai.Editor.GraphView
             var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
             var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
 
-            var groupBuilder = selectedNodeBuilder as GroupWorkflowBuilder;
-            if (groupBuilder != null) return;
-
-            var includeBuilder = selectedNodeBuilder as IncludeWorkflowBuilder;
-            if (includeBuilder != null && includeBuilder.Workflow != null)
+            if (selectedNodeBuilder is GroupWorkflowBuilder) return;
+            if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder && includeBuilder.Workflow != null)
             {
                 CreateOrReplaceGroupNode(selectedNodes, typeof(GroupWorkflowBuilder).AssemblyQualifiedName);
             }
@@ -1963,8 +1948,7 @@ namespace Bonsai.Editor.GraphView
         void EnableGraphNode(GraphNode node)
         {
             var builder = GetGraphNodeBuilder(node);
-            var disableBuilder = builder as DisableBuilder;
-            if (disableBuilder != null)
+            if (builder is DisableBuilder disableBuilder)
             {
                 builder = disableBuilder.Builder;
                 ReplaceNode(node, builder);
@@ -2006,13 +1990,11 @@ namespace Bonsai.Editor.GraphView
         {
             if (ex == null)
             {
-                throw new ArgumentNullException("ex");
+                throw new ArgumentNullException(nameof(ex));
             }
 
             // Unwrap XML exceptions when serializing individual workflow elements
-            var writerException = ex.InnerException as InvalidOperationException;
-            if (writerException != null) ex = writerException;
-
+            if (ex.InnerException is InvalidOperationException writerException) ex = writerException;
             var errorMessage = string.Format(message, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             uiService.ShowError(errorMessage);
         }
@@ -2682,7 +2664,8 @@ namespace Bonsai.Editor.GraphView
                     else
                     {
                         var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                        InsertGraphNode(typeNode, nodeType, branch, group);
+                        var elementCategory = GetToolboxElementCategory(typeNode);
+                        InsertGraphNode(typeNode.Name, elementCategory, nodeType, branch, group);
                     }
                 }
 
