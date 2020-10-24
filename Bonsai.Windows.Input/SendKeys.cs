@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Windows.Input
 {
+    [DefaultProperty(nameof(Keys))]
     [Description("Sends one or more keystrokes to the active window as if typed at the keyboard.")]
     public class SendKeys : Sink
     {

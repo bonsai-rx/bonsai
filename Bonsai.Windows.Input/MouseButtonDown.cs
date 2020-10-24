@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Windows.Input
 {
+    [DefaultProperty(nameof(Filter))]
     [Description("Produces a sequence of events whenever a mouse button is depressed.")]
     public class MouseButtonDown : Source<MouseButtons>
     {

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Windows.Input
 {
+    [DefaultProperty(nameof(Filter))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Determines whether a key is up or down at the time of notification.")]
     public class KeyState : Combinator<bool>
