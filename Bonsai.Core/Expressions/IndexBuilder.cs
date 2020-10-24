@@ -54,8 +54,9 @@ namespace Bonsai.Expressions
                 var operandType = ExpressionHelper.GetIndexerTypes(expression, 1)[0];
                 if (operand == null || operand.PropertyType != operandType)
                 {
-                    if (operandType.IsInterface ||
-                        operandType.IsClass && operandType.GetConstructor(Type.EmptyTypes) == null)
+                    if (operandType != typeof(string) &&
+                       (operandType.IsInterface ||
+                        operandType.IsClass && operandType.GetConstructor(Type.EmptyTypes) == null))
                     {
                         throw new InvalidOperationException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, 2));
                     }
