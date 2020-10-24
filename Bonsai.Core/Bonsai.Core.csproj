@@ -7,7 +7,7 @@
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <RootNamespace>Bonsai</RootNamespace>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.5.1</Version>
+    <Version>2.6.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Rx-Linq" Version="2.2.5" />
