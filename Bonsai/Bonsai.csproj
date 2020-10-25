@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <Title>Bonsai</Title>
@@ -23,6 +23,19 @@
     <ProjectReference Include="..\Bonsai.Editor\Bonsai.Editor.csproj" />
     <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Target Name="ILRepack" AfterTargets="Build">
     <PropertyGroup>
