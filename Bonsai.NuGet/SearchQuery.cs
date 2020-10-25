@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    class SearchQuery : QueryContinuation<IEnumerable<IPackageSearchMetadata>>
+    public class SearchQuery : QueryContinuation<IEnumerable<IPackageSearchMetadata>>
     {
         public SearchQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, IEnumerable<string> packageTypes = default)
             : this(repository, searchTerm, 0, pageSize, includePrerelease, packageTypes)

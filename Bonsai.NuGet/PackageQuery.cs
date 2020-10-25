@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    class PackageQuery
+    public class PackageQuery
     {
         readonly PackageQueryIndex queryIndex;
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> continuation;

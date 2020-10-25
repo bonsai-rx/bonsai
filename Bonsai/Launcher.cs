@@ -2,6 +2,7 @@
 using Bonsai.Editor;
 using Bonsai.Expressions;
 using Bonsai.NuGet;
+using Bonsai.NuGet.Design;
 using System;
 using System.Collections.Generic;
 using System.IO;

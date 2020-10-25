@@ -21,7 +21,7 @@
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Editor\Bonsai.Editor.csproj" />
-    <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\Bonsai.NuGet.Design\Bonsai.NuGet.Design.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +44,7 @@
     <ItemGroup>
       <InputAssemblies Include="Bonsai.Configuration.dll" />
       <InputAssemblies Include="Bonsai.NuGet.dll" />
+      <InputAssemblies Include="Bonsai.NuGet.Design.dll" />
       <InputAssemblies Include="Newtonsoft.Json.dll" />
       <InputAssemblies Include="NuGet.Common.dll" />
       <InputAssemblies Include="NuGet.Configuration.dll" />

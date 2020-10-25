@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using PackageReference = Bonsai.Configuration.PackageReference;
 using PackageHelper = Bonsai.NuGet.PackageHelper;
+using Bonsai.NuGet.Design;
 
 namespace Bonsai
 {
@@ -92,7 +93,7 @@ namespace Bonsai
                     };
 
                     if (!showDialog) RestoreMissingPackages().Wait();
-                    else PackageHelper.RunPackageOperation(packageManager, RestoreMissingPackages);
+                    else PackageOperation.Run(packageManager, RestoreMissingPackages);
                 }
             }
 
@@ -110,7 +111,7 @@ namespace Bonsai
                     };
 
                     if (!showDialog) RestoreEditorPackage().Wait();
-                    else PackageHelper.RunPackageOperation(
+                    else PackageOperation.Run(
                         packageManager,
                         RestoreEditorPackage,
                         operationLabel: editorPackage != null ? "Updating..." : null);

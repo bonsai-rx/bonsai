@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    abstract class QueryContinuation<TResult>
+    public abstract class QueryContinuation<TResult>
     {
         public abstract Task<QueryResult<TResult>> GetResultAsync(CancellationToken token = default);
     }
 
-    static class QueryContinuation
+    public static class QueryContinuation
     {
         public static QueryContinuation<TResult> FromResult<TResult>(TResult result)
         {

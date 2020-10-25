@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.NuGet
 {
-    static class QueryResult
+    public static class QueryResult
     {
         public static QueryResult<TResult> Create<TResult>(TResult result, QueryContinuation<TResult> continuation = null)
         {
@@ -8,7 +8,7 @@
         }
     }
 
-    class QueryResult<TResult>
+    public class QueryResult<TResult>
     {
         public QueryResult(TResult result, QueryContinuation<TResult> continuation)
         {

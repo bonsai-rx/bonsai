@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    static class AggregateQuery
+    public static class AggregateQuery
     {
         public static AggregateQuery<TResult> Create<TResult>(IEnumerable<QueryContinuation<TResult>> queries, Func<IEnumerable<TResult>, TResult> aggregator)
         {
@@ -14,7 +14,7 @@ namespace Bonsai.NuGet
         }
     }
 
-    class AggregateQuery<TResult> : QueryContinuation<TResult>
+    public class AggregateQuery<TResult> : QueryContinuation<TResult>
     {
         public AggregateQuery(IEnumerable<QueryContinuation<TResult>> queries, Func<IEnumerable<TResult>, TResult> aggregator)
         {
