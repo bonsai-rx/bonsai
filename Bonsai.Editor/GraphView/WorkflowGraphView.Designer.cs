@@ -32,9 +32,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkflowGraphView));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createPropertySourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,9 +63,9 @@
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outputToolStripMenuItem,
-            this.subjectTypeToolStripMenuItem,
             this.externalizeToolStripMenuItem,
             this.createPropertySourceToolStripMenuItem,
+            this.subjectTypeToolStripMenuItem,
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
@@ -98,14 +98,6 @@
             this.outputToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.outputToolStripMenuItem.Text = "Output";
             // 
-            // subjectTypeToolStripMenuItem
-            // 
-            this.subjectTypeToolStripMenuItem.Enabled = false;
-            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
-            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
-            this.subjectTypeToolStripMenuItem.Visible = false;
-            // 
             // externalizeToolStripMenuItem
             // 
             this.externalizeToolStripMenuItem.Enabled = false;
@@ -119,6 +111,14 @@
             this.createPropertySourceToolStripMenuItem.Name = "createPropertySourceToolStripMenuItem";
             this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.createPropertySourceToolStripMenuItem.Text = "Create Property Source";
+            // 
+            // subjectTypeToolStripMenuItem
+            // 
+            this.subjectTypeToolStripMenuItem.Enabled = false;
+            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
+            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
+            this.subjectTypeToolStripMenuItem.Visible = false;
             // 
             // toolStripSeparator3
             // 

@@ -35,4 +35,24 @@ namespace Bonsai.Expressions
             return new AsyncSubject<TSource>();
         }
     }
+
+    /// <summary>
+    /// Represents an expression builder that broadcasts the result of the first observable
+    /// sequence to complete to all subscribed and future observers.
+    /// </summary>
+    /// <typeparam name="T">The type of the result stored by the subject.</typeparam>
+    [XmlType("AsyncSubject", Namespace = Constants.XmlNamespace)]
+    [Description("Broadcasts the result of the first observable sequence to complete to all subscribed and future observers.")]
+    public class AsyncSubjectBuilder<T> : SubjectBuilder<T>
+    {
+        /// <summary>
+        /// Creates a shared subject that broadcasts the result of the first observable
+        /// sequence to complete to all subscribed and future observers.
+        /// </summary>
+        /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
+        protected override ISubject<T> CreateSubject()
+        {
+            return new AsyncSubject<T>();
+        }
+    }
 }

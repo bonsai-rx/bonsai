@@ -1116,6 +1116,20 @@ namespace Bonsai.Editor.GraphView
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
         }
 
+        static Type MakeGenericType(string typeName, GraphNode selectedNode)
+        {
+            var separatorToken = typeName.IndexOf(',');
+            var genericTypeName = typeName.Substring(0, separatorToken) + "`1" + typeName.Substring(separatorToken);
+            var genericType = Type.GetType(genericTypeName);
+            if (genericType == null)
+            {
+                throw new ArgumentException("The specified type could not be found.", nameof(typeName));
+            }
+
+            var inspectBuilder = (InspectBuilder)selectedNode.Value;
+            return genericType.MakeGenericType(inspectBuilder.ObservableType);
+        }
+
         public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
         {
             InsertGraphNode(typeName, elementCategory, nodeType, branch, group, null);
@@ -1130,10 +1144,20 @@ namespace Bonsai.Editor.GraphView
             
             var selectedNodes = graphView.SelectedNodes.ToArray();
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
-            if (group && selectedNode != null && elementCategory != ~ElementCategory.Source)
+            if (group && selectedNode != null && elementCategory > ~ElementCategory.Source)
             {
-                CreateOrReplaceGroupNode(selectedNodes, typeName);
-                return;
+                if (elementCategory == ElementCategory.Subject)
+                {
+                    var genericType = MakeGenericType(typeName, selectedNode);
+                    var elementCategoryAttribute = (WorkflowElementCategoryAttribute)TypeDescriptor.GetAttributes(genericType)[typeof(WorkflowElementCategoryAttribute)];
+                    if (elementCategoryAttribute != null) elementCategory = elementCategoryAttribute.Category;
+                    typeName = genericType.AssemblyQualifiedName;
+                }
+                else
+                {
+                    CreateOrReplaceGroupNode(selectedNodes, typeName);
+                    return;
+                }
             }
 
             ExpressionBuilder builder;
@@ -3117,9 +3141,9 @@ namespace Bonsai.Editor.GraphView
 
         private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            var subscribeBuilder = inspectBuilder.Builder as SubscribeSubjectBuilder;
-            if (subscribeBuilder != null)
+            if (inspectBuilder.Builder is SubscribeSubjectBuilder subscribeBuilder)
             {
+                ownerItem.Text = Resources.SubjectTypeAction;
                 var subscribeBuilderType = subscribeBuilder.GetType();
                 var subjectType = inspectBuilder.ObservableType ?? subscribeBuilderType.GetGenericArguments().FirstOrDefault();
                 if (subjectType != null)
@@ -3132,6 +3156,32 @@ namespace Bonsai.Editor.GraphView
                     ownerItem.DropDownItems.Add(typeMenuItem);
                     ownerItem.Enabled = true;
                     ownerItem.Visible = true;
+                }
+            }
+            else
+            {
+                ownerItem.Text = Resources.CreateSubjectSourceAction;
+                var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
+                if (toolboxService != null)
+                {
+                    foreach (var element in from element in toolboxService.GetToolboxElements()
+                                            where element.ElementTypes.Contains(ElementCategory.Subject)
+                                            select element)
+                    {
+                        ToolStripMenuItem menuItem = null;
+                        var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
+                        menuItem = new ToolStripMenuItem(name, null, (sender, e) => InsertGraphNode(
+                            element.FullyQualifiedName,
+                            ElementCategory.Subject,
+                            CreateGraphNodeType.Successor,
+                            branch: true,
+                            group: true));
+                        ownerItem.DropDownItems.Add(menuItem);
+                    }
+
+                    var visible = ownerItem.DropDownItems.Count > 0;
+                    ownerItem.Enabled = visible;
+                    ownerItem.Visible = visible;
                 }
             }
         }

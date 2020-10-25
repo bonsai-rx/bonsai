@@ -29,4 +29,24 @@ namespace Bonsai.Expressions
             return Expression.New(typeof(Subject<>).MakeGenericType(parameterType));
         }
     }
+
+    /// <summary>
+    /// Represents an expression builder that broadcasts the values from other observable
+    /// sequences to multiple subscribers.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
+    [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
+    [Description("Broadcasts the values from other observable sequences to multiple subscribers.")]
+    public class PublishSubjectBuilder<T> : SubjectBuilder<T>
+    {
+        /// <summary>
+        /// Creates a shared subject that broadcasts the values from other observable
+        /// sequences to multiple subscribers.
+        /// </summary>
+        /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
+        protected override ISubject<T> CreateSubject()
+        {
+            return new Subject<T>();
+        }
+    }
 }

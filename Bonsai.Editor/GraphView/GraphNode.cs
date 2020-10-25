@@ -95,6 +95,7 @@ namespace Bonsai.Editor.GraphView
             {
                 switch (Category)
                 {
+                    case ElementCategory.Subject:
                     case ElementCategory.Source: return CategoryColors.Source;
                     case ElementCategory.Condition: return CategoryColors.Combinator;
                     case ElementCategory.Transform: return CategoryColors.Transform;

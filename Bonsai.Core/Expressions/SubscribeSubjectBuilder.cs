@@ -103,7 +103,7 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="TSource">The type of the elements processed by the subject.</typeparam>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(SubscribeSubjectBuilder), "SubscribeSubjectBuilder")]
+    [WorkflowElementIcon(typeof(SubscribeSubjectBuilder), nameof(SubscribeSubjectBuilder))]
     public class SubscribeSubject<TSource> : SubscribeSubjectBuilder
     {
         /// <summary>

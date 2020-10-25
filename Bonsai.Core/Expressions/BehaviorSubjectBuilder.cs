@@ -31,14 +31,34 @@ namespace Bonsai.Expressions
             return Expression.Call(builderExpression, nameof(CreateSubject), new[] { parameterType });
         }
 
-        BehaviorSubject<TSource> CreateSubject<TSource>()
+        BehaviorSubjectBuilder<TSource>.BehaviorSubject CreateSubject<TSource>()
         {
-            return new BehaviorSubject<TSource>();
+            return new BehaviorSubjectBuilder<TSource>.BehaviorSubject();
+        }
+    }
+
+    /// <summary>
+    /// Represents an expression builder that broadcasts the latest value from other observable
+    /// sequences to all subscribed and future observers.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
+    [XmlType("BehaviorSubject", Namespace = Constants.XmlNamespace)]
+    [Description("Broadcasts the latest value from other observable sequences to all subscribed and future observers.")]
+    public class BehaviorSubjectBuilder<T> : SubjectBuilder<T>
+    {
+        /// <summary>
+        /// Creates a shared subject that broadcasts the latest value from other observable
+        /// sequences to all subscribed and future observers.
+        /// </summary>
+        /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
+        protected override ISubject<T> CreateSubject()
+        {
+            return new BehaviorSubject();
         }
 
-        class BehaviorSubject<TSource> : ISubject<TSource>, IDisposable
+        internal class BehaviorSubject : ISubject<T>, IDisposable
         {
-            readonly ReplaySubject<TSource> subject = new ReplaySubject<TSource>(1);
+            readonly ReplaySubject<T> subject = new ReplaySubject<T>(1);
 
             public void OnCompleted()
             {
@@ -48,12 +68,12 @@ namespace Bonsai.Expressions
             {
             }
 
-            public void OnNext(TSource value)
+            public void OnNext(T value)
             {
                 subject.OnNext(value);
             }
 
-            public IDisposable Subscribe(IObserver<TSource> observer)
+            public IDisposable Subscribe(IObserver<T> observer)
             {
                 return subject.Subscribe(observer);
             }

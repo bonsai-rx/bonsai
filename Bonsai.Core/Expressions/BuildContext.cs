@@ -85,7 +85,8 @@ namespace Bonsai.Expressions
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameters = variables.Select(variable => variable.Parameter).Reverse();
             var disposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IDisposable[]) });
-            var disposableExpression = Expression.New(disposableConstructor, Expression.NewArrayInit(typeof(IDisposable), parameters));
+            var disposableParameters = parameters.Select(parameter => Expression.Convert(parameter, typeof(IDisposable)));
+            var disposableExpression = Expression.New(disposableConstructor, Expression.NewArrayInit(typeof(IDisposable), disposableParameters));
             var finallyExpression = (Expression)Expression.Call(
                 typeof(BuildContext),
                 nameof(Finally),

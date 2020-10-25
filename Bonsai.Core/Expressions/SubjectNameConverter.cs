@@ -80,7 +80,7 @@ namespace Bonsai.Expressions
                     {
                         var names = (from level in callContext
                                      from inspectBuilder in SelectContextElements(level)
-                                     let subjectBuilder = inspectBuilder.Builder as SubjectBuilder
+                                     let subjectBuilder = inspectBuilder.Builder as SubjectExpressionBuilder
                                      where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&
                                            (targetType == null ||
                                            !multicast && targetType.IsAssignableFrom(inspectBuilder.ObservableType) ||

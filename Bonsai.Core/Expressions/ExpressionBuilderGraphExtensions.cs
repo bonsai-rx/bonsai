@@ -420,7 +420,7 @@ namespace Bonsai.Expressions
             {
                 var node = dependencyElement.Node;
                 var workflowElement = dependencyElement.Element;
-                if (workflowElement is SubjectBuilder subjectBuilder && !string.IsNullOrEmpty(subjectBuilder.Name))
+                if (workflowElement is SubjectExpressionBuilder subjectBuilder && !string.IsNullOrEmpty(subjectBuilder.Name))
                 {
                     // Connect to any existing subscribers
                     var dependency = GetOrCreateDependency(ref dependencies, subjectBuilder.Name);

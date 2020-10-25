@@ -54,6 +54,11 @@ namespace Bonsai
                     yield return ElementCategory.Nested;
                 }
 
+                if (type.IsSubclassOf(typeof(SubjectExpressionBuilder)))
+                {
+                    yield return ElementCategory.Subject;
+                }
+
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
                 yield return elementCategoryAttribute.Category;

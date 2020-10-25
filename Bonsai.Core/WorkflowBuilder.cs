@@ -360,8 +360,16 @@ namespace Bonsai
                         if (type.IsGenericType)
                         {
                             var typeRef = new CodeTypeReference(type);
+                            var typeCode = GenericTypeCode.FromType(type);
+                            var genericSeparatorIndex = type.Name.LastIndexOf('`');
+                            if (xmlTypeDefined && !string.IsNullOrEmpty(attributes.XmlType.TypeName))
+                            {
+                                typeRef.BaseType = type.Namespace + "." + attributes.XmlType.TypeName + type.Name.Substring(genericSeparatorIndex);
+                                typeCode.Name = attributes.XmlType.TypeName;
+                            }
+
                             var typeName = codeProvider.GetTypeOutput(typeRef);
-                            genericTypeCache.Add(typeName, GenericTypeCode.FromType(type));
+                            genericTypeCache.Add(typeName, typeCode);
                             attributes.XmlType.TypeName = typeName;
                         }
                         else attributes.XmlType.Namespace = GetXmlNamespace(type);
@@ -580,6 +588,27 @@ namespace Bonsai
 
         #region ReadXmlExtensions
 
+        static readonly Dictionary<string, Type> TypeForwarding = GetDefaultXmlTypeForwarding();
+
+        static Dictionary<string, Type> GetDefaultXmlTypeForwarding()
+        {
+            var builderType = typeof(ExpressionBuilder);
+            var typeMap = new Dictionary<string, Type>();
+            var assemblyName = builderType.Assembly.GetName().Name;
+            foreach (var type in builderType.Assembly.GetTypes().Where(type =>
+                type.IsGenericType && !type.IsAbstract &&
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
+                !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false)))
+            {
+                var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
+                if (string.IsNullOrEmpty(xmlTypeAttribute.TypeName)) continue;
+                var genericArguments = type.GetGenericArguments();
+                var forwardedTypeName = type.Namespace + "." + xmlTypeAttribute.TypeName + "`" + genericArguments.Length + "," + assemblyName;
+                typeMap.Add(forwardedTypeName, type);
+            }
+            return typeMap;
+        }
+
         static string Split(string value, char separator, out string prefix)
         {
             var index = value.IndexOf(separator);
@@ -674,7 +703,13 @@ namespace Bonsai
         static Type LookupType(string typeName, params Type[] typeArguments)
         {
             var type = default(Type);
-            try { type = Type.GetType(typeName, ClrNamespace.ResolveAssembly, null, false); }
+            try
+            {
+                if (!TypeForwarding.TryGetValue(typeName, out type))
+                {
+                    type = Type.GetType(typeName, ClrNamespace.ResolveAssembly, null, false);
+                }
+            }
             catch (IOException) { }
             catch (BadImageFormatException) { }
             catch (TypeLoadException) { }
@@ -750,6 +785,13 @@ namespace Bonsai
                                     if (!string.IsNullOrEmpty(typeArguments))
                                     {
                                         var typeRef = new CodeTypeReference(type);
+                                        var genericSeparatorIndex = type.Name.LastIndexOf('`');
+                                        if (value.Length != genericSeparatorIndex)
+                                        {
+                                            // fast comparison for clipping internal type suffixes only
+                                            typeRef.BaseType = type.Namespace + "." + value + type.Name.Substring(genericSeparatorIndex);
+                                        }
+
                                         var typeName = codeProvider.GetTypeOutput(typeRef);
                                         value = XmlConvert.EncodeName(typeName);
                                     }

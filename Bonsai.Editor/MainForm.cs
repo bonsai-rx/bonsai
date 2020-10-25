@@ -654,7 +654,12 @@ namespace Bonsai.Editor
                 foreach (var elementType in type.ElementTypes)
                 {
                     var typeCategory = elementType;
-                    if (typeCategory == ElementCategory.Nested) continue;
+                    if (typeCategory == ElementCategory.Nested ||
+                        typeCategory == ElementCategory.Subject)
+                    {
+                        continue;
+                    }
+
                     if (typeCategory == ElementCategory.Workflow ||
                         typeCategory == ElementCategory.Condition ||
                         typeCategory == ElementCategory.Property)
@@ -1936,9 +1941,12 @@ namespace Bonsai.Editor
                         }
                         else
                         {
+                            var allowGroup = elementCategories.Contains(ElementCategory.Nested);
+                            var allowSubjectSource = elementCategories.Contains(ElementCategory.Subject);
                             var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+                            createGroupToolStripMenuItem.Text = allowSubjectSource ? Resources.CreateSubjectSourceAction : Resources.CreateGroupAction;
                             insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
-                            createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
+                            createGroupToolStripMenuItem.Visible = allowGroup || allowSubjectSource;
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;

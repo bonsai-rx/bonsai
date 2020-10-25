@@ -147,6 +147,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create Group.
+        /// </summary>
+        internal static string CreateGroupAction {
+            get {
+                return ResourceManager.GetString("CreateGroupAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Subject Source.
+        /// </summary>
+        internal static string CreateSubjectSourceAction {
+            get {
+                return ResourceManager.GetString("CreateSubjectSourceAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Error.
         /// </summary>
         internal static string Editor_Error_Caption {
@@ -176,7 +194,9 @@ namespace Bonsai.Editor.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Unable to open script editor.
-        ///Do you want to install Visual Studio Code?.
+        ///Do you want to install Visual Studio Code?
+        ///
+        ///NOTE: You will have to restart Bonsai for any changes to take effect..
         /// </summary>
         internal static string InstallScriptEditor_Question {
             get {
@@ -362,6 +382,15 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("StatusUpdateAvailable", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subject Type.
+        /// </summary>
+        internal static string SubjectTypeAction {
+            get {
+                return ResourceManager.GetString("SubjectTypeAction", resourceCulture);
             }
         }
         

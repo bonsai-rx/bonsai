@@ -48,6 +48,11 @@
         /// <summary>
         /// A set of operators defining a data processing workflow.
         /// </summary>
-        Workflow
+        Workflow,
+
+        /// <summary>
+        /// An operator that broadcasts the values of an observable sequence between multiple subscribers.
+        /// </summary>
+        Subject
     }
 }

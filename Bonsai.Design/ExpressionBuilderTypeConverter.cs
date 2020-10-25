@@ -60,6 +60,7 @@ namespace Bonsai.Design
 
                 switch (elementCategoryAttribute.Category)
                 {
+                    case ElementCategory.Subject:
                     case ElementCategory.Source:
                         return disabled ? HatchBrushes.DiagonalViolet : obsolete ? HatchBrushes.CrossViolet : Brushes.Violet;
                     case ElementCategory.Condition:

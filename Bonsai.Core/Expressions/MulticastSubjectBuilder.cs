@@ -83,7 +83,7 @@ namespace Bonsai.Expressions
 
         class MulticastSubjectTypeDescriptor : CustomTypeDescriptor
         {
-            MulticastSubjectBuilder builder;
+            readonly MulticastSubjectBuilder builder;
             static readonly ICustomTypeDescriptor baseDescriptor = TypeDescriptor.GetProvider(typeof(MulticastSubjectBuilder))
                                                                                  .GetTypeDescriptor(typeof(MulticastSubjectBuilder));
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -273,5 +273,14 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="ReorderGraphNodes_Error" xml:space="preserve">
     <value>There was an error while reordering the selected nodes:
 {0}</value>
+  </data>
+  <data name="CreateSubjectSourceAction" xml:space="preserve">
+    <value>Create Subject Source</value>
+  </data>
+  <data name="SubjectTypeAction" xml:space="preserve">
+    <value>Subject Type</value>
+  </data>
+  <data name="CreateGroupAction" xml:space="preserve">
+    <value>Create Group</value>
   </data>
 </root>

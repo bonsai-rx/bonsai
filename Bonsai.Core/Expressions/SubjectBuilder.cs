@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
@@ -13,19 +12,19 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that broadcast the values of an observable
     /// sequence to multiple subscribers using a shared subject. This is an abstract class.
     /// </summary>
-    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("Subject", Namespace = Constants.XmlNamespace)]
-    public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
+    public abstract class SubjectBuilder : SubjectExpressionBuilder, IRequireBuildContext
     {
         IBuildContext buildContext;
 
         /// <summary>
-        /// Gets or sets the name of the shared subject.
+        /// Initializes a new instance of the <see cref="SubjectBuilder"/> class.
         /// </summary>
-        [Category("Subject")]
-        [Description("The name of the shared subject.")]
-        public string Name { get; set; }
+        protected SubjectBuilder()
+            : base(minArguments: 1, maxArguments: 1)
+        {
+        }
 
         IBuildContext IRequireBuildContext.BuildContext
         {
@@ -70,6 +69,63 @@ namespace Bonsai.Expressions
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ISubject<TSource> subject)
         {
             return source.Do(subject);
+        }
+    }
+
+    /// <summary>
+    /// Provides a base class for expression builders that declare a shared subject of the specified type.
+    /// This is an abstract class.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
+    [WorkflowElementCategory(ElementCategory.Source)]
+    public abstract class SubjectBuilder<T> : SubjectExpressionBuilder, IRequireBuildContext
+    {
+        IBuildContext buildContext;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubjectBuilder{T}"/> class.
+        /// </summary>
+        protected SubjectBuilder()
+            : base(minArguments: 0, maxArguments: 0)
+        {
+        }
+
+        IBuildContext IRequireBuildContext.BuildContext
+        {
+            get { return buildContext; }
+            set { buildContext = value; }
+        }
+
+        /// <summary>
+        /// When overridden in a derived class, creates the shared subject.
+        /// </summary>
+        /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
+        protected abstract ISubject<T> CreateSubject();
+
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
+        /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            if (buildContext == null)
+            {
+                throw new InvalidOperationException("No valid build context was provided.");
+            }
+
+            var builderExpression = Expression.Constant(this);
+            var subjectFactory = Expression.Call(builderExpression, nameof(CreateSubject), null);
+            var subjectExpression = buildContext.AddVariable(Name, subjectFactory);
+            return Expression.Call(typeof(SubjectBuilder<T>), nameof(Generate), null, subjectExpression);
+        }
+
+        static IObservable<T> Generate(ISubject<T> subject)
+        {
+            return subject;
         }
     }
 }
