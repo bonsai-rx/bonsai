@@ -45,8 +45,17 @@ namespace Bonsai.Design.Visualizers
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = arguments.FirstOrDefault();
-            return source ?? Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
+            var source = arguments.SingleOrDefault();
+            if (source == null)
+            {
+                return Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
+            }
+            else return Expression.Call(typeof(TableLayoutPanelBuilder), nameof(Process), source.Type.GetGenericArguments(), source);
+        }
+
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            return source;
         }
     }
 }
