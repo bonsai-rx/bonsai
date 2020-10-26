@@ -163,11 +163,19 @@ namespace Bonsai.Design
             while (dialogMashupType != null && dialogMashupType != typeof(DialogMashupVisualizer))
             {
                 var mashup = typeof(VisualizerMashup<,>).MakeGenericType(dialogMashupType, visualizerType);
-                mashupVisualizerType = editorService.GetTypeVisualizers(mashup).SingleOrDefault();
+                mashupVisualizerType = editorService.GetTypeVisualizers(mashup).FirstOrDefault();
+                if (mashupVisualizerType != null) break;
+
+                mashup = typeof(VisualizerMashup<>).MakeGenericType(dialogMashupType);
+                mashupVisualizerType = editorService.GetTypeVisualizers(mashup).FirstOrDefault();
                 if (mashupVisualizerType != null) break;
                 dialogMashupType = dialogMashupType.BaseType;
             }
 
+            if (mashupVisualizerType.IsGenericTypeDefinition)
+            {
+                mashupVisualizerType = mashupVisualizerType.MakeGenericType(visualizerType);
+            }
             return mashupVisualizerType;
         }
 

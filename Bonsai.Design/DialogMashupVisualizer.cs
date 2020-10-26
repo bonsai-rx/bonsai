@@ -25,7 +25,7 @@ namespace Bonsai.Design
             UnloadMashups();
         }
 
-        public void LoadMashups(IServiceProvider provider)
+        public virtual void LoadMashups(IServiceProvider provider)
         {
             using (var serviceContainer = new ServiceContainer(provider))
             {
@@ -38,7 +38,7 @@ namespace Bonsai.Design
             }
         }
 
-        public void UnloadMashups()
+        public virtual void UnloadMashups()
         {
             foreach (var mashup in mashups)
             {

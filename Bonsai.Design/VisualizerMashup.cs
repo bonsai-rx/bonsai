@@ -25,6 +25,11 @@ namespace Bonsai.Design
         public MashupTypeVisualizer Visualizer { get; private set; }
     }
 
+    public static class VisualizerMashup<TMashupVisualizer>
+        where TMashupVisualizer : DialogMashupVisualizer
+    {
+    }
+
     public static class VisualizerMashup<TMashupVisualizer, TVisualizer>
         where TMashupVisualizer : DialogMashupVisualizer
         where TVisualizer : DialogTypeVisualizer
