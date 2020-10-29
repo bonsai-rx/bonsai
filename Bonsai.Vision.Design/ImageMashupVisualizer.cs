@@ -16,6 +16,7 @@ namespace Bonsai.Vision.Design
         IObserver<IList<object>> activeObserver;
         IList<object> activeValues;
         IList<object> shownValues;
+        IplImage visualizerCache;
         Timer updateTimer;
 
         [XmlIgnore]
@@ -37,8 +38,9 @@ namespace Bonsai.Vision.Design
             var inputImage = (IplImage)value;
             if (Mashups.Count > 0)
             {
-                VisualizerImage = IplImageHelper.EnsureImageFormat(VisualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
-                CV.Copy(inputImage, VisualizerImage);
+                visualizerCache = IplImageHelper.EnsureImageFormat(visualizerCache, inputImage.Size, inputImage.Depth, inputImage.Channels);
+                CV.Copy(inputImage, visualizerCache);
+                VisualizerImage = visualizerCache;
             }
             else VisualizerImage = inputImage;
         }
@@ -126,6 +128,7 @@ namespace Bonsai.Vision.Design
             base.Unload();
             updateTimer.Dispose();
             updateTimer = null;
+            visualizerCache = null;
             VisualizerImage = null;
             activeObserver = null;
         }
