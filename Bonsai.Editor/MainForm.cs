@@ -16,7 +16,6 @@ using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
-using System.Diagnostics;
 using System.Reflection;
 using System.Globalization;
 using System.Reactive.Subjects;
@@ -37,7 +36,6 @@ namespace Bonsai.Editor
         const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
-        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly object WorkflowValidating = new object();
@@ -130,7 +128,7 @@ namespace Bonsai.Editor
             statusStrip.Items.Add(statusTextLabel);
 
             directoryToolStripItem = directoryToolStripTextBox;
-            if (IsRunningOnMono)
+            if (EditorSettings.IsRunningOnMono)
             {
                 var directoryToolStripLabel = new ToolStripConstrainedStatusLabel();
                 directoryToolStripLabel.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.All;
@@ -181,7 +179,7 @@ namespace Bonsai.Editor
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
 
-            if (IsRunningOnMono)
+            if (EditorSettings.IsRunningOnMono)
             {
                 editorControl.Enter += delegate { menuStrip.Enabled = false; };
                 editorControl.Leave += delegate { menuStrip.Enabled = true; };
@@ -292,7 +290,7 @@ namespace Bonsai.Editor
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
-            if (!IsRunningOnMono)
+            if (!EditorSettings.IsRunningOnMono)
             {
                 var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
                 var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
@@ -351,8 +349,8 @@ namespace Bonsai.Editor
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
             const float DefaultToolboxSplitterDistance = 245f;
-            var workflowSplitterScale = IsRunningOnMono ? 0.5f : 1.0f;
-            var toolboxSplitterScale = IsRunningOnMono ? 0.75f : 1.0f;
+            var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f : 1.0f;
+            var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f : 1.0f;
             toolboxSplitterScale *= DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * workflowSplitterScale * factor.Height);
@@ -1065,7 +1063,7 @@ namespace Bonsai.Editor
 
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            OpenUri(directoryToolStripItem.Text);
+            EditorDialog.OpenUri(directoryToolStripItem.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2154,75 +2152,43 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
-        private void OpenUri(string url)
-        {
-            Uri result;
-            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out result) &&
-                (result.Scheme == Uri.UriSchemeFile || result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
-            if (!validUrl)
-            {
-                throw new ArgumentException("The URL is malformed.");
-            }
-
-            try
-            {
-                Cursor = Cursors.AppStarting;
-                if (IsRunningOnMono && Environment.OSVersion.Platform == PlatformID.Unix)
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else Process.Start(url);
-            }
-            catch { } //best effort
-            finally
-            {
-                Cursor = null;
-            }
-        }
-
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenUri("http://bonsai-rx.org/docs/editor/");
+            EditorDialog.ShowDocs();
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenUri("https://groups.google.com/forum/#!forum/bonsai-users");
+            EditorDialog.ShowForum();
         }
 
         private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenUri("https://github.com/bonsai-rx/bonsai/issues");
+            EditorDialog.ShowReportBug();
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var about = new AboutBox())
-            {
-                about.ShowDialog();
-            }
+            EditorDialog.ShowAboutBox();
         }
 
         private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var start = new StartScreen())
+            var result = EditorDialog.ShowStartScreen(out string fileName);
+            if (result != EditorResult.Exit && CloseWorkflow())
             {
-                start.ShowDialog();
-                if (start.EditorResult != EditorResult.Exit && CloseWorkflow())
+                if (result == EditorResult.ReloadEditor)
                 {
-                    if (start.EditorResult == EditorResult.ReloadEditor)
+                    if (string.IsNullOrEmpty(fileName))
                     {
-                        if (string.IsNullOrEmpty(start.FileName))
-                        {
-                            ClearWorkflow();
-                        }
-                        else OpenWorkflow(start.FileName);
+                        ClearWorkflow();
                     }
-                    else
-                    {
-                        EditorResult = start.EditorResult;
-                        Close();
-                    }
+                    else OpenWorkflow(fileName);
+                }
+                else
+                {
+                    EditorResult = result;
+                    Close();
                 }
             }
         }
@@ -2820,7 +2786,7 @@ namespace Bonsai.Editor
             propertyGrid.HelpForeColor = ForeColor;
             propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
-            if (!IsRunningOnMono)
+            if (!EditorSettings.IsRunningOnMono)
             {
                 propertyGrid.CategoryForeColor = ForeColor;
                 InitializeBorderTheme();

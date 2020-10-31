@@ -3,7 +3,6 @@ using Bonsai.Editor.Themes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -13,16 +12,14 @@ namespace Bonsai.Editor
     public partial class StartScreen : Form
     {
         bool tabSelect;
-        Font recentFileNameFont;
-        Font recentFilePathFont;
-        List<Image> customImages = new List<Image>();
-        ComponentResourceManager resources = new ComponentResourceManager(typeof(StartScreen));
-        TreeNode newProjectNode = new TreeNode("New Project", 0, 0);
-        TreeNode openProjectNode = new TreeNode("Open Project", 1, 1);
-        TreeNode galleryNode = new TreeNode("Bonsai Gallery", 2, 2);
-        TreeNode packageManagerNode = new TreeNode("Manage Packages", 3, 3);
-        TreeNode documentationNode = new TreeNode("Documentation");
-        TreeNode forumNode = new TreeNode("Forums");
+        readonly List<Image> customImages = new List<Image>();
+        readonly ComponentResourceManager resources = new ComponentResourceManager(typeof(StartScreen));
+        readonly TreeNode newProjectNode = new TreeNode("New Project", 0, 0);
+        readonly TreeNode openProjectNode = new TreeNode("Open Project", 1, 1);
+        readonly TreeNode galleryNode = new TreeNode("Bonsai Gallery", 2, 2);
+        readonly TreeNode packageManagerNode = new TreeNode("Manage Packages", 3, 3);
+        readonly TreeNode documentationNode = new TreeNode("Documentation");
+        readonly TreeNode forumNode = new TreeNode("Forums");
 
         public StartScreen()
         {
@@ -42,32 +39,10 @@ namespace Bonsai.Editor
             get { return openWorkflowDialog.FileName; }
         }
 
-        private void StartBrowser(string url)
-        {
-            Uri result;
-            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out result) &&
-                (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
-            if (!validUrl)
-            {
-                throw new ArgumentException("The URL is malformed.");
-            }
-
-            try
-            {
-                Cursor = Cursors.AppStarting;
-                Process.Start(url);
-            }
-            catch { } //best effort
-            finally
-            {
-                Cursor = null;
-            }
-        }
-
         private void ActivateNode(TreeNode node)
         {
-            if (node == documentationNode) StartBrowser("http://bonsai-rx.org/docs/editor/");
-            if (node == forumNode) StartBrowser("https://groups.google.com/forum/#!forum/bonsai-users");
+            if (node == documentationNode) EditorDialog.ShowDocs();
+            if (node == forumNode) EditorDialog.ShowForum();
             if (node == newProjectNode) EditorResult = EditorResult.ReloadEditor;
             if (node == galleryNode) EditorResult = EditorResult.OpenGallery;
             if (node == packageManagerNode) EditorResult = EditorResult.ManagePackages;
@@ -108,9 +83,6 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
-            recentFilePathFont = recentFileView.Font;
-            recentFileNameFont = new Font(recentFilePathFont.FontFamily, recentFilePathFont.SizeInPoints + 1, FontStyle.Bold);
-
             var recentlyUsedFiles = EditorSettings.Instance.RecentlyUsedFiles;
             foreach (var file in recentlyUsedFiles)
             {

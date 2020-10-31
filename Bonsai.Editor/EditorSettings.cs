@@ -27,6 +27,7 @@ namespace Bonsai.Editor
         static readonly string SettingsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), SettingsFileName);
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
         readonly RecentlyUsedFileCollection recentlyUsedFiles = new RecentlyUsedFileCollection(MaxRecentFiles);
+        public static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
         internal EditorSettings()
         {
