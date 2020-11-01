@@ -206,7 +206,9 @@ namespace Bonsai.NuGet
 
                 if (licensePackages.Count > 0 && !AcceptLicenseAgreement(licensePackages))
                 {
-                    return null;
+                    token.ThrowIfCancellationRequested();
+                    var pluralSuffix = licensePackages.Count == 1 ? "s" : "";
+                    throw new InvalidOperationException($"Unable to install package '{package}' because '{string.Join(", ", licensePackages.Select(x => x.Identity))}' require{pluralSuffix} license acceptance.");
                 }
 
                 // Get dependencies from removed packages while they are still installed
