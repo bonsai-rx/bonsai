@@ -20,7 +20,6 @@ namespace Bonsai
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
-        const string RepositoryPath = "Packages";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
@@ -117,9 +116,8 @@ namespace Bonsai
                 }
             }
 
-            var packageMap = GetPackageReferenceMap(packageConfiguration);
-            var dependencies = GetAssemblyPackageReferences(
-                packageConfiguration,
+            var packageMap = packageConfiguration.GetPackageReferenceMap();
+            var dependencies = packageConfiguration.GetAssemblyPackageReferences(
                 assemblies.Select(assembly => assembly.GetName().Name),
                 packageMap);
             if (File.Exists(scriptEnvironment.ProjectFileName))
@@ -131,50 +129,6 @@ namespace Bonsai
             }
 
             return dependencies.ToArray();
-        }
-
-        public static IDictionary<string, Configuration.PackageReference> GetPackageReferenceMap(PackageConfiguration configuration)
-        {
-            var baseDirectory = Path.GetDirectoryName(configuration.ConfigurationFile);
-            var rootDirectory = Path.Combine(baseDirectory, RepositoryPath);
-            var pathResolver = new PackagePathResolver(rootDirectory);
-            var packageMap = new Dictionary<string, Configuration.PackageReference>();
-            foreach (var package in configuration.Packages)
-            {
-                var identity = new PackageIdentity(package.Id, NuGetVersion.Parse(package.Version));
-                var packagePath = pathResolver.GetPackageDirectoryName(identity);
-                if (packagePath != null)
-                {
-                    packageMap.Add(packagePath, package);
-                }
-            }
-
-            return packageMap;
-        }
-
-        public static IEnumerable<Configuration.PackageReference> GetAssemblyPackageReferences(
-            PackageConfiguration configuration,
-            IEnumerable<string> assemblyNames,
-            IDictionary<string, Configuration.PackageReference> packageMap)
-        {
-            var dependencies = new List<Configuration.PackageReference>();
-            foreach (var assemblyName in assemblyNames)
-            {
-                var assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName);
-                if (assemblyLocation != null)
-                {
-                    var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                    if (pathElements.Length > 1 && pathElements[0] == RepositoryPath)
-                    {
-                        if (packageMap.TryGetValue(pathElements[1], out Configuration.PackageReference package))
-                        {
-                            dependencies.Add(package);
-                        }
-                    }
-                }
-            }
-
-            return dependencies;
         }
 
         public static IObservable<PackageDependency> GetWorkflowPackageDependencies(string[] fileNames, PackageConfiguration configuration)

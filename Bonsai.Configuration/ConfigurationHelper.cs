@@ -1,16 +1,19 @@
-﻿using System;
+﻿using NuGet.Packaging;
+using NuGet.Packaging.Core;
+using NuGet.Versioning;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
-using System.Xml.Serialization;
+using System.Reflection;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Bonsai.Configuration
 {
     public static class ConfigurationHelper
     {
+        const string RepositoryPath = "Packages";
         const string PathEnvironmentVariable = "PATH";
-        const string DefaultProbingPath = "Packages";
         const string DefaultConfigurationFileName = "Bonsai.config";
 
         static string GetEnvironmentPlatform()
@@ -41,7 +44,7 @@ namespace Bonsai.Configuration
                 : Path.GetDirectoryName(configuration.ConfigurationFile);
         }
 
-        public static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
+        public static string GetAssemblyLocation(this PackageConfiguration configuration, string assemblyName)
         {
             var msilAssembly = Tuple.Create(assemblyName, ProcessorArchitecture.MSIL);
             if (configuration.AssemblyLocations.Contains(msilAssembly))
@@ -56,6 +59,50 @@ namespace Bonsai.Configuration
             }
 
             return null;
+        }
+
+        public static IDictionary<string, PackageReference> GetPackageReferenceMap(this PackageConfiguration configuration)
+        {
+            var baseDirectory = Path.GetDirectoryName(configuration.ConfigurationFile);
+            var rootDirectory = Path.Combine(baseDirectory, RepositoryPath);
+            var pathResolver = new PackagePathResolver(rootDirectory);
+            var packageMap = new Dictionary<string, Configuration.PackageReference>();
+            foreach (var package in configuration.Packages)
+            {
+                var identity = new PackageIdentity(package.Id, NuGetVersion.Parse(package.Version));
+                var packagePath = pathResolver.GetPackageDirectoryName(identity);
+                if (packagePath != null)
+                {
+                    packageMap.Add(packagePath, package);
+                }
+            }
+
+            return packageMap;
+        }
+
+        public static IEnumerable<PackageReference> GetAssemblyPackageReferences(
+            this PackageConfiguration configuration,
+            IEnumerable<string> assemblyNames,
+            IDictionary<string, PackageReference> packageMap)
+        {
+            var dependencies = new List<PackageReference>();
+            foreach (var assemblyName in assemblyNames)
+            {
+                var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
+                if (assemblyLocation != null)
+                {
+                    var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    if (pathElements.Length > 1 && pathElements[0] == RepositoryPath)
+                    {
+                        if (packageMap.TryGetValue(pathElements[1], out PackageReference package))
+                        {
+                            dependencies.Add(package);
+                        }
+                    }
+                }
+            }
+
+            return dependencies;
         }
 
         public static void SetAssemblyResolve(PackageConfiguration configuration)

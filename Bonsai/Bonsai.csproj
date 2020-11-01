@@ -56,7 +56,6 @@
     </ItemGroup>
     <ItemGroup>
       <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
-      <InternalizeExcludeAssemblies Include="NuGet.Manifest" />
     </ItemGroup>
     <ILRepack OutputType="$(OutputType)"
               MainAssembly="$(AssemblyName).exe"

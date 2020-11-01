@@ -1,6 +1,5 @@
-﻿using Bonsai.Configuration;
+﻿using Bonsai.Configuration.Properties;
 using Bonsai.NuGet;
-using Bonsai.Properties;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
@@ -16,9 +15,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bonsai
+namespace Bonsai.Configuration
 {
-    class PackageConfigurationUpdater : IDisposable
+    public class PackageConfigurationUpdater : IDisposable
     {
         const string PackageTagFilter = "Bonsai";
         const string GalleryDirectory = "Gallery";

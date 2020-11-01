@@ -44,7 +44,7 @@ namespace Bonsai
 
         internal static int LaunchWorkflowEditor(
             PackageConfiguration packageConfiguration,
-            ScriptExtensions scriptEnvironment,
+            ScriptExtensions scriptExtensions,
             string editorRepositoryPath,
             string initialFileName,
             float editorScale,
@@ -78,6 +78,7 @@ namespace Bonsai
             }, cancellation.Token);
 
             EnableVisualStyles();
+            var scriptEnvironment = new ScriptExtensionsEnvironment(scriptExtensions);
             using var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
             try
             {
@@ -92,7 +93,7 @@ namespace Bonsai
                     LoadAction.None;
                 Application.Run(mainForm);
                 var editorFlags = mainForm.UpdatesAvailable ? EditorFlags.UpdatesAvailable : EditorFlags.None;
-                if (scriptEnvironment.DebugScripts) editorFlags |= EditorFlags.DebugScripts;
+                if (scriptExtensions.DebugScripts) editorFlags |= EditorFlags.DebugScripts;
                 AppResult.SetResult(editorFlags);
                 AppResult.SetResult(mainForm.FileName);
                 return (int)mainForm.EditorResult;
