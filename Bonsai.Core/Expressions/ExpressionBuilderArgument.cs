@@ -10,7 +10,7 @@ namespace Bonsai.Expressions
     /// any given node.
     /// </summary>
     [TypeConverter("Bonsai.Design.ExpressionBuilderArgumentTypeConverter, Bonsai.Design")]
-    public class ExpressionBuilderArgument : IComparable<ExpressionBuilderArgument>, IComparable
+    public class ExpressionBuilderArgument : IEquatable<ExpressionBuilderArgument>, IComparable<ExpressionBuilderArgument>, IComparable
     {
         /// <summary>
         /// The prefix that starts every input argument name.
@@ -118,9 +118,21 @@ namespace Bonsai.Expressions
         /// </returns>
         public override bool Equals(object obj)
         {
-            var argument = obj as ExpressionBuilderArgument;
-            if (argument == null) return false;
-            return Index.Equals(argument.Index);
+            if (obj is ExpressionBuilderArgument argument) return Equals(argument);
+            else return false;
+        }
+
+        /// <summary>
+        /// Indicates whether the specified argument is equal to the current argument.
+        /// </summary>
+        /// <param name="other">The argument object to compare with the current argument.</param>
+        /// <returns>
+        /// <b>true</b> if the specified argument object is equal to the current argument;
+        /// otherwise, <b>false</b>.
+        public bool Equals(ExpressionBuilderArgument other)
+        {
+            if (other is null) return false;
+            return Index.Equals(other.Index);
         }
 
         /// <summary>
