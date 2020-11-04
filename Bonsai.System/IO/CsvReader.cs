@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Bonsai.IO
 {
@@ -17,7 +19,7 @@ namespace Bonsai.IO
         static readonly string[] EmptySeparator = new string[0];
 
         public CsvReader()
-            : base(minArguments: 0, maxArguments: 0)
+            : base(minArguments: 0, maxArguments: 1)
         {
         }
 
@@ -45,11 +47,17 @@ namespace Bonsai.IO
             if (string.IsNullOrEmpty(pattern)) pattern = null;
             var separator = string.IsNullOrEmpty(separatorString) ? EmptySeparator : new[] { Regex.Unescape(separatorString) };
 
+            var source = arguments.FirstOrDefault();
             var parameter = Expression.Parameter(typeof(string));
             parseBody = ExpressionHelper.Parse(parameter, pattern, separator);
             var parser = Expression.Lambda(parseBody, parameter);
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Generate", new[] { parseBody.Type }, parser);
+            if (source != null)
+            {
+                var sourceType = source.Type.GetGenericArguments()[0];
+                return Expression.Call(combinatorExpression, nameof(Generate), new[] { sourceType, parseBody.Type }, source, parser);
+            }
+            else return Expression.Call(combinatorExpression, nameof(Generate), new[] { parseBody.Type }, parser);
         }
 
         IObservable<TResult> Generate<TResult>(Func<string, TResult> parser)
@@ -82,6 +90,36 @@ namespace Bonsai.IO
                     observer.OnError(ex);
                 }
             });
+        }
+
+        IObservable<TResult> Generate<TSource, TResult>(IObservable<TSource> source, Func<string, TResult> parser)
+        {
+            return Observable.Using(
+                async token =>
+                {
+                    var skipRows = SkipRows;
+                    var reader = new StreamReader(FileName);
+                    while (!reader.EndOfStream && skipRows > 0)
+                    {
+                        if (token.IsCancellationRequested) break;
+                        await reader.ReadLineAsync();
+                        skipRows--;
+                    }
+                    return reader;
+                },
+                (reader, token) =>
+                {
+                    if (token.IsCancellationRequested || reader.EndOfStream)
+                    {
+                        return Task.FromResult(Observable.Empty<TResult>());
+                    }
+
+                    return Task.FromResult(source.Select(input =>
+                    {
+                        var line = reader.ReadLine();
+                        return parser(line);
+                    }));
+                });
         }
     }
 }
