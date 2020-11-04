@@ -10,6 +10,8 @@ namespace Bonsai.Expressions
     /// Represents a workflow property.
     /// </summary>
     [Source]
+    [DefaultProperty("Value")]
+    [Combinator(MethodName = "Generate")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Source)]
     public abstract class WorkflowProperty
@@ -25,8 +27,6 @@ namespace Bonsai.Expressions
     /// Represents a strongly typed workflow property.
     /// </summary>
     /// <typeparam name="TValue">The type of the property value.</typeparam>
-    [DefaultProperty(nameof(Value))]
-    [Combinator(MethodName = nameof(Generate))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class WorkflowProperty<TValue> : WorkflowProperty
     {
