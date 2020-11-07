@@ -1,4 +1,4 @@
-using Bonsai.Configuration;
+﻿using Bonsai.Configuration;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
 using System;
@@ -29,6 +29,7 @@ namespace Bonsai
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
         internal const int NormalExitCode = 0;
+        internal const int ErrorExitCode = -1;
 
         /// <summary>
         /// The main entry point for the application.
@@ -148,8 +149,13 @@ namespace Bonsai
                         propertyAssignments);
                 }
             }
-            else if (Bootstrapper.GetEditorPackage(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName, launchEditor) != null)
+            else
             {
+                var bootstrapper = launchEditor ? EditorBootstrapper.Default : ConsoleBootstrapper.Default;
+                var packageManager = bootstrapper.CreatePackageManager(editorRepositoryPath);
+                try { bootstrapper.RunAsync(packageConfiguration, packageManager, editorPath, editorPackageName).Wait(); }
+                catch (AggregateException) { return ErrorExitCode; }
+
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do
                 {

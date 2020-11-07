@@ -19,7 +19,7 @@ using System.Linq;
 
 namespace Bonsai
 {
-    class Launcher : Bootstrapper
+    static class Launcher
     {
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,
@@ -28,7 +28,7 @@ namespace Bonsai
             PackageIdentity editorPackageName,
             bool updatePackages)
         {
-            EnableVisualStyles();
+            EditorBootstrapper.EnableVisualStyles();
             using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
             {
@@ -54,7 +54,7 @@ namespace Bonsai
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
             var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
-            var packageManager = CreatePackageManager(editorRepositoryPath);
+            var packageManager = EditorBootstrapper.Default.CreatePackageManager(editorRepositoryPath);
             using var cancellation = new CancellationTokenSource();
             var updatesAvailable = Task.Run(async () =>
             {
@@ -77,7 +77,7 @@ namespace Bonsai
                 catch { return false; }
             }, cancellation.Token);
 
-            EnableVisualStyles();
+            EditorBootstrapper.EnableVisualStyles();
             var scriptEnvironment = new ScriptExtensionsEnvironment(scriptExtensions);
             using var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
             try
@@ -103,7 +103,7 @@ namespace Bonsai
 
         internal static int LaunchStartScreen(out string initialFileName)
         {
-            EnableVisualStyles();
+            EditorBootstrapper.EnableVisualStyles();
             using (var startScreen = new StartScreen())
             {
                 Application.Run(startScreen);
@@ -166,7 +166,7 @@ namespace Bonsai
                 return Program.NormalExitCode;
             }
 
-            EnableVisualStyles();
+            EditorBootstrapper.EnableVisualStyles();
             var directoryName = Path.GetDirectoryName(fileName);
             if (Path.GetFileName(directoryName) != Path.GetFileNameWithoutExtension(fileName))
             {
@@ -212,7 +212,7 @@ namespace Bonsai
             string editorPath,
             PackageIdentity editorPackageName)
         {
-            EnableVisualStyles();
+            EditorBootstrapper.EnableVisualStyles();
             using (var galleryDialog = new GalleryDialog(editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageName))
             {
