@@ -41,6 +41,7 @@ namespace Bonsai.NuGet
             DependencyBehavior = DependencyBehavior.Highest;
             ProjectFramework = NuGetFramework.AgnosticFramework;
             PackageSaveMode = PackageSaveMode.Defaultv3;
+            Logger = NullLogger.Instance;
         }
 
         public ILogger Logger { get; set; }
@@ -208,7 +209,9 @@ namespace Bonsai.NuGet
                 {
                     token.ThrowIfCancellationRequested();
                     var pluralSuffix = licensePackages.Count == 1 ? "s" : "";
-                    throw new InvalidOperationException($"Unable to install package '{package}' because '{string.Join(", ", licensePackages.Select(x => x.Identity))}' require{pluralSuffix} license acceptance.");
+                    var message = $"Unable to install package '{package}' because '{string.Join(", ", licensePackages.Select(x => x.Identity))}' require{pluralSuffix} license acceptance.";
+                    logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
                 // Get dependencies from removed packages while they are still installed
@@ -251,7 +254,7 @@ namespace Bonsai.NuGet
                     localPackages = localPackages.Union(await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework));
                     GetPackageDependents(installedPackages, localPackages, out dependentPackages, out packageDependencies);
                     var uninstallOperations = GetPackagesToUninstall(packagesToRemove, packageDependencies, removeDependencies: true);
-                    uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true);
+                    uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true, logger);
                     await DeletePackages(uninstallOperations, logger, token);
                 }
 
@@ -305,7 +308,9 @@ namespace Bonsai.NuGet
             // dependency was not found in any repository
             if (dependencyInfo == null)
             {
-                throw new InvalidOperationException($"The package '{packageId} {versionRange}' could not be found.");
+                var message = $"The package '{packageId} {versionRange}' could not be found.";
+                logger.LogError(message);
+                throw new InvalidOperationException(message);
             }
         }
 
@@ -325,7 +330,7 @@ namespace Bonsai.NuGet
             }
 
             var packageOperations = GetPackagesToUninstall(targetPackages, packageDependencies, removeDependencies);
-            packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false);
+            packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false, logger);
             await DeletePackages(packageOperations, logger, token);
             return true;
         }
@@ -433,7 +438,8 @@ namespace Bonsai.NuGet
             IEnumerable<PackageIdentity> packagesToRemove,
             IEnumerable<PackageIdentity> targetPackages,
             IDictionary<PackageIdentity, HashSet<PackageIdentity>> dependentPackages,
-            bool forceRemoveTargets)
+            bool forceRemoveTargets,
+            ILogger logger)
         {
             var unusedDependencies = new List<PackageIdentity>(packagesToRemove);
             unusedDependencies.RemoveAll(package =>
@@ -444,8 +450,9 @@ namespace Bonsai.NuGet
                     if (dependentPackages.TryGetValue(package, out HashSet<PackageIdentity> dependents))
                     {
                         var pluralSuffix = dependents.Count == 1 ? "s" : "";
-                        throw new InvalidOperationException(
-                            $"Unable to uninstall '{package}' because '{string.Join(", ", dependents)}' depend{pluralSuffix} on it.");
+                        var message = $"Unable to uninstall '{package}' because '{string.Join(", ", dependents)}' depend{pluralSuffix} on it.";
+                        logger.LogError(message);
+                        throw new InvalidOperationException(message);
                     }
                 }
 
