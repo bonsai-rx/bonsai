@@ -53,7 +53,7 @@ namespace Bonsai.Configuration
             var settingsFileName = Path.Combine(projectFolder, Settings.DefaultSettingsFileName);
             if (!File.Exists(settingsFileName))
             {
-                var machineWideSettings = new Bonsai.NuGet.BonsaiMachineWideSettings();
+                var machineWideSettings = new NuGet.BonsaiMachineWideSettings();
                 var settings = machineWideSettings.Settings;
                 if (settings != null)
                 {

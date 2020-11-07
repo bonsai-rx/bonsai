@@ -1,4 +1,5 @@
-﻿using NuGet.Packaging.Core;
+using Bonsai.Configuration;
+using NuGet.Packaging.Core;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace Bonsai
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
             var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
-            var packageConfiguration = Configuration.ConfigurationHelper.Load();
+            var packageConfiguration = ConfigurationHelper.Load();
             if (!bootstrap)
             {
                 if (launchResult == EditorResult.Exit)
@@ -89,7 +90,7 @@ namespace Bonsai
                     if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
                     else if (launchEditor)
                     {
-                        Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                        ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                         launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
                         if (launchResult == EditorResult.ReloadEditor)
                         {
@@ -104,12 +105,12 @@ namespace Bonsai
                 AppResult.SetResult(launchResult);
                 if (launchResult == EditorResult.ExportPackage)
                 {
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchExportPackage(packageConfiguration, initialFileName, editorFolder);
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchPackageManager(
                         packageConfiguration,
                         editorRepositoryPath,
@@ -119,7 +120,7 @@ namespace Bonsai
                 }
                 else if (launchResult == EditorResult.OpenGallery)
                 {
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                 }
                 else if (launchResult == EditorResult.ReloadEditor)
@@ -128,25 +129,23 @@ namespace Bonsai
                     {
                         var initialPath = Path.GetDirectoryName(initialFileName);
                         var customExtensionsPath = Path.Combine(initialPath, ExtensionsPath);
-                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, customExtensionsPath);
+                        ConfigurationHelper.RegisterPath(packageConfiguration, customExtensionsPath);
                     }
 
-                    Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
-                    libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                    using (var scriptExtensions = Configuration.ScriptExtensionsProvider.CompileAssembly(packageConfiguration, editorRepositoryPath, debugScripts))
-                    {
-                        Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                        if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
-                        else return Launcher.LaunchWorkflowEditor(
-                            packageConfiguration,
-                            scriptExtensions,
-                            editorRepositoryPath,
-                            initialFileName,
-                            editorScale,
-                            start,
-                            debugging,
-                            propertyAssignments);
-                    }
+                    ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
+                    libFolders.ForEach(path => ConfigurationHelper.RegisterPath(packageConfiguration, path));
+                    using var scriptExtensions = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, editorRepositoryPath, debugScripts);
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
+                    else return Launcher.LaunchWorkflowEditor(
+                        packageConfiguration,
+                        scriptExtensions,
+                        editorRepositoryPath,
+                        initialFileName,
+                        editorScale,
+                        start,
+                        debugging,
+                        propertyAssignments);
                 }
             }
             else if (Bootstrapper.GetEditorPackage(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName, launchEditor) != null)
