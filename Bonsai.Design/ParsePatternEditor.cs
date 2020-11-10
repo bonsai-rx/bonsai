@@ -40,11 +40,7 @@ namespace Bonsai.Design
 
             private void OnCommit(EventArgs e)
             {
-                var commit = Commit;
-                if (commit != null)
-                {
-                    commit(this, e);
-                }
+                Commit?.Invoke(this, e);
             }
 
             protected override void OnCreateControl()
@@ -115,7 +111,7 @@ namespace Bonsai.Design
 
             public override string ToString()
             {
-                return string.Format("{0} - {1}", Pattern, Type.Name);
+                return string.Format("{0}: {1}", Pattern, Type.Name);
             }
         }
     }
