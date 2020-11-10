@@ -66,7 +66,7 @@ namespace Bonsai.Configuration
             var baseDirectory = Path.GetDirectoryName(configuration.ConfigurationFile);
             var rootDirectory = Path.Combine(baseDirectory, RepositoryPath);
             var pathResolver = new PackagePathResolver(rootDirectory);
-            var packageMap = new Dictionary<string, Configuration.PackageReference>();
+            var packageMap = new Dictionary<string, PackageReference>();
             foreach (var package in configuration.Packages)
             {
                 var identity = new PackageIdentity(package.Id, NuGetVersion.Parse(package.Version));
@@ -129,12 +129,10 @@ namespace Bonsai.Configuration
                 var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
                 if (assemblyLocation != null)
                 {
-                    Uri uri;
-                    if (assemblyLocation.StartsWith(Uri.UriSchemeFile) && Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
+                    if (assemblyLocation.StartsWith(Uri.UriSchemeFile) && Uri.TryCreate(assemblyLocation, UriKind.Absolute, out Uri uri))
                     {
-                        Assembly assembly;
-                        assemblyLoadCache = assemblyLoadCache ?? new Dictionary<string, Assembly>();
-                        if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out assembly))
+                        assemblyLoadCache ??= new Dictionary<string, Assembly>();
+                        if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out Assembly assembly))
                         {
                             var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
                             assembly = Assembly.Load(assemblyBytes);

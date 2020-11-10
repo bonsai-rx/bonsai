@@ -1,5 +1,6 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.Design;
+using Bonsai.NuGet;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
@@ -18,8 +19,6 @@ namespace Bonsai
         readonly ScriptExtensions scriptEnvironment;
         readonly PackageConfiguration packageConfiguration;
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
-        const string BonsaiExtension = ".bonsai";
-        const string LayoutExtension = ".layout";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
@@ -89,7 +88,7 @@ namespace Bonsai
                 assemblies.Add(typeof(WorkflowBuilder).Assembly);
                 assemblies.AddRange(metadata.GetExtensionTypes().Select(type => type.Assembly));
 
-                var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
+                var layoutPath = Path.ChangeExtension(path, Path.GetExtension(path) + Constants.LayoutExtension);
                 if (File.Exists(layoutPath))
                 {
                     var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
