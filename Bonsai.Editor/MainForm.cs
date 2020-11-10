@@ -29,7 +29,6 @@ namespace Bonsai.Editor
     {
         const float DefaultEditorScale = 1.0f;
         const string BonsaiExtension = ".bonsai";
-        const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
         const string WorkflowCategoryName = "Workflow";
@@ -759,11 +758,6 @@ namespace Bonsai.Editor
             return true;
         }
 
-        string GetLayoutPath(string fileName)
-        {
-            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
-        }
-
         WorkflowBuilder LoadWorkflow(string fileName, out SemanticVersion version)
         {
             using (var reader = XmlReader.Create(fileName))
@@ -864,7 +858,7 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
 
-            var layoutPath = GetLayoutPath(fileName);
+            var layoutPath = LayoutHelper.GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
@@ -929,7 +923,7 @@ namespace Bonsai.Editor
             editorControl.UpdateVisualizerLayout();
             if (editorControl.VisualizerLayout != null)
             {
-                var layoutPath = GetLayoutPath(fileName);
+                var layoutPath = LayoutHelper.GetLayoutPath(fileName);
                 SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
             }
 
@@ -1210,57 +1204,16 @@ namespace Bonsai.Editor
             }));
         }
 
-        static void SetWorkflowNotifications(ExpressionBuilderGraph source, bool publishNotifications)
-        {
-            foreach (var builder in from node in source
-                                    let inspectBuilder = node.Value as InspectBuilder
-                                    where inspectBuilder != null
-                                    select inspectBuilder)
-            {
-                var inspectBuilder = builder;
-                inspectBuilder.PublishNotifications = publishNotifications;
-                var workflowExpression = inspectBuilder.Builder as IWorkflowExpressionBuilder;
-                if (workflowExpression != null && workflowExpression.Workflow != null)
-                {
-                    SetWorkflowNotifications(workflowExpression.Workflow, publishNotifications);
-                }
-            }
-        }
-
-        static void SetLayoutNotifications(VisualizerLayout root)
-        {
-            foreach (var settings in root.DialogSettings)
-            {
-                var inspectBuilder = settings.Tag as InspectBuilder;
-                while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
-                {
-                    inspectBuilder.PublishNotifications = !string.IsNullOrEmpty(settings.VisualizerTypeName);
-                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                    if (inspectBuilder.PublishNotifications && visualizerElement != inspectBuilder)
-                    {
-                        inspectBuilder = visualizerElement;
-                    }
-                    else inspectBuilder = null;
-                }
-
-                var editorSettings = settings as WorkflowEditorSettings;
-                if (editorSettings != null && editorSettings.EditorVisualizerLayout != null)
-                {
-                    SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
-                }
-            }
-        }
-
         void StartWorkflow()
         {
             if (running == null)
             {
                 building = true;
                 ClearWorkflowError();
-                SetWorkflowNotifications(workflowBuilder.Workflow, debugging);
+                LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debugging);
                 if (!debugging && editorControl.VisualizerLayout != null)
                 {
-                    SetLayoutNotifications(editorControl.VisualizerLayout);
+                    LayoutHelper.SetLayoutNotifications(editorControl.VisualizerLayout);
                 }
 
                 running = Observable.Using(
@@ -2248,6 +2201,11 @@ namespace Bonsai.Editor
                     return siteForm.selectionModel;
                 }
 
+                if (serviceType == typeof(TypeVisualizerMap))
+                {
+                    return siteForm.typeVisualizers;
+                }
+
                 if (serviceType == typeof(ThemeRenderer))
                 {
                     return siteForm.themeRenderer;
@@ -2380,8 +2338,7 @@ namespace Bonsai.Editor
 
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
-                SemanticVersion version;
-                var workflow = siteForm.LoadWorkflow(fileName, out version);
+                var workflow = siteForm.LoadWorkflow(fileName, out SemanticVersion version);
                 return siteForm.UpdateWorkflow(workflow, version);
             }
 
@@ -2432,11 +2389,6 @@ namespace Bonsai.Editor
                 }
 
                 return new WorkflowBuilder();
-            }
-
-            public IEnumerable<Type> GetTypeVisualizers(Type targetType)
-            {
-                return siteForm.typeVisualizers.GetTypeVisualizers(targetType);
             }
 
             public string GetPackageDisplayName(string packageKey)
@@ -2508,20 +2460,12 @@ namespace Bonsai.Editor
 
             public void OnWorkflowStarted(EventArgs e)
             {
-                var handler = WorkflowStarted;
-                if (handler != null)
-                {
-                    handler(this, e);
-                }
+                WorkflowStarted?.Invoke(this, e);
             }
 
             public void OnWorkflowStopped(EventArgs e)
             {
-                var handler = WorkflowStopped;
-                if (handler != null)
-                {
-                    handler(this, e);
-                }
+                WorkflowStopped?.Invoke(this, e);
             }
 
             public void Undo()
@@ -2564,14 +2508,12 @@ namespace Bonsai.Editor
                 var editor = (ComponentEditor)TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
                 if (editor != null)
                 {
-                    var windowsFormsEditor = editor as WindowsFormsComponentEditor;
-                    if (windowsFormsEditor != null)
+                    if (editor is WindowsFormsComponentEditor windowsFormsEditor)
                     {
                         return windowsFormsEditor.EditComponent(component, parent);
                     }
 
-                    var workflowEditor = editor as WorkflowComponentEditor;
-                    if (workflowEditor != null)
+                    if (editor is WorkflowComponentEditor workflowEditor)
                     {
                         return workflowEditor.EditComponent(component, this, parent);
                     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
@@ -24,8 +23,6 @@ namespace Bonsai.Editor
         string StoreWorkflowElements(WorkflowBuilder builder);
 
         WorkflowBuilder RetrieveWorkflowElements(string text);
-
-        IEnumerable<Type> GetTypeVisualizers(Type targetType);
 
         void SelectNextControl(bool forward);
 

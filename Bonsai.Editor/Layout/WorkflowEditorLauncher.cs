@@ -9,37 +9,17 @@ namespace Bonsai.Design
     class WorkflowEditorLauncher : DialogLauncher
     {
         bool userClosing;
-        IWorkflowExpressionBuilder builder;
-        WorkflowGraphView workflowGraphView;
-        Func<WorkflowGraphView> parentSelector;
-        Func<WorkflowEditorControl> containerSelector;
+        readonly Func<WorkflowGraphView> parentSelector;
+        readonly Func<WorkflowEditorControl> containerSelector;
 
         public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector, Func<WorkflowEditorControl> containerSelector)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException("builder");
-            }
-
-            if (parentSelector == null)
-            {
-                throw new ArgumentNullException("parentSelector");
-            }
-
-            if (containerSelector == null)
-            {
-                throw new ArgumentNullException("containerSelector");
-            }
-
-            this.builder = builder;
-            this.parentSelector = parentSelector;
-            this.containerSelector = containerSelector;
+            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            this.parentSelector = parentSelector ?? throw new ArgumentNullException(nameof(parentSelector));
+            this.containerSelector = containerSelector ?? throw new ArgumentNullException(nameof(containerSelector));
         }
 
-        internal IWorkflowExpressionBuilder Builder
-        {
-            get { return builder; }
-        }
+        internal IWorkflowExpressionBuilder Builder { get; }
 
         internal WorkflowGraphView ParentView
         {
@@ -58,17 +38,14 @@ namespace Bonsai.Design
 
         public VisualizerLayout VisualizerLayout { get; set; }
 
-        public WorkflowGraphView WorkflowGraphView
-        {
-            get { return workflowGraphView; }
-        }
+        public WorkflowGraphView WorkflowGraphView { get; private set; }
 
         public void UpdateEditorLayout()
         {
-            if (workflowGraphView != null)
+            if (WorkflowGraphView != null)
             {
-                workflowGraphView.UpdateVisualizerLayout();
-                VisualizerLayout = workflowGraphView.VisualizerLayout;
+                WorkflowGraphView.UpdateVisualizerLayout();
+                VisualizerLayout = WorkflowGraphView.VisualizerLayout;
                 if (VisualizerDialog != null)
                 {
                     Bounds = VisualizerDialog.DesktopBounds;
@@ -80,10 +57,10 @@ namespace Bonsai.Design
         {
             if (VisualizerDialog != null)
             {
-                VisualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
+                VisualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(Builder);
                 if (VisualizerDialog.TopLevel == false)
                 {
-                    Container.RefreshTab(builder);
+                    Container.RefreshTab(Builder);
                 }
             }
         }
@@ -92,7 +69,7 @@ namespace Bonsai.Design
         {
             if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
             {
-                Container.SelectTab(builder);
+                Container.SelectTab(Builder);
             }
             else base.Show(owner, provider);
         }
@@ -104,7 +81,7 @@ namespace Bonsai.Design
                 userClosing = false;
                 if (VisualizerDialog.TopLevel == false)
                 {
-                    Container.CloseTab(builder);
+                    Container.CloseTab(Builder);
                 }
                 else base.Hide();
             }
@@ -115,13 +92,13 @@ namespace Bonsai.Design
             if (userClosing)
             {
                 e.Cancel = true;
-                ParentView.CloseWorkflowView(builder);
+                ParentView.CloseWorkflowView(Builder);
                 ParentView.UpdateSelection();
             }
             else
             {
                 UpdateEditorLayout();
-                workflowGraphView.HideEditorMapping();
+                WorkflowGraphView.HideEditorMapping();
             }
         }
 
@@ -139,11 +116,11 @@ namespace Bonsai.Design
                 workflowEditor.SuspendLayout();
                 workflowEditor.Dock = DockStyle.Fill;
                 workflowEditor.Font = ParentView.Font;
-                workflowEditor.Workflow = builder.Workflow;
-                workflowGraphView = workflowEditor.WorkflowGraphView;
+                workflowEditor.Workflow = Builder.Workflow;
+                WorkflowGraphView = workflowEditor.WorkflowGraphView;
                 workflowEditor.ResumeLayout(false);
                 visualizerDialog.AddControl(workflowEditor);
-                visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
+                visualizerDialog.Icon = Editor.Properties.Resources.Icon;
                 visualizerDialog.ShowIcon = true;
                 visualizerDialog.Activated += (sender, e) => workflowEditor.ActiveTab.UpdateSelection();
                 visualizerDialog.FormClosing += (sender, e) =>
@@ -160,18 +137,18 @@ namespace Bonsai.Design
                 visualizerDialog.Dock = DockStyle.Fill;
                 visualizerDialog.TopLevel = false;
                 visualizerDialog.Visible = true;
-                var tabState = workflowEditor.CreateTab(builder, ParentView.ReadOnly, visualizerDialog);
-                workflowGraphView = tabState.WorkflowGraphView;
+                var tabState = workflowEditor.CreateTab(Builder, ParentView.ReadOnly, visualizerDialog);
+                WorkflowGraphView = tabState.WorkflowGraphView;
                 tabState.TabClosing += EditorClosing;
             }
 
             userClosing = true;
             visualizerDialog.BackColor = ParentView.ParentForm.BackColor;
-            workflowGraphView.BackColorChanged += (sender, e) => visualizerDialog.BackColor = ParentView.ParentForm.BackColor;
-            workflowGraphView.Launcher = this;
-            workflowGraphView.VisualizerLayout = VisualizerLayout;
-            workflowGraphView.SelectFirstGraphNode();
-            workflowGraphView.Select();
+            WorkflowGraphView.BackColorChanged += (sender, e) => visualizerDialog.BackColor = ParentView.ParentForm.BackColor;
+            WorkflowGraphView.Launcher = this;
+            WorkflowGraphView.VisualizerLayout = VisualizerLayout;
+            WorkflowGraphView.SelectFirstGraphNode();
+            WorkflowGraphView.Select();
             UpdateEditorText();
         }
     }

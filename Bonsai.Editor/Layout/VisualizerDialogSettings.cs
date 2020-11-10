@@ -9,8 +9,6 @@ namespace Bonsai.Design
     [XmlInclude(typeof(WorkflowEditorSettings))]
     public class VisualizerDialogSettings
     {
-        readonly Collection<int> mashups = new Collection<int>();
-
         [XmlIgnore]
         public object Tag { get; set; }
 
@@ -37,14 +35,11 @@ namespace Bonsai.Design
 
         public XElement VisualizerSettings { get; set; }
 
-        public Collection<int> Mashups
-        {
-            get { return mashups; }
-        }
+        public Collection<int> Mashups { get; } = new Collection<int>();
 
         public bool MashupsSpecified
         {
-            get { return mashups.Count > 0; }
+            get { return Mashups.Count > 0; }
         }
     }
 }

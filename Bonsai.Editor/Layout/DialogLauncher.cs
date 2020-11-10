@@ -6,21 +6,16 @@ namespace Bonsai.Design
 {
     abstract class DialogLauncher
     {
-        TypeVisualizerDialog visualizerDialog;
-
         public Rectangle Bounds { get; set; }
 
         public FormWindowState WindowState { get; set; }
 
         public bool Visible
         {
-            get { return visualizerDialog != null; }
+            get { return VisualizerDialog != null; }
         }
 
-        protected TypeVisualizerDialog VisualizerDialog
-        {
-            get { return visualizerDialog; }
-        }
+        protected TypeVisualizerDialog VisualizerDialog { get; private set; }
 
         public void Show()
         {
@@ -29,53 +24,53 @@ namespace Bonsai.Design
 
         public void Show(IServiceProvider provider)
         {
-            InitializeComponents(null, provider);
+            Show(null, provider);
         }
 
         public virtual void Show(IWin32Window owner, IServiceProvider provider)
         {
-            if (visualizerDialog == null)
+            if (VisualizerDialog == null)
             {
-                visualizerDialog = CreateVisualizerDialog(provider);
-                visualizerDialog.Load += delegate
+                VisualizerDialog = CreateVisualizerDialog(provider);
+                VisualizerDialog.Load += delegate
                 {
                     var bounds = Bounds;
                     if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.Contains(bounds) || WindowState != FormWindowState.Normal))
                     {
-                        if (bounds.Size.IsEmpty) visualizerDialog.DesktopLocation = bounds.Location;
-                        else visualizerDialog.DesktopBounds = bounds;
-                        visualizerDialog.WindowState = WindowState;
+                        if (bounds.Size.IsEmpty) VisualizerDialog.DesktopLocation = bounds.Location;
+                        else VisualizerDialog.DesktopBounds = bounds;
+                        VisualizerDialog.WindowState = WindowState;
                     }
                 };
 
-                visualizerDialog.FormClosed += delegate
+                VisualizerDialog.FormClosed += delegate
                 {
                     var desktopBounds = Bounds;
-                    if (visualizerDialog.WindowState != FormWindowState.Normal)
+                    if (VisualizerDialog.WindowState != FormWindowState.Normal)
                     {
-                        desktopBounds.Size = visualizerDialog.RestoreBounds.Size;
+                        desktopBounds.Size = VisualizerDialog.RestoreBounds.Size;
                     }
-                    else desktopBounds = visualizerDialog.DesktopBounds;
+                    else desktopBounds = VisualizerDialog.DesktopBounds;
 
                     Bounds = desktopBounds;
-                    if (visualizerDialog.WindowState == FormWindowState.Minimized)
+                    if (VisualizerDialog.WindowState == FormWindowState.Minimized)
                     {
                         WindowState = FormWindowState.Normal;
                     }
-                    else WindowState = visualizerDialog.WindowState;
-                    visualizerDialog.Dispose();
+                    else WindowState = VisualizerDialog.WindowState;
+                    VisualizerDialog.Dispose();
                 };
 
-                visualizerDialog.HandleDestroyed += (sender, e) => visualizerDialog = null;
-                InitializeComponents(visualizerDialog, provider);
-                if (visualizerDialog.TopLevel)
+                VisualizerDialog.HandleDestroyed += (sender, e) => VisualizerDialog = null;
+                InitializeComponents(VisualizerDialog, provider);
+                if (VisualizerDialog.TopLevel)
                 {
-                    if (owner != null) visualizerDialog.Show(owner);
-                    else visualizerDialog.Show();
+                    if (owner != null) VisualizerDialog.Show(owner);
+                    else VisualizerDialog.Show();
                 }
             }
 
-            visualizerDialog.Activate();
+            VisualizerDialog.Activate();
         }
 
         protected virtual TypeVisualizerDialog CreateVisualizerDialog(IServiceProvider provider)
@@ -87,9 +82,9 @@ namespace Bonsai.Design
 
         public virtual void Hide()
         {
-            if (visualizerDialog != null)
+            if (VisualizerDialog != null)
             {
-                visualizerDialog.Close();
+                VisualizerDialog.Close();
             }
         }
     }

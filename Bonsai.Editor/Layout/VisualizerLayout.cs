@@ -4,13 +4,8 @@ namespace Bonsai.Design
 {
     public class VisualizerLayout
     {
-        readonly VisualizerDialogSettingsCollection dialogSettings = new VisualizerDialogSettingsCollection();
-
         [XmlElement("DialogSettings")]
-        public VisualizerDialogSettingsCollection DialogSettings
-        {
-            get { return dialogSettings; }
-        }
+        public VisualizerDialogSettingsCollection DialogSettings { get; } = new VisualizerDialogSettingsCollection();
 
         public static XmlSerializer Serializer
         {
