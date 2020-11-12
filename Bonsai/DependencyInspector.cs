@@ -92,7 +92,7 @@ namespace Bonsai
                 if (File.Exists(layoutPath))
                 {
                     var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
-                        TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
+                        TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration)
                                             .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
                                             .Select(typeName => Type.GetType(typeName, false))
                                             .Where(type => type != null)

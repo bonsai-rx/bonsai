@@ -68,7 +68,7 @@ namespace Bonsai
             return typeVisualizers.Distinct().Select(data => new TypeVisualizerDescriptor(data)).ToArray();
         }
 
-        public static IObservable<TypeVisualizerDescriptor> GetTypeVisualizerDictionary(PackageConfiguration configuration)
+        public static IObservable<TypeVisualizerDescriptor> GetVisualizerTypes(PackageConfiguration configuration)
         {
             if (configuration == null)
             {

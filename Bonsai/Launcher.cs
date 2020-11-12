@@ -1,6 +1,5 @@
-using Bonsai.Configuration;
+﻿using Bonsai.Configuration;
 using Bonsai.Editor;
-using Bonsai.Expressions;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
 using System;
@@ -10,12 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using System.Xml.Serialization;
 using Bonsai.Properties;
 using NuGet.Packaging.Core;
 using NuGet.Packaging;
 using NuGet.Configuration;
 using System.Linq;
+using System.Reactive.Linq;
 
 namespace Bonsai
 {
@@ -53,7 +52,7 @@ namespace Bonsai
             Dictionary<string, string> propertyAssignments)
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
-            var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
+            var visualizerProvider = TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration);
             var packageManager = EditorBootstrapper.Default.CreatePackageManager(editorRepositoryPath);
             using var cancellation = new CancellationTokenSource();
             var updatesAvailable = Task.Run(async () =>
@@ -112,7 +111,7 @@ namespace Bonsai
             }
         }
 
-        internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)
+        internal static int LaunchWorkflowPlayer(string fileName, PackageConfiguration packageConfiguration, Dictionary<string, string> propertyAssignments)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -120,30 +119,12 @@ namespace Bonsai
                 return Program.NormalExitCode;
             }
 
-            if (!File.Exists(fileName))
+            var visualizerProvider = Observable.Defer(() =>
             {
-                throw new ArgumentException("Specified workflow file does not exist.");
-            }
-
-            WorkflowBuilder workflowBuilder;
-            using (var reader = XmlReader.Create(fileName))
-            {
-                reader.MoveToContent();
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-            }
-
-            foreach (var assignment in propertyAssignments)
-            {
-                workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
-            }
-
-            var workflowCompleted = new ManualResetEvent(false);
-            workflowBuilder.Workflow.BuildObservable().Subscribe(
-                unit => { },
-                ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
-                () => workflowCompleted.Set());
-            workflowCompleted.WaitOne();
+                EditorBootstrapper.EnableVisualStyles();
+                return TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration);
+            });
+            WorkflowRunner.Run(fileName, propertyAssignments, visualizerProvider);
             return Program.NormalExitCode;
         }
 
