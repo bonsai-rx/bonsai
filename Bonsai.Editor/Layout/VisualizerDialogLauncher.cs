@@ -17,6 +17,7 @@ namespace Bonsai.Design
         IDisposable visualizerObserver;
 
         public VisualizerDialogLauncher(
+            Type visualizerType,
             InspectBuilder visualizerElement,
             Func<DialogTypeVisualizer> visualizerFactory,
             ExpressionBuilderGraph visualizerWorkflow,
@@ -28,6 +29,7 @@ namespace Bonsai.Design
                 throw new ArgumentNullException(nameof(visualizerFactory));
             }
 
+            VisualizerType = visualizerType ?? throw new ArgumentNullException(nameof(visualizerType));
             visualizerSource = visualizerElement ?? throw new ArgumentNullException(nameof(visualizerElement));
             Visualizer = new Lazy<DialogTypeVisualizer>(visualizerFactory);
             Source = workflowSource ?? visualizerElement;
@@ -40,6 +42,8 @@ namespace Bonsai.Design
         public InspectBuilder Source { get; }
 
         public Lazy<DialogTypeVisualizer> Visualizer { get; }
+
+        public Type VisualizerType { get; }
 
         static IDisposable SubscribeDialog<TSource>(IObservable<TSource> source, TypeVisualizerDialog visualizerDialog)
         {
@@ -168,7 +172,7 @@ namespace Bonsai.Design
             if (visualizerDialog != null && Visualizer.Value is DialogMashupVisualizer dialogMashup)
             {
                 var dialogMashupType = dialogMashup.GetType();
-                var visualizerType = visualizerDialog.Visualizer.Value.GetType();
+                var visualizerType = visualizerDialog.VisualizerType;
                 var mashupVisualizer = GetMashupVisualizerType(dialogMashupType, visualizerType, typeVisualizerMap);
                 if (mashupVisualizer != null)
                 {
@@ -203,10 +207,10 @@ namespace Bonsai.Design
                 var visualizerDialog = graphView.GetVisualizerDialogLauncher(graphNode);
                 if (visualizerDialog != null)
                 {
-                    var dialogMashupType = Visualizer.Value.GetType();
+                    var dialogMashupType = VisualizerType;
                     if (dialogMashupType.IsSubclassOf(typeof(DialogMashupVisualizer)))
                     {
-                        var visualizerType = visualizerDialog.Visualizer.Value.GetType();
+                        var visualizerType = visualizerDialog.VisualizerType;
                         var typeVisualizerMap = (TypeVisualizerMap)visualizerContext.GetService(typeof(TypeVisualizerMap));
                         var mashupVisualizerType = GetMashupVisualizerType(dialogMashupType, visualizerType, typeVisualizerMap);
                         if (mashupVisualizerType != null)

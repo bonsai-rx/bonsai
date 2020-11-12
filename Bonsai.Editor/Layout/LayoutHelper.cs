@@ -50,22 +50,34 @@ namespace Bonsai.Design
         {
             foreach (var settings in root.DialogSettings)
             {
-                var inspectBuilder = settings.Tag as InspectBuilder;
-                while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
+                SetLayoutNotifications(settings, root, publishNotifications: false);
+            }
+        }
+
+        static void SetLayoutNotifications(VisualizerDialogSettings settings, VisualizerLayout root, bool publishNotifications = false)
+        {
+            var inspectBuilder = settings.Tag as InspectBuilder;
+            while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
+            {
+                inspectBuilder.PublishNotifications = publishNotifications || !string.IsNullOrEmpty(settings.VisualizerTypeName);
+                foreach (var mashup in settings.Mashups)
                 {
-                    inspectBuilder.PublishNotifications = !string.IsNullOrEmpty(settings.VisualizerTypeName);
-                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                    if (inspectBuilder.PublishNotifications && visualizerElement != inspectBuilder)
-                    {
-                        inspectBuilder = visualizerElement;
-                    }
-                    else inspectBuilder = null;
+                    if (mashup < 0 || mashup >= root.DialogSettings.Count) continue;
+                    var dialogSettings = root.DialogSettings[mashup];
+                    SetLayoutNotifications(dialogSettings, root, publishNotifications: true);
                 }
 
-                if (settings is WorkflowEditorSettings editorSettings && editorSettings.EditorVisualizerLayout != null)
+                var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+                if (inspectBuilder.PublishNotifications && visualizerElement != inspectBuilder)
                 {
-                    SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
+                    inspectBuilder = visualizerElement;
                 }
+                else inspectBuilder = null;
+            }
+
+            if (settings is WorkflowEditorSettings editorSettings && editorSettings.EditorVisualizerLayout != null)
+            {
+                SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
             }
         }
 
@@ -120,7 +132,7 @@ namespace Bonsai.Design
                 visualizerFactory = Expression.Lambda<Func<DialogTypeVisualizer>>(visualizerActivation).Compile();
             }
 
-            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, workflow, source, workflowGraphView);
+            var launcher = new VisualizerDialogLauncher(visualizerType, inspectBuilder, visualizerFactory, workflow, source, workflowGraphView);
             launcher.Text = source != null ? ExpressionBuilder.GetElementDisplayName(source) : null;
             if (deserializeVisualizer)
             {
