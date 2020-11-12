@@ -15,7 +15,7 @@ namespace Bonsai.Design
             get { return VisualizerDialog != null; }
         }
 
-        protected TypeVisualizerDialog VisualizerDialog { get; private set; }
+        protected LauncherDialog VisualizerDialog { get; private set; }
 
         public void Show()
         {
@@ -37,22 +37,14 @@ namespace Bonsai.Design
                     var bounds = Bounds;
                     if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.Contains(bounds) || WindowState != FormWindowState.Normal))
                     {
-                        if (bounds.Size.IsEmpty) VisualizerDialog.DesktopLocation = bounds.Location;
-                        else VisualizerDialog.DesktopBounds = bounds;
+                        VisualizerDialog.LayoutBounds = bounds;
                         VisualizerDialog.WindowState = WindowState;
                     }
                 };
 
                 VisualizerDialog.FormClosed += delegate
                 {
-                    var desktopBounds = Bounds;
-                    if (VisualizerDialog.WindowState != FormWindowState.Normal)
-                    {
-                        desktopBounds.Size = VisualizerDialog.RestoreBounds.Size;
-                    }
-                    else desktopBounds = VisualizerDialog.DesktopBounds;
-
-                    Bounds = desktopBounds;
+                    Bounds = VisualizerDialog.LayoutBounds;
                     if (VisualizerDialog.WindowState == FormWindowState.Minimized)
                     {
                         WindowState = FormWindowState.Normal;
@@ -73,9 +65,9 @@ namespace Bonsai.Design
             VisualizerDialog.Activate();
         }
 
-        protected virtual TypeVisualizerDialog CreateVisualizerDialog(IServiceProvider provider)
+        protected virtual LauncherDialog CreateVisualizerDialog(IServiceProvider provider)
         {
-            return new TypeVisualizerDialog();
+            return new LauncherDialog();
         }
 
         protected abstract void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider);
@@ -85,6 +77,46 @@ namespace Bonsai.Design
             if (VisualizerDialog != null)
             {
                 VisualizerDialog.Close();
+            }
+        }
+
+        protected class LauncherDialog : TypeVisualizerDialog
+        {
+            SizeF inverseScaleFactor;
+            SizeF scaleFactor;
+
+            internal Rectangle LayoutBounds
+            {
+                get
+                {
+                    var desktopBounds = Bounds;
+                    if (WindowState != FormWindowState.Normal)
+                    {
+                        desktopBounds.Size = RestoreBounds.Size;
+                    }
+                    else desktopBounds = DesktopBounds;
+                    return ScaleBounds(desktopBounds, inverseScaleFactor);
+                }
+                set
+                {
+                    var bounds = ScaleBounds(value, scaleFactor);
+                    if (bounds.Size.IsEmpty) DesktopLocation = bounds.Location;
+                    else DesktopBounds = bounds;
+                }
+            }
+
+            protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+            {
+                scaleFactor = factor;
+                inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
+                base.ScaleControl(factor, specified);
+            }
+
+            private static Rectangle ScaleBounds(Rectangle bounds, SizeF scaleFactor)
+            {
+                bounds.Location = Point.Round(new PointF(bounds.X * scaleFactor.Width, bounds.Y * scaleFactor.Height));
+                bounds.Size = Size.Round(new SizeF(bounds.Width * scaleFactor.Width, bounds.Height * scaleFactor.Height));
+                return bounds;
             }
         }
     }

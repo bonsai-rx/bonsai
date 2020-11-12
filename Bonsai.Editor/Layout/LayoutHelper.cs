@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -145,7 +146,8 @@ namespace Bonsai.Design
             ExpressionBuilderGraph workflow,
             VisualizerLayout visualizerLayout,
             TypeVisualizerMap typeVisualizerMap,
-            Action<VisualizerDialogLauncher> launchVisualizer = null,
+            IServiceProvider provider = null,
+            IWin32Window owner = null,
             Editor.GraphView.WorkflowGraphView graphView = null)
         {
             if (workflow == null) return null;
@@ -182,9 +184,9 @@ namespace Bonsai.Design
 
                     visualizerLauncher.Bounds = layoutSettings.Bounds;
                     visualizerLauncher.WindowState = layoutSettings.WindowState;
-                    if (layoutSettings.Visible && launchVisualizer != null)
+                    if (layoutSettings.Visible)
                     {
-                        launchVisualizer(visualizerLauncher);
+                        visualizerLauncher.Show(owner, provider);
                     }
                 }
             }

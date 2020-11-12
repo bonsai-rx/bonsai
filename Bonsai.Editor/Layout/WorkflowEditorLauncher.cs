@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Bonsai.Expressions;
 using System.ComponentModel;
 using Bonsai.Editor.GraphView;
+using Bonsai.Editor;
 
 namespace Bonsai.Design
 {
@@ -48,7 +49,7 @@ namespace Bonsai.Design
                 VisualizerLayout = WorkflowGraphView.VisualizerLayout;
                 if (VisualizerDialog != null)
                 {
-                    Bounds = VisualizerDialog.DesktopBounds;
+                    Bounds = VisualizerDialog.LayoutBounds;
                 }
             }
         }
@@ -102,7 +103,7 @@ namespace Bonsai.Design
             }
         }
 
-        protected override TypeVisualizerDialog CreateVisualizerDialog(IServiceProvider provider)
+        protected override LauncherDialog CreateVisualizerDialog(IServiceProvider provider)
         {
             return new NestedEditorDialog(provider);
         }
@@ -150,6 +151,38 @@ namespace Bonsai.Design
             WorkflowGraphView.SelectFirstGraphNode();
             WorkflowGraphView.Select();
             UpdateEditorText();
+        }
+
+        class NestedEditorDialog : LauncherDialog
+        {
+            IWorkflowEditorService editorService;
+
+            public NestedEditorDialog(IServiceProvider provider)
+            {
+                editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            }
+
+            protected override void OnKeyDown(KeyEventArgs e)
+            {
+                if (e.KeyCode == Keys.Escape)
+                {
+                    e.Handled = true;
+                }
+                base.OnKeyDown(e);
+            }
+
+            protected override bool ProcessTabKey(bool forward)
+            {
+                var selected = SelectNextControl(ActiveControl, forward, true, true, false);
+                if (!selected)
+                {
+                    var parent = Parent;
+                    if (parent != null) return parent.SelectNextControl(this, forward, true, true, false);
+                    else editorService.SelectNextControl(forward);
+                }
+
+                return selected;
+            }
         }
     }
 }
