@@ -25,7 +25,7 @@ using Bonsai.Editor.GraphView;
 
 namespace Bonsai.Editor
 {
-    public partial class MainForm : Form
+    public partial class EditorForm : Form
     {
         const float DefaultEditorScale = 1.0f;
         const string BonsaiExtension = ".bonsai";
@@ -82,14 +82,14 @@ namespace Bonsai.Editor
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
-        public MainForm(
+        public EditorForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider)
             : this(elementProvider, visualizerProvider, null)
         {
         }
 
-        public MainForm(
+        public EditorForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             IServiceProvider provider)
@@ -97,7 +97,7 @@ namespace Bonsai.Editor
         {
         }
 
-        public MainForm(
+        public EditorForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             IServiceProvider provider,
@@ -2153,9 +2153,9 @@ namespace Bonsai.Editor
         class EditorSite : ISite, IWorkflowEditorService, IWorkflowEditorState, IWorkflowToolboxService, IUIService
         {
             System.Collections.IDictionary styles;
-            MainForm siteForm;
+            EditorForm siteForm;
 
-            public EditorSite(MainForm form)
+            public EditorSite(EditorForm form)
             {
                 siteForm = form;
                 styles = new System.Collections.Hashtable();
@@ -2393,7 +2393,7 @@ namespace Bonsai.Editor
 
             public string GetPackageDisplayName(string packageKey)
             {
-                return MainForm.GetPackageDisplayName(packageKey);
+                return EditorForm.GetPackageDisplayName(packageKey);
             }
 
             public IEnumerable<WorkflowElementDescriptor> GetToolboxElements()

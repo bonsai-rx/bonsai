@@ -1,4 +1,4 @@
-﻿using Bonsai.Configuration;
+using Bonsai.Configuration;
 using Bonsai.Editor;
 using Bonsai.Expressions;
 using Bonsai.NuGet;
@@ -79,7 +79,7 @@ namespace Bonsai
 
             EditorBootstrapper.EnableVisualStyles();
             var scriptEnvironment = new ScriptExtensionsEnvironment(scriptExtensions);
-            using var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
+            using var mainForm = new EditorForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
             try
             {
                 updatesAvailable.ContinueWith(
