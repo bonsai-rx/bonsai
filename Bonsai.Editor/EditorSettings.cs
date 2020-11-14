@@ -64,27 +64,24 @@ namespace Bonsai.Editor
                             if (reader.NodeType != XmlNodeType.Element) continue;
                             if (reader.Name == WindowStateElement)
                             {
-                                FormWindowState windowState;
-                                Enum.TryParse<FormWindowState>(reader.ReadElementContentAsString(), out windowState);
+                                Enum.TryParse(reader.ReadElementContentAsString(), out FormWindowState windowState);
                                 settings.WindowState = windowState;
                             }
                             else if (reader.Name == EditorThemeElement)
                             {
-                                ColorTheme editorTheme;
-                                Enum.TryParse<ColorTheme>(reader.ReadElementContentAsString(), out editorTheme);
+                                Enum.TryParse(reader.ReadElementContentAsString(), out ColorTheme editorTheme);
                                 settings.EditorTheme = editorTheme;
                             }
                             else if (reader.Name == DesktopBoundsElement)
                             {
-                                int x, y, width, height;
                                 reader.ReadToFollowing(RectangleXElement);
-                                int.TryParse(reader.ReadElementContentAsString(), out x);
+                                int.TryParse(reader.ReadElementContentAsString(), out int x);
                                 reader.ReadToFollowing(RectangleYElement);
-                                int.TryParse(reader.ReadElementContentAsString(), out y);
+                                int.TryParse(reader.ReadElementContentAsString(), out int y);
                                 reader.ReadToFollowing(RectangleWidthElement);
-                                int.TryParse(reader.ReadElementContentAsString(), out width);
+                                int.TryParse(reader.ReadElementContentAsString(), out int width);
                                 reader.ReadToFollowing(RectangleHeightElement);
-                                int.TryParse(reader.ReadElementContentAsString(), out height);
+                                int.TryParse(reader.ReadElementContentAsString(), out int height);
                                 settings.DesktopBounds = new Rectangle(x, y, width, height);
                             }
                             else if (reader.Name == RecentlyUsedFilesElement)
@@ -95,9 +92,8 @@ namespace Bonsai.Editor
                                     if (fileReader.Name == RecentlyUsedFileElement)
                                     {
                                         string fileName;
-                                        DateTimeOffset timestamp;
                                         fileReader.ReadToFollowing(FileTimestampElement);
-                                        DateTimeOffset.TryParse(fileReader.ReadElementContentAsString(), out timestamp);
+                                        DateTimeOffset.TryParse(fileReader.ReadElementContentAsString(), out DateTimeOffset timestamp);
                                         fileReader.ReadToFollowing(FileNameElement);
                                         fileName = fileReader.ReadElementContentAsString();
                                         settings.recentlyUsedFiles.Add(timestamp, fileName);

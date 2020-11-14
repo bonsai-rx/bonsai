@@ -33,11 +33,7 @@ namespace Bonsai.Editor.Themes
 
         private void OnThemeChanged(EventArgs e)
         {
-            var handler = ThemeChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            ThemeChanged?.Invoke(this, e);
         }
     }
 

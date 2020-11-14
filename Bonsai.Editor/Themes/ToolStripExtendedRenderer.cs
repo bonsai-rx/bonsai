@@ -73,8 +73,7 @@ namespace Bonsai.Editor.Themes
 
         protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
         {
-            var statusLabel = e.Item as ToolStripStatusLabel;
-            if (statusLabel != null && statusLabel.Spring)
+            if (e.Item is ToolStripStatusLabel statusLabel && statusLabel.Spring)
             {
                 TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont,
                     new Rectangle(Point.Empty, e.TextRectangle.Size),
@@ -86,8 +85,7 @@ namespace Bonsai.Editor.Themes
 
         protected override void InitializeItem(ToolStripItem item)
         {
-            var dropDown = item as ToolStripDropDownItem;
-            if (dropDown != null)
+            if (item is ToolStripDropDownItem dropDown)
             {
                 foreach (ToolStripItem dropItem in dropDown.DropDownItems)
                 {

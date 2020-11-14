@@ -9,10 +9,9 @@ namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowEditorControl : UserControl
     {
-        IServiceProvider serviceProvider;
-        IWorkflowEditorService editorService;
-        TabPageController workflowTab;
-        TabPageController activeTab;
+        readonly IServiceProvider serviceProvider;
+        readonly IWorkflowEditorService editorService;
+        readonly TabPageController workflowTab;
         Padding? adjustMargin;
 
         public WorkflowEditorControl(IServiceProvider provider)
@@ -24,7 +23,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (provider == null)
             {
-                throw new ArgumentNullException("provider");
+                throw new ArgumentNullException(nameof(provider));
             }
 
             InitializeComponent();
@@ -56,10 +55,7 @@ namespace Bonsai.Editor.GraphView
             WorkflowGraphView.UpdateVisualizerLayout();
         }
 
-        public TabPageController ActiveTab
-        {
-            get { return activeTab; }
-        }
+        public TabPageController ActiveTab { get; private set; }
 
         public int ItemHeight
         {
@@ -78,7 +74,7 @@ namespace Bonsai.Editor.GraphView
             workflowGraphView.Font = Font;
             workflowGraphView.Tag = tabPage;
 
-            var tabState = new TabPageController(tabPage, workflowGraphView, this);
+            var tabState = new TabPageController(tabPage, workflowGraphView);
             tabPage.Tag = tabState;
             tabPage.SuspendLayout();
             if (container != null)
@@ -193,11 +189,11 @@ namespace Bonsai.Editor.GraphView
         void ActivateTab(TabPage tabPage)
         {
             var tabState = tabPage != null ? (TabPageController)tabPage.Tag : null;
-            if (tabState != null && activeTab != tabState)
+            if (tabState != null && ActiveTab != tabState)
             {
-                activeTab = tabState;
-                RefreshTab(activeTab);
-                activeTab.UpdateSelection();
+                ActiveTab = tabState;
+                RefreshTab(ActiveTab);
+                ActiveTab.UpdateSelection();
             }
         }
 
@@ -223,30 +219,12 @@ namespace Bonsai.Editor.GraphView
         {
             const string CloseSuffix = "   \u2715";
             const string ReadOnlySuffix = " [Read-only]";
-
             string displayText;
-            WorkflowEditorControl owner;
 
-            public TabPageController(TabPage tabPage, WorkflowGraphView graphView, WorkflowEditorControl editorControl)
+            public TabPageController(TabPage tabPage, WorkflowGraphView graphView)
             {
-                if (tabPage == null)
-                {
-                    throw new ArgumentNullException("tabPage");
-                }
-
-                if (graphView == null)
-                {
-                    throw new ArgumentNullException("graphView");
-                }
-
-                if (editorControl == null)
-                {
-                    throw new ArgumentNullException("editorControl");
-                }
-
-                TabPage = tabPage;
-                WorkflowGraphView = graphView;
-                owner = editorControl;
+                TabPage = tabPage ?? throw new ArgumentNullException(nameof(tabPage));
+                WorkflowGraphView = graphView ?? throw new ArgumentNullException(nameof(graphView));
             }
 
             public TabPage TabPage { get; private set; }
@@ -279,11 +257,7 @@ namespace Bonsai.Editor.GraphView
 
             internal void OnTabClosing(CancelEventArgs e)
             {
-                var handler = TabClosing;
-                if (handler != null)
-                {
-                    handler(this, e);
-                }
+                TabClosing?.Invoke(this, e);
             }
         }
 

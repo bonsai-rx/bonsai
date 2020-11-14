@@ -11,8 +11,7 @@ namespace Bonsai.Editor.Themes
 
         protected override void InitializeItem(ToolStripItem item)
         {
-            var textBox = item as ToolStripTextBox;
-            if (textBox != null)
+            if (item is ToolStripTextBox textBox)
             {
                 textBox.BackColor = ColorTable.WindowBackColor;
                 textBox.ForeColor = ColorTable.WindowText;

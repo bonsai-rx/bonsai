@@ -75,10 +75,7 @@ namespace Bonsai.Editor.Themes
             b = (byte)(255 - b);
 
             // Rgb-to-Hsv
-            int hue;
-            ushort saturation;
-            byte value;
-            RgbToHsv(r, g, b, out hue, out saturation, out value);
+            RgbToHsv(r, g, b, out int hue, out ushort saturation, out byte value);
 
             // Rotate hue by 180-degrees
             const int Rotation = 3 * E;
@@ -118,7 +115,7 @@ namespace Bonsai.Editor.Themes
             return result;
         }
 
-        public static Image InvertScale(Image image, Size size, Color backColor)
+        public static Image InvertScale(Image image, Size size)
         {
             using (var inverted = Invert(image))
             {

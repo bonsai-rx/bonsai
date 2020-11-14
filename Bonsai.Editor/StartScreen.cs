@@ -129,10 +129,10 @@ namespace Bonsai.Editor
                 recentFileView.BackColor = ThemeHelper.Invert(systemMenuColor);
                 recentFileView.ForeColor = ThemeHelper.Invert(recentFileView.ForeColor);
                 recentFileView.LineColor = ThemeHelper.Invert(recentFileView.LineColor);
-                customImages.Add(newItemImage = ThemeHelper.InvertScale(newItemImage, iconList.ImageSize, BackColor));
-                customImages.Add(openItemImage = ThemeHelper.InvertScale(openItemImage, iconList.ImageSize, BackColor));
-                customImages.Add(galleryItemImage = ThemeHelper.InvertScale(galleryItemImage, iconList.ImageSize, BackColor));
-                customImages.Add(packageManagerItemImage = ThemeHelper.InvertScale(packageManagerItemImage, iconList.ImageSize, BackColor));
+                customImages.Add(newItemImage = ThemeHelper.InvertScale(newItemImage, iconList.ImageSize));
+                customImages.Add(openItemImage = ThemeHelper.InvertScale(openItemImage, iconList.ImageSize));
+                customImages.Add(galleryItemImage = ThemeHelper.InvertScale(galleryItemImage, iconList.ImageSize));
+                customImages.Add(packageManagerItemImage = ThemeHelper.InvertScale(packageManagerItemImage, iconList.ImageSize));
             }
 
             iconList.Images.Add(newItemImage);
@@ -155,8 +155,7 @@ namespace Bonsai.Editor
 
         protected override bool ProcessTabKey(bool forward)
         {
-            var treeView = ActiveControl as TreeView;
-            if (treeView != null)
+            if (ActiveControl is TreeView treeView)
             {
                 var node = treeView.SelectedNode;
                 if (!tabSelect && node != null)

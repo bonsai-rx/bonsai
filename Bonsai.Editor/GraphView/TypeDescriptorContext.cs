@@ -5,7 +5,7 @@ namespace Bonsai.Editor.GraphView
 {
     class TypeDescriptorContext : ITypeDescriptorContext
     {
-        IServiceProvider provider;
+        readonly IServiceProvider provider;
 
         public TypeDescriptorContext(object instance, PropertyDescriptor propertyDescriptor)
             : this(instance, propertyDescriptor, null)

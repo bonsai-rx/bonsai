@@ -46,39 +46,37 @@ namespace Bonsai.Editor
 
         int version;
         int saveVersion;
-        Font regularFont;
-        Font selectionFont;
-        EditorSite editorSite;
-        HotKeyMessageFilter hotKeys;
-        IServiceProvider serviceProvider;
-        IScriptEnvironment scriptEnvironment;
-        WorkflowEditorControl editorControl;
-        WorkflowBuilder workflowBuilder;
-        WorkflowSelectionModel selectionModel;
-        Dictionary<string, string> propertyAssignments;
-        Dictionary<string, TreeNode> toolboxCategories;
-        List<TreeNode> treeCache;
-        ToolStripStatusLabel statusTextLabel;
-        Bitmap statusRunningImage;
-        ThemeRenderer themeRenderer;
-        SvgRendererFactory iconRenderer;
-        ToolStripButton statusUpdateAvailableLabel;
-        ToolStripItem directoryToolStripItem;
-        BehaviorSubject<bool> updatesAvailable;
+        readonly Font regularFont;
+        readonly Font selectionFont;
+        readonly EditorSite editorSite;
+        readonly HotKeyMessageFilter hotKeys;
+        readonly IServiceProvider serviceProvider;
+        readonly IScriptEnvironment scriptEnvironment;
+        readonly WorkflowEditorControl editorControl;
+        readonly WorkflowSelectionModel selectionModel;
+        readonly Dictionary<string, string> propertyAssignments;
+        readonly Dictionary<string, TreeNode> toolboxCategories;
+        readonly IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
+        readonly IObservable<TypeVisualizerDescriptor> visualizerElements;
+        readonly List<TreeNode> treeCache;
+        readonly ToolStripStatusLabel statusTextLabel;
+        readonly Bitmap statusRunningImage;
+        readonly ThemeRenderer themeRenderer;
+        readonly SvgRendererFactory iconRenderer;
+        readonly ToolStripButton statusUpdateAvailableLabel;
+        readonly ToolStripItem directoryToolStripItem;
+        readonly BehaviorSubject<bool> updatesAvailable;
+        readonly FormScheduler formScheduler;
+        readonly TypeVisualizerMap typeVisualizers;
+        readonly List<WorkflowElementDescriptor> workflowElements;
+        readonly List<WorkflowElementDescriptor> workflowExtensions;
+        readonly WorkflowRuntimeExceptionCache exceptionCache;
         DirectoryInfo extensionsPath;
-        FormScheduler formScheduler;
-
-        TypeVisualizerMap typeVisualizers;
-        List<WorkflowElementDescriptor> workflowElements;
-        List<WorkflowElementDescriptor> workflowExtensions;
-        WorkflowRuntimeExceptionCache exceptionCache;
+        WorkflowBuilder workflowBuilder;
         WorkflowException workflowError;
         IDisposable running;
         bool debugging;
         bool building;
-
-        IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
-        IObservable<TypeVisualizerDescriptor> visualizerElements;
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
@@ -130,8 +128,8 @@ namespace Bonsai.Editor
             if (EditorSettings.IsRunningOnMono)
             {
                 var directoryToolStripLabel = new ToolStripConstrainedStatusLabel();
-                directoryToolStripLabel.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.All;
-                directoryToolStripLabel.MaximumSize = new System.Drawing.Size(250, 0);
+                directoryToolStripLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+                directoryToolStripLabel.MaximumSize = new Size(250, 0);
                 directoryToolStripLabel.Spring = true;
                 var textBoxIndex = toolStrip.Items.IndexOf(directoryToolStripTextBox);
                 toolStrip.Items.RemoveAt(textBoxIndex);
@@ -565,7 +563,7 @@ namespace Bonsai.Editor
                     using (var reader = XmlReader.Create(fileName, new XmlReaderSettings { IgnoreWhitespace = true }))
                     {
                         reader.ReadStartElement(typeof(WorkflowBuilder).Name);
-                        if (reader.Name == "Description")
+                        if (reader.Name == nameof(WorkflowBuilder.Description))
                         {
                             reader.ReadStartElement();
                             description = reader.Value;
@@ -701,8 +699,8 @@ namespace Bonsai.Editor
             {
                 var result = MessageBox.Show(
                     this,
-                    "The workflow needs to be saved before proceeding. Do you want to save the workflow?",
-                    "Unsaved Workflow",
+                    Resources.EnsureSavedWorkflow_Question,
+                    Resources.UnsavedWorkflow_Question_Caption,
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
@@ -725,8 +723,8 @@ namespace Bonsai.Editor
                 var result = reason == CloseReason.UserClosing
                     ? MessageBox.Show(
                     this,
-                    "Do you want to stop the workflow?",
-                    "Workflow Running",
+                    Resources.StopWorkflow_Question,
+                    Resources.StopWorkflow_Question_Caption,
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1)
@@ -742,8 +740,8 @@ namespace Bonsai.Editor
             {
                 var result = MessageBox.Show(
                     this,
-                    "Workflow has unsaved changes. Save project file?",
-                    "Unsaved Changes",
+                    Resources.UnsavedWorkflow_Question,
+                    Resources.UnsavedWorkflow_Question_Caption,
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
@@ -974,20 +972,12 @@ namespace Bonsai.Editor
 
         void OnWorkflowValidating(EventArgs e)
         {
-            var handler = Events[WorkflowValidating] as EventHandler;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[WorkflowValidating] as EventHandler)?.Invoke(this, e);
         }
 
         void OnExtensionsDirectoryChanged(EventArgs e)
         {
-            var handler = Events[ExtensionsDirectoryChanged] as EventHandler;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[ExtensionsDirectoryChanged] as EventHandler)?.Invoke(this, e);
         }
 
         void UpdateWorkflowDirectory(string fileName)
@@ -1109,8 +1099,7 @@ namespace Bonsai.Editor
             if (selectedNodes.Count() == 1)
             {
                 var selectedNode = selectedNodes.Single();
-                var groupBuilder = ExpressionBuilder.Unwrap(selectedNode.Value) as GroupWorkflowBuilder;
-                if (groupBuilder != null)
+                if (ExpressionBuilder.Unwrap(selectedNode.Value) is GroupWorkflowBuilder groupBuilder)
                 {
                     fileName = groupBuilder.Name;
                     groupNode = selectedNode;
@@ -1287,8 +1276,7 @@ namespace Bonsai.Editor
         {
             Action registerError = () =>
             {
-                var workflowException = ex as WorkflowRuntimeException;
-                if (workflowException != null)
+                if (ex is WorkflowRuntimeException workflowException)
                 {
                     exceptionCache.TryAdd(workflowException);
                 }
@@ -1330,8 +1318,7 @@ namespace Bonsai.Editor
                 }
             }
 
-            var nestedException = e.InnerException as WorkflowException;
-            if (nestedException != null)
+            if (e.InnerException is WorkflowException nestedException)
             {
                 WorkflowGraphView nestedEditor = null;
                 if (workflowView != null)
@@ -1363,7 +1350,7 @@ namespace Bonsai.Editor
                 graphNode = workflowView.FindGraphNode(ex.Builder);
                 if (graphNode == null)
                 {
-                    throw new InvalidOperationException("Exception builder node not found in active workflow editor.");
+                    throw new InvalidOperationException(Resources.ExceptionNodeNotFound_Error);
                 }
 
                 workflowView.GraphView.Invalidate(graphNode);
@@ -1395,7 +1382,7 @@ namespace Bonsai.Editor
                 }
 
                 var buildException = ex is WorkflowBuildException;
-                var errorCaption = buildException ? "Build Error" : "Runtime Error";
+                var errorCaption = buildException ? Resources.BuildError_Caption : Resources.RuntimeError_Caption;
                 statusTextLabel.Text = ex.Message;
                 statusStrip.ContextMenuStrip = statusContextMenuStrip;
                 statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
@@ -1489,8 +1476,7 @@ namespace Bonsai.Editor
             var activeControl = ActiveControl;
             while (activeControl != control)
             {
-                var container = activeControl as IContainerControl;
-                if (container != null)
+                if (activeControl is IContainerControl container)
                 {
                     activeControl = container.ActiveControl;
                 }
@@ -1521,8 +1507,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            var selectedNode = e.Item as TreeNode;
-            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
+            if (e.Item is TreeNode selectedNode && selectedNode.GetNodeCount(false) == 0)
             {
                 toolboxTreeView.DoDragDrop(selectedNode, DragDropEffects.Copy);
             }
@@ -1531,21 +1516,20 @@ namespace Bonsai.Editor
         static string GetElementName(object component)
         {
             var name = ExpressionBuilder.GetElementDisplayName(component);
-            var workflowProperty = component as ExternalizedProperty;
-            if (workflowProperty != null && !string.IsNullOrWhiteSpace(workflowProperty.Name) && workflowProperty.Name != workflowProperty.MemberName)
+            if (component is ExternalizedProperty workflowProperty &&
+                !string.IsNullOrWhiteSpace(workflowProperty.Name) &&
+                workflowProperty.Name != workflowProperty.MemberName)
             {
                 return name + " (" + workflowProperty.MemberName + ")";
             }
 
-            var binaryOperator = component as BinaryOperatorBuilder;
-            if (binaryOperator != null && binaryOperator.Operand != null)
+            if (component is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
             {
                 return name + " (" + ExpressionBuilder.GetElementDisplayName(binaryOperator.Operand.GetType()) + ")";
             }
             else
             {
-                var namedExpressionBuilder = component as INamedElement;
-                if (namedExpressionBuilder != null && !string.IsNullOrWhiteSpace(namedExpressionBuilder.Name))
+                if (component is INamedElement namedExpressionBuilder && !string.IsNullOrWhiteSpace(namedExpressionBuilder.Name))
                 {
                     var elementType = component.GetType();
                     name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
@@ -1557,8 +1541,7 @@ namespace Bonsai.Editor
 
         static string GetElementDescription(object component)
         {
-            var workflowExpressionBuilder = component as WorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null)
+            if (component is WorkflowExpressionBuilder workflowExpressionBuilder)
             {
                 var description = workflowExpressionBuilder.Description;
                 if (!string.IsNullOrEmpty(description)) return description;
@@ -1649,8 +1632,8 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var shift = Control.ModifierKeys.HasFlag(Keys.Shift);
-            var control = Control.ModifierKeys.HasFlag(Keys.Control);
+            var shift = ModifierKeys.HasFlag(Keys.Shift);
+            var control = ModifierKeys.HasFlag(Keys.Control);
             if (shift)
             {
                 if (control) RestartWorkflow();
@@ -1776,8 +1759,6 @@ namespace Bonsai.Editor
 
         void CreateGraphNode(TreeNode typeNode, Keys modifiers)
         {
-            const string ErrorCaption = "Type Error";
-            const string ErrorMessage = "Failed to create {0}:\n{1}";
             var model = selectionModel.SelectedView;
             if (!model.CanEdit) return;
 
@@ -1789,13 +1770,13 @@ namespace Bonsai.Editor
             try { model.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
             catch (TargetInvocationException e)
             {
-                var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);
-                editorSite.ShowError(message, ErrorCaption);
+                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.InnerException.Message);
+                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
             }
             catch (SystemException e)
             {
-                var message = string.Format(ErrorMessage, typeNode.Text, e.Message);
-                editorSite.ShowError(message, ErrorCaption);
+                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.Message);
+                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
             }
         }
 
@@ -1833,8 +1814,7 @@ namespace Bonsai.Editor
             var selectedNode = toolboxTreeView.SelectedNode;
             if (toolboxTreeView.Tag != selectedNode)
             {
-                var previousNode = toolboxTreeView.Tag as TreeNode;
-                if (previousNode != null) previousNode.BackColor = Color.Empty;
+                if (toolboxTreeView.Tag is TreeNode previousNode) previousNode.BackColor = Color.Empty;
                 toolboxTreeView.Tag = selectedNode;
             }
 
@@ -2152,14 +2132,13 @@ namespace Bonsai.Editor
 
         class EditorSite : ISite, IWorkflowEditorService, IWorkflowEditorState, IWorkflowToolboxService, IUIService
         {
-            System.Collections.IDictionary styles;
-            EditorForm siteForm;
+            readonly EditorForm siteForm;
 
             public EditorSite(EditorForm form)
             {
                 siteForm = form;
-                styles = new System.Collections.Hashtable();
-                styles["DialogFont"] = siteForm.Font;
+                Styles = new System.Collections.Hashtable();
+                Styles["DialogFont"] = siteForm.Font;
             }
 
             public IComponent Component
@@ -2351,7 +2330,7 @@ namespace Bonsai.Editor
             {
                 if (builder == null)
                 {
-                    throw new ArgumentNullException("builder");
+                    throw new ArgumentNullException(nameof(builder));
                 }
 
                 if (builder.Workflow.Count > 0)
@@ -2579,10 +2558,7 @@ namespace Bonsai.Editor
                 return false;
             }
 
-            public System.Collections.IDictionary Styles
-            {
-                get { return styles; }
-            }
+            public System.Collections.IDictionary Styles { get; }
         }
 
         #endregion

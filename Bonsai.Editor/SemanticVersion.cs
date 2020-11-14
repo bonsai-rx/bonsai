@@ -6,18 +6,8 @@ namespace Bonsai.Editor
     {
         public SemanticVersion(Version version, string specialVersion)
         {
-            if (version == null)
-            {
-                throw new ArgumentNullException("version");
-            }
-
-            if (specialVersion == null)
-            {
-                throw new ArgumentNullException("specialVersion");
-            }
-
-            Version = version;
-            SpecialVersion = specialVersion;
+            Version = version ?? throw new ArgumentNullException(nameof(version));
+            SpecialVersion = specialVersion ?? throw new ArgumentNullException(nameof(specialVersion));
         }
 
         public Version Version { get; private set; }
@@ -26,20 +16,20 @@ namespace Bonsai.Editor
 
         public bool Equals(SemanticVersion other)
         {
-            if (object.ReferenceEquals(other, null)) return false;
+            if (other is null) return false;
             return Version == other.Version && SpecialVersion == other.SpecialVersion;
         }
 
         public override bool Equals(object obj)
         {
             var value = obj as SemanticVersion;
-            if (object.ReferenceEquals(value, null)) return false;
+            if (value is null) return false;
             return Equals(value);
         }
 
         public int CompareTo(SemanticVersion other)
         {
-            if (object.ReferenceEquals(other, null))
+            if (other is null)
             {
                 return 1;
             }
@@ -66,15 +56,15 @@ namespace Bonsai.Editor
 
         public int CompareTo(object obj)
         {
-            if (object.ReferenceEquals(obj, null))
+            if (obj is null)
             {
                 return 1;
             }
 
             var value = obj as SemanticVersion;
-            if (object.ReferenceEquals(value, null))
+            if (value is null)
             {
-                throw new ArgumentException("The specified object is not of the correct type.", "obj");
+                throw new ArgumentException("The specified object is not of the correct type.", nameof(obj));
             }
 
             return CompareTo(value);
@@ -101,10 +91,9 @@ namespace Bonsai.Editor
 
         public static SemanticVersion Parse(string version)
         {
-            SemanticVersion result;
-            if (!TryParse(version, out result))
+            if (!TryParse(version, out SemanticVersion result))
             {
-                throw new ArgumentException("The specified version string has an invalid format.", "version");
+                throw new ArgumentException("The specified version string has an invalid format.", nameof(version));
             }
 
             return result;
@@ -127,8 +116,7 @@ namespace Bonsai.Editor
             }
             else specialVersion = string.Empty;
 
-            Version baseVersion;
-            if (Version.TryParse(version, out baseVersion))
+            if (Version.TryParse(version, out Version baseVersion))
             {
                 value = new SemanticVersion(baseVersion, specialVersion);
                 return true;
@@ -142,38 +130,38 @@ namespace Bonsai.Editor
 
         public static bool operator ==(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return left.Equals(right);
-            else return object.ReferenceEquals(right, null);
+            if (left is object) return left.Equals(right);
+            else return right is null;
         }
 
         public static bool operator !=(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return !left.Equals(right);
-            else return !object.ReferenceEquals(right, null);
+            if (left is object) return !left.Equals(right);
+            else return right is object;
         }
 
         public static bool operator <(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return left.CompareTo(right) < 0;
-            else return !object.ReferenceEquals(right, null);
+            if (left is object) return left.CompareTo(right) < 0;
+            else return right is object;
         }
 
         public static bool operator <=(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return left.CompareTo(right) <= 0;
+            if (left is object) return left.CompareTo(right) <= 0;
             else return true;
         }
 
         public static bool operator >(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return left.CompareTo(right) > 0;
+            if (left is object) return left.CompareTo(right) > 0;
             else return false;
         }
 
         public static bool operator >=(SemanticVersion left, SemanticVersion right)
         {
-            if (!object.ReferenceEquals(left, null)) return left.CompareTo(right) >= 0;
-            else return object.ReferenceEquals(right, null);
+            if (left is object) return left.CompareTo(right) >= 0;
+            else return right is null;
         }
     }
 }

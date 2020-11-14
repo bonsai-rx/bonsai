@@ -40,39 +40,37 @@ namespace Bonsai.Editor.GraphView
         int dragKeyState;
         bool editorLaunching;
         bool isContextMenuSource;
-        readonly bool editorReadOnly;
         GraphNode dragHighlight;
-        WorkflowEditorControl editorControl;
         IEnumerable<GraphNode> dragSelection;
-        CommandExecutor commandExecutor;
-        ExpressionBuilderGraph workflow;
-        WorkflowSelectionModel selectionModel;
-        IWorkflowEditorState editorState;
-        IWorkflowEditorService editorService;
-        TypeVisualizerMap typeVisualizerMap;
+        readonly CommandExecutor commandExecutor;
+        readonly WorkflowSelectionModel selectionModel;
+        readonly IWorkflowEditorState editorState;
+        readonly IWorkflowEditorService editorService;
+        readonly TypeVisualizerMap typeVisualizerMap;
+        readonly Dictionary<IWorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
+        readonly IServiceProvider serviceProvider;
+        readonly IUIService uiService;
+        readonly ThemeRenderer themeRenderer;
         Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
-        Dictionary<IWorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
         VisualizerLayout visualizerLayout;
-        IServiceProvider serviceProvider;
-        IUIService uiService;
-        ThemeRenderer themeRenderer;
+        ExpressionBuilderGraph workflow;
 
         public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner, bool readOnly)
         {
             if (provider == null)
             {
-                throw new ArgumentNullException("provider");
+                throw new ArgumentNullException(nameof(provider));
             }
 
             if (owner == null)
             {
-                throw new ArgumentNullException("owner");
+                throw new ArgumentNullException(nameof(owner));
             }
 
             InitializeComponent();
-            editorControl = owner;
+            EditorControl = owner;
             serviceProvider = provider;
-            editorReadOnly = readOnly;
+            ReadOnly = readOnly;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
@@ -91,15 +89,9 @@ namespace Bonsai.Editor.GraphView
 
         internal WorkflowEditorLauncher Launcher { get; set; }
 
-        internal WorkflowEditorControl EditorControl
-        {
-            get { return editorControl; }
-        }
+        internal WorkflowEditorControl EditorControl { get; }
 
-        internal bool ReadOnly
-        {
-            get { return editorReadOnly; }
-        }
+        internal bool ReadOnly { get; }
 
         internal bool CanEdit
         {
@@ -150,8 +142,7 @@ namespace Bonsai.Editor.GraphView
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
             workflow.Add(node);
-            var workflowInput = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder;
-            if (workflowInput != null)
+            if (ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder workflowInput)
             {
                 foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
                                                      .Where(xs => xs != null))
@@ -173,8 +164,7 @@ namespace Bonsai.Editor.GraphView
         private void RemoveWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
             workflow.Remove(node);
-            var workflowInput = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder;
-            if (workflowInput != null)
+            if (ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder workflowInput)
             {
                 foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
                                                      .Where(xs => xs != null))
@@ -528,8 +518,7 @@ namespace Bonsai.Editor.GraphView
             {
                 for (int i = 0; i < targetNodes.Length; i++)
                 {
-                    var mappingBuilder = GetGraphNodeBuilder(targetNodes[i]) as ExternalizedMappingBuilder;
-                    if (mappingBuilder != null)
+                    if (GetGraphNodeBuilder(targetNodes[i]) is ExternalizedMappingBuilder mappingBuilder)
                     {
                         var propertyMappingBuilder = ConvertExternalizedMapping(mappingBuilder);
                         ReplaceNode(targetNodes[i], propertyMappingBuilder);
@@ -540,8 +529,7 @@ namespace Bonsai.Editor.GraphView
 
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
-            var mappingBuilder = GetGraphNodeBuilder(graphViewTarget) as ExternalizedMappingBuilder;
-            if (mappingBuilder != null)
+            if (GetGraphNodeBuilder(graphViewTarget) is ExternalizedMappingBuilder mappingBuilder)
             {
                 var propertyMappingBuilder = ConvertExternalizedMapping(mappingBuilder);
                 var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
@@ -876,7 +864,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (nodes == null)
             {
-                throw new ArgumentNullException("nodes");
+                throw new ArgumentNullException(nameof(nodes));
             }
 
             var selectedNodes = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(nodes.Select(node => GetGraphNodeTag(workflow, node)));
@@ -912,7 +900,7 @@ namespace Bonsai.Editor.GraphView
             var type = Type.GetType(typeName);
             if (type == null)
             {
-                throw new ArgumentException("The specified type could not be found.", "typeName");
+                throw new ArgumentException(Resources.TypeNotFound_Error, nameof(typeName));
             }
 
             ExpressionBuilder builder;
@@ -930,7 +918,7 @@ namespace Bonsai.Editor.GraphView
             var type = Type.GetType(typeName);
             if (!typeof(WorkflowExpressionBuilder).IsAssignableFrom(type))
             {
-                throw new ArgumentException("The specified type is not a workflow expression builder.", "typeName");
+                throw new ArgumentException(Resources.InvalidExpressionBuilderType_Error, nameof(typeName));
             }
 
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
@@ -943,7 +931,7 @@ namespace Bonsai.Editor.GraphView
             var genericType = Type.GetType(genericTypeName);
             if (genericType == null)
             {
-                throw new ArgumentException("The specified type could not be found.", nameof(typeName));
+                throw new ArgumentException(Resources.TypeNotFound_Error, nameof(typeName));
             }
 
             var inspectBuilder = (InspectBuilder)selectedNode.Value;
@@ -996,11 +984,10 @@ namespace Bonsai.Editor.GraphView
                 if (!string.IsNullOrEmpty(arguments))
                 {
                     //TODO: This special case for binary operator operands should be avoided in the future
-                    var binaryOperator = builder as BinaryOperatorBuilder;
-                    if (binaryOperator != null && selectedNode != null)
+                    if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
                     {
-                        var inputBuilder = ((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value as InspectBuilder;
-                        if (inputBuilder != null && inputBuilder.ObservableType != null)
+                        if (((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value is InspectBuilder inputBuilder &&
+                            inputBuilder.ObservableType != null)
                         {
                             binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
                         }
@@ -1068,8 +1055,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             var workflow = this.workflow;
-            var workflowInput = builder as WorkflowInputBuilder;
-            if (workflowInput != null)
+            if (builder is WorkflowInputBuilder workflowInput)
             {
                 workflowInput.Index = workflow.Count(node => ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder);
             }
@@ -1084,8 +1070,7 @@ namespace Bonsai.Editor.GraphView
             var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
 
-            var workflowBuilder = builder as WorkflowExpressionBuilder;
-            if (workflowBuilder != null && validate)
+            if (builder is WorkflowExpressionBuilder workflowBuilder && validate)
             {
                 // Estimate number of inputs to the nested node
                 var inputCount = workflowBuilder.ArgumentRange.LowerBound;
@@ -1236,7 +1221,7 @@ namespace Bonsai.Editor.GraphView
             var workflow = this.workflow;
             if (workflowNode == null)
             {
-                throw new ArgumentNullException("workflowNode");
+                throw new ArgumentNullException(nameof(workflowNode));
             }
 
             var addEdge = EmptyAction;
@@ -1342,8 +1327,7 @@ namespace Bonsai.Editor.GraphView
 
         private void CloseWorkflowEditorLauncher(IWorkflowExpressionBuilder workflowExpressionBuilder, bool removeEditorMapping)
         {
-            WorkflowEditorLauncher editorLauncher;
-            if (workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
+            if (workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out WorkflowEditorLauncher editorLauncher))
             {
                 if (editorLauncher.Visible)
                 {
@@ -1371,7 +1355,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (nodes == null)
             {
-                throw new ArgumentNullException("nodes");
+                throw new ArgumentNullException(nameof(nodes));
             }
 
             if (!nodes.Any()) return;
@@ -1432,7 +1416,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (nodes == null)
             {
-                throw new ArgumentNullException("nodes");
+                throw new ArgumentNullException(nameof(nodes));
             }
 
             var workflow = this.workflow;
@@ -1493,7 +1477,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (nodes == null)
             {
-                throw new ArgumentNullException("nodes");
+                throw new ArgumentNullException(nameof(nodes));
             }
 
             if (!nodes.Any()) return;
@@ -1503,7 +1487,7 @@ namespace Bonsai.Editor.GraphView
             var workflowBuilder = nodes.ToWorkflowBuilder(recurse: false);
             if (!CanGroup(nodes, workflowBuilder))
             {
-                uiService.ShowError("Unable to group broken branches.");
+                uiService.ShowError(Resources.GroupBrokenBranches_Error);
                 return;
             }
 
@@ -1627,10 +1611,9 @@ namespace Bonsai.Editor.GraphView
 
         private void ReplaceGroupNode(GraphNode node, string typeName)
         {
-            var workflowBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
-            if (workflowBuilder == null)
+            if (!(GetGraphNodeBuilder(node) is WorkflowExpressionBuilder workflowBuilder))
             {
-                throw new ArgumentException("Replaced node must be workflow expression builder.", "node");
+                throw new ArgumentException(Resources.InvalidReplaceGroupNode_Error, nameof(node));
             }
 
             var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
@@ -1665,7 +1648,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (nodes == null)
             {
-                throw new ArgumentNullException("nodes");
+                throw new ArgumentNullException(nameof(nodes));
             }
 
             if (!nodes.Any()) return;
@@ -1691,12 +1674,11 @@ namespace Bonsai.Editor.GraphView
             var workflow = this.workflow;
             if (node == null)
             {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             var workflowNode = GetGraphNodeTag(workflow, node);
-            var workflowBuilder = ExpressionBuilder.Unwrap(workflowNode.Value) as WorkflowExpressionBuilder;
-            if (workflowBuilder == null)
+            if (!(ExpressionBuilder.Unwrap(workflowNode.Value) is WorkflowExpressionBuilder workflowBuilder))
             {
                 return;
             }
@@ -1888,7 +1870,7 @@ namespace Bonsai.Editor.GraphView
             if (graphNode != null)
             {
                 GraphView.SelectedNode = graphNode;
-                editorControl.SelectTab(this);
+                EditorControl.SelectTab(this);
                 GraphView.Select();
                 UpdateSelection();
             }
@@ -1896,8 +1878,7 @@ namespace Bonsai.Editor.GraphView
 
         private bool HasDefaultEditor(ExpressionBuilder builder)
         {
-            var workflowExpressionBuilder = builder as IWorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null) return true;
+            if (builder is IWorkflowExpressionBuilder workflowExpressionBuilder) return true;
             else if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
@@ -1997,15 +1978,14 @@ namespace Bonsai.Editor.GraphView
 
             try
             {
-                WorkflowEditorLauncher editorLauncher;
-                if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
+                if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out WorkflowEditorLauncher editorLauncher))
                 {
                     Func<WorkflowGraphView> parentSelector;
                     Func<WorkflowEditorControl> containerSelector;
                     if (workflowExpressionBuilder is IncludeWorkflowBuilder ||
                         workflowExpressionBuilder is GroupWorkflowBuilder)
                     {
-                        containerSelector = () => launcher != null ? launcher.WorkflowGraphView.editorControl : editorControl;
+                        containerSelector = () => launcher != null ? launcher.WorkflowGraphView.EditorControl : EditorControl;
                     }
                     else containerSelector = () => null;
                     parentSelector = () => launcher != null ? launcher.WorkflowGraphView : this;
@@ -2092,8 +2072,7 @@ namespace Bonsai.Editor.GraphView
             var workflowExpressionBuilder = builder as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
-                WorkflowEditorLauncher editorLauncher;
-                workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher);
+                workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out WorkflowEditorLauncher editorLauncher);
                 return editorLauncher;
             }
 
@@ -2103,10 +2082,8 @@ namespace Bonsai.Editor.GraphView
         private VisualizerDialogSettings CreateLayoutSettings(ExpressionBuilder builder)
         {
             VisualizerDialogSettings dialogSettings;
-            WorkflowEditorLauncher editorLauncher;
-            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as IWorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null &&
-                workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
+            if (ExpressionBuilder.GetWorkflowElement(builder) is IWorkflowExpressionBuilder workflowExpressionBuilder &&
+                workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out WorkflowEditorLauncher editorLauncher))
             {
                 if (editorLauncher.Visible) editorLauncher.UpdateEditorLayout();
                 dialogSettings = new WorkflowEditorSettings
@@ -2129,7 +2106,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (workflow == null)
             {
-                throw new InvalidOperationException("Cannot set visualizer layout with a null workflow.");
+                throw new InvalidOperationException(Resources.VisualizerLayoutOnNullWorkflow_Error);
             }
 
             visualizerLayout = layout ?? new VisualizerLayout();
@@ -2144,8 +2121,8 @@ namespace Bonsai.Editor.GraphView
                 else layoutSettings.Tag = node.Value;
 
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
-                var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
-                if (workflowEditorSettings != null && workflowEditorSettings.EditorDialogSettings.Tag == null)
+                if (layoutSettings is WorkflowEditorSettings workflowEditorSettings &&
+                    workflowEditorSettings.EditorDialogSettings.Tag == null)
                 {
                     var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
                     var editorVisible = workflowEditorSettings.EditorDialogSettings.Visible;
@@ -2167,8 +2144,8 @@ namespace Bonsai.Editor.GraphView
             {
                 var builder = node.Value;
                 VisualizerDialogSettings dialogSettings;
-                VisualizerDialogLauncher visualizerDialog;
-                if (visualizerMapping != null && visualizerMapping.TryGetValue(builder as InspectBuilder, out visualizerDialog))
+                if (visualizerMapping != null &&
+                    visualizerMapping.TryGetValue(builder as InspectBuilder, out VisualizerDialogLauncher visualizerDialog))
                 {
                     var visible = visualizerDialog.Visible;
                     if (!editorState.WorkflowRunning)
@@ -2213,8 +2190,7 @@ namespace Bonsai.Editor.GraphView
                     if (dialogSettings == null) dialogSettings = CreateLayoutSettings(builder);
                     else
                     {
-                        var workflowExpressionBuilder = ExpressionBuilder.Unwrap(builder) as IWorkflowExpressionBuilder;
-                        if (workflowExpressionBuilder != null)
+                        if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowExpressionBuilder)
                         {
                             var updatedEditorSettings = CreateLayoutSettings(builder);
                             updatedEditorSettings.Bounds = dialogSettings.Bounds;
@@ -2275,7 +2251,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             UpdateVisualizerLayout();
-            if (validateWorkflow) editorControl.SelectTab(this);
+            if (validateWorkflow) EditorControl.SelectTab(this);
             UpdateSelection();
         }
 
@@ -2501,8 +2477,7 @@ namespace Bonsai.Editor.GraphView
 
         private void graphView_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            var selectedNode = e.Item as GraphNode;
-            if (selectedNode != null)
+            if (e.Item is GraphNode selectedNode)
             {
                 graphView.DoDragDrop(selectedNode, DragDropEffects.Move | DragDropEffects.Link);
             }
@@ -2586,7 +2561,7 @@ namespace Bonsai.Editor.GraphView
                     var parentView = launcher.ParentView;
                     var parentEditor = parentView.EditorControl;
                     var parentEditorForm = parentEditor.ParentForm;
-                    if (editorControl.ParentForm != parentEditorForm)
+                    if (EditorControl.ParentForm != parentEditorForm)
                     {
                         parentEditorForm.Activate();
                     }
@@ -2991,22 +2966,19 @@ namespace Bonsai.Editor.GraphView
             foreach (var predecessor in workflow.Predecessors(GetGraphNodeTag(workflow, node)))
             {
                 var builder = ExpressionBuilder.Unwrap(predecessor.Value);
-                var externalizedProperty = builder as ExternalizedProperty;
-                if (externalizedProperty != null)
+                if (builder is ExternalizedProperty externalizedProperty)
                 {
                     mappedProperties.Add(externalizedProperty.MemberName);
                     continue;
                 }
 
-                var propertyMapping = builder as PropertyMappingBuilder;
-                if (propertyMapping != null)
+                if (builder is PropertyMappingBuilder propertyMapping)
                 {
                     mappedProperties.UnionWith(propertyMapping.PropertyMappings.Select(mapping => mapping.Name));
                     continue;
                 }
 
-                var externalizedMapping = builder as ExternalizedMappingBuilder;
-                if (externalizedMapping != null)
+                if (builder is ExternalizedMappingBuilder externalizedMapping)
                 {
                     mappedProperties.UnionWith(externalizedMapping.ExternalizedProperties.Select(mapping => mapping.Name));
                     continue;
@@ -3022,8 +2994,7 @@ namespace Bonsai.Editor.GraphView
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, ExternalizableAttributes))
             {
                 if (!property.IsBrowsable || property.IsReadOnly && !ExpressionHelper.IsCollectionType(property.PropertyType)) continue;
-                var propertySource = workflowElement as PropertySource;
-                var externalizedName = propertySource != null ? propertySource.MemberName : null;
+                var externalizedName = workflowElement is PropertySource propertySource ? propertySource.MemberName : null;
                 var menuItem = CreateExternalizeMenuItem(property.Name, externalizedName, property.PropertyType, selectedNode);
                 menuItem.Enabled = !mappedProperties.Contains(property.Name);                
                 ownerItem.DropDownItems.Add(menuItem);
@@ -3250,8 +3221,7 @@ namespace Bonsai.Editor.GraphView
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
                     if (editorState.WorkflowRunning)
                     {
-                        VisualizerDialogLauncher visualizerLauncher;
-                        if (visualizerMapping.TryGetValue(inspectBuilder, out visualizerLauncher))
+                        if (visualizerMapping.TryGetValue(inspectBuilder, out VisualizerDialogLauncher visualizerLauncher))
                         {
                             var visualizer = visualizerLauncher.Visualizer;
                             if (visualizer.IsValueCreated)
@@ -3290,8 +3260,7 @@ namespace Bonsai.Editor.GraphView
                 item.Enabled = false;
             }
 
-            var outputMenuItemDisposable = outputToolStripMenuItem.Tag as IDisposable;
-            if (outputMenuItemDisposable != null)
+            if (outputToolStripMenuItem.Tag is IDisposable outputMenuItemDisposable)
             {
                 outputMenuItemDisposable.Dispose();
                 outputToolStripMenuItem.Tag = null;

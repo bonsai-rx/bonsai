@@ -87,8 +87,7 @@ namespace Bonsai.Editor.GraphView
             Dictionary<int, GraphNodeGrouping> layers = new Dictionary<int, GraphNodeGrouping>();
             foreach (var layeredNode in ComputeLongestPathLayering(source))
             {
-                GraphNodeGrouping layer;
-                if (!layers.TryGetValue(layeredNode.Layer, out layer))
+                if (!layers.TryGetValue(layeredNode.Layer, out GraphNodeGrouping layer))
                 {
                     layer = new GraphNodeGrouping(layeredNode.Layer);
                     layers.Add(layer.Key, layer);
@@ -172,8 +171,7 @@ namespace Bonsai.Editor.GraphView
                     var sortedLayer = new GraphNodeGrouping(layer.Key);
                     foreach (var node in layer)
                     {
-                        IEnumerable<GraphEdge> nodePredecessors;
-                        if (predecessorMap.TryGetValue(node, out nodePredecessors))
+                        if (predecessorMap.TryGetValue(node, out IEnumerable<GraphEdge> nodePredecessors))
                         {
                             var minSuccessorLayer = nodePredecessors.Min(edge => edge.Node.LayerIndex);
                             while (sortedLayer.Count < minSuccessorLayer)
@@ -230,13 +228,11 @@ namespace Bonsai.Editor.GraphView
             var visited = new Queue<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             foreach (var node in source)
             {
-                ConnectedComponent component = null;
-                if (!connectedComponentMap.TryGetValue(node, out component))
+                if (!connectedComponentMap.TryGetValue(node, out ConnectedComponent component))
                 {
                     foreach (var successor in node.DepthFirstSearch())
                     {
-                        ConnectedComponent successorComponent;
-                        if (connectedComponentMap.TryGetValue(successor, out successorComponent))
+                        if (connectedComponentMap.TryGetValue(successor, out ConnectedComponent successorComponent))
                         {
                             if (component != null && component != successorComponent)
                             {
@@ -248,7 +244,7 @@ namespace Bonsai.Editor.GraphView
                                 }
                                 connectedComponents.Remove(component);
                             }
-                            
+
                             component = successorComponent;
                         }
                         else if (!visited.Contains(successor))

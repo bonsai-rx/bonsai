@@ -42,13 +42,11 @@ namespace Bonsai.Editor
             {
                 foreach (var successor in node.Successors)
                 {
-                    int count;
-                    argumentCount.TryGetValue(successor.Target.Value, out count);
+                    argumentCount.TryGetValue(successor.Target.Value, out int count);
                     argumentCount[successor.Target.Value] = count + 1;
                 }
 
-                var workflowExpression = node.Value as WorkflowExpressionBuilder;
-                if (workflowExpression != null)
+                if (node.Value is WorkflowExpressionBuilder workflowExpression)
                 {
                     GetArgumentCount(workflowExpression.Workflow, argumentCount);
                 }
@@ -61,8 +59,7 @@ namespace Bonsai.Editor
             GetArgumentCount(workflow, argumentCount);
             return workflow.Convert(builder =>
             {
-                var sourceBuilder = builder as SourceBuilder;
-                if (sourceBuilder != null)
+                if (builder is SourceBuilder sourceBuilder)
                 {
                     return new CombinatorBuilder
                     {
@@ -70,8 +67,7 @@ namespace Bonsai.Editor
                     };
                 }
 
-                var windowWorkflowBuilder = builder as WindowWorkflowBuilder;
-                if (windowWorkflowBuilder != null)
+                if (builder is WindowWorkflowBuilder windowWorkflowBuilder)
                 {
                     return new CreateObservableBuilder(windowWorkflowBuilder.Workflow)
                     {
@@ -80,11 +76,9 @@ namespace Bonsai.Editor
                     };
                 }
 
-                var property = builder as ExternalizedProperty;
-                if (property != null)
+                if (builder is ExternalizedProperty property)
                 {
-                    int count;
-                    if (argumentCount.TryGetValue(property, out count))
+                    if (argumentCount.TryGetValue(property, out int count))
                     {
                         var mapping = new PropertyMapping();
                         mapping.Name = property.MemberName;
@@ -103,8 +97,7 @@ namespace Bonsai.Editor
                 }
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                var parse = workflowElement as ParseBuilder;
-                if (parse != null && version < RemoveMemberSelectorPrefixVersion)
+                if (workflowElement is ParseBuilder parse && version < RemoveMemberSelectorPrefixVersion)
                 {
                     return new ParseBuilder
                     {
@@ -112,28 +105,24 @@ namespace Bonsai.Editor
                     };
                 }
 
-                var index = workflowElement as Bonsai.Reactive.Index;
-                if (index != null)
+                if (workflowElement is Reactive.Index index)
                 {
                     return new CombinatorBuilder
                     {
-                        Combinator = new Bonsai.Reactive.ElementIndex()
+                        Combinator = new Reactive.ElementIndex()
                     };
                 }
 
-                var builderElement = workflowElement as ExpressionBuilder;
-                if (builderElement != null && version < RemoveMemberSelectorPrefixVersion)
+                if (workflowElement is ExpressionBuilder builderElement && version < RemoveMemberSelectorPrefixVersion)
                 {
-                    var mappingBuilder = builderElement as PropertyMappingBuilder;
-                    if (mappingBuilder != null)
+                    if (builderElement is PropertyMappingBuilder mappingBuilder)
                     {
                         foreach (var mapping in mappingBuilder.PropertyMappings)
                         {
                             mapping.Selector = RemoveMemberSelectorPrefix(mapping.Selector);
                         }
 
-                        var inputMapping = mappingBuilder as InputMappingBuilder;
-                        if (inputMapping != null)
+                        if (mappingBuilder is InputMappingBuilder inputMapping)
                         {
                             inputMapping.Selector = RemoveMemberSelectorPrefix(inputMapping.Selector);
                         }
@@ -190,8 +179,7 @@ namespace Bonsai.Editor
         {
             foreach (var node in workflow.TopologicalSort())
             {
-                var workflowBuilder = node.Value as WorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (node.Value is WorkflowExpressionBuilder workflowBuilder)
                 {
                     foreach (var dependency in GetEnumerableUpgradeTargets(workflowBuilder.Workflow))
                     {
@@ -221,15 +209,14 @@ namespace Bonsai.Editor
                 var workflow = inputDependency.Target;
                 var inputNode = workflow.FirstOrDefault(node =>
                 {
-                    var inputBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder;
-                    return inputBuilder != null && inputBuilder.Index == 0;
+                    return ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder inputBuilder && inputBuilder.Index == 0;
                 });
 
                 if (inputNode != null)
                 {
                     var mergeBuilder = new CombinatorBuilder
                     {
-                        Combinator = new Bonsai.Reactive.Merge()
+                        Combinator = new Reactive.Merge()
                     };
 
                     var mergeNode = workflow.Add(mergeBuilder);

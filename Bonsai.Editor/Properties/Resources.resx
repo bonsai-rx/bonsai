@@ -283,4 +283,49 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="CreateGroupAction" xml:space="preserve">
     <value>Create Group</value>
   </data>
+  <data name="BuildError_Caption" xml:space="preserve">
+    <value>Build Error</value>
+  </data>
+  <data name="CreateTypeNode_Error" xml:space="preserve">
+    <value>Failed to create {0}:\n{1}</value>
+  </data>
+  <data name="CreateTypeNode_Error_Caption" xml:space="preserve">
+    <value>Type Error</value>
+  </data>
+  <data name="EnsureSavedWorkflow_Question" xml:space="preserve">
+    <value>The workflow needs to be saved before proceeding. Do you want to save the workflow?</value>
+  </data>
+  <data name="ExceptionNodeNotFound_Error" xml:space="preserve">
+    <value>Exception builder node not found in active workflow editor.</value>
+  </data>
+  <data name="GroupBrokenBranches_Error" xml:space="preserve">
+    <value>Unable to group broken branches.</value>
+  </data>
+  <data name="InvalidExpressionBuilderType_Error" xml:space="preserve">
+    <value>The specified type is not a workflow expression builder.</value>
+  </data>
+  <data name="InvalidReplaceGroupNode_Error" xml:space="preserve">
+    <value>Replaced node must be workflow expression builder.</value>
+  </data>
+  <data name="RuntimeError_Caption" xml:space="preserve">
+    <value>Runtime Error</value>
+  </data>
+  <data name="StopWorkflow_Question" xml:space="preserve">
+    <value>Do you want to stop the workflow?</value>
+  </data>
+  <data name="StopWorkflow_Question_Caption" xml:space="preserve">
+    <value>Workflow Running</value>
+  </data>
+  <data name="TypeNotFound_Error" xml:space="preserve">
+    <value>The specified type could not be found.</value>
+  </data>
+  <data name="UnsavedWorkflow_Question" xml:space="preserve">
+    <value>Workflow has unsaved changes. Save project file?</value>
+  </data>
+  <data name="UnsavedWorkflow_Question_Caption" xml:space="preserve">
+    <value>Unsaved Changes</value>
+  </data>
+  <data name="VisualizerLayoutOnNullWorkflow_Error" xml:space="preserve">
+    <value>Cannot set visualizer layout with a null workflow.</value>
+  </data>
 </root>

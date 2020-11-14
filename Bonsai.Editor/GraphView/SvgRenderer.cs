@@ -45,38 +45,21 @@ namespace Bonsai.Editor.GraphView
 
     class SvgRendererContext
     {
-        readonly ParameterExpression state;
-        readonly ParameterExpression graphics;
-        readonly Dictionary<string, Brush> gradients;
-        readonly List<Expression> expressions;
-
         public SvgRendererContext()
         {
-            state = Expression.Parameter(typeof(SvgRendererState), "state");
-            graphics = Expression.Parameter(typeof(IGraphics), "graphics");
-            gradients = new Dictionary<string, Brush>();
-            expressions = new List<Expression>();
+            State = Expression.Parameter(typeof(SvgRendererState), "state");
+            Graphics = Expression.Parameter(typeof(IGraphics), "graphics");
+            Gradients = new Dictionary<string, Brush>();
+            Expressions = new List<Expression>();
         }
 
-        public ParameterExpression State
-        {
-            get { return state; }
-        }
+        public ParameterExpression State { get; }
 
-        public ParameterExpression Graphics
-        {
-            get { return graphics; }
-        }
+        public ParameterExpression Graphics { get; }
 
-        public IDictionary<string, Brush> Gradients
-        {
-            get { return gradients; }
-        }
+        public IDictionary<string, Brush> Gradients { get; }
 
-        public ICollection<Expression> Expressions
-        {
-            get { return expressions; }
-        }
+        public ICollection<Expression> Expressions { get; }
     }
 
     class SvgRendererFactory : IDisposable
@@ -117,7 +100,7 @@ namespace Bonsai.Editor.GraphView
                 previous = letter;
             }
 
-            return (SvgPath)pathBuilder.ToString();
+            return pathBuilder.ToString();
         }
 
         static PointF? ParsePoint(SvgElement element, string x, string y)
@@ -150,9 +133,8 @@ namespace Bonsai.Editor.GraphView
             var style = value as SvgStyle;
             if (style == null)
             {
-                var rawStyle = value as string;
-                if (rawStyle == null) return null;
-                style = (SvgStyle)rawStyle;
+                if (!(value is string rawStyle)) return null;
+                style = rawStyle;
             }
 
             return style;
@@ -209,7 +191,7 @@ namespace Bonsai.Editor.GraphView
                 result = new Matrix();
                 disposableResources.Add(result);
                 var transformList = transformAttribute as SvgTransformList;
-                if (transformList == null) transformList = (SvgTransformList)(string)transformAttribute;
+                if (transformList == null) transformList = (string)transformAttribute;
                 for (int i = 0; i < transformList.Count; i++)
                 {
                     var transform = transformList[i];
@@ -249,9 +231,8 @@ namespace Bonsai.Editor.GraphView
             if (fill == null) return Expression.Call(context.State, "FillStyle", null);
             if (fill.StartsWith(UrlPrefix))
             {
-                Brush brush;
                 var href = fill.Substring(UrlPrefix.Length, fill.Length - UrlPrefix.Length - 1);
-                if (!context.Gradients.TryGetValue(href, out brush)) return null;
+                if (!context.Gradients.TryGetValue(href, out Brush brush)) return null;
                 else return Expression.Constant(brush);
             }
             else
@@ -546,17 +527,15 @@ namespace Bonsai.Editor.GraphView
 
         void CreateLinearGradient(SvgElement element, SvgRendererContext context)
         {
-            var linearGradient = element as SvgLinearGradientElement;
-            if (linearGradient != null)
+            if (element is SvgLinearGradientElement linearGradient)
             {
                 var color1 = default(Color);
                 var color2 = default(Color);
                 LinearGradientBrush gradient;
                 if (linearGradient.Children.Count == 2)
                 {
-                    var stop1 = linearGradient.Children[0] as SvgStopElement;
-                    var stop2 = linearGradient.Children[1] as SvgStopElement;
-                    if (stop1 != null && stop2 != null)
+                    if (linearGradient.Children[0] is SvgStopElement stop1 &&
+                        linearGradient.Children[1] is SvgStopElement stop2)
                     {
                         color1 = ParseStopColor(stop1);
                         color2 = ParseStopColor(stop2);
@@ -564,11 +543,9 @@ namespace Bonsai.Editor.GraphView
                 }
                 else
                 {
-                    Brush referenceGradient;
-                    LinearGradientBrush referenceLinearGradient;
                     var href = new SvgXRef(linearGradient).Href;
-                    if (href != null && context.Gradients.TryGetValue(href, out referenceGradient) &&
-                       (referenceLinearGradient = referenceGradient as LinearGradientBrush) != null)
+                    if (href != null && context.Gradients.TryGetValue(href, out Brush referenceGradient) &&
+                       referenceGradient is LinearGradientBrush referenceLinearGradient)
                     {
                         color1 = referenceLinearGradient.LinearColors[0];
                         color2 = referenceLinearGradient.LinearColors[1];
@@ -670,9 +647,8 @@ namespace Bonsai.Editor.GraphView
 
         public SvgRenderer GetIconRenderer(ElementCategory category)
         {
-            SvgRenderer renderer;
             var categoryIcon = ElementIcon.FromElementCategory(category);
-            if (!TryGetIconRenderer(categoryIcon, out renderer))
+            if (!TryGetIconRenderer(categoryIcon, out SvgRenderer renderer))
             {
                 rendererCache.Add(categoryIcon.Name, renderer);
             }

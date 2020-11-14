@@ -92,6 +92,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Build Error.
+        /// </summary>
+        internal static string BuildError_Caption {
+            get {
+                return ResourceManager.GetString("BuildError_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
         internal static string ContextMenu_NoneMenuItemLabel {
@@ -165,11 +174,56 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to create {0}:\n{1}.
+        /// </summary>
+        internal static string CreateTypeNode_Error {
+            get {
+                return ResourceManager.GetString("CreateTypeNode_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type Error.
+        /// </summary>
+        internal static string CreateTypeNode_Error_Caption {
+            get {
+                return ResourceManager.GetString("CreateTypeNode_Error_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Error.
         /// </summary>
         internal static string Editor_Error_Caption {
             get {
                 return ResourceManager.GetString("Editor_Error_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The workflow needs to be saved before proceeding. Do you want to save the workflow?.
+        /// </summary>
+        internal static string EnsureSavedWorkflow_Question {
+            get {
+                return ResourceManager.GetString("EnsureSavedWorkflow_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception builder node not found in active workflow editor..
+        /// </summary>
+        internal static string ExceptionNodeNotFound_Error {
+            get {
+                return ResourceManager.GetString("ExceptionNodeNotFound_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to group broken branches..
+        /// </summary>
+        internal static string GroupBrokenBranches_Error {
+            get {
+                return ResourceManager.GetString("GroupBrokenBranches_Error", resourceCulture);
             }
         }
         
@@ -210,6 +264,24 @@ namespace Bonsai.Editor.Properties {
         internal static string InstallScriptEditor_Question_Caption {
             get {
                 return ResourceManager.GetString("InstallScriptEditor_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified type is not a workflow expression builder..
+        /// </summary>
+        internal static string InvalidExpressionBuilderType_Error {
+            get {
+                return ResourceManager.GetString("InvalidExpressionBuilderType_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replaced node must be workflow expression builder..
+        /// </summary>
+        internal static string InvalidReplaceGroupNode_Error {
+            get {
+                return ResourceManager.GetString("InvalidReplaceGroupNode_Error", resourceCulture);
             }
         }
         
@@ -294,6 +366,15 @@ namespace Bonsai.Editor.Properties {
         internal static string RunningStatus {
             get {
                 return ResourceManager.GetString("RunningStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Runtime Error.
+        /// </summary>
+        internal static string RuntimeError_Caption {
+            get {
+                return ResourceManager.GetString("RuntimeError_Caption", resourceCulture);
             }
         }
         
@@ -386,6 +467,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do you want to stop the workflow?.
+        /// </summary>
+        internal static string StopWorkflow_Question {
+            get {
+                return ResourceManager.GetString("StopWorkflow_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Workflow Running.
+        /// </summary>
+        internal static string StopWorkflow_Question_Caption {
+            get {
+                return ResourceManager.GetString("StopWorkflow_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Subject Type.
         /// </summary>
         internal static string SubjectTypeAction {
@@ -395,11 +494,38 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified type could not be found..
+        /// </summary>
+        internal static string TypeNotFound_Error {
+            get {
+                return ResourceManager.GetString("TypeNotFound_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions..
         /// </summary>
         internal static string UncompiledScriptExpression_Error {
             get {
                 return ResourceManager.GetString("UncompiledScriptExpression_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Workflow has unsaved changes. Save project file?.
+        /// </summary>
+        internal static string UnsavedWorkflow_Question {
+            get {
+                return ResourceManager.GetString("UnsavedWorkflow_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsaved Changes.
+        /// </summary>
+        internal static string UnsavedWorkflow_Question_Caption {
+            get {
+                return ResourceManager.GetString("UnsavedWorkflow_Question_Caption", resourceCulture);
             }
         }
         
@@ -427,6 +553,15 @@ namespace Bonsai.Editor.Properties {
         internal static string UpdateWorkflow_Warning_Caption {
             get {
                 return ResourceManager.GetString("UpdateWorkflow_Warning_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot set visualizer layout with a null workflow..
+        /// </summary>
+        internal static string VisualizerLayoutOnNullWorkflow_Error {
+            get {
+                return ResourceManager.GetString("VisualizerLayoutOnNullWorkflow_Error", resourceCulture);
             }
         }
         

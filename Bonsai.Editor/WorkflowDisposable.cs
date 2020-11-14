@@ -7,7 +7,7 @@ namespace Bonsai.Editor
     class WorkflowDisposable : IDisposable
     {
         int disposed;
-        IDisposable disposable;
+        readonly IDisposable disposable;
 
         public WorkflowDisposable(IObservable<Unit> workflow, IDisposable disposable)
         {

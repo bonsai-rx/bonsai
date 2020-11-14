@@ -19,21 +19,12 @@ namespace Bonsai.Editor.GraphView
 
         protected virtual void OnSelectionChanged(EventArgs e)
         {
-            var handler = SelectionChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            SelectionChanged?.Invoke(this, e);
         }
 
         public void UpdateSelection(WorkflowGraphView selectedView)
         {
-            if (selectedView == null)
-            {
-                throw new ArgumentNullException("selectedView");
-            }
-
-            SelectedView = selectedView;
+            SelectedView = selectedView ?? throw new ArgumentNullException(nameof(selectedView));
             SelectedNodes = selectedView.GraphView.SelectedNodes;
             OnSelectionChanged(EventArgs.Empty);
         }

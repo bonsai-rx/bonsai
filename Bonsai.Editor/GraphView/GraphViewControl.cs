@@ -74,13 +74,11 @@ namespace Bonsai.Editor.GraphView
         RectangleF previousRectangle;
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
-        GraphViewTextDrawMode textDrawMode;
-        LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
-        HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
-        SvgRendererState iconRendererState = new SvgRendererState();
+        readonly LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
+        readonly HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
+        readonly SvgRendererState iconRendererState = new SvgRendererState();
         IEnumerable<GraphNodeGrouping> nodes;
         GraphNode pivot;
-        GraphNode cursor;
         GraphNode hot;
 
         public GraphViewControl()
@@ -90,7 +88,6 @@ namespace Bonsai.Editor.GraphView
             FocusedSelectionColor = Color.Black;
             UnfocusedSelectionColor = Color.Gray;
             ContrastSelectionColor = Color.White;
-            TextDrawMode = GraphViewTextDrawMode.All;
         }
 
         void InitializeReactiveEvents()
@@ -240,27 +237,12 @@ namespace Bonsai.Editor.GraphView
 
         public SvgRendererFactory IconRenderer { get; set; }
 
-        public GraphViewTextDrawMode TextDrawMode
-        {
-            get { return textDrawMode; }
-            set
-            {
-                textDrawMode = value;
-                UpdateModelLayout();
-            }
-        }
-
-        private bool WrapLabels
-        {
-            get { return textDrawMode == GraphViewTextDrawMode.All; }
-        }
-
         public IEnumerable<GraphNodeGrouping> Nodes
         {
             get { return nodes; }
             set
             {
-                cursor = null;
+                CursorNode = null;
                 pivot = null;
                 nodes = value;
                 hot = null;
@@ -269,10 +251,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public GraphNode CursorNode
-        {
-            get { return cursor; }
-        }
+        public GraphNode CursorNode { get; private set; }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -309,7 +288,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     UpdateSelection(() =>
                     {
-                        var cursorNode = cursor;
+                        var cursorNode = CursorNode;
                         selectedNodes.Clear();
                         if (value != null)
                         {
@@ -319,7 +298,7 @@ namespace Bonsai.Editor.GraphView
                                 cursorNode = node;
                             }
 
-                            if (cursorNode != cursor)
+                            if (cursorNode != CursorNode)
                             {
                                 SetCursor(cursorNode);
                                 pivot = cursorNode;
@@ -429,7 +408,7 @@ namespace Bonsai.Editor.GraphView
             {
                 using (var graphics = CreateGraphics())
                 {
-                    nodeLayout.SetNodeLabel(nodeText, Font, graphics, WrapLabels);
+                    nodeLayout.SetNodeLabel(nodeText, Font, graphics);
                     labelRectangle = RectangleF.Union(labelRectangle, nodeLayout.LabelRectangle);
                 }
             }
@@ -473,71 +452,43 @@ namespace Bonsai.Editor.GraphView
 
         protected virtual void OnItemDrag(ItemDragEventArgs e)
         {
-            var handler = Events[EventItemDrag] as ItemDragEventHandler;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventItemDrag] as ItemDragEventHandler)?.Invoke(this, e);
         }
 
         protected virtual void OnNodeMouseClick(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseClick] as EventHandler<GraphNodeMouseEventArgs>;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventNodeMouseClick] as EventHandler<GraphNodeMouseEventArgs>)?.Invoke(this, e);
         }
 
         protected virtual void OnNodeMouseDoubleClick(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseDoubleClick] as EventHandler<GraphNodeMouseEventArgs>;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventNodeMouseDoubleClick] as EventHandler<GraphNodeMouseEventArgs>)?.Invoke(this, e);
         }
 
         protected virtual void OnNodeMouseEnter(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseEnter] as EventHandler<GraphNodeMouseEventArgs>;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventNodeMouseEnter] as EventHandler<GraphNodeMouseEventArgs>)?.Invoke(this, e);
         }
 
         protected virtual void OnNodeMouseLeave(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseLeave] as EventHandler<GraphNodeMouseEventArgs>;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventNodeMouseLeave] as EventHandler<GraphNodeMouseEventArgs>)?.Invoke(this, e);
         }
 
         protected virtual void OnNodeMouseHover(GraphNodeMouseHoverEventArgs e)
         {
-            var handler = Events[EventNodeMouseHover] as EventHandler<GraphNodeMouseHoverEventArgs>;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventNodeMouseHover] as EventHandler<GraphNodeMouseHoverEventArgs>)?.Invoke(this, e);
         }
 
         protected virtual void OnSelectedNodeChanged(EventArgs e)
         {
-            var handler = Events[EventSelectedNodeChanged] as EventHandler;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            (Events[EventSelectedNodeChanged] as EventHandler)?.Invoke(this, e);
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
             InvalidateSelection();
-            Invalidate(cursor);
+            Invalidate(CursorNode);
             base.OnGotFocus(e);
         }
 
@@ -545,7 +496,7 @@ namespace Bonsai.Editor.GraphView
         {
             ignoreMouseUp = true;
             InvalidateSelection();
-            Invalidate(cursor);
+            Invalidate(CursorNode);
             base.OnLostFocus(e);
         }
 
@@ -562,14 +513,14 @@ namespace Bonsai.Editor.GraphView
             var control = keyData.HasFlag(Keys.Control);
             if (control) keyData &= ~Keys.Control;
 
-            if (keyData == Keys.Space && cursor != null)
+            if (keyData == Keys.Space && CursorNode != null)
             {
-                if (selectedNodes.Contains(cursor))
+                if (selectedNodes.Contains(CursorNode))
                 {
-                    if (control) ClearNode(cursor);
+                    if (control) ClearNode(CursorNode);
                     else ClearSelection();
                 }
-                else SelectNode(cursor, control);
+                else SelectNode(CursorNode, control);
             }
 
             var stepCursor = false;
@@ -583,17 +534,17 @@ namespace Bonsai.Editor.GraphView
                     break;
             }
 
-            if (cursor != null && stepCursor)
+            if (CursorNode != null && stepCursor)
             {
                 StepCursor(keyData);
                 if (shift)
                 {
-                    SelectRange(cursor, control);
+                    SelectRange(CursorNode, control);
                 }
                 else
                 {
-                    pivot = cursor;
-                    if (!control) SelectNode(cursor, false);
+                    pivot = CursorNode;
+                    if (!control) SelectNode(CursorNode, false);
                 }
             }
             return base.ProcessCmdKey(ref msg, keyData);
@@ -607,9 +558,6 @@ namespace Bonsai.Editor.GraphView
             {
                 if (layout.Node.Value != null)
                 {
-                    var nodeCenter = new PointF(
-                        layout.Location.X + offset.Width,
-                        layout.Location.Y + offset.Height);
                     var selected = CircleIntersect(layout.Center, HalfSize, selectionRect);
                     if (selected)
                     {
@@ -789,9 +737,9 @@ namespace Bonsai.Editor.GraphView
 
         void StepCursor(Keys step)
         {
-            if (cursor == null) return;
-            var layer = cursor.Layer;
-            var layerIndex = cursor.LayerIndex;
+            if (CursorNode == null) return;
+            var layer = CursorNode.Layer;
+            var layerIndex = CursorNode.LayerIndex;
             if (step == Keys.Right) layer--;
             if (step == Keys.Left) layer++;
             if (step == Keys.Up) layerIndex--;
@@ -800,11 +748,11 @@ namespace Bonsai.Editor.GraphView
             GraphNode selection = null;
             if (selection == null)
             {
-                if (layer != cursor.Layer)
+                if (layer != CursorNode.Layer)
                 {
                     selection = (from layout in layoutNodes
                                  where layout.Node.Value != null &&
-                                       layout.Node.LayerIndex == layerIndex && (layer > cursor.Layer
+                                       layout.Node.LayerIndex == layerIndex && (layer > CursorNode.Layer
                                      ? layout.Node.Layer >= layer
                                      : layout.Node.Layer <= layer)
                                  orderby Math.Abs(layout.Node.Layer - layer) ascending
@@ -815,7 +763,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     selection = (from layout in layoutNodes
                                  where layout.Node.Value != null &&
-                                       layout.Node.Layer == layer && (layerIndex > cursor.LayerIndex
+                                       layout.Node.Layer == layer && (layerIndex > CursorNode.LayerIndex
                                      ? layout.Node.LayerIndex >= layerIndex
                                      : layout.Node.LayerIndex <= layerIndex)
                                  orderby Math.Abs(layout.Node.LayerIndex - layerIndex) ascending
@@ -828,22 +776,22 @@ namespace Bonsai.Editor.GraphView
             {
                 if (step == Keys.Right)
                 {
-                    selection = GetDefaultSuccessor(cursor);
+                    selection = GetDefaultSuccessor(CursorNode);
                 }
 
                 if (step == Keys.Left)
                 {
-                    selection = GetDefaultPredecessor(cursor);
+                    selection = GetDefaultPredecessor(CursorNode);
                 }
 
                 if (step == Keys.Down)
                 {
-                    selection = GetSiblings(cursor).SkipWhile(node => node != cursor).Skip(1).FirstOrDefault();
+                    selection = GetSiblings(CursorNode).SkipWhile(node => node != CursorNode).Skip(1).FirstOrDefault();
                 }
 
                 if (step == Keys.Up)
                 {
-                    selection = GetSiblings(cursor).TakeWhile(node => node != cursor).LastOrDefault();
+                    selection = GetSiblings(CursorNode).TakeWhile(node => node != CursorNode).LastOrDefault();
                 }
             }
 
@@ -869,11 +817,11 @@ namespace Bonsai.Editor.GraphView
                         var column = layerCount - layer.Key - 1;
                         foreach (var node in layer)
                         {
-                            if (pivot == null) pivot = cursor = node;
+                            if (pivot == null) pivot = CursorNode = node;
                             var row = node.LayerIndex;
                             var location = new PointF(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
                             var layout = new LayoutNode(this, node, location);
-                            layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
+                            layout.SetNodeLabel(node.Text, Font, graphics);
                             layoutNodes.Add(layout);
                             maxRow = Math.Max(row, maxRow);
                         }
@@ -965,10 +913,10 @@ namespace Bonsai.Editor.GraphView
 
         private void SetCursor(GraphNode node)
         {
-            Invalidate(cursor);
-            cursor = node;
+            Invalidate(CursorNode);
+            CursorNode = node;
             Invalidate(node);
-            EnsureVisible(cursor);
+            EnsureVisible(CursorNode);
         }
 
         private static string[] GetWords(string text)
@@ -1018,7 +966,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     if (trimStart)
                     {
-                        if (Char.IsWhiteSpace(c)) continue;
+                        if (char.IsWhiteSpace(c)) continue;
                         else trimStart = false;
                     }
                     result.Append(c);
@@ -1235,7 +1183,7 @@ namespace Bonsai.Editor.GraphView
                     {
                         Color currentColor;
                         Color selectionColor;
-                        var cursorColor = cursor == layout.Node ? CursorColor : default(Color?);
+                        var cursorColor = CursorNode == layout.Node ? CursorColor : default(Color?);
                         var selected = selectedNodes.Contains(layout.Node);
                         if (layout.Node.Highlight)
                         {
@@ -1256,13 +1204,10 @@ namespace Bonsai.Editor.GraphView
                         }
 
                         DrawNode(graphics, layout, offset, activeSelection, fill, stroke, currentColor, cursorColor, layout.Node == hot);
-                        if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
-                        {
-                            selection.Color = ContrastSelectionColor;
-                            var labelRect = layout.LabelRectangle;
-                            labelRect.Location += offset;
-                            graphics.DrawString(layout.Label, Font, selection, labelRect, TextFormat);
-                        }
+                        selection.Color = ContrastSelectionColor;
+                        var labelRect = layout.LabelRectangle;
+                        labelRect.Location += offset;
+                        graphics.DrawString(layout.Label, Font, selection, labelRect, TextFormat);
                     }
                     else DrawDummyNode(graphics, layout, offset);
                 }
@@ -1289,15 +1234,15 @@ namespace Bonsai.Editor.GraphView
                 if (Control.ModifierKeys.HasFlag(Keys.Shift))
                 {
                     mouseDownHandled = true;
-                    SelectRange(hot, Control.ModifierKeys.HasFlag(Keys.Control));
+                    SelectRange(hot, ModifierKeys.HasFlag(Keys.Control));
                 }
                 else
                 {
-                    pivot = cursor;
+                    pivot = CursorNode;
                     if (!selectedNodes.Contains(hot))
                     {
                         mouseDownHandled = true;
-                        SelectNode(hot, Control.ModifierKeys.HasFlag(Keys.Control));
+                        SelectNode(hot, ModifierKeys.HasFlag(Keys.Control));
                     }
                 }
             }
@@ -1313,11 +1258,11 @@ namespace Bonsai.Editor.GraphView
                 if (e.Button == MouseButtons.Right && selectedNodes.Contains(hot)) return;
                 if (!mouseDownHandled)
                 {
-                    if (Control.ModifierKeys.HasFlag(Keys.Control)) ClearNode(hot);
+                    if (ModifierKeys.HasFlag(Keys.Control)) ClearNode(hot);
                     else SelectNode(hot, false);
                 }
             }
-            else if (Control.ModifierKeys == Keys.None)
+            else if (ModifierKeys == Keys.None)
             {
                 ClearSelection();
             }
@@ -1427,11 +1372,11 @@ namespace Bonsai.Editor.GraphView
                 }
             }
 
-            public void SetNodeLabel(string text, Font font, Graphics graphics, bool wrap)
+            public void SetNodeLabel(string text, Font font, Graphics graphics)
             {
                 Text = text;
                 var labelSize = SizeF.Empty;
-                var labelLocation = (PointF)Location;
+                var labelLocation = Location;
                 labelLocation.Y += View.NodeSize + View.LabelTextOffset;
                 var labelBuilder = new StringBuilder(text.Length);
                 foreach (var word in WordWrap(graphics, text, font, View.NodeAirspace))

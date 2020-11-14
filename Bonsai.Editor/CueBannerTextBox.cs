@@ -6,21 +6,17 @@ namespace Bonsai.Editor
 {
     class CueBannerTextBox : TextBox
     {
-        bool cueBannerVisible;
         Color activeForeColor;
 
         public string CueBanner { get; set; }
 
-        public bool CueBannerVisible
-        {
-            get { return cueBannerVisible; }
-        }
+        public bool CueBannerVisible { get; private set; }
 
         private void ShowCueBanner()
         {
             if (string.IsNullOrWhiteSpace(Text) && !string.IsNullOrWhiteSpace(CueBanner))
             {
-                cueBannerVisible = true;
+                CueBannerVisible = true;
                 activeForeColor = ForeColor;
                 ForeColor = Color.Gray;
                 Text = CueBanner;
@@ -29,9 +25,9 @@ namespace Bonsai.Editor
 
         private void HideCueBanner()
         {
-            if (cueBannerVisible)
+            if (CueBannerVisible)
             {
-                cueBannerVisible = false;
+                CueBannerVisible = false;
                 Text = string.Empty;
                 ForeColor = activeForeColor;
             }
@@ -57,7 +53,7 @@ namespace Bonsai.Editor
 
         protected override void OnTextChanged(EventArgs e)
         {
-            if (!cueBannerVisible)
+            if (!CueBannerVisible)
             {
                 base.OnTextChanged(e);
             }

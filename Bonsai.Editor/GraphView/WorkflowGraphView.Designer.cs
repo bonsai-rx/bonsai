@@ -298,7 +298,6 @@
             this.graphView.Padding = new System.Windows.Forms.Padding(3);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
-            this.graphView.TextDrawMode = Bonsai.Editor.GraphView.GraphViewTextDrawMode.All;
             this.graphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.graphView_ItemDrag);
             this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Editor.GraphView.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
             this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Editor.GraphView.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);

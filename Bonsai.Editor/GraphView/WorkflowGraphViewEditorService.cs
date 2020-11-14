@@ -6,8 +6,8 @@ namespace Bonsai.Editor.GraphView
 {
     class WorkflowGraphViewEditorService : IWindowsFormsEditorService, IServiceProvider
     {
-        Control ownerControl;
-        IServiceProvider serviceProvider;
+        readonly Control ownerControl;
+        readonly IServiceProvider serviceProvider;
 
         internal WorkflowGraphViewEditorService(Control owner, IServiceProvider provider)
         {

@@ -21,7 +21,7 @@ namespace Bonsai.Editor
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return DoAdd(value) != null;
@@ -32,8 +32,7 @@ namespace Bonsai.Editor
             var key = value.InnerException;
             if (key != null)
             {
-                var nestedKey = key as WorkflowRuntimeException;
-                if (nestedKey != null)
+                if (key is WorkflowRuntimeException nestedKey)
                 {
                     var callStack = DoAdd(nestedKey);
                     if (callStack != null)
@@ -62,13 +61,12 @@ namespace Bonsai.Editor
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             value = null;
-            Queue<ExpressionBuilder> callStack;
             var weakKey = new WeakKey<Exception>(key);
-            var result = exceptions.TryGetValue(weakKey, out callStack);
+            var result = exceptions.TryGetValue(weakKey, out Queue<ExpressionBuilder> callStack);
             if (result)
             {
                 while (callStack.Count > 0)
@@ -112,7 +110,7 @@ namespace Bonsai.Editor
             {
                 if (key == null)
                 {
-                    throw new ArgumentNullException("key");
+                    throw new ArgumentNullException(nameof(key));
                 }
 
                 hashCode = key.GetHashCode();
@@ -123,8 +121,7 @@ namespace Bonsai.Editor
             {
                 get
                 {
-                    TKey key;
-                    return reference.TryGetTarget(out key);
+                    return reference.TryGetTarget(out _);
                 }
             }
 
@@ -134,9 +131,8 @@ namespace Bonsai.Editor
                 if(weakKey.reference == reference) return true;
                 if (weakKey != null && hashCode == weakKey.hashCode)
                 {
-                    TKey key1, key2;
-                    if (reference.TryGetTarget(out key1) &&
-                        weakKey.reference.TryGetTarget(out key2))
+                    if (reference.TryGetTarget(out TKey key1) &&
+                        weakKey.reference.TryGetTarget(out TKey key2))
                     {
                         return key1.Equals(key2);
                     }
