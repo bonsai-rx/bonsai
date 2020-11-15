@@ -17,6 +17,7 @@ using System.Drawing.Design;
 using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
 using Bonsai.Design;
+using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Editor.GraphView
 {

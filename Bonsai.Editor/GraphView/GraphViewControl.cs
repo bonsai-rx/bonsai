@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
 using SvgNet.SvgGdi;
+using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Editor.GraphView
 {

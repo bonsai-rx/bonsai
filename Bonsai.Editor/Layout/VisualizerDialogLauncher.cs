@@ -5,6 +5,7 @@ using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphView;
+using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Design
 {

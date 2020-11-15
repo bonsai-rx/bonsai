@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using Bonsai.Editor.GraphModel;
+using System.Windows.Forms;
 
 namespace Bonsai.Editor.GraphView
 {

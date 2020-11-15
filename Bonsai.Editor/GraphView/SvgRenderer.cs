@@ -1,4 +1,5 @@
-﻿using SvgNet;
+﻿using Bonsai.Editor.GraphModel;
+using SvgNet;
 using SvgNet.SvgElements;
 using SvgNet.SvgGdi;
 using SvgNet.SvgTypes;
