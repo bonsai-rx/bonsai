@@ -20,10 +20,6 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName);
 
-        string StoreWorkflowElements(WorkflowBuilder builder);
-
-        WorkflowBuilder RetrieveWorkflowElements(string text);
-
         void SelectNextControl(bool forward);
 
         void StartWorkflow(bool debugging);

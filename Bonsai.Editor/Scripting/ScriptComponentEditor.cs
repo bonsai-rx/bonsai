@@ -1,5 +1,6 @@
 ﻿using Bonsai.Dag;
 using Bonsai.Design;
+using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.GraphView;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -259,8 +260,8 @@ namespace Bonsai.Editor.Scripting
             var type = typeBuilder.CreateType();
             var builder = new CombinatorBuilder();
             builder.Combinator = Activator.CreateInstance(type);
-            selectedView.CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch: false, validate: false);
-            selectedView.DeleteGraphNodes(selectionModel.SelectedNodes);
+            selectedView.Editor.CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch: false, validate: false);
+            selectedView.Editor.DeleteGraphNodes(selectionModel.SelectedNodes);
             commandExecutor.Execute(() => { }, null);
 
             ScriptEditorLauncher.Launch(owner, scriptEnvironment.ProjectFileName, scriptFile);

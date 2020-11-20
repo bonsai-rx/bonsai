@@ -39,11 +39,6 @@ namespace Bonsai.Editor
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly object WorkflowValidating = new object();
-        static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
-        {
-            NamespaceHandling = NamespaceHandling.OmitDuplicates,
-            Indent = true
-        };
 
         int version;
         int saveVersion;
@@ -883,16 +878,7 @@ namespace Bonsai.Editor
         {
             try
             {
-                using (var memoryStream = new MemoryStream())
-                using (var writer = XmlnsIndentedWriter.Create(memoryStream, DefaultWriterSettings))
-                {
-                    serializer.Serialize(writer, o);
-                    using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                    {
-                        memoryStream.WriteTo(fileStream);
-                    }
-                }
-
+                ElementStore.SaveElement(serializer, fileName, o);
                 return true;
             }
             catch (IOException ex)
@@ -946,7 +932,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (groupNode == null)
             {
-                model.GroupGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.GroupGraphNodes(selectionModel.SelectedNodes);
                 groupNode = selectionModel.SelectedNodes.Single();
                 if (!model.CanEdit)
                 {
@@ -966,7 +952,7 @@ namespace Bonsai.Editor
             {
                 var includeBuilder = new IncludeWorkflowBuilder();
                 includeBuilder.Path = PathConvert.GetProjectPath(fileName);
-                model.ReplaceGraphNode(groupNode, includeBuilder);
+                model.Editor.ReplaceGraphNode(groupNode, includeBuilder);
                 editorSite.ValidateWorkflow();
             }
         }
@@ -1463,7 +1449,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.GraphView.Focused)
             {
-                model.DeleteGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.DeleteGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -1768,7 +1754,7 @@ namespace Bonsai.Editor
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
             var arguments = GetToolboxArguments(searchTextBox);
             var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
-            try { model.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
+            try { model.Editor.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.InnerException.Message);
@@ -1982,7 +1968,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.GraphView.Focused)
             {
-                model.GroupGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.GroupGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -1991,7 +1977,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.GraphView.Focused)
             {
-                model.UngroupGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.UngroupGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -2000,7 +1986,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.GraphView.Focused)
             {
-                model.EnableGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.EnableGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -2009,7 +1995,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.GraphView.Focused)
             {
-                model.DisableGraphNodes(selectionModel.SelectedNodes);
+                model.Editor.DisableGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -2325,50 +2311,6 @@ namespace Bonsai.Editor
             public void OpenWorkflow(string fileName)
             {
                 siteForm.OpenWorkflow(fileName);
-            }
-
-            public string StoreWorkflowElements(WorkflowBuilder builder)
-            {
-                if (builder == null)
-                {
-                    throw new ArgumentNullException(nameof(builder));
-                }
-
-                if (builder.Workflow.Count > 0)
-                {
-                    var stringBuilder = new StringBuilder();
-                    using (var writer = XmlnsIndentedWriter.Create(stringBuilder, DefaultWriterSettings))
-                    {
-                        WorkflowBuilder.Serializer.Serialize(writer, builder);
-                    }
-
-                    return stringBuilder.ToString();
-                }
-
-                return string.Empty;
-            }
-
-            public WorkflowBuilder RetrieveWorkflowElements(string text)
-            {
-                if (!string.IsNullOrEmpty(text))
-                {
-                    var stringReader = new StringReader(text);
-                    using (var reader = XmlReader.Create(stringReader))
-                    {
-                        try
-                        {
-                            reader.MoveToContent();
-                            var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                            if (serializer.CanDeserialize(reader))
-                            {
-                                return (WorkflowBuilder)serializer.Deserialize(reader);
-                            }
-                        }
-                        catch (XmlException) { }
-                    }
-                }
-
-                return new WorkflowBuilder();
             }
 
             public string GetPackageDisplayName(string packageKey)

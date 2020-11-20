@@ -13,7 +13,7 @@ using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Editor.GraphView
 {
-    partial class GraphViewControl : UserControl
+    partial class GraphViewControl : UserControl, IGraphView
     {
         const float DefaultDpi = 96f;
         const float DefaultPenWidth = 2;
