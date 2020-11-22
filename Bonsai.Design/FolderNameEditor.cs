@@ -26,6 +26,7 @@ namespace Bonsai.Design
                     {
                         dialog.SelectedPath = Path.GetFullPath(folderName);
                     }
+                    else dialog.SelectedPath = Environment.CurrentDirectory;
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {

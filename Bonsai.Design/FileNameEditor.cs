@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using System.ComponentModel;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Bonsai.Design
 {
@@ -23,9 +24,15 @@ namespace Bonsai.Design
                 using (var dialog = CreateFileDialog())
                 {
                     var fileName = value as string;
+                    dialog.InitialDirectory = Environment.CurrentDirectory;
                     if (!string.IsNullOrEmpty(fileName))
                     {
                         dialog.FileName = fileName;
+                        var directoryName = Path.GetDirectoryName(fileName);
+                        if (directoryName != null && Directory.Exists(directoryName))
+                        {
+                            dialog.InitialDirectory = directoryName;
+                        }
                     }
 
                     var filterAttribute = (FileNameFilterAttribute)context.PropertyDescriptor.Attributes[typeof(FileNameFilterAttribute)];
