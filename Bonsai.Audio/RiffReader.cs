@@ -17,14 +17,14 @@ namespace Bonsai.Audio
             AssertFormatValue(16u, reader.ReadUInt32());
             AssertFormatValue(1u, reader.ReadUInt16());
 
-            header.Channels = (int)reader.ReadUInt16();
-            header.SampleRate = (long)reader.ReadUInt32();
-            header.ByteRate = (long)reader.ReadUInt32();
-            header.BlockAlign = (int)reader.ReadUInt16();
-            header.BitsPerSample = (int)reader.ReadUInt16();
+            header.Channels = reader.ReadUInt16();
+            header.SampleRate = reader.ReadUInt32();
+            header.ByteRate = reader.ReadUInt32();
+            header.BlockAlign = reader.ReadUInt16();
+            header.BitsPerSample = reader.ReadUInt16();
 
             FindId(reader, id, RiffHeader.DataId);
-            header.DataLength = (long)reader.ReadUInt32();
+            header.DataLength = reader.ReadUInt32();
         }
 
         static void FindId(BinaryReader reader, byte[] bytes, string id)

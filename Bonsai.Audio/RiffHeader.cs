@@ -10,12 +10,12 @@ namespace Bonsai.Audio
         internal const string FmtId = "fmt ";
         internal const string DataId = "data";
 
-        public int Channels;
-        public long SampleRate;
-        public long ByteRate;
-        public int BlockAlign;
-        public int BitsPerSample;
-        public long DataLength;
+        public ushort Channels;
+        public uint SampleRate;
+        public uint ByteRate;
+        public ushort BlockAlign;
+        public ushort BitsPerSample;
+        public uint DataLength;
 
         public ALFormat GetFormat()
         {
