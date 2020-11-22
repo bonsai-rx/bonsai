@@ -27,6 +27,9 @@ namespace Bonsai.Audio
         [Description("The length of the sample buffer (ms).")]
         public double BufferLength { get; set; }
 
+        [Description("The optional sample rate, in Hz, used to playback the sample buffers.")]
+        public int SampleRate { get; set; }
+
         IEnumerable<Mat> CreateReader(double bufferLength)
         {
             using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
@@ -34,9 +37,11 @@ namespace Bonsai.Audio
                 RiffHeader header;
                 RiffReader.ReadHeader(reader, out header);
 
+                var sampleRate = SampleRate;
+                if (sampleRate <= 0) sampleRate = (int)header.SampleRate;
                 var sampleCount = header.DataLength / header.BlockAlign;
                 var depth = header.BitsPerSample == 8 ? Depth.U8 : Depth.S16;
-                var bufferSize = (int)Math.Ceiling(header.SampleRate * bufferLength / 1000);
+                var bufferSize = (int)Math.Ceiling(sampleRate * bufferLength / 1000);
                 bufferSize = bufferSize <= 0 ? (int)sampleCount : bufferSize;
 
                 var sampleData = new byte[bufferSize * header.BlockAlign];
