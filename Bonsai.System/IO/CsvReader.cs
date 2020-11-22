@@ -67,7 +67,8 @@ namespace Bonsai.IO
                 try
                 {
                     var skipRows = SkipRows;
-                    using (var reader = new StreamReader(FileName))
+                    using (var stream = File.OpenRead(FileName))
+                    using (var reader = new StreamReader(stream))
                     {
                         while (!reader.EndOfStream)
                         {
