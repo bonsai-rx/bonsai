@@ -192,11 +192,97 @@ namespace Bonsai.Expressions
         /// </returns>
         public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
         {
+            return Build(source, buildTarget, Enumerable.Empty<Expression>());
+        }
+
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow and array
+        /// of build arguments.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <param name="buildArguments">
+        /// The array of <see cref="Expression"/> objects to be assigned as workflow input arguments
+        /// in the context of generating the expression tree.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the full
+        /// expression builder workflow.
+        /// </returns>
+        public static Expression Build(this ExpressionBuilderGraph source, params Expression[] buildArguments)
+        {
+            return Build(source, null, (IEnumerable<Expression>)buildArguments);
+        }
+
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow and a sequence
+        /// of build arguments.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <param name="buildArguments">
+        /// The sequence of <see cref="Expression"/> objects to be assigned as workflow input arguments
+        /// in the context of generating the expression tree.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the full
+        /// expression builder workflow.
+        /// </returns>
+        public static Expression Build(this ExpressionBuilderGraph source, IEnumerable<Expression> buildArguments)
+        {
+            return Build(source, null, buildArguments);
+        }
+
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow and array of
+        /// build arguments, evaluated up to the specified build target.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <param name="buildTarget">
+        /// The expression builder node up to which the workflow will be evaluated.
+        /// </param>
+        /// <param name="buildArguments">
+        /// The array of <see cref="Expression"/> objects to be assigned as workflow input arguments
+        /// in the context of generating the expression tree.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the expression
+        /// builder workflow up to the specified <paramref name="buildTarget"/>.
+        /// </returns>
+        public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget, params Expression[] buildArguments)
+        {
+            return Build(source, buildTarget, (IEnumerable<Expression>)buildArguments);
+        }
+
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow and a sequence of
+        /// build arguments, evaluated up to the specified build target.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <param name="buildTarget">
+        /// The expression builder node up to which the workflow will be evaluated.
+        /// </param>
+        /// <param name="buildArguments">
+        /// The sequence of <see cref="Expression"/> objects to be assigned as workflow input arguments
+        /// in the context of generating the expression tree.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the expression
+        /// builder workflow up to the specified <paramref name="buildTarget"/>.
+        /// </returns>
+        public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget, IEnumerable<Expression> buildArguments)
+        {
             // Add/remove build dependencies
             var buildContext = new BuildContext(buildTarget);
             using (var dependencies = AddBuildDependencies(source, buildContext))
             {
-                return Build(source, buildContext);
+                return BuildNested(source, buildArguments, buildContext);
             }
         }
 

@@ -129,6 +129,15 @@ namespace Bonsai.Core.Tests
                 Assert.IsTrue(result);
             }
         }
+
+        [TestMethod]
+        public void Build_IncludedInnerWorkflowWithArguments_EnsureOutputType()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowInner.bonsai");
+            var unitArgument = new UnitBuilder().Build();
+            var result = workflowBuilder.Workflow.Build(unitArgument);
+            Assert.AreEqual(unitArgument.Type, result.Type);
+        }
     }
 
     public class PolymorphicPropertyTest : Sink
