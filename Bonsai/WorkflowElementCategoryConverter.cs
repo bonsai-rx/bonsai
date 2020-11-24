@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Bonsai.Expressions;
 using System.ComponentModel;
@@ -14,26 +14,6 @@ namespace Bonsai
                    type == typeof(InspectBuilder) ||
                    type == typeof(ExternalizedProperty) ||
                    type == typeof(DisableBuilder);
-        }
-
-        static bool MatchGenericType(Type type, Type genericType)
-        {
-            if (!genericType.IsGenericType)
-            {
-                throw new ArgumentException("Trying to match against a non-generic type.", "genericType");
-            }
-
-            while (type != null)
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == genericType)
-                {
-                    return true;
-                }
-
-                type = type.BaseType;
-            }
-
-            return false;
         }
 
         static bool MatchAttributeType(Type type, Type attributeType)
