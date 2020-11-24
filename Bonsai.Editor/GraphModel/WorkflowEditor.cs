@@ -779,16 +779,16 @@ namespace Bonsai.Editor.GraphModel
 
             var selectedNodes = graphView.SelectedNodes.ToArray();
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
-            if (group && selectedNode != null && elementCategory > ~ElementCategory.Source)
+            if (group && selectedNode != null)
             {
-                if (elementCategory == ElementCategory.Subject)
+                if (elementCategory == ~ElementCategory.Combinator)
                 {
                     var genericType = MakeGenericType(typeName, selectedNode);
                     var elementCategoryAttribute = (WorkflowElementCategoryAttribute)TypeDescriptor.GetAttributes(genericType)[typeof(WorkflowElementCategoryAttribute)];
                     if (elementCategoryAttribute != null) elementCategory = elementCategoryAttribute.Category;
                     typeName = genericType.AssemblyQualifiedName;
                 }
-                else
+                else if (elementCategory > ~ElementCategory.Source)
                 {
                     CreateOrReplaceGroupNode(selectedNodes, typeName);
                     return;

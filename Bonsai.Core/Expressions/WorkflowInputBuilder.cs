@@ -2,6 +2,8 @@
 using System.Linq.Expressions;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System.Reactive.Linq;
+using System;
 
 namespace Bonsai.Expressions
 {
@@ -53,6 +55,30 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             return Source ?? EmptyExpression.Instance;
+        }
+    }
+
+    [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(WorkflowInputBuilder), nameof(WorkflowInputBuilder))]
+    public class WorkflowInputBuilder<TSource> : WorkflowInputBuilder
+    {
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            var source = Source;
+            if (source == null)
+            {
+                return Expression.Constant(
+                    Observable.Throw<TSource>(new InvalidOperationException("No workflow input has been assigned.")),
+                    typeof(IObservable<TSource>));
+            }
+            
+            var sourceType = source.Type.GetGenericArguments()[0];
+            if (!typeof(TSource).IsAssignableFrom(sourceType))
+            {
+                throw new InvalidOperationException($"The workflow input type {typeof(TSource)} is not assignable from {sourceType}.");
+            }
+
+            return source;
         }
     }
 }

@@ -273,7 +273,6 @@ namespace Bonsai.Editor.GraphModel
         {
             switch (category)
             {
-                case ElementCategory.Subject:
                 case ElementCategory.Source: return Source;
                 case ElementCategory.Condition: return Condition;
                 case ElementCategory.Transform: return Transform;

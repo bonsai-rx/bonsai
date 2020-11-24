@@ -1391,19 +1391,19 @@ namespace Bonsai.Editor.GraphView
             }
             else
             {
-                ownerItem.Text = Resources.CreateSubjectSourceAction;
+                ownerItem.Text = Resources.CreateGenericSourceAction;
                 var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
                 if (toolboxService != null)
                 {
                     foreach (var element in from element in toolboxService.GetToolboxElements()
-                                            where element.ElementTypes.Contains(ElementCategory.Subject)
+                                            where element.ElementTypes.Contains(~ElementCategory.Combinator)
                                             select element)
                     {
                         ToolStripMenuItem menuItem = null;
                         var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
                         menuItem = new ToolStripMenuItem(name, null, (sender, e) => Editor.InsertGraphNode(
                             element.FullyQualifiedName,
-                            ElementCategory.Subject,
+                            ~ElementCategory.Combinator,
                             CreateGraphNodeType.Successor,
                             branch: true,
                             group: true));

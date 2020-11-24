@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Bonsai.Expressions;
 using System.ComponentModel;
@@ -34,9 +34,10 @@ namespace Bonsai
                     yield return ElementCategory.Nested;
                 }
 
-                if (type.IsSubclassOf(typeof(SubjectExpressionBuilder)))
+                if (type.IsSubclassOf(typeof(SubjectExpressionBuilder)) ||
+                    type == typeof(WorkflowInputBuilder))
                 {
-                    yield return ElementCategory.Subject;
+                    yield return ~ElementCategory.Combinator;
                 }
 
                 var attributes = TypeDescriptor.GetAttributes(type);

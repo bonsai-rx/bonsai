@@ -156,20 +156,20 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create Generic Source.
+        /// </summary>
+        internal static string CreateGenericSourceAction {
+            get {
+                return ResourceManager.GetString("CreateGenericSourceAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create Group.
         /// </summary>
         internal static string CreateGroupAction {
             get {
                 return ResourceManager.GetString("CreateGroupAction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Create Subject Source.
-        /// </summary>
-        internal static string CreateSubjectSourceAction {
-            get {
-                return ResourceManager.GetString("CreateSubjectSourceAction", resourceCulture);
             }
         }
         

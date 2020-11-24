@@ -646,7 +646,7 @@ namespace Bonsai.Editor
                 {
                     var typeCategory = elementType;
                     if (typeCategory == ElementCategory.Nested ||
-                        typeCategory == ElementCategory.Subject)
+                        typeCategory == ~ElementCategory.Combinator)
                     {
                         continue;
                     }
@@ -1860,11 +1860,11 @@ namespace Bonsai.Editor
                         else
                         {
                             var allowGroup = elementCategories.Contains(ElementCategory.Nested);
-                            var allowSubjectSource = elementCategories.Contains(ElementCategory.Subject);
+                            var allowGenericSource = elementCategories.Contains(~ElementCategory.Combinator);
                             var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-                            createGroupToolStripMenuItem.Text = allowSubjectSource ? Resources.CreateSubjectSourceAction : Resources.CreateGroupAction;
+                            createGroupToolStripMenuItem.Text = allowGenericSource ? Resources.CreateGenericSourceAction : Resources.CreateGroupAction;
                             insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
-                            createGroupToolStripMenuItem.Visible = allowGroup || allowSubjectSource;
+                            createGroupToolStripMenuItem.Visible = allowGroup || allowGenericSource;
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
