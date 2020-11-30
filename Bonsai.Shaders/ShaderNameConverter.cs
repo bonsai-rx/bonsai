@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace Bonsai.Shaders
 {
-    class ShaderNameConverter : ResourceNameConverter
+    public class ShaderNameConverter : ResourceNameConverter
     {
         public ShaderNameConverter()
             : base(typeof(Shader))
         {
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             var values = base.GetStandardValues(context);
             var configurationResources = ShaderManager.LoadConfiguration().Shaders;
