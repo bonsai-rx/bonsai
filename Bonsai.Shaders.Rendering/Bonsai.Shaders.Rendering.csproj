@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Bonsai - Shaders Rendering Library</Title>
+    <Description>Bonsai Shaders Rendering Library containing modules for rendering complex 3D scenes.</Description>
+    <PackageTags>Bonsai Rx Shaders Rendering Assets Graphics OpenGL</PackageTags>
+    <TargetFramework>net462</TargetFramework>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="4.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Shaders\Bonsai.Shaders.csproj" />
+  </ItemGroup>
+</Project>
