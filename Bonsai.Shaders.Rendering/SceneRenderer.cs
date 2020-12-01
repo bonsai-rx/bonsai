@@ -30,13 +30,13 @@ namespace Bonsai.Shaders.Rendering
                 materials.Add(new MaterialBinding(shader, resourceManager, material));
             }
 
-            var projectionMatrixLocation = GL.GetUniformLocation(shader.Program, nameof(ProjectionMatrix));
+            var projectionMatrixLocation = GL.GetUniformLocation(shader.Program, ShaderConstants.ProjectionMatrix);
             if (projectionMatrixLocation >= 0)
             {
                 setProjectionMatrix = projection => GL.UniformMatrix4(projectionMatrixLocation, transpose: false, ref projection);
             }
 
-            var modelViewMatrixLocation = GL.GetUniformLocation(shader.Program, "ModelViewMatrix");
+            var modelViewMatrixLocation = GL.GetUniformLocation(shader.Program, ShaderConstants.ModelViewMatrix);
             if (modelViewMatrixLocation >= 0)
             {
                 setModelViewMatrix = transform =>

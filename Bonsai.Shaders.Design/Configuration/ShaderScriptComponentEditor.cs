@@ -167,10 +167,10 @@ void main()
                     Name = "Phong Shading",
                     Type = ShaderType.FragmentShader,
                     Source = @"#version 400
-uniform vec3 Ka;
-uniform vec3 Kd;
-uniform vec3 Ks;
-uniform float Ns = 1.0;
+uniform vec3 colorAmbient;
+uniform vec3 colorDiffuse;
+uniform vec3 colorSpecular;
+uniform float shininess = 1.0;
 uniform sampler2D tex;
 uniform vec3 light;
 in vec3 position;
@@ -185,9 +185,9 @@ void main()
   vec3 V = normalize(-position);
   vec4 texel = texture(tex, texCoord);
 
-  vec3 Iamb = Ka * texel.rgb;
-  vec3 Idiff = Kd * texel.rgb * max(dot(normal, L), 0.0);
-  vec3 Ispec = Ks * pow(max(dot(R, V), 0.0), Ns);
+  vec3 Iamb = colorAmbient * texel.rgb;
+  vec3 Idiff = colorDiffuse * texel.rgb * max(dot(normal, L), 0.0);
+  vec3 Ispec = colorSpecular * pow(max(dot(R, V), 0.0), shininess);
 
   fragColor = vec4(Iamb + Idiff + Ispec, texel.a);
 }

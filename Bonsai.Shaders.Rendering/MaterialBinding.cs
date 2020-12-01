@@ -25,17 +25,17 @@ namespace Bonsai.Shaders.Rendering
             resource = material ?? throw new ArgumentNullException(nameof(material));
             bind = EmptyAction;
 
-            if (resource.HasBumpScaling) BindUniform(ref bind, shader, nameof(resource.BumpScaling), resource.BumpScaling);
-            if (resource.HasColorAmbient) BindUniform(ref bind, shader, nameof(material.ColorAmbient), material.ColorAmbient);
-            if (resource.HasColorDiffuse) BindUniform(ref bind, shader, nameof(material.ColorDiffuse), material.ColorDiffuse);
-            if (resource.HasColorEmissive) BindUniform(ref bind, shader, nameof(material.ColorEmissive), material.ColorEmissive);
-            if (resource.HasColorReflective) BindUniform(ref bind, shader, nameof(material.ColorReflective), material.ColorReflective);
-            if (resource.HasColorSpecular) BindUniform(ref bind, shader, nameof(material.ColorSpecular), material.ColorSpecular);
-            if (resource.HasColorTransparent) BindUniform(ref bind, shader, nameof(material.ColorTransparent), material.ColorTransparent);
-            if (resource.HasOpacity) BindUniform(ref bind, shader, nameof(material.Opacity), material.Opacity);
-            if (resource.HasReflectivity) BindUniform(ref bind, shader, nameof(material.Reflectivity), material.Reflectivity);
-            if (resource.HasShininess) BindUniform(ref bind, shader, nameof(material.Shininess), material.Shininess);
-            if (resource.HasShininessStrength) BindUniform(ref bind, shader, nameof(material.ShininessStrength), material.ShininessStrength);
+            if (resource.HasBumpScaling) BindUniform(ref bind, shader, ShaderConstants.BumpScaling, resource.BumpScaling);
+            if (resource.HasColorAmbient) BindUniform(ref bind, shader, ShaderConstants.ColorAmbient, material.ColorAmbient);
+            if (resource.HasColorDiffuse) BindUniform(ref bind, shader, ShaderConstants.ColorDiffuse, material.ColorDiffuse);
+            if (resource.HasColorEmissive) BindUniform(ref bind, shader, ShaderConstants.ColorEmissive, material.ColorEmissive);
+            if (resource.HasColorReflective) BindUniform(ref bind, shader, ShaderConstants.ColorReflective, material.ColorReflective);
+            if (resource.HasColorSpecular) BindUniform(ref bind, shader, ShaderConstants.ColorSpecular, material.ColorSpecular);
+            if (resource.HasColorTransparent) BindUniform(ref bind, shader, ShaderConstants.ColorTransparent, material.ColorTransparent);
+            if (resource.HasOpacity) BindUniform(ref bind, shader, ShaderConstants.Opacity, material.Opacity);
+            if (resource.HasReflectivity) BindUniform(ref bind, shader, ShaderConstants.Reflectivity, material.Reflectivity);
+            if (resource.HasShininess) BindUniform(ref bind, shader, ShaderConstants.Shininess, material.Shininess);
+            if (resource.HasShininessStrength) BindUniform(ref bind, shader, ShaderConstants.ShininessStrength, material.ShininessStrength);
 
             var textures = resource.GetAllMaterialTextures();
             for (int i = 0; i < textures.Length; i++)
