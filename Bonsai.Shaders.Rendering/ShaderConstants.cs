@@ -4,6 +4,7 @@
     {
         public static readonly string ModelViewMatrix = "modelview";
         public static readonly string ProjectionMatrix = "projection";
+        public static readonly string Texture = "texture";
 
         public static readonly string BumpScaling = GetUniformName(nameof(Assimp.Material.BumpScaling));
         public static readonly string ColorAmbient = GetUniformName(nameof(Assimp.Material.ColorAmbient));

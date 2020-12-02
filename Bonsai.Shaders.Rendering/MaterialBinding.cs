@@ -1,6 +1,7 @@
 ﻿using Bonsai.Resources;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.IO;
 
 namespace Bonsai.Shaders.Rendering
 {
@@ -40,6 +41,7 @@ namespace Bonsai.Shaders.Rendering
             var textures = resource.GetAllMaterialTextures();
             for (int i = 0; i < textures.Length; i++)
             {
+                BindUniform(ref bind, shader, textures[i], i, resourceManager);
             }
         }
 
@@ -66,11 +68,21 @@ namespace Bonsai.Shaders.Rendering
             }
         }
 
-        static void BindUniform(ref Action bind, Shader shader, string name, Assimp.TextureSlot texture)
+        static void BindUniform(ref Action bind, Shader shader, Assimp.TextureSlot textureSlot, int index, ResourceManager resourceManager)
         {
-            var location = GL.GetUniformLocation(shader.Program, name);
-            if (location >= 0)
+            var uniformName = ShaderConstants.Texture + textureSlot.TextureType.ToString();
+            var location = GL.GetUniformLocation(shader.Program, uniformName);
+            if (location >= 0 && !string.IsNullOrEmpty(textureSlot.FilePath))
             {
+                var textureName = Path.GetFileNameWithoutExtension(textureSlot.FilePath);
+                var texture = resourceManager.Load<Texture>(textureName);
+                var textureUnit = TextureUnit.Texture0 + index;
+                bind += () =>
+                {
+                    GL.Uniform1(location, index);
+                    GL.ActiveTexture(textureUnit);
+                    GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+                };
             }
         }
     }
