@@ -417,6 +417,7 @@ namespace Bonsai.NuGet.Design
 
                 IObservable<Unit> operation;
                 var uninstallOperation = SelectedRepository == PackageManager.LocalRepository;
+                var update = packageView.OperationText == Resources.UpdateOperationName;
                 if (uninstallOperation)
                 {
                     operation = Observable.FromAsync(async token =>
@@ -431,7 +432,6 @@ namespace Bonsai.NuGet.Design
                 else
                 {
                     var allowPrereleaseVersions = AllowPrereleaseVersions;
-                    var update = packageView.OperationText == Resources.UpdateOperationName;
                     dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
 
                     operation = Observable.FromAsync(async token =>
@@ -456,7 +456,7 @@ namespace Bonsai.NuGet.Design
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        if (uninstallOperation) UpdatePackageQuery();
+                        if (uninstallOperation || update) UpdatePackageQuery();
                         else UpdatePackagePage(packagePageSelector.SelectedPage);
                     }
                 }
