@@ -793,6 +793,8 @@ namespace Bonsai.Editor.GraphModel
                 else if (elementCategory > ~ElementCategory.Source)
                 {
                     CreateOrReplaceGroupNode(selectedNodes, typeName);
+                    selectedNode = graphView.SelectedNodes.First();
+                    ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
                     return;
                 }
             }
@@ -810,37 +812,7 @@ namespace Bonsai.Editor.GraphModel
             else
             {
                 builder = CreateBuilder(typeName, elementCategory);
-                if (!string.IsNullOrEmpty(arguments))
-                {
-                    // TODO: This special case for binary operator operands should be avoided in the future
-                    if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
-                    {
-                        if (((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value is InspectBuilder inputBuilder &&
-                            inputBuilder.ObservableType != null)
-                        {
-                            binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
-                        }
-                    }
-
-                    var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                    var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-                    if (defaultProperty != null &&
-                        !defaultProperty.IsReadOnly &&
-                        defaultProperty.Converter != null &&
-                        defaultProperty.Converter.CanConvertFrom(typeof(string)))
-                    {
-                        try
-                        {
-                            var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
-                            var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
-                            defaultProperty.SetValue(workflowElement, propertyValue);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new SystemException(ex.Message, ex);
-                        }
-                    }
-                }
+                ConfigureBuilder(builder, selectedNode, arguments);
             }
 
             var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
@@ -852,6 +824,39 @@ namespace Bonsai.Editor.GraphModel
             ReplaceExternalizedMappings(nodeType, selectedNodes);
             commandExecutor.Execute(commands.Item2.Command, EmptyAction);
             commandExecutor.EndCompositeCommand();
+        }
+
+        private void ConfigureBuilder(ExpressionBuilder builder, GraphNode selectedNode, string arguments)
+        {
+            if (string.IsNullOrEmpty(arguments)) return;
+            // TODO: This special case for binary operator operands should be avoided in the future
+            if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
+            {
+                if (((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value is InspectBuilder inputBuilder &&
+                    inputBuilder.ObservableType != null)
+                {
+                    binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
+                }
+            }
+
+            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+            var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+            if (defaultProperty != null &&
+                !defaultProperty.IsReadOnly &&
+                defaultProperty.Converter != null &&
+                defaultProperty.Converter.CanConvertFrom(typeof(string)))
+            {
+                try
+                {
+                    var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                    var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                    defaultProperty.SetValue(workflowElement, propertyValue);
+                }
+                catch (Exception ex)
+                {
+                    throw new SystemException(ex.Message, ex);
+                }
+            }
         }
 
         public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
