@@ -27,6 +27,16 @@ namespace Bonsai.Dsp
             writer.Write(input.Array, input.Offset, input.Count);
         }
 
+        public unsafe IObservable<TElement[]> Process<TElement>(IObservable<TElement[]> source) where TElement : unmanaged
+        {
+            return Process(source, input =>
+            {
+                var bytes = new byte[input.Length * sizeof(TElement)];
+                System.Buffer.BlockCopy(input, 0, bytes, 0, bytes.Length);
+                return new ArraySegment<byte>(bytes);
+            });
+        }
+
         public IObservable<byte[]> Process(IObservable<byte[]> source)
         {
             return Process(source, input => new ArraySegment<byte>(input));
