@@ -258,14 +258,16 @@ namespace Bonsai.Editor.GraphModel
         {
             var target = GetGraphNodeTag(Workflow, graphViewTarget, false);
             var targetElement = target != null ? ExpressionBuilder.Unwrap(target.Value) : null;
-            var maxConnectionCount = targetElement is ExternalizedMappingBuilder ? 1 : target.Value.ArgumentRange.UpperBound;
+            var isExternalizedMapping = targetElement is ExternalizedMappingBuilder;
+            var maxConnectionCount = isExternalizedMapping ? 1 : target.Value.ArgumentRange.UpperBound;
             var sources = graphViewSources.Select(sourceNode => GetGraphNodeTag(Workflow, sourceNode, false));
             var connectionCount = Workflow.Contains(target)
                 ? Workflow.Predecessors(target).Count(node => !node.Value.IsBuildDependency())
                 : 0;
             foreach (var source in sources)
             {
-                if (source == null || target == source || source.Successors.Any(edge => edge.Target == target))
+                if (source == null || target == source || source.Successors.Any(edge => edge.Target == target) ||
+                    isExternalizedMapping && source.Value.IsBuildDependency())
                 {
                     return false;
                 }
