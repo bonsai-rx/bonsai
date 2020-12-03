@@ -156,10 +156,12 @@ namespace Bonsai
                 try { bootstrapper.RunAsync(packageConfiguration, packageManager, editorPath, editorPackageName).Wait(); }
                 catch (AggregateException) { return ErrorExitCode; }
 
+                var startScreen = launchEditor;
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do
                 {
                     string[] editorArgs;
+                    if (startScreen) launchResult = EditorResult.Exit;
                     if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
                     else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
                     else if (launchResult == EditorResult.ManagePackages)
@@ -192,6 +194,11 @@ namespace Bonsai
 
                     var editorFlags = AppResult.GetResult<EditorFlags>(editorDomain);
                     launchResult = AppResult.GetResult<EditorResult>(editorDomain);
+                    if (startScreen && launchResult == EditorResult.ReloadEditor)
+                    {
+                        startScreen = false;
+                    }
+
                     if (launchResult != EditorResult.Exit && launchResult != EditorResult.ReloadEditor)
                     {
                         if (launchResult == EditorResult.OpenGallery ||
