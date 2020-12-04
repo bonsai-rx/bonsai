@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor.GraphView
+namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowGraphView
     {
@@ -32,9 +32,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkflowGraphView));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createPropertySourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +56,7 @@
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,8 +65,9 @@
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outputToolStripMenuItem,
             this.externalizeToolStripMenuItem,
-            this.createPropertySourceToolStripMenuItem,
+            this.toolStripSeparator7,
             this.subjectTypeToolStripMenuItem,
+            this.createPropertySourceToolStripMenuItem,
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
@@ -87,7 +89,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 458);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 464);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -97,6 +99,14 @@
             this.outputToolStripMenuItem.Name = "outputToolStripMenuItem";
             this.outputToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.outputToolStripMenuItem.Text = "Output";
+            // 
+            // subjectTypeToolStripMenuItem
+            // 
+            this.subjectTypeToolStripMenuItem.Enabled = false;
+            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
+            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
+            this.subjectTypeToolStripMenuItem.Visible = false;
             // 
             // externalizeToolStripMenuItem
             // 
@@ -111,14 +121,6 @@
             this.createPropertySourceToolStripMenuItem.Name = "createPropertySourceToolStripMenuItem";
             this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.createPropertySourceToolStripMenuItem.Text = "Create Property Source";
-            // 
-            // subjectTypeToolStripMenuItem
-            // 
-            this.subjectTypeToolStripMenuItem.Enabled = false;
-            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
-            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
-            this.subjectTypeToolStripMenuItem.Visible = false;
             // 
             // toolStripSeparator3
             // 
@@ -312,6 +314,11 @@
             this.graphView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.graphView_KeyPress);
             this.graphView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graphView_MouseDown);
             // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(246, 6);
+            // 
             // WorkflowGraphView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -352,5 +359,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
     }
 }

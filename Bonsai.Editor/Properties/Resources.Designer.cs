@@ -156,7 +156,7 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create Generic Source.
+        ///   Looks up a localized string similar to Create Source ({0}).
         /// </summary>
         internal static string CreateGenericSourceAction {
             get {

@@ -10,8 +10,6 @@ using Bonsai.Dag;
 using System.Windows.Forms.Design;
 using Bonsai.Editor.Properties;
 using System.Reflection;
-using Microsoft.CSharp;
-using System.CodeDom;
 using System.Drawing.Design;
 using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
@@ -1264,28 +1262,10 @@ namespace Bonsai.Editor.GraphView
 
         private void InitializeOutputMenuItem(ToolStripMenuItem menuItem, string memberSelector, Type memberType)
         {
-            var typeName = GetTypeName(memberType);
+            var typeName = TypeHelper.GetTypeName(memberType);
             menuItem.Text += string.Format(" ({0})", typeName);
             menuItem.Name = memberSelector;
             menuItem.Tag = memberType;
-        }
-
-        static string GetTypeName(Type type)
-        {
-            return GetTypeName(new CodeTypeReference(type));
-        }
-
-        static string GetTypeName(string typeName)
-        {
-            return GetTypeName(new CodeTypeReference(typeName));
-        }
-
-        static string GetTypeName(CodeTypeReference typeRef)
-        {
-            using (var provider = new CSharpCodeProvider())
-            {
-                return provider.GetTypeOutput(typeRef);
-            }
         }
 
         //TODO: Consider refactoring this method into the core API to avoid redundancy
@@ -1370,7 +1350,7 @@ namespace Bonsai.Editor.GraphView
             return menuItem;
         }
 
-        private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, GraphNode selectedNode)
+        private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, Type memberType, GraphNode selectedNode)
         {
             if (inspectBuilder.Builder is SubscribeSubjectBuilder subscribeBuilder)
             {
@@ -1391,7 +1371,8 @@ namespace Bonsai.Editor.GraphView
             }
             else
             {
-                ownerItem.Text = Resources.CreateGenericSourceAction;
+                var typeName = TypeHelper.GetTypeName(memberType);
+                ownerItem.Text = string.Format(Resources.CreateGenericSourceAction, typeName);
                 var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
                 if (toolboxService != null)
                 {
@@ -1423,7 +1404,7 @@ namespace Bonsai.Editor.GraphView
             GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
-            var typeName = memberType == null ? Resources.ContextMenu_NoneMenuItemLabel : GetTypeName(memberType);
+            var typeName = memberType == null ? Resources.ContextMenu_NoneMenuItemLabel : TypeHelper.GetTypeName(memberType);
             menuItem = new ToolStripMenuItem(typeName, null, delegate
             {
                 if (!menuItem.Checked)
@@ -1565,7 +1546,7 @@ namespace Bonsai.Editor.GraphView
         {
             ToolStripMenuItem menuItem = null;
             var emptyVisualizer = string.IsNullOrEmpty(typeName);
-            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : GetTypeName(typeName);
+            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : TypeHelper.GetTypeName(typeName);
             menuItem = new ToolStripMenuItem(itemText, null, delegate
             {
                 if (!menuItem.Checked)
@@ -1693,7 +1674,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     if (CanEdit)
                     {
-                        CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, selectedNode);
+                        CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, inspectBuilder.ObservableType, selectedNode);
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
                         CreatePropertySourceMenuItems(workflowElement, createPropertySourceToolStripMenuItem);
                     }

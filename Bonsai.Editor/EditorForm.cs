@@ -1862,9 +1862,13 @@ namespace Bonsai.Editor
                             var allowGroup = elementCategories.Contains(ElementCategory.Nested);
                             var allowGenericSource = elementCategories.Contains(~ElementCategory.Combinator);
                             var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-                            createGroupToolStripMenuItem.Text = allowGenericSource ? Resources.CreateGenericSourceAction : Resources.CreateGroupAction;
+                            var selection = allowGenericSource ? selectionModel.SelectedNodes.ToArray() : null;
+                            var selectionType = selection?.Length == 1 && selection?[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.ObservableType : null;
+                            createGroupToolStripMenuItem.Text = selectionType != null
+                                ? string.Format(Resources.CreateGenericSourceAction, TypeHelper.GetTypeName(selectionType))
+                                : Resources.CreateGroupAction;
                             insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
-                            createGroupToolStripMenuItem.Visible = allowGroup || allowGenericSource;
+                            createGroupToolStripMenuItem.Visible = allowGroup || selectionType != null;
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
