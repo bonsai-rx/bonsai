@@ -32,13 +32,13 @@ namespace Bonsai.Editor.GraphView
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkflowGraphView));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createPropertySourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.saveAsWorkflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,7 +56,6 @@ namespace Bonsai.Editor.GraphView
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,8 +70,6 @@ namespace Bonsai.Editor.GraphView
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
-            this.toolStripSeparator4,
-            this.saveAsWorkflowToolStripMenuItem,
             this.toolStripSeparator2,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -85,11 +82,12 @@ namespace Bonsai.Editor.GraphView
             this.toolStripSeparator5,
             this.groupToolStripMenuItem,
             this.ungroupToolStripMenuItem,
+            this.saveAsWorkflowToolStripMenuItem,
             this.toolStripSeparator6,
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 464);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 458);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -100,6 +98,18 @@ namespace Bonsai.Editor.GraphView
             this.outputToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.outputToolStripMenuItem.Text = "Output";
             // 
+            // externalizeToolStripMenuItem
+            // 
+            this.externalizeToolStripMenuItem.Enabled = false;
+            this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
+            this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.externalizeToolStripMenuItem.Text = "Externalize Property";
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(246, 6);
+            // 
             // subjectTypeToolStripMenuItem
             // 
             this.subjectTypeToolStripMenuItem.Enabled = false;
@@ -107,13 +117,6 @@ namespace Bonsai.Editor.GraphView
             this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.subjectTypeToolStripMenuItem.Text = "Subject Type";
             this.subjectTypeToolStripMenuItem.Visible = false;
-            // 
-            // externalizeToolStripMenuItem
-            // 
-            this.externalizeToolStripMenuItem.Enabled = false;
-            this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
-            this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.externalizeToolStripMenuItem.Text = "Externalize Property";
             // 
             // createPropertySourceToolStripMenuItem
             // 
@@ -142,11 +145,6 @@ namespace Bonsai.Editor.GraphView
             this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
             this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(246, 6);
             // 
             // saveAsWorkflowToolStripMenuItem
             // 
@@ -314,11 +312,6 @@ namespace Bonsai.Editor.GraphView
             this.graphView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.graphView_KeyPress);
             this.graphView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graphView_MouseDown);
             // 
-            // toolStripSeparator7
-            // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(246, 6);
-            // 
             // WorkflowGraphView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -351,7 +344,6 @@ namespace Bonsai.Editor.GraphView
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem saveAsWorkflowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem subjectTypeToolStripMenuItem;
