@@ -1,4 +1,4 @@
-﻿using Bonsai.Dag;
+using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -792,7 +792,8 @@ namespace Bonsai.Editor.GraphModel
                 }
                 else if (elementCategory > ~ElementCategory.Source)
                 {
-                    CreateOrReplaceGroupNode(selectedNodes, typeName);
+                    if (branch) ReplaceGroupNode(selectedNode, typeName);
+                    else GroupGraphNodes(selectedNodes, typeName);
                     selectedNode = graphView.SelectedNodes.First();
                     ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
                     return;
@@ -1234,44 +1235,12 @@ namespace Bonsai.Editor.GraphModel
                      select successor).Any();
         }
 
-        public void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, string typeName)
-        {
-            var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
-            var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
-
-            if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder &&
-                includeBuilder.Workflow != null && typeName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName)
-            {
-                var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
-                groupBuilder.Name = includeBuilder.Name;
-                groupBuilder.Description = includeBuilder.Description;
-                ReplaceGroupNode(selectedNode, groupBuilder);
-            }
-            else if (selectedNodeBuilder == null || selectedNodeBuilder.GetType().AssemblyQualifiedName != typeName)
-            {
-                if (selectedNodeBuilder is WorkflowExpressionBuilder)
-                {
-                    ReplaceGroupNode(selectedNode, typeName);
-                }
-                else GroupGraphNodes(selectedNodes, typeName);
-            }
-        }
-
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            var selectedNodes = nodes.ToArray();
-            var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
-            var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
-
-            if (selectedNodeBuilder is GroupWorkflowBuilder) return;
-            if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder && includeBuilder.Workflow != null)
-            {
-                CreateOrReplaceGroupNode(selectedNodes, typeof(GroupWorkflowBuilder).AssemblyQualifiedName);
-            }
-            else GroupGraphNodes(nodes, graph => new GroupWorkflowBuilder(graph));
+            GroupGraphNodes(nodes, graph => new GroupWorkflowBuilder(graph));
         }
 
-        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, string typeName)
+        public void GroupGraphNodes(IEnumerable<GraphNode> nodes, string typeName)
         {
             GroupGraphNodes(nodes, graph => CreateWorkflowBuilder(typeName, graph));
         }
@@ -1412,17 +1381,20 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.EndCompositeCommand();
         }
 
-        private void ReplaceGroupNode(GraphNode node, string typeName)
+        public void ReplaceGroupNode(GraphNode node, string typeName)
         {
             if (!(GetGraphNodeBuilder(node) is WorkflowExpressionBuilder workflowBuilder))
             {
                 throw new ArgumentException(Resources.InvalidReplaceGroupNode_Error, nameof(node));
             }
 
-            var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
-            builder.Name = workflowBuilder.Name;
-            builder.Description = workflowBuilder.Description;
-            ReplaceGroupNode(node, builder);
+            if (workflowBuilder.GetType().AssemblyQualifiedName != typeName)
+            {
+                var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
+                builder.Name = workflowBuilder.Name;
+                builder.Description = workflowBuilder.Description;
+                ReplaceGroupNode(node, builder);
+            }
         }
 
         private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder)
@@ -1470,6 +1442,24 @@ namespace Bonsai.Editor.GraphModel
 
             commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
+        }
+
+        public void UngroupGraphNodes(IEnumerable<GraphNode> nodes)
+        {
+            UpdateGraphNodes(nodes, UngroupOrReplaceGraphNode);
+        }
+
+        private void UngroupOrReplaceGraphNode(GraphNode node)
+        {
+            var selectedNodeBuilder = node != null ? GetGraphNodeBuilder(node) : null;
+            if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder)
+            {
+                var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
+                groupBuilder.Name = includeBuilder.Name;
+                groupBuilder.Description = includeBuilder.Description;
+                ReplaceNode(node, groupBuilder);
+            }
+            else UngroupGraphNode(node);
         }
 
         private void UngroupGraphNode(GraphNode node)
@@ -1535,11 +1525,6 @@ namespace Bonsai.Editor.GraphModel
             {
                 ConnectInternalNodes(output.Item1, output.Item2);
             }
-        }
-
-        public void UngroupGraphNodes(IEnumerable<GraphNode> nodes)
-        {
-            UpdateGraphNodes(nodes, UngroupGraphNode);
         }
 
         void DisableGraphNode(GraphNode node)

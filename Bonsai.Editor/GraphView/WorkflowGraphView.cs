@@ -1061,7 +1061,7 @@ namespace Bonsai.Editor.GraphView
 
                 if (e.KeyCode == Keys.G && e.Modifiers.HasFlag(Keys.Control))
                 {
-                    if (e.Modifiers.HasFlag(Keys.Shift) && selectionModel.SelectedNodes.Any())
+                    if (e.Modifiers.HasFlag(Keys.Shift))
                     {
                         Editor.UngroupGraphNodes(selectionModel.SelectedNodes);
                     }
@@ -1597,8 +1597,10 @@ namespace Bonsai.Editor.GraphView
                     var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
                     menuItem = new ToolStripMenuItem(name, null, (sender, e) =>
                     {
-                        if (menuItem.Checked) return;
-                        Editor.CreateOrReplaceGroupNode(selectedNodes, element.FullyQualifiedName);
+                        if (menuItem.Checked && element.FullyQualifiedName != typeof(GroupWorkflowBuilder).AssemblyQualifiedName) return;
+                        var replace = workflowBuilder != null && workflowBuilder.GetType().AssemblyQualifiedName != element.FullyQualifiedName;
+                        if (replace) Editor.ReplaceGroupNode(selectedNode, element.FullyQualifiedName);
+                        else Editor.GroupGraphNodes(selectedNodes, element.FullyQualifiedName);
                     });
 
                     if (workflowBuilder != null &&
