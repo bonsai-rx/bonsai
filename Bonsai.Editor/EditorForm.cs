@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -32,6 +32,7 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
+        const string DefinitionsDirectory = "Definitions";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
@@ -67,6 +68,7 @@ namespace Bonsai.Editor
         readonly List<WorkflowElementDescriptor> workflowElements;
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
+        readonly string definitionsPath;
         DirectoryInfo extensionsPath;
         WorkflowBuilder workflowBuilder;
         WorkflowException workflowError;
@@ -157,6 +159,7 @@ namespace Bonsai.Editor
                 scriptEnvironment = (IScriptEnvironment)serviceProvider.GetService(typeof(IScriptEnvironment));
             }
 
+            definitionsPath = Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
             editorControl = new WorkflowEditorControl(editorSite);
             editorControl.Enter += new EventHandler(editorControl_Enter);
             editorControl.Workflow = workflowBuilder.Workflow;
@@ -369,6 +372,15 @@ namespace Bonsai.Editor
             Action closeEditor = CloseEditorForm;
             if (InvokeRequired) Invoke(closeEditor);
             else closeEditor();
+            if (EditorResult == EditorResult.Exit)
+            {
+                const int DeleteRetries = 3;
+                for (int i = 0; i < DeleteRetries; i++)
+                {
+                    try { Directory.Delete(definitionsPath, true); break; }
+                    catch { } // best effort
+                }
+            }
             base.OnFormClosed(e);
         }
 
@@ -2413,18 +2425,36 @@ namespace Bonsai.Editor
 
             public bool HasDefinition(object component)
             {
-                return siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
-                       siteForm.scriptEnvironment.AssemblyName.FullName == component.GetType().Assembly.FullName;
+                return siteForm.scriptEnvironment != null;
             }
 
             public void ShowDefinition(object component)
             {
                 Type componentType;
-                if (siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
+                if (siteForm.scriptEnvironment == null) return;
+                if (siteForm.scriptEnvironment.AssemblyName != null &&
                     siteForm.scriptEnvironment.AssemblyName.FullName == (componentType = component.GetType()).Assembly.FullName)
                 {
                     var scriptFile = Path.Combine(siteForm.extensionsPath.FullName, componentType.Name);
                     ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, scriptFile);
+                }
+                else
+                {
+                    string source, extension;
+                    var type = component.GetType();
+                    var typeDefinition = TypeDefinitionProvider.GetTypeDefinition(type);
+                    using (var provider = new TypeDefinitionCodeProvider())
+                    using (var writer = new StringWriter())
+                    {
+                        provider.GenerateCodeFromCompileUnit(typeDefinition, writer, null);
+                        source = writer.ToString();
+                        extension = provider.FileExtension;
+                    }
+
+                    var directory = Directory.CreateDirectory(Path.Combine(siteForm.definitionsPath, DefinitionsDirectory));
+                    var sourceFile = Path.Combine(directory.FullName, type.FullName + "." + extension);
+                    File.WriteAllText(sourceFile, source);
+                    ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, sourceFile);
                 }
             }
 
