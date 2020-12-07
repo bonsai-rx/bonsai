@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -2121,7 +2121,7 @@ namespace Bonsai.Editor
 
         #region EditorSite Class
 
-        class EditorSite : ISite, IWorkflowEditorService, IWorkflowEditorState, IWorkflowToolboxService, IUIService
+        class EditorSite : ISite, IWorkflowEditorService, IWorkflowEditorState, IWorkflowToolboxService, IUIService, IDefinitionProvider
         {
             readonly EditorForm siteForm;
 
@@ -2204,7 +2204,8 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(IWorkflowEditorService) ||
                     serviceType == typeof(IWorkflowEditorState) ||
                     serviceType == typeof(IWorkflowToolboxService) ||
-                    serviceType == typeof(IUIService))
+                    serviceType == typeof(IUIService) ||
+                    serviceType == typeof(IDefinitionProvider))
                 {
                     return this;
                 }
@@ -2410,13 +2411,28 @@ namespace Bonsai.Editor
                 siteForm.commandExecutor.Redo();
             }
 
+            public bool HasDefinition(object component)
+            {
+                return siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
+                       siteForm.scriptEnvironment.AssemblyName.FullName == component.GetType().Assembly.FullName;
+            }
+
+            public void ShowDefinition(object component)
+            {
+                Type componentType;
+                if (siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
+                    siteForm.scriptEnvironment.AssemblyName.FullName == (componentType = component.GetType()).Assembly.FullName)
+                {
+                    var scriptFile = Path.Combine(siteForm.extensionsPath.FullName, componentType.Name);
+                    ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, scriptFile);
+                }
+            }
+
             public bool CanShowComponentEditor(object component)
             {
                 var editor = TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
                 if (editor != null) return true;
-
-                return siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
-                       siteForm.scriptEnvironment.AssemblyName.FullName == component.GetType().Assembly.FullName;
+                return false;
             }
 
             public IWin32Window GetDialogOwnerWindow()
@@ -2445,15 +2461,6 @@ namespace Bonsai.Editor
                     }
 
                     return editor.EditComponent(component);
-                }
-                else if (siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null)
-                {
-                    var componentType = component.GetType();
-                    if (siteForm.scriptEnvironment.AssemblyName.FullName == componentType.Assembly.FullName)
-                    {
-                        var scriptFile = Path.Combine(siteForm.extensionsPath.FullName, componentType.Name);
-                        ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, scriptFile);
-                    }
                 }
 
                 return false;

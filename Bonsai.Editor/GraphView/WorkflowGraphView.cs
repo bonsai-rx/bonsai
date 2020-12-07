@@ -49,6 +49,7 @@ namespace Bonsai.Editor.GraphView
         readonly IServiceProvider serviceProvider;
         readonly IUIService uiService;
         readonly ThemeRenderer themeRenderer;
+        readonly IDefinitionProvider definitionProvider;
         Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
         VisualizerLayout visualizerLayout;
         ExpressionBuilderGraph workflow;
@@ -72,6 +73,7 @@ namespace Bonsai.Editor.GraphView
             Editor = new WorkflowEditor(provider, graphView);
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
+            definitionProvider = (IDefinitionProvider)provider.GetService(typeof(IDefinitionProvider));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             graphView.IconRenderer = (SvgRendererFactory)provider.GetService(typeof(SvgRendererFactory));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
@@ -374,7 +376,11 @@ namespace Bonsai.Editor.GraphView
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
             var disableBuilder = builder as DisableBuilder;
             var workflowBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
-            if (workflowBuilder != null && workflowBuilder.Workflow != null) LaunchWorkflowView(node);
+            if (workflowBuilder != null && workflowBuilder.Workflow != null)
+            {
+                if (workflowBuilder is IncludeWorkflowBuilder) return;
+                LaunchWorkflowView(node);
+            }
             else if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
@@ -420,6 +426,43 @@ namespace Bonsai.Editor.GraphView
             if (visualizerLauncher != null)
             {
                 visualizerLauncher.Show(graphView, serviceProvider);
+            }
+        }
+
+        private bool HasDefinition(ExpressionBuilder builder)
+        {
+            var disableBuilder = builder as DisableBuilder;
+            var includeWorkflow = (disableBuilder != null ? disableBuilder.Builder : builder) as IncludeWorkflowBuilder;
+            if (includeWorkflow != null && includeWorkflow.Workflow != null) return true;
+            else if (builder != null)
+            {
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                return definitionProvider.HasDefinition(workflowElement);
+            }
+
+            return false;
+        }
+
+        private void LaunchDefinition(GraphNode node)
+        {
+            var builder = WorkflowEditor.GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            var includeWorkflow = (disableBuilder != null ? disableBuilder.Builder : builder) as IncludeWorkflowBuilder;
+            if (includeWorkflow != null && includeWorkflow.Workflow != null) LaunchWorkflowView(node);
+            else if (builder != null)
+            {
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                try
+                {
+                    if (definitionProvider.HasDefinition(workflowElement))
+                    {
+                        definitionProvider.ShowDefinition(workflowElement);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    uiService.ShowError(ex);
+                }
             }
         }
 
@@ -964,6 +1007,11 @@ namespace Bonsai.Editor.GraphView
                 else editorService.StartWorkflow(!e.Control);
             }
 
+            if (e.KeyCode == goToDefinitionToolStripMenuItem.ShortcutKeys)
+            {
+                LaunchDefinition(graphView.SelectedNode);
+            }
+
             if (e.KeyCode == Keys.Return)
             {
                 if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
@@ -1188,6 +1236,11 @@ namespace Bonsai.Editor.GraphView
         private void defaultEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefaultEditor(graphView.SelectedNode);
+        }
+
+        private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchDefinition(graphView.SelectedNode);
         }
 
         private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1670,6 +1723,7 @@ namespace Bonsai.Editor.GraphView
 
                 var builder = WorkflowEditor.GetGraphNodeBuilder(selectedNode);
                 defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
+                goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 if (workflowElement != null)

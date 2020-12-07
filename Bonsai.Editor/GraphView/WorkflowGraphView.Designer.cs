@@ -39,7 +39,6 @@ namespace Bonsai.Editor.GraphView
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsWorkflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,9 +51,11 @@ namespace Bonsai.Editor.GraphView
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsWorkflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -70,6 +71,7 @@ namespace Bonsai.Editor.GraphView
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
+            this.goToDefinitionToolStripMenuItem,
             this.toolStripSeparator2,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -87,7 +89,7 @@ namespace Bonsai.Editor.GraphView
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 458);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 480);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -145,16 +147,6 @@ namespace Bonsai.Editor.GraphView
             this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
             this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
-            // 
-            // saveAsWorkflowToolStripMenuItem
-            // 
-            this.saveAsWorkflowToolStripMenuItem.Enabled = false;
-            this.saveAsWorkflowToolStripMenuItem.Name = "saveAsWorkflowToolStripMenuItem";
-            this.saveAsWorkflowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.S)));
-            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.saveAsWorkflowToolStripMenuItem.Text = "Save As Workflow...";
-            this.saveAsWorkflowToolStripMenuItem.Click += new System.EventHandler(this.saveAsWorkflowToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -259,6 +251,16 @@ namespace Bonsai.Editor.GraphView
             this.ungroupToolStripMenuItem.Text = "Ungroup";
             this.ungroupToolStripMenuItem.Click += new System.EventHandler(this.ungroupToolStripMenuItem_Click);
             // 
+            // saveAsWorkflowToolStripMenuItem
+            // 
+            this.saveAsWorkflowToolStripMenuItem.Enabled = false;
+            this.saveAsWorkflowToolStripMenuItem.Name = "saveAsWorkflowToolStripMenuItem";
+            this.saveAsWorkflowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.saveAsWorkflowToolStripMenuItem.Text = "Save As Workflow...";
+            this.saveAsWorkflowToolStripMenuItem.Click += new System.EventHandler(this.saveAsWorkflowToolStripMenuItem_Click);
+            // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
@@ -284,6 +286,15 @@ namespace Bonsai.Editor.GraphView
             this.disableToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.disableToolStripMenuItem.Text = "Disable";
             this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
+            // 
+            // goToDefinitionToolStripMenuItem
+            // 
+            this.goToDefinitionToolStripMenuItem.Enabled = false;
+            this.goToDefinitionToolStripMenuItem.Name = "goToDefinitionToolStripMenuItem";
+            this.goToDefinitionToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F12;
+            this.goToDefinitionToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.goToDefinitionToolStripMenuItem.Text = "Go To Definition...";
+            this.goToDefinitionToolStripMenuItem.Click += new System.EventHandler(this.goToDefinitionToolStripMenuItem_Click);
             // 
             // graphView
             // 
@@ -352,5 +363,6 @@ namespace Bonsai.Editor.GraphView
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem goToDefinitionToolStripMenuItem;
     }
 }
