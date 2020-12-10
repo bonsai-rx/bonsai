@@ -24,7 +24,6 @@ namespace Bonsai.Editor.GraphView
         static readonly Cursor InvalidSelectionCursor = Cursors.No;
         static readonly Cursor MoveSelectionCursor = Cursors.SizeAll;
         static readonly Cursor AlternateSelectionCursor = Cursors.UpArrow;
-        const string OutputMenuItemLabel = "Output";
 
         const int RightMouseButton = 0x2;
         const int ShiftModifier = 0x4;
@@ -1419,13 +1418,12 @@ namespace Bonsai.Editor.GraphView
                     ownerItem.DropDownItems.Add(noneMenuItem);
                     ownerItem.DropDownItems.Add(typeMenuItem);
                     ownerItem.Enabled = true;
-                    ownerItem.Visible = true;
                 }
             }
-            else
+            else if (memberType != null)
             {
                 var typeName = TypeHelper.GetTypeName(memberType);
-                ownerItem.Text = string.Format(Resources.CreateGenericSourceAction, typeName);
+                ownerItem.Text = string.Format("{0} ({1})", Resources.CreateSourceMenuItemLabel, typeName);
                 var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
                 if (toolboxService != null)
                 {
@@ -1444,9 +1442,8 @@ namespace Bonsai.Editor.GraphView
                         ownerItem.DropDownItems.Add(menuItem);
                     }
 
-                    var visible = ownerItem.DropDownItems.Count > 0;
-                    ownerItem.Enabled = visible;
-                    ownerItem.Visible = visible;
+                    var enabled = ownerItem.DropDownItems.Count > 0;
+                    ownerItem.Enabled = enabled;
                 }
             }
         }
@@ -1778,7 +1775,6 @@ namespace Bonsai.Editor.GraphView
 
         private void contextMenuStrip_Closed(object sender, ToolStripDropDownClosedEventArgs e)
         {
-            subjectTypeToolStripMenuItem.Visible = false;
             foreach (ToolStripItem item in contextMenuStrip.Items)
             {
                 item.Enabled = false;
@@ -1790,7 +1786,8 @@ namespace Bonsai.Editor.GraphView
                 outputToolStripMenuItem.Tag = null;
             }
 
-            outputToolStripMenuItem.Text = OutputMenuItemLabel;
+            outputToolStripMenuItem.Text = Resources.OutputMenuItemLabel;
+            subjectTypeToolStripMenuItem.Text = Resources.CreateSourceMenuItemLabel;
             outputToolStripMenuItem.DropDownItems.Clear();
             subjectTypeToolStripMenuItem.DropDownItems.Clear();
             externalizeToolStripMenuItem.DropDownItems.Clear();

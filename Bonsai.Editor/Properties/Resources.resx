@@ -274,9 +274,6 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
     <value>There was an error while reordering the selected nodes:
 {0}</value>
   </data>
-  <data name="CreateGenericSourceAction" xml:space="preserve">
-    <value>Create Source ({0})</value>
-  </data>
   <data name="SubjectTypeAction" xml:space="preserve">
     <value>Subject Type</value>
   </data>
@@ -327,5 +324,11 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   </data>
   <data name="VisualizerLayoutOnNullWorkflow_Error" xml:space="preserve">
     <value>Cannot set visualizer layout with a null workflow.</value>
+  </data>
+  <data name="CreateSourceMenuItemLabel" xml:space="preserve">
+    <value>Create Source</value>
+  </data>
+  <data name="OutputMenuItemLabel" xml:space="preserve">
+    <value>Output</value>
   </data>
 </root>

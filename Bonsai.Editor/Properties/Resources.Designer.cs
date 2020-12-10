@@ -156,20 +156,20 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create Source ({0}).
-        /// </summary>
-        internal static string CreateGenericSourceAction {
-            get {
-                return ResourceManager.GetString("CreateGenericSourceAction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Create Group.
         /// </summary>
         internal static string CreateGroupAction {
             get {
                 return ResourceManager.GetString("CreateGroupAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Source.
+        /// </summary>
+        internal static string CreateSourceMenuItemLabel {
+            get {
+                return ResourceManager.GetString("CreateSourceMenuItemLabel", resourceCulture);
             }
         }
         
@@ -301,6 +301,15 @@ namespace Bonsai.Editor.Properties {
         internal static string OpenWorkflow_Error_Caption {
             get {
                 return ResourceManager.GetString("OpenWorkflow_Error_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output.
+        /// </summary>
+        internal static string OutputMenuItemLabel {
+            get {
+                return ResourceManager.GetString("OutputMenuItemLabel", resourceCulture);
             }
         }
         

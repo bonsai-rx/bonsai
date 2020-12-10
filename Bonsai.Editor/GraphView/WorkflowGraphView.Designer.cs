@@ -117,8 +117,7 @@ namespace Bonsai.Editor.GraphView
             this.subjectTypeToolStripMenuItem.Enabled = false;
             this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
             this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
-            this.subjectTypeToolStripMenuItem.Visible = false;
+            this.subjectTypeToolStripMenuItem.Text = "Create Source";
             // 
             // createPropertySourceToolStripMenuItem
             // 

@@ -1877,7 +1877,7 @@ namespace Bonsai.Editor
                             var selection = allowGenericSource ? selectionModel.SelectedNodes.ToArray() : null;
                             var selectionType = selection?.Length == 1 && selection?[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.ObservableType : null;
                             createGroupToolStripMenuItem.Text = selectionType != null
-                                ? string.Format(Resources.CreateGenericSourceAction, TypeHelper.GetTypeName(selectionType))
+                                ? string.Format("{0} ({1})", Resources.CreateSourceMenuItemLabel, TypeHelper.GetTypeName(selectionType))
                                 : Resources.CreateGroupAction;
                             insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
                             createGroupToolStripMenuItem.Visible = allowGroup || selectionType != null;
