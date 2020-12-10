@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Gonçalo Lopes",
+    "classifications": [ "Common", "Bonsai", "Package" ],
+    "identity": "Bonsai.PackageTemplate",
+    "name": "Bonsai Package",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "**/[Bb]in/**",
+                        "**/[Oo]bj/**",
+                        "**/[Pp]roperties/**",
+                        "**/*.ico",
+                        "**/*.vstemplate",
+                        "Bonsai.PackageTemplate.csproj"
+                    ],
+                    "rename": {
+                        "launchSettings.json": "Properties/launchSettings.json"
+                    }
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "projectName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replace",
+            "replaces": "$safeprojectname$",
+            "fileRename": "ProjectTemplate"
+        },
+        "authors": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$registeredorganization$"
+        },
+        "year": {
+            "type": "generated",
+            "generator": "now",
+            "parameters": {
+                "format": "yyyy"
+            },
+            "replaces": "$year$"
+        }
+    },
+    "forms": {
+        "replace": {
+            "identifier": "replace",
+            "pattern": "",
+            "replacement": ""
+        }
+    },
+    "sourceName": "$projectname$",
+    "shortName": "bonsai-package",
+    "preferNameDirectory": true
+}
