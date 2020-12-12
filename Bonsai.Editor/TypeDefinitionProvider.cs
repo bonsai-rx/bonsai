@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,6 +109,10 @@ namespace Bonsai.Editor
                         : GetTypeReference(constraints[i], importNamespaces);
                     parameterDeclaration.Constraints.Add(constraintDeclaration);
                 }
+
+                var structConstraint = parameter.GenericParameterAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint);
+                var defaultConstructor = parameter.GenericParameterAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint);
+                parameterDeclaration.HasConstructorConstraint = defaultConstructor && !structConstraint;
                 return parameterDeclaration;
             }));
         }

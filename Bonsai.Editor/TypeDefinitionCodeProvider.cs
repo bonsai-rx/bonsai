@@ -143,13 +143,15 @@ namespace Bonsai.Editor
             {
                 var parameterDeclarations = typeParameters.Cast<CodeTypeParameter>().Select(p =>
                 {
-                    if (p.Constraints.Count > 0)
+                    if (p.Constraints.Count > 0 || p.HasConstructorConstraint)
                     {
-                        var parameterConstraints = p.Constraints.Cast<CodeTypeReference>().Select(type =>
+                        var parameterConstraints = new List<string>(p.Constraints.Count);
+                        parameterConstraints.AddRange(p.Constraints.Cast<CodeTypeReference>().Select(type =>
                         {
                             if (type.BaseType == "System.ValueType" && type.TypeArguments.Count == 0) return "struct";
                             else return GetTypeOutput(type);
-                        });
+                        }));
+                        if (p.HasConstructorConstraint) parameterConstraints.Add("new()");
                         constraints += $" where {p.Name} : {string.Join(", ", parameterConstraints)}";
                     }
                     return p.Name;
