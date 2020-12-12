@@ -96,6 +96,7 @@ namespace Bonsai.NuGet
                 packageExtractionContext,
                 token);
 
+            installPath = PathResolver.GetInstalledPath(packageInfo);
             foreach (var plugin in PackageManagerPlugins)
             {
                 await plugin.OnPackageInstalledAsync(packageInfo, downloadResult.PackageReader, installPath);
