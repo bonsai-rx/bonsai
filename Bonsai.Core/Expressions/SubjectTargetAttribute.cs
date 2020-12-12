@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
 
         public Type TargetType
         {
-            get { return Type.GetType(TargetTypeName); }
+            get { return !string.IsNullOrEmpty(TargetTypeName) ? Type.GetType(TargetTypeName) : null; }
         }
     }
 }
