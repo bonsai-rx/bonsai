@@ -116,6 +116,7 @@ namespace Bonsai.Editor
                         else return primitive.Value.ToString();
                     }
                     else if (argument.Value is CodeTypeOfExpression typeOf) return $"typeof({GetTypeOutput(typeOf.Type)})";
+                    else if (argument.Value is CodeSnippetExpression snippet) return snippet.Value;
                     return string.Empty;
                 });
                 arguments = $"({string.Join(", ", argumentValues)})";

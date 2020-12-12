@@ -43,6 +43,12 @@ namespace Bonsai.Editor
                     var type = (Type)argument.Value;
                     value = new CodeTypeOfExpression(GetTypeReference(type, importNamespaces));
                 }
+                else if (argument.ArgumentType.IsEnum)
+                {
+                    var name = Enum.GetName(argument.ArgumentType, argument.Value);
+                    var enumType = GetTypeReference(argument.ArgumentType, importNamespaces);
+                    value = new CodeSnippetExpression($"{enumType.BaseType}.{name}");
+                }
                 else value = new CodePrimitiveExpression(argument.Value);
                 declaration.Arguments.Add(new CodeAttributeArgument(value));
             }
