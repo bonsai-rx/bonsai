@@ -147,12 +147,24 @@ namespace Bonsai.Expressions
                 source = multicastExpression.Source;
             }
 
+            while (source is BlockExpression block)
+            {
+                source = block.Expressions.LastOrDefault();
+            }
+
             while (source is MethodCallExpression methodCall)
             {
                 if (methodCall.Object == null)
                 {
                     // If merging dangling branches in a workflow, recurse on the main output source
-                    if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder) && methodCall.Method.Name == "MergeOutput")
+                    if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder) &&
+                        methodCall.Method.Name == nameof(ExpressionBuilder.MergeOutput))
+                    {
+                        source = methodCall.Arguments[0];
+                    }
+                    // If disposing declared build context subjects, recurse on the output source
+                    else if (methodCall.Method.DeclaringType == typeof(BuildContext) &&
+                             methodCall.Method.Name == nameof(BuildContext.Finally))
                     {
                         source = methodCall.Arguments[0];
                     }

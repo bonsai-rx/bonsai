@@ -879,7 +879,7 @@ namespace Bonsai.Expressions
             return source.IgnoreElements().Select(xs => Unit.Default);
         }
 
-        static IObservable<Unit> MergeOutput(params IObservable<Unit>[] connections)
+        internal static IObservable<Unit> MergeOutput(params IObservable<Unit>[] connections)
         {
             return Observable.Merge(connections);
         }

@@ -98,7 +98,7 @@ namespace Bonsai.Expressions
                          .Concat(Enumerable.Repeat(finallyExpression, 1)));
         }
 
-        static IObservable<TSource> Finally<TSource>(IObservable<TSource> source, IDisposable disposable)
+        internal static IObservable<TSource> Finally<TSource>(IObservable<TSource> source, IDisposable disposable)
         {
             return source.Finally(disposable.Dispose);
         }
