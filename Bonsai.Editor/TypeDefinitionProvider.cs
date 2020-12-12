@@ -110,6 +110,8 @@ namespace Bonsai.Editor
                     parameterDeclaration.Constraints.Add(constraintDeclaration);
                 }
 
+                var classConstraint = parameter.GenericParameterAttributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint);
+                if (classConstraint) parameterDeclaration.Constraints.Add(typeof(object));
                 var structConstraint = parameter.GenericParameterAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint);
                 var defaultConstructor = parameter.GenericParameterAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint);
                 parameterDeclaration.HasConstructorConstraint = defaultConstructor && !structConstraint;

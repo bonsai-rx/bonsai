@@ -148,7 +148,8 @@ namespace Bonsai.Editor
                         var parameterConstraints = new List<string>(p.Constraints.Count);
                         parameterConstraints.AddRange(p.Constraints.Cast<CodeTypeReference>().Select(type =>
                         {
-                            if (type.BaseType == "System.ValueType" && type.TypeArguments.Count == 0) return "struct";
+                            if (type.BaseType == "System.ValueType") return "struct";
+                            else if (type.BaseType == "System.Object") return "class";
                             else return GetTypeOutput(type);
                         }));
                         if (p.HasConstructorConstraint) parameterConstraints.Add("new()");
