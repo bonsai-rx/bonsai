@@ -9,6 +9,12 @@ namespace Bonsai.Editor
 {
     class TypeDefinitionCodeProvider : CSharpCodeProvider
     {
+        public override string GetTypeOutput(CodeTypeReference type)
+        {
+            if (type.BaseType == "System.ValueType" && type.TypeArguments.Count == 0) return "struct";
+            return base.GetTypeOutput(type);
+        }
+
         public override void GenerateCodeFromCompileUnit(CodeCompileUnit compileUnit, TextWriter writer, CodeGeneratorOptions options)
         {
             using (var indentedWriter = new IndentedTextWriter(writer))
@@ -142,9 +148,19 @@ namespace Bonsai.Editor
 
             var prefix = false;
             var typeParameters = string.Empty;
+            var constraints = string.Empty;
             if (method.TypeParameters.Count > 0)
             {
-                typeParameters = $"<{string.Join(", ", method.TypeParameters.Cast<CodeTypeParameter>().Select(p => p.Name))}>";
+                var parameterDeclarations = method.TypeParameters.Cast<CodeTypeParameter>().Select(p =>
+                {
+                    if (p.Constraints.Count > 0)
+                    {
+                        var parameterConstraints = p.Constraints.Cast<CodeTypeReference>().Select(type => GetTypeOutput(type));
+                        constraints += $" where {p.Name} : {string.Join(", ", parameterConstraints)}";
+                    }
+                    return p.Name;
+                });
+                typeParameters = $"<{string.Join(", ", parameterDeclarations)}>";
             }
 
             writer.Write($"public {GetTypeOutput(method.ReturnType)} {method.Name}{typeParameters}(");
@@ -154,7 +170,7 @@ namespace Bonsai.Editor
                 WriteParameterDeclaration(parameter, writer);
                 prefix = true;
             }
-            writer.WriteLine(");");
+            writer.WriteLine($"){constraints};");
         }
 
         void WriteParameterDeclaration(CodeParameterDeclarationExpression parameter, IndentedTextWriter writer)

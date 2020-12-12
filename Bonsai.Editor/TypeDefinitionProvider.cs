@@ -99,7 +99,19 @@ namespace Bonsai.Editor
             if (method.IsGenericMethod)
             {
                 var typeParameters = method.GetGenericArguments();
-                declaration.TypeParameters.AddRange(Array.ConvertAll(typeParameters, parameter => new CodeTypeParameter(parameter.Name)));
+                declaration.TypeParameters.AddRange(Array.ConvertAll(typeParameters, parameter =>
+                {
+                    var constraints = parameter.GetGenericParameterConstraints();
+                    var parameterDeclaration = new CodeTypeParameter(parameter.Name);
+                    for (int i = 0; i < constraints.Length; i++)
+                    {
+                        var constraintDeclaration = constraints[i] == typeof(ValueType)
+                            ? new CodeTypeReference(constraints[i])
+                            : GetTypeReference(constraints[i], importNamespaces);
+                        parameterDeclaration.Constraints.Add(constraintDeclaration);
+                    }
+                    return parameterDeclaration;
+                }));
             }
 
             declaration.Parameters.AddRange(Array.ConvertAll(method.GetParameters(), parameter =>
