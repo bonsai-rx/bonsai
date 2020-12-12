@@ -2442,6 +2442,7 @@ namespace Bonsai.Editor
                 {
                     string source, extension;
                     var type = component.GetType();
+                    if (type.IsGenericType) type = type.GetGenericTypeDefinition();
                     var typeDefinition = TypeDefinitionProvider.GetTypeDefinition(type);
                     using (var provider = new TypeDefinitionCodeProvider())
                     using (var writer = new StringWriter())
