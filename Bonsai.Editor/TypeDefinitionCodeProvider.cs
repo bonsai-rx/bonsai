@@ -169,8 +169,12 @@ namespace Bonsai.Editor
                 WriteAttributeDeclaration(attribute, writer);
             }
 
+            string modifiers;
             var prefix = false;
-            writer.Write($"public {GetTypeOutput(method.ReturnType)} {method.Name}");
+            if (method.Attributes.HasFlag(MemberAttributes.Final)) modifiers = string.Empty;
+            else if (method.Attributes.HasFlag(MemberAttributes.Override)) modifiers = "override ";
+            else modifiers = "virtual ";
+            writer.Write($"public {modifiers}{GetTypeOutput(method.ReturnType)} {method.Name}");
             WriteTypeParameters(method.TypeParameters, writer, out string constraints);
             writer.Write("(");
             foreach (var parameter in method.Parameters.Cast<CodeParameterDeclarationExpression>())

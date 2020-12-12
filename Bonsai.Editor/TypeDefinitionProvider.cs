@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,7 +121,9 @@ namespace Bonsai.Editor
         {
             var declaration = new CodeMemberMethod();
             declaration.Name = method.Name;
-            declaration.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+            declaration.Attributes = MemberAttributes.Public;
+            if (!method.IsVirtual) declaration.Attributes |= MemberAttributes.Final;
+            else if (method.GetBaseDefinition() != method) declaration.Attributes |= MemberAttributes.Override;
             declaration.ReturnType = GetTypeReference(method.ReturnType, importNamespaces);
             if (method.IsGenericMethod)
             {
