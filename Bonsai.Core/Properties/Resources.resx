@@ -138,9 +138,6 @@
   <data name="Exception_SerializingNonPublicType" xml:space="preserve">
     <value>The workflow contains non-public types. Please ensure any internal operators have been fully converted or removed before saving the workflow.</value>
   </data>
-  <data name="Exception_SerializingUnknownTypeBuilder" xml:space="preserve">
-    <value>The workflow contains unspecified types. Please install any missing packages or replace the affected modules before saving the workflow.</value>
-  </data>
   <data name="Exception_TypeLoadException" xml:space="preserve">
     <value>Failed to load type '{0}'.</value>
   </data>

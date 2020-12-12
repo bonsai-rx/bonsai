@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
@@ -12,6 +14,13 @@ namespace Bonsai.Expressions
     /// </summary>
     public abstract class UnknownTypeBuilder : ExpressionBuilder
     {
+        /// <summary>
+        /// Gets or sets the XML representation of externalized property values from the unknown type.
+        /// </summary>
+        [XmlAnyElement]
+        [Browsable(false)]
+        public XElement[] PropertiesXml { get; set; }
+
         /// <summary>
         /// Gets the range of input arguments that this expression builder accepts.
         /// </summary>

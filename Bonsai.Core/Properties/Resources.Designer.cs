@@ -124,15 +124,6 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The workflow contains unspecified types. Please install any missing packages or replace the affected modules before saving the workflow..
-        /// </summary>
-        internal static string Exception_SerializingUnknownTypeBuilder {
-            get {
-                return ResourceManager.GetString("Exception_SerializingUnknownTypeBuilder", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Failed to load type &apos;{0}&apos;..
         /// </summary>
         internal static string Exception_TypeLoadException {

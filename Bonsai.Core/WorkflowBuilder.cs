@@ -186,11 +186,6 @@ namespace Bonsai
                 {
                     throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
                 }
-
-                if (type.BaseType == typeof(UnknownTypeBuilder))
-                {
-                    throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
-                }
             }
 
             var serializer = GetXmlSerializer(types, out Dictionary<string, GenericTypeCode> genericTypes);
