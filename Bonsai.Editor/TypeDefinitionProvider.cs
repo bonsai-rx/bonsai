@@ -90,6 +90,23 @@ namespace Bonsai.Editor
             return declaration;
         }
 
+        static void AddGenericTypeParameters(CodeTypeParameterCollection declarationTypeParameters, Type[] typeParameters, HashSet<string> importNamespaces)
+        {
+            declarationTypeParameters.AddRange(Array.ConvertAll(typeParameters, parameter =>
+            {
+                var constraints = parameter.GetGenericParameterConstraints();
+                var parameterDeclaration = new CodeTypeParameter(parameter.Name);
+                for (int i = 0; i < constraints.Length; i++)
+                {
+                    var constraintDeclaration = constraints[i] == typeof(ValueType)
+                        ? new CodeTypeReference(constraints[i])
+                        : GetTypeReference(constraints[i], importNamespaces);
+                    parameterDeclaration.Constraints.Add(constraintDeclaration);
+                }
+                return parameterDeclaration;
+            }));
+        }
+
         static CodeTypeMember GetMethodDeclaration(MethodInfo method, HashSet<string> importNamespaces)
         {
             var declaration = new CodeMemberMethod();
@@ -99,19 +116,7 @@ namespace Bonsai.Editor
             if (method.IsGenericMethod)
             {
                 var typeParameters = method.GetGenericArguments();
-                declaration.TypeParameters.AddRange(Array.ConvertAll(typeParameters, parameter =>
-                {
-                    var constraints = parameter.GetGenericParameterConstraints();
-                    var parameterDeclaration = new CodeTypeParameter(parameter.Name);
-                    for (int i = 0; i < constraints.Length; i++)
-                    {
-                        var constraintDeclaration = constraints[i] == typeof(ValueType)
-                            ? new CodeTypeReference(constraints[i])
-                            : GetTypeReference(constraints[i], importNamespaces);
-                        parameterDeclaration.Constraints.Add(constraintDeclaration);
-                    }
-                    return parameterDeclaration;
-                }));
+                AddGenericTypeParameters(declaration.TypeParameters, typeParameters, importNamespaces);
             }
 
             declaration.Parameters.AddRange(Array.ConvertAll(method.GetParameters(), parameter =>
@@ -131,6 +136,14 @@ namespace Bonsai.Editor
         {
             var getterSetters = new HashSet<MethodInfo>();
             var declaration = new CodeTypeDeclaration(type.Name);
+            if (type.IsGenericType)
+            {
+                var genericSeparatorIndex = type.Name.LastIndexOf('`');
+                declaration.Name = type.Name.Substring(0, genericSeparatorIndex);
+                var typeParameters = type.GetGenericArguments();
+                AddGenericTypeParameters(declaration.TypeParameters, typeParameters, importNamespaces);
+            }
+
             var attributes = type.GetCustomAttributesData()
                 .Select(a => GetAttributeDeclaration(a, importNamespaces))
                 .ToArray();

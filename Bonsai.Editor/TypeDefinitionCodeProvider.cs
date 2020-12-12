@@ -9,12 +9,6 @@ namespace Bonsai.Editor
 {
     class TypeDefinitionCodeProvider : CSharpCodeProvider
     {
-        public override string GetTypeOutput(CodeTypeReference type)
-        {
-            if (type.BaseType == "System.ValueType" && type.TypeArguments.Count == 0) return "struct";
-            return base.GetTypeOutput(type);
-        }
-
         public override void GenerateCodeFromCompileUnit(CodeCompileUnit compileUnit, TextWriter writer, CodeGeneratorOptions options)
         {
             using (var indentedWriter = new IndentedTextWriter(writer))
@@ -74,7 +68,10 @@ namespace Bonsai.Editor
                 baseTypes = $" : {string.Join(", ", type.BaseTypes.Cast<CodeTypeReference>().Select(baseType => GetTypeOutput(baseType)))}";
             }
 
-            writer.WriteLine($"public {typeKeyword} {type.Name}{baseTypes}");
+            writer.Write($"public {typeKeyword} {type.Name}");
+            WriteTypeParameters(type.TypeParameters, writer, out string constraints);
+            if (!string.IsNullOrEmpty(constraints)) baseTypes += constraints;
+            writer.WriteLine(baseTypes);
             writer.WriteLine("{");
             writer.Indent++;
 
@@ -138,6 +135,29 @@ namespace Bonsai.Editor
             writer.WriteLine($"public {GetTypeOutput(property.Type)} {property.Name} {getterSetter}");
         }
 
+        void WriteTypeParameters(CodeTypeParameterCollection typeParameters, IndentedTextWriter writer, out string typeConstraints)
+        {
+            var constraints = string.Empty;
+            if (typeParameters.Count > 0)
+            {
+                var parameterDeclarations = typeParameters.Cast<CodeTypeParameter>().Select(p =>
+                {
+                    if (p.Constraints.Count > 0)
+                    {
+                        var parameterConstraints = p.Constraints.Cast<CodeTypeReference>().Select(type =>
+                        {
+                            if (type.BaseType == "System.ValueType" && type.TypeArguments.Count == 0) return "struct";
+                            else return GetTypeOutput(type);
+                        });
+                        constraints += $" where {p.Name} : {string.Join(", ", parameterConstraints)}";
+                    }
+                    return p.Name;
+                });
+                writer.Write($"<{string.Join(", ", parameterDeclarations)}>");
+            }
+            typeConstraints = constraints;
+        }
+
         void WriteMethodDeclaration(CodeMemberMethod method, IndentedTextWriter writer)
         {
             if (string.IsNullOrEmpty(method.Name)) return;
@@ -147,23 +167,9 @@ namespace Bonsai.Editor
             }
 
             var prefix = false;
-            var typeParameters = string.Empty;
-            var constraints = string.Empty;
-            if (method.TypeParameters.Count > 0)
-            {
-                var parameterDeclarations = method.TypeParameters.Cast<CodeTypeParameter>().Select(p =>
-                {
-                    if (p.Constraints.Count > 0)
-                    {
-                        var parameterConstraints = p.Constraints.Cast<CodeTypeReference>().Select(type => GetTypeOutput(type));
-                        constraints += $" where {p.Name} : {string.Join(", ", parameterConstraints)}";
-                    }
-                    return p.Name;
-                });
-                typeParameters = $"<{string.Join(", ", parameterDeclarations)}>";
-            }
-
-            writer.Write($"public {GetTypeOutput(method.ReturnType)} {method.Name}{typeParameters}(");
+            writer.Write($"public {GetTypeOutput(method.ReturnType)} {method.Name}");
+            WriteTypeParameters(method.TypeParameters, writer, out string constraints);
+            writer.Write("(");
             foreach (var parameter in method.Parameters.Cast<CodeParameterDeclarationExpression>())
             {
                 if (prefix) writer.Write(", ");
