@@ -2,7 +2,7 @@
   "profiles": {
     "Bonsai": {
       "commandName": "Executable",
-      "executablePath": "$(registry:HKEY_CURRENT_USER\\Software\\Goncalo Lopes\\Bonsai@InstallDir)Bonsai64.exe",
+      "executablePath": "$(registry:HKEY_CURRENT_USER\\Software\\Goncalo Lopes\\Bonsai@InstallDir)Bonsai.exe",
       "commandLineArgs": "--lib:$(TargetDir)."
     }
   }
