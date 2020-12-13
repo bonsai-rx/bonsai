@@ -145,28 +145,23 @@ namespace Bonsai.Expressions
             return Observable.Defer(() =>
             {
                 var gate = new object();
-                var memory = default(TSeed);
-                var feed = source
-                    .SkipUntil(seed.Do(x =>
-                    {
-                        lock (gate)
-                        {
-                            memory = x;
-                        }
-                    }))
-                    .Select(input =>
+                return seed.Take(1).SelectMany(seed =>
+                {
+                    var memory = seed;
+                    var feed = source.Select(input =>
                     {
                         lock (gate)
                         {
                             return new ElementAccumulation<TSeed, TSource>(memory, input);
                         }
                     });
-                return selector(feed).Do(result =>
-                {
-                    lock (gate)
+                    return selector(feed).Do(result =>
                     {
-                        memory = result;
-                    }
+                        lock (gate)
+                        {
+                            memory = result;
+                        }
+                    });
                 });
             });
         }
