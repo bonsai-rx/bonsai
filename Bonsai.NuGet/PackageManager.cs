@@ -174,7 +174,7 @@ namespace Bonsai.NuGet
                     targetIds: new[] { package.Id },
                     requiredPackageIds: Enumerable.Empty<string>(),
                     packagesConfig: Enumerable.Empty<PackageReference>(),
-                    preferredVersions: Enumerable.Empty<PackageIdentity>(),
+                    preferredVersions: new[] { package },
                     availablePackages: sourcePackages.Values,
                     packageSources: repositories.Select(repository => repository.PackageSource),
                     log: NullLogger.Instance);

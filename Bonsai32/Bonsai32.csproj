@@ -8,7 +8,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
-    <Version>2.6.0</Version>
+    <Version>2.6.1</Version>
     <OutputType>Exe</OutputType>
     <OutputPath>..\Bonsai\bin\$(Configuration)\</OutputPath>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
