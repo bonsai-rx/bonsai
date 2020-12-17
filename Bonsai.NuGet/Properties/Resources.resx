@@ -169,17 +169,6 @@
   <data name="UpdateOperationName" xml:space="preserve">
     <value>Update</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="PackageViewNodeCheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
-        cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
-        Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
-        1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
-        AElFTkSuQmCC
-</value>
-  </data>
   <data name="LicenseAuthorshipLabel" xml:space="preserve">
     <value>(Author: {0})</value>
   </data>
@@ -194,20 +183,6 @@
   </data>
   <data name="SearchCueBanner" xml:space="preserve">
     <value>Search (Ctrl+L)</value>
-  </data>
-  <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
-        y23DMAyGM0JH6QhF7hkgm6RZwsgMzQa5uyPk3Pba9uoWyOOo6gtElZEpy3aBuAQ+IBHJn4xedmbOuUkx
-        B2/J74eCHQ6H+9PpVHn2HmfAeEVcSMnaoAbO5/PD8Xh8Top1Qjx5QaJlvRvwYvxis0hPqiB1ZcUGmqa5
-        88mtqd7tdm69Xrv5fN6CcfxpjmePXpC+WLEBkrRIXdduuVyahVOII17ne/ZB+mKdDfjgq2nfbDZmoRLk
-        aR1PXI5sA2wcnZQWXywWbvu0da8vb+6r+Y7wnXH8Oj5tQjZmtgG925lGLbZaPbqP989YVMZ1I/iJ03l6
-        OdDPNhDOeQzWa46oLgTiS8dBN4GO1qWO2YB3xrVnN4sA06p/uSD+dByI18uRnI4q10Dc+fqosbZWEfFb
-        PiBPYtATberkGohBkgjphhPEb/mAPK2j9aUmFBuwxKHkB62j9aUm/LmBlFyM1pea8P8byO2BEmP2wKBT
-        UGLMKRh0D3Qx6h4YehN2MeomHPossMCvi0PvZwE2+dMQ84HTvQ+I+eDp3oiwyd8JxXzyNG/F2tg4+nT0
-        gXjZcJYNakAs3BPMSGtpAoyP/2c0FebgLTEHb4eb/QDNdfWdozOECQAAAABJRU5ErkJggg==
-</value>
   </data>
   <data name="MultipleUpdatesLabel" xml:space="preserve">
     <value>There are multiple updates available.</value>
@@ -262,26 +237,6 @@
   </data>
   <data name="RestorePackageVersion" xml:space="preserve">
     <value>Restoring dependency '{0} {1}'.</value>
-  </data>
-  <data name="RefreshImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vAAADrwBlbxySQAAAQJJREFUOE+lk7ERgzAMRRkhI2SEjJCjZy1ajp4dKJiCngHoKdxwUBI/nRQMUUgR
-        3f0LlvS/v2wnO8c8z49lWULEdkKgpm1+GLksyy3PcwHf/5IN7bquT20/hkdOURSFiI3jiFCltD1UQJo8
-        AQNCwzB8imBtmiaxmorUdb31fb81TSNkE8HJYZxIbCGCs4jl2NlENNcqXQTexa7rhOABJ+aCtZBDCDfs
-        245Y9k6bHDXruxTw7twTiLm7FFnYCNiM630+DXLuCARFOziKelXycPSK28tDpJGrsQZ+2Q3L4Oc1ElGx
-        SnfxQM19SBYUUMdiKsQ3ua9POQ2sMV+EHFQC58+UZS/3uQOpPz8OfAAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="SettingsImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAADYSURBVDhPpVOxEYMwDGQUZqGnd0nhsegZI00oXDkjeAOS
-        htbRK3qfQ4ocWHd/Z0n/byzs7hj7vk+CmyAfgNpktN+QZi+IRs4ppTwMgwJr1o3Tm+wTKAi2ZVlyCEGJ
-        WNNgnmetoYc6uNCYXA1iLfDe53EcS441aszNJFKMM6s7Cf/Ar4QWBmVg3AU7rvc1P7eXAmt+ETjkQwsD
-        HRLOSRLFMT4UNKE5uBysGqBRg2LmNKk5wGkD59wXrxi0HqF5iG2/0e7C9YuEkKTtKiNQEFx7THVI88Rz
-        7ro3JJCBt2M2zxYAAAAASUVORK5CYII=
-</value>
   </data>
   <data name="InvalidGalleryPackage" xml:space="preserve">
     <value>The package '{0}' is not a gallery package. Please install this package through the package manager dialog.</value>

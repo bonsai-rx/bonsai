@@ -314,31 +314,11 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap PackageViewNodeCheckedImage {
-            get {
-                object obj = ResourceManager.GetObject("PackageViewNodeCheckedImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to  (Prerelease).
         /// </summary>
         internal static string PrereleaseLabel {
             get {
                 return ResourceManager.GetString("PrereleaseLabel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RefreshImage {
-            get {
-                object obj = ResourceManager.GetObject("RefreshImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -397,16 +377,6 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SettingsImage {
-            get {
-                object obj = ResourceManager.GetObject("SettingsImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
         internal static string UninstallOperationLabel {
@@ -457,16 +427,6 @@ namespace Bonsai.NuGet.Properties {
         internal static string UpdatesNodeName {
             get {
                 return ResourceManager.GetString("UpdatesNodeName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap WaitImage {
-            get {
-                object obj = ResourceManager.GetObject("WaitImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

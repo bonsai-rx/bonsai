@@ -11,9 +11,6 @@
     <PackageReference Include="NuGet.Resolver" Version="5.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
