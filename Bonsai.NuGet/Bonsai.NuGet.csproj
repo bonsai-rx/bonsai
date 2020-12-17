@@ -7,8 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Rx-Main" Version="2.2.5" />
-    <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
-    <PackageReference Include="NuGet.Resolver" Version="5.7.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.8.0" />
+    <PackageReference Include="NuGet.Resolver" Version="5.8.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
