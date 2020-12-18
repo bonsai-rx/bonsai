@@ -5,7 +5,7 @@
     <Title>Bonsai - Player</Title>
     <Description>A command line player for Bonsai workflows.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net5.0</TargetFrameworks>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
