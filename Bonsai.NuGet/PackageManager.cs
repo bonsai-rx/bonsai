@@ -324,7 +324,7 @@ namespace Bonsai.NuGet
             var targetPackages = installedPackages.Where(p => PackageIdentity.Comparer.Equals(p, package));
             if (!targetPackages.Any())
             {
-                logger.LogError($"The package '{package}' could not be found.");
+                logger.LogWarning($"The package '{package}' could not be found.");
                 return false;
             }
 
