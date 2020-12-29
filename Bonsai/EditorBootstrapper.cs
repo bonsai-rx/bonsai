@@ -51,7 +51,17 @@ namespace Bonsai
             try
             {
                 var operation = operationFactory();
-                operation.ContinueWith(task => dialog.BeginInvoke((Action)dialog.Close), TaskContinuationOptions.NotOnFaulted);
+                operation.ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        if (task.Exception is AggregateException ex)
+                        {
+                            packageManager.Logger.LogError(ex.InnerException.Message);
+                        }
+                    }
+                    else dialog.BeginInvoke((Action)dialog.Close);
+                });
                 dialog.ShowDialog();
                 return operation;
             }

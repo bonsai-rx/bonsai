@@ -211,7 +211,6 @@ namespace Bonsai.NuGet
                     token.ThrowIfCancellationRequested();
                     var pluralSuffix = licensePackages.Count == 1 ? "s" : "";
                     var message = $"Unable to install package '{package}' because '{string.Join(", ", licensePackages.Select(x => x.Identity))}' require{pluralSuffix} license acceptance.";
-                    logger.LogError(message);
                     throw new InvalidOperationException(message);
                 }
 
@@ -310,7 +309,6 @@ namespace Bonsai.NuGet
             if (dependencyInfo == null)
             {
                 var message = $"The package '{packageId} {versionRange}' could not be found.";
-                logger.LogError(message);
                 throw new InvalidOperationException(message);
             }
         }
@@ -452,7 +450,6 @@ namespace Bonsai.NuGet
                     {
                         var pluralSuffix = dependents.Count == 1 ? "s" : "";
                         var message = $"Unable to uninstall '{package}' because '{string.Join(", ", dependents)}' depend{pluralSuffix} on it.";
-                        logger.LogError(message);
                         throw new InvalidOperationException(message);
                     }
                 }
