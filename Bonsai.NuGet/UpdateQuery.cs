@@ -2,7 +2,6 @@
 using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;

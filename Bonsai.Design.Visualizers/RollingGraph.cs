@@ -1,5 +1,4 @@
-﻿using System;
-using ZedGraph;
+﻿using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {

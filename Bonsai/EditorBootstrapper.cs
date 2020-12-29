@@ -1,7 +1,6 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
-using NuGet.Common;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
