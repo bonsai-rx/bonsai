@@ -296,7 +296,7 @@ namespace Bonsai.Configuration
 
             PackageConfigurationUpdater Owner { get; set; }
 
-            public override async Task<bool> OnPackageInstallingAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            public override async Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var entryPoint = package.Id + BonsaiExtension;
                 var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(DefaultFramework);
@@ -330,7 +330,7 @@ namespace Bonsai.Configuration
                             foreach (var pivot in pivots)
                             {
                                 var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                                var pivotPackage = await overlayManager.InstallPackageAsync(pivotIdentity, ignoreDependencies: true, CancellationToken.None);
+                                var pivotPackage = await overlayManager.InstallPackageAsync(pivotIdentity, projectFramework, ignoreDependencies: true, CancellationToken.None);
                                 if (pivotPackage == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
                             }
                         }
@@ -339,7 +339,7 @@ namespace Bonsai.Configuration
                             foreach (var pivot in pivots)
                             {
                                 var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                                await overlayManager.UninstallPackageAsync(pivotIdentity, removeDependencies: false, CancellationToken.None);
+                                await overlayManager.UninstallPackageAsync(pivotIdentity, projectFramework, removeDependencies: false, CancellationToken.None);
                             }
                             throw;
                         }
@@ -349,7 +349,7 @@ namespace Bonsai.Configuration
                 }
             }
 
-            public override Task OnPackageInstalledAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            public override Task OnPackageInstalledAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var packageConfiguration = Owner.packageConfiguration;
                 var taggedPackage = IsTaggedPackage(packageReader);
@@ -394,10 +394,10 @@ namespace Bonsai.Configuration
                     UpdateFile(Owner.bootstrapperExePath, packageReader, bootstrapperFile);
                 }
 
-                return base.OnPackageInstalledAsync(package, packageReader, installPath);
+                return base.OnPackageInstalledAsync(package, projectFramework, packageReader, installPath);
             }
 
-            public override async Task<bool> OnPackageUninstallingAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            public override async Task<bool> OnPackageUninstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var taggedPackage = IsTaggedPackage(packageReader);
                 var relativePath = Owner.GetRelativePath(installPath);
@@ -434,7 +434,7 @@ namespace Bonsai.Configuration
                     foreach (var pivot in pivots)
                     {
                         var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                        await overlayManager.UninstallPackageAsync(pivotIdentity, removeDependencies: false, CancellationToken.None);
+                        await overlayManager.UninstallPackageAsync(pivotIdentity, projectFramework, removeDependencies: false, CancellationToken.None);
                     }
                 }
 

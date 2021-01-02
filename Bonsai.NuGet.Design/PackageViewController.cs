@@ -1,6 +1,7 @@
 using Bonsai.Design;
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
+using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Protocol.Core.Types;
 using System;
@@ -50,6 +51,7 @@ namespace Bonsai.NuGet.Design
         readonly Action<bool> setMultiOperationVisible;
 
         public PackageViewController(
+            NuGetFramework projectFramework,
             string path,
             Control owner,
             PackageView view,
@@ -62,6 +64,7 @@ namespace Bonsai.NuGet.Design
             Action<bool> multiOperationVisible,
             IEnumerable<string> packageTypeFilter)
         {
+            ProjectFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             control = owner ?? throw new ArgumentNullException(nameof(owner));
             packageView = view ?? throw new ArgumentNullException(nameof(view));
             packageDetails = details ?? throw new ArgumentNullException(nameof(details));
@@ -87,13 +90,15 @@ namespace Bonsai.NuGet.Design
             packageSourceProvider = new PackageSourceProvider(settings);
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
-            packageDetails.ProjectFramework = PackageManager.ProjectFramework;
+            packageDetails.ProjectFramework = ProjectFramework;
             packageDetails.PathResolver = PackageManager.PathResolver;
         }
 
         public string SearchPrefix { get; set; }
 
         public SourceRepository SelectedRepository { get; set; }
+
+        public NuGetFramework ProjectFramework { get; private set; }
 
         public LicenseAwarePackageManager PackageManager { get; private set; }
 
@@ -424,7 +429,7 @@ namespace Bonsai.NuGet.Design
                     {
                         foreach (var package in packages)
                         {
-                            await PackageManager.UninstallPackageAsync(package.Identity, handleDependencies, token);
+                            await PackageManager.UninstallPackageAsync(package.Identity, ProjectFramework, handleDependencies, token);
                         }
                     });
                     dialog.Text = Resources.UninstallOperationLabel;
@@ -438,7 +443,7 @@ namespace Bonsai.NuGet.Design
                     {
                         foreach (var package in packages)
                         {
-                            await PackageManager.InstallPackageAsync(package.Identity, !handleDependencies, token);
+                            await PackageManager.InstallPackageAsync(package.Identity, ProjectFramework, !handleDependencies, token);
                         }
                     });
                 }

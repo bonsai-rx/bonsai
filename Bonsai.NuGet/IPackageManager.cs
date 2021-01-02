@@ -16,8 +16,6 @@ namespace Bonsai.NuGet
     {
         ILogger Logger { get; set; }
 
-        NuGetFramework ProjectFramework { get; set; }
-
         DependencyBehavior DependencyBehavior { get; set; }
 
         PackagePathResolver PathResolver { get; }
@@ -32,8 +30,8 @@ namespace Bonsai.NuGet
 
         Task<IEnumerable<LocalPackageInfo>> GetInstalledPackagesAsync(CancellationToken token);
 
-        Task<PackageReaderBase> InstallPackageAsync(PackageIdentity package, bool ignoreDependencies, CancellationToken token);
+        Task<PackageReaderBase> InstallPackageAsync(PackageIdentity package, NuGetFramework projectFramework, bool ignoreDependencies, CancellationToken token);
 
-        Task<bool> UninstallPackageAsync(PackageIdentity package, bool removeDependencies, CancellationToken token);
+        Task<bool> UninstallPackageAsync(PackageIdentity package, NuGetFramework projectFramework, bool removeDependencies, CancellationToken token);
     }
 }

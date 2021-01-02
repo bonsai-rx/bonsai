@@ -18,10 +18,11 @@ namespace Bonsai.NuGet.Design
         const string DefaultRepository = "Bonsai Packages";
         PackageViewController packageViewController;
 
-        public PackageManagerDialog(string path)
+        public PackageManagerDialog(NuGetFramework projectFramework, string path)
         {
             InitializeComponent();
             packageViewController = new PackageViewController(
+                projectFramework,
                 path,
                 this,
                 packageView,
@@ -155,8 +156,7 @@ namespace Bonsai.NuGet.Design
             {
                 if (packageViewController.SelectedRepository == PackageManager.LocalRepository)
                 {
-                    var framework = packageViewController.PackageManager.ProjectFramework;
-                    var nearestDependencyGroup = package.DependencySets.GetNearest(framework);
+                    var nearestDependencyGroup = package.DependencySets.GetNearest(packageViewController.ProjectFramework);
                     var dependencies = ((nearestDependencyGroup?.Packages) ?? Enumerable.Empty<PackageDependency>()).ToList();
                     if (dependencies.Count > 0)
                     {
@@ -190,10 +190,9 @@ namespace Bonsai.NuGet.Design
 
             public PackageManagerDialog Owner { get; set; }
 
-            public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
-                var framework = Owner.packageViewController.PackageManager.ProjectFramework;
-                if (PackageHelper.IsExecutablePackage(package, framework, packageReader))
+                if (PackageHelper.IsExecutablePackage(package, projectFramework, packageReader))
                 {
                     Owner.Invoke((Action)(() =>
                     {
@@ -205,14 +204,14 @@ namespace Bonsai.NuGet.Design
                             if (Owner.saveFolderDialog.ShowDialog(Owner) == DialogResult.OK)
                             {
                                 var targetPath = Owner.saveFolderDialog.FileName;
-                                Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, framework, packageReader, targetPath);
+                                Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, targetPath);
                                 Owner.DialogResult = DialogResult.OK;
                             }
                         }
                     }));
                 }
 
-                return base.OnPackageInstallingAsync(package, packageReader, installPath);
+                return base.OnPackageInstallingAsync(package, projectFramework, packageReader, installPath);
             }
         }
 

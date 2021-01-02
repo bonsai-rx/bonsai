@@ -2,24 +2,27 @@
 using Bonsai.Editor;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
+using Bonsai.Properties;
+using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using Bonsai.Properties;
-using NuGet.Packaging.Core;
-using NuGet.Packaging;
-using NuGet.Configuration;
-using System.Linq;
-using System.Reactive.Linq;
 
 namespace Bonsai
 {
     static class Launcher
     {
+        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net472");
+
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
@@ -28,7 +31,7 @@ namespace Bonsai
             bool updatePackages)
         {
             EditorBootstrapper.EnableVisualStyles();
-            using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
+            using (var packageManagerDialog = new PackageManagerDialog(ProjectFramework, editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
             {
                 packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Browse;
@@ -194,7 +197,7 @@ namespace Bonsai
             PackageIdentity editorPackageName)
         {
             EditorBootstrapper.EnableVisualStyles();
-            using (var galleryDialog = new GalleryDialog(editorRepositoryPath))
+            using (var galleryDialog = new GalleryDialog(ProjectFramework, editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageName))
             {
                 if (galleryDialog.ShowDialog() == DialogResult.OK)

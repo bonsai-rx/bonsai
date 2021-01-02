@@ -71,30 +71,30 @@ namespace Bonsai.NuGet
             return effectiveEntryPoint;
         }
 
-        public static async Task StartInstallPackage(this IPackageManager packageManager, PackageIdentity package)
+        public static async Task StartInstallPackage(this IPackageManager packageManager, PackageIdentity package, NuGetFramework projectFramework)
         {
             if (package == null)
             {
-                throw new ArgumentNullException("package");
+                throw new ArgumentNullException(nameof(package));
             }
 
             packageManager.Logger.LogInformation(string.Format(Resources.InstallPackageVersion, package.Id, package.Version));
-            await packageManager.InstallPackageAsync(package, ignoreDependencies: false, CancellationToken.None);
+            await packageManager.InstallPackageAsync(package, projectFramework, ignoreDependencies: false, CancellationToken.None);
         }
 
-        public static async Task<PackageReaderBase> StartInstallPackage(this IPackageManager packageManager, string packageId, NuGetVersion version)
+        public static async Task<PackageReaderBase> StartInstallPackage(this IPackageManager packageManager, string packageId, NuGetVersion version, NuGetFramework projectFramework)
         {
             var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
             packageManager.Logger.LogInformation(string.Format(logMessage, packageId, version));
             var package = new PackageIdentity(packageId, version);
-            return await packageManager.InstallPackageAsync(package, ignoreDependencies: false, CancellationToken.None);
+            return await packageManager.InstallPackageAsync(package, projectFramework, ignoreDependencies: false, CancellationToken.None);
         }
 
-        public static async Task<PackageReaderBase> StartRestorePackage(this IPackageManager packageManager, string packageId, NuGetVersion version)
+        public static async Task<PackageReaderBase> StartRestorePackage(this IPackageManager packageManager, string packageId, NuGetVersion version, NuGetFramework projectFramework)
         {
             packageManager.Logger.LogInformation(string.Format(Resources.RestorePackageVersion, packageId, version));
             var package = new PackageIdentity(packageId, version);
-            return await packageManager.InstallPackageAsync(package, ignoreDependencies: true, CancellationToken.None);
+            return await packageManager.InstallPackageAsync(package, projectFramework, ignoreDependencies: true, CancellationToken.None);
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using Bonsai.NuGet;
 using NuGet.Configuration;
-using NuGet.Versioning;
+using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,6 +42,7 @@ namespace Bonsai.Configuration
         }
 
         public async Task RunAsync(
+            NuGetFramework projectFramework,
             PackageConfiguration packageConfiguration,
             LicenseAwarePackageManager packageManager,
             string bootstrapperPath,
@@ -62,7 +64,7 @@ namespace Bonsai.Configuration
                     using var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, bootstrapperPath, bootstrapperPackage);
                     foreach (var package in missingPackages)
                     {
-                        await packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version));
+                        await packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version), projectFramework);
                     }
                 };
 
@@ -75,7 +77,7 @@ namespace Bonsai.Configuration
                 async Task RestoreEditorPackage()
                 {
                     using var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, bootstrapperPath, bootstrapperPackage);
-                    var package = await packageManager.StartInstallPackage(bootstrapperPackage.Id, bootstrapperPackage.Version);
+                    var package = await packageManager.StartInstallPackage(bootstrapperPackage.Id, bootstrapperPackage.Version, projectFramework);
                     editorPackage = packageManager.LocalRepository.GetLocalPackage(package.GetIdentity());
                 };
 

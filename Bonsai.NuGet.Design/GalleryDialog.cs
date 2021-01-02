@@ -1,4 +1,5 @@
 ﻿using Bonsai.NuGet.Design.Properties;
+using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
@@ -17,10 +18,11 @@ namespace Bonsai.NuGet.Design
         string targetPath;
         PackageIdentity targetPackage;
 
-        public GalleryDialog(string path)
+        public GalleryDialog(NuGetFramework projectFramework, string path)
         {
             InitializeComponent();
             packageViewController = new PackageViewController(
+                projectFramework,
                 path,
                 this,
                 packageView,
@@ -116,16 +118,15 @@ namespace Bonsai.NuGet.Design
 
             private GalleryDialog Owner { get; set; }
 
-            public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 if (PackageIdentityComparer.Default.Equals(package, Owner.targetPackage))
                 {
-                    var framework = Owner.packageViewController.PackageManager.ProjectFramework;
-                    Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, framework, packageReader, Owner.targetPath);
+                    Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, Owner.targetPath);
                     Owner.DialogResult = DialogResult.OK;
                 }
 
-                return base.OnPackageInstallingAsync(package, packageReader, installPath);
+                return base.OnPackageInstallingAsync(package, projectFramework, packageReader, installPath);
             }
         }
 

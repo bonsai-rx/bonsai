@@ -1,5 +1,4 @@
 ﻿using NuGet.Configuration;
-using NuGet.Frameworks;
 using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
@@ -8,8 +7,6 @@ namespace Bonsai.NuGet
 {
     public class LicenseAwarePackageManager : PackageManager
     {
-        static readonly NuGetFramework DefaultFramework = NuGetFramework.ParseFolder("net472");
-
         public LicenseAwarePackageManager(PackageSourceProvider packageSourceProvider, string path)
             : this(packageSourceProvider.Settings, packageSourceProvider, path)
         {
@@ -23,7 +20,6 @@ namespace Bonsai.NuGet
         public LicenseAwarePackageManager(ISettings settings, IPackageSourceProvider packageSourceProvider, PackageSource localRepository)
             : base(settings, packageSourceProvider, localRepository)
         {
-            ProjectFramework = DefaultFramework;
         }
 
         public event EventHandler<RequiringLicenseAcceptanceEventArgs> RequiringLicenseAcceptance;

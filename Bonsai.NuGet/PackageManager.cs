@@ -1,4 +1,4 @@
-using NuGet.Common;
+﻿using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -39,14 +39,11 @@ namespace Bonsai.NuGet
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             PackageManagerPlugins = new List<PackageManagerPlugin>();
             DependencyBehavior = DependencyBehavior.Highest;
-            ProjectFramework = NuGetFramework.AgnosticFramework;
             PackageSaveMode = PackageSaveMode.Defaultv3;
             Logger = NullLogger.Instance;
         }
 
         public ILogger Logger { get; set; }
-
-        public NuGetFramework ProjectFramework { get; set; }
 
         public DependencyBehavior DependencyBehavior { get; set; }
 
@@ -69,6 +66,7 @@ namespace Bonsai.NuGet
 
         private async Task<PackageReaderBase> ExtractPackage(
             SourcePackageDependencyInfo packageInfo,
+            NuGetFramework projectFramework,
             SourceCacheContext cacheContext,
             PackageExtractionContext packageExtractionContext,
             ILogger logger,
@@ -85,7 +83,7 @@ namespace Bonsai.NuGet
             var installPath = PathResolver.GetInstallPath(packageInfo);
             foreach (var plugin in PackageManagerPlugins)
             {
-                var accepted = await plugin.OnPackageInstallingAsync(packageInfo, downloadResult.PackageReader, installPath);
+                var accepted = await plugin.OnPackageInstallingAsync(packageInfo, projectFramework, downloadResult.PackageReader, installPath);
                 if (!accepted) return downloadResult.PackageReader;
             }
 
@@ -99,7 +97,7 @@ namespace Bonsai.NuGet
             installPath = PathResolver.GetInstalledPath(packageInfo);
             foreach (var plugin in PackageManagerPlugins)
             {
-                await plugin.OnPackageInstalledAsync(packageInfo, downloadResult.PackageReader, installPath);
+                await plugin.OnPackageInstalledAsync(packageInfo, projectFramework, downloadResult.PackageReader, installPath);
             }
             return downloadResult.PackageReader;
         }
@@ -116,14 +114,14 @@ namespace Bonsai.NuGet
             catch (UnauthorizedAccessException) { }
         }
 
-        private async Task DeletePackage(LocalPackageInfo package, string installPath, ILogger logger, CancellationToken token)
+        private async Task DeletePackage(LocalPackageInfo package, NuGetFramework projectFramework, string installPath, ILogger logger, CancellationToken token)
         {
             logger.LogInformation($"Deleting package '{package.Identity}'.");
             using (var packageReader = package.GetReader())
             {
                 foreach (var plugin in PackageManagerPlugins)
                 {
-                    var accepted = await plugin.OnPackageUninstallingAsync(package.Identity, packageReader, installPath);
+                    var accepted = await plugin.OnPackageUninstallingAsync(package.Identity, projectFramework, packageReader, installPath);
                     if (!accepted) continue;
                 }
 
@@ -139,7 +137,7 @@ namespace Bonsai.NuGet
             DeleteDirectoryTree(installTree);
             foreach (var plugin in PackageManagerPlugins)
             {
-                await plugin.OnPackageUninstalledAsync(package.Identity, null, installPath);
+                await plugin.OnPackageUninstalledAsync(package.Identity, projectFramework, null, installPath);
             }
         }
 
@@ -149,12 +147,11 @@ namespace Bonsai.NuGet
             return localPackagesResource.GetPackages(NullLogger.Instance, token);
         }
 
-        public async Task<PackageReaderBase> InstallPackageAsync(PackageIdentity package, bool ignoreDependencies, CancellationToken token)
+        public async Task<PackageReaderBase> InstallPackageAsync(PackageIdentity package, NuGetFramework projectFramework, bool ignoreDependencies, CancellationToken token)
         {
             using (var cacheContext = new SourceCacheContext())
             {
                 var logger = Logger;
-                var framework = ProjectFramework;
                 var installedPath = PathResolver.GetInstalledPath(package);
                 if (installedPath != null)
                 {
@@ -164,10 +161,10 @@ namespace Bonsai.NuGet
                 var repositories = SourceRepositoryProvider.GetRepositories();
                 var dependencyInfoResource = await LocalRepository.GetResourceAsync<DependencyInfoResource>(token);
                 var installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
-                var localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework);
+                var localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, projectFramework);
                 var sourcePackages = localPackages.ToDictionary(dependencyInfo => dependencyInfo, PackageIdentityComparer.Default);
                 var packageVersion = new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
-                await GetPackageDependencies(package.Id, packageVersion, framework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
+                await GetPackageDependencies(package.Id, packageVersion, projectFramework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
 
                 var resolverContext = new PackageResolverContext(
                     dependencyBehavior: ignoreDependencies ? DependencyBehavior.Ignore : DependencyBehavior,
@@ -217,8 +214,8 @@ namespace Bonsai.NuGet
                 // Get dependencies from removed packages while they are still installed
                 if (packagesToRemove.Count > 0)
                 {
-                    localPackages = await GetDependencyInfoAsync(dependencyInfoResource, packagesToRemove, framework);
-                    await DeletePackages(packagesToRemove, logger, token);
+                    localPackages = await GetDependencyInfoAsync(dependencyInfoResource, packagesToRemove, projectFramework);
+                    await DeletePackages(packagesToRemove, projectFramework, logger, token);
                 }
 
                 var targetPackage = default(PackageReaderBase);
@@ -234,7 +231,7 @@ namespace Bonsai.NuGet
                     if (installedPath == null)
                     {
                         var packageInfo = sourcePackages[identity];
-                        packageReader = await ExtractPackage(packageInfo, cacheContext, packageExtractionContext, logger, token);
+                        packageReader = await ExtractPackage(packageInfo, projectFramework, cacheContext, packageExtractionContext, logger, token);
                     }
                     else
                     {
@@ -251,11 +248,11 @@ namespace Bonsai.NuGet
                 {
                     IDictionary<PackageIdentity, HashSet<PackageIdentity>> dependentPackages, packageDependencies;
                     installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
-                    localPackages = localPackages.Union(await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework));
+                    localPackages = localPackages.Union(await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, projectFramework));
                     GetPackageDependents(installedPackages, localPackages, out dependentPackages, out packageDependencies);
                     var uninstallOperations = GetPackagesToUninstall(packagesToRemove, packageDependencies, removeDependencies: true);
                     uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true);
-                    await DeletePackages(uninstallOperations, logger, token);
+                    await DeletePackages(uninstallOperations, projectFramework, logger, token);
                 }
 
                 return targetPackage;
@@ -265,7 +262,7 @@ namespace Bonsai.NuGet
         static async Task GetPackageDependencies(
             string packageId,
             VersionRange versionRange,
-            NuGetFramework framework,
+            NuGetFramework projectFramework,
             SourceCacheContext cacheContext,
             IEnumerable<SourceRepository> repositories,
             IDictionary<PackageIdentity, SourcePackageDependencyInfo> availablePackages,
@@ -277,7 +274,7 @@ namespace Bonsai.NuGet
             foreach (var sourceRepository in repositories)
             {
                 var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>(token);
-                var dependencyPackages = await dependencyInfoResource.ResolvePackages(packageId, framework, cacheContext, NullLogger.Instance, token);
+                var dependencyPackages = await dependencyInfoResource.ResolvePackages(packageId, projectFramework, cacheContext, NullLogger.Instance, token);
                 foreach (var package in dependencyPackages)
                 {
                     if (!versionRange.Satisfies(package.Version)) continue;
@@ -298,7 +295,7 @@ namespace Bonsai.NuGet
                         {
                             await GetPackageDependencies(
                                 dependency.Id, dependency.VersionRange,
-                                framework, cacheContext, repositories, availablePackages, logger, ignoreDependencies, token);
+                                projectFramework, cacheContext, repositories, availablePackages, logger, ignoreDependencies, token);
                         }
                     }
                     break;
@@ -313,13 +310,13 @@ namespace Bonsai.NuGet
             }
         }
 
-        public async Task<bool> UninstallPackageAsync(PackageIdentity package, bool removeDependencies, CancellationToken token)
+        public async Task<bool> UninstallPackageAsync(PackageIdentity package, NuGetFramework projectFramework, bool removeDependencies, CancellationToken token)
         {
             var logger = Logger;
             IDictionary<PackageIdentity, HashSet<PackageIdentity>> dependentPackages, packageDependencies;
             var dependencyInfoResource = await LocalRepository.GetResourceAsync<DependencyInfoResource>(token);
             var installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
-            var dependencyInfo = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, ProjectFramework);
+            var dependencyInfo = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, projectFramework);
             GetPackageDependents(installedPackages, dependencyInfo, out dependentPackages, out packageDependencies);
             var targetPackages = installedPackages.Where(p => PackageIdentity.Comparer.Equals(p, package));
             if (!targetPackages.Any())
@@ -330,14 +327,14 @@ namespace Bonsai.NuGet
 
             var packageOperations = GetPackagesToUninstall(targetPackages, packageDependencies, removeDependencies);
             packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false);
-            await DeletePackages(packageOperations, logger, token);
+            await DeletePackages(packageOperations, projectFramework, logger, token);
             return true;
         }
 
         static async Task<IEnumerable<SourcePackageDependencyInfo>> GetDependencyInfoAsync(
             DependencyInfoResource dependencyInfoResource,
             IEnumerable<PackageIdentity> packages,
-            NuGetFramework framework)
+            NuGetFramework projectFramework)
         {
             try
             {
@@ -346,7 +343,7 @@ namespace Bonsai.NuGet
                 {
                     var dependencyInfo = await dependencyInfoResource.ResolvePackage(
                         package,
-                        framework,
+                        projectFramework,
                         NullSourceCacheContext.Instance,
                         NullLogger.Instance,
                         CancellationToken.None);
@@ -476,7 +473,7 @@ namespace Bonsai.NuGet
             }
         }
 
-        async Task DeletePackages(IEnumerable<PackageIdentity> packages, ILogger logger, CancellationToken token)
+        async Task DeletePackages(IEnumerable<PackageIdentity> packages, NuGetFramework projectFramework, ILogger logger, CancellationToken token)
         {
             foreach (var package in packages)
             {
@@ -484,7 +481,7 @@ namespace Bonsai.NuGet
                 var localPackage = LocalRepository.GetLocalPackage(package);
                 if (localPackage != null)
                 {
-                    await DeletePackage(localPackage, installPath, logger, token);
+                    await DeletePackage(localPackage, projectFramework, installPath, logger, token);
                 }
             }
         }
