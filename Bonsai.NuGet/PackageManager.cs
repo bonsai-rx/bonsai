@@ -1,4 +1,4 @@
-﻿using NuGet.Common;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -254,7 +254,7 @@ namespace Bonsai.NuGet
                     localPackages = localPackages.Union(await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework));
                     GetPackageDependents(installedPackages, localPackages, out dependentPackages, out packageDependencies);
                     var uninstallOperations = GetPackagesToUninstall(packagesToRemove, packageDependencies, removeDependencies: true);
-                    uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true, logger);
+                    uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true);
                     await DeletePackages(uninstallOperations, logger, token);
                 }
 
@@ -329,7 +329,7 @@ namespace Bonsai.NuGet
             }
 
             var packageOperations = GetPackagesToUninstall(targetPackages, packageDependencies, removeDependencies);
-            packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false, logger);
+            packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false);
             await DeletePackages(packageOperations, logger, token);
             return true;
         }
@@ -437,8 +437,7 @@ namespace Bonsai.NuGet
             IEnumerable<PackageIdentity> packagesToRemove,
             IEnumerable<PackageIdentity> targetPackages,
             IDictionary<PackageIdentity, HashSet<PackageIdentity>> dependentPackages,
-            bool forceRemoveTargets,
-            ILogger logger)
+            bool forceRemoveTargets)
         {
             var unusedDependencies = new List<PackageIdentity>(packagesToRemove);
             unusedDependencies.RemoveAll(package =>
