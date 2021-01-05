@@ -2,7 +2,7 @@
 <Project>
   <PropertyGroup>
     <Authors>Gonçalo Lopes</Authors>
-    <Copyright>Copyright © Gonçalo Lopes 2011-2020</Copyright>
+    <Copyright>Copyright © Gonçalo Lopes 2011-2021</Copyright>
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
     <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
