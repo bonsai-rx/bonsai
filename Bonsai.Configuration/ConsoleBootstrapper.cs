@@ -6,17 +6,14 @@ namespace Bonsai.Configuration
 {
     public class ConsoleBootstrapper : Bootstrapper
     {
-        public static readonly Bootstrapper Default = new ConsoleBootstrapper();
-
-        public override LicenseAwarePackageManager CreatePackageManager(string path)
+        public ConsoleBootstrapper(string path)
+            : base(path)
         {
-            var packageManager = base.CreatePackageManager(path);
-            packageManager.Logger = ConsoleLogger.Default;
-            packageManager.RequiringLicenseAcceptance += (sender, e) => e.LicenseAccepted = true;
-            return packageManager;
+            PackageManager.Logger = ConsoleLogger.Default;
+            PackageManager.RequiringLicenseAcceptance += (sender, e) => e.LicenseAccepted = true;
         }
 
-        protected override async Task RunPackageOperationAsync(LicenseAwarePackageManager packageManager, Func<Task> operationFactory)
+        protected override async Task RunPackageOperationAsync(Func<Task> operationFactory)
         {
             await operationFactory().ContinueWith(task =>
             {
@@ -24,10 +21,10 @@ namespace Bonsai.Configuration
                 {
                     foreach (var error in ex.InnerExceptions)
                     {
-                        packageManager.Logger.LogError(error.Message);
+                        PackageManager.Logger.LogError(error.Message);
                     }
                 }
-                else packageManager.Logger.LogError(task.Exception.Message);
+                else PackageManager.Logger.LogError(task.Exception.Message);
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }

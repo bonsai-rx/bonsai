@@ -9,8 +9,6 @@ namespace Bonsai
 {
     class EditorBootstrapper : Bootstrapper
     {
-        public static readonly Bootstrapper Default = new EditorBootstrapper();
-
         static bool visualStylesEnabled;
 
         public static void EnableVisualStyles()
@@ -23,14 +21,13 @@ namespace Bonsai
             }
         }
 
-        public override LicenseAwarePackageManager CreatePackageManager(string path)
+        public EditorBootstrapper(string path)
+            : base(path)
         {
-            var packageManager = base.CreatePackageManager(path);
-            packageManager.Logger = new EventLogger();
-            return packageManager;
+            PackageManager.Logger = new EventLogger();
         }
 
-        protected override Task RunPackageOperationAsync(LicenseAwarePackageManager packageManager, Func<Task> operationFactory)
+        protected override Task RunPackageOperationAsync(Func<Task> operationFactory)
         {
             EnableVisualStyles();
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
@@ -45,8 +42,8 @@ namespace Bonsai
                 }
             };
 
-            dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
-            packageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
+            dialog.RegisterEventLogger((EventLogger)PackageManager.Logger);
+            PackageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
             try
             {
                 var operation = operationFactory();
@@ -56,7 +53,7 @@ namespace Bonsai
                     {
                         if (task.Exception is AggregateException ex)
                         {
-                            packageManager.Logger.LogError(ex.InnerException.Message);
+                            PackageManager.Logger.LogError(ex.InnerException.Message);
                         }
                     }
                     else dialog.BeginInvoke((Action)dialog.Close);
@@ -64,7 +61,7 @@ namespace Bonsai
                 dialog.ShowDialog();
                 return operation;
             }
-            finally { packageManager.RequiringLicenseAcceptance -= requiringLicenseHandler; }
+            finally { PackageManager.RequiringLicenseAcceptance -= requiringLicenseHandler; }
         }
     }
 }

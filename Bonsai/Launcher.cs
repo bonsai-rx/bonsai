@@ -56,7 +56,8 @@ namespace Bonsai
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
             var visualizerProvider = TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration);
-            var packageManager = EditorBootstrapper.Default.CreatePackageManager(editorRepositoryPath);
+            var editorBootstrapper = new EditorBootstrapper(editorRepositoryPath);
+            var packageManager = editorBootstrapper.PackageManager;
             using var cancellation = new CancellationTokenSource();
             var updatesAvailable = Task.Run(async () =>
             {

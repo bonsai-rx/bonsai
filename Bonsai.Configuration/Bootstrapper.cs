@@ -14,15 +14,22 @@ namespace Bonsai.Configuration
 {
     public class Bootstrapper
     {
-        public virtual LicenseAwarePackageManager CreatePackageManager(string path)
+        readonly RestorePackageManager packageManager;
+
+        public Bootstrapper(string path)
         {
             var machineWideSettings = new BonsaiMachineWideSettings();
             var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory, null, machineWideSettings);
             var sourceProvider = new PackageSourceProvider(settings);
-            return new LicenseAwarePackageManager(sourceProvider, path);
+            packageManager = new RestorePackageManager(sourceProvider, path);
         }
 
-        protected virtual async Task RunPackageOperationAsync(LicenseAwarePackageManager packageManager, Func<Task> operationFactory)
+        public LicenseAwarePackageManager PackageManager
+        {
+            get { return packageManager; }
+        }
+
+        protected virtual async Task RunPackageOperationAsync(Func<Task> operationFactory)
         {
             await operationFactory();
         }
@@ -44,7 +51,6 @@ namespace Bonsai.Configuration
         public async Task RunAsync(
             NuGetFramework projectFramework,
             PackageConfiguration packageConfiguration,
-            LicenseAwarePackageManager packageManager,
             string bootstrapperPath,
             PackageIdentity bootstrapperPackage)
         {
@@ -68,7 +74,9 @@ namespace Bonsai.Configuration
                     }
                 };
 
-                await RunPackageOperationAsync(packageManager, RestoreMissingPackages);
+                packageManager.RestorePackages = true;
+                try { await RunPackageOperationAsync(RestoreMissingPackages); }
+                finally { packageManager.RestorePackages = false; }
             }
 
             var editorPackage = packageManager.LocalRepository.FindLocalPackage(bootstrapperPackage.Id);
@@ -81,7 +89,23 @@ namespace Bonsai.Configuration
                     editorPackage = packageManager.LocalRepository.GetLocalPackage(package.GetIdentity());
                 };
 
-                await RunPackageOperationAsync(packageManager, RestoreEditorPackage);
+                await RunPackageOperationAsync(RestoreEditorPackage);
+            }
+        }
+
+        class RestorePackageManager : LicenseAwarePackageManager
+        {
+            public RestorePackageManager(PackageSourceProvider packageSourceProvider, string path)
+                : base(packageSourceProvider.Settings, packageSourceProvider, path)
+            {
+            }
+
+            public bool RestorePackages { get; set; }
+
+            protected override bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
+            {
+                if (RestorePackages) return true;
+                else return base.AcceptLicenseAgreement(licensePackages);
             }
         }
     }

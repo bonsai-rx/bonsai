@@ -151,9 +151,8 @@ namespace Bonsai
             }
             else
             {
-                var bootstrapper = launchEditor ? EditorBootstrapper.Default : ConsoleBootstrapper.Default;
-                var packageManager = bootstrapper.CreatePackageManager(editorRepositoryPath);
-                try { bootstrapper.RunAsync(Launcher.ProjectFramework, packageConfiguration, packageManager, editorPath, editorPackageName).Wait(); }
+                var bootstrapper = launchEditor ? (Bootstrapper)new EditorBootstrapper(editorRepositoryPath) : new ConsoleBootstrapper(editorRepositoryPath);
+                try { bootstrapper.RunAsync(Launcher.ProjectFramework, packageConfiguration, editorPath, editorPackageName).Wait(); }
                 catch (AggregateException) { return ErrorExitCode; }
 
                 var startScreen = launchEditor;
