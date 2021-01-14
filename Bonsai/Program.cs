@@ -14,8 +14,8 @@ namespace Bonsai
         const string PathEnvironmentVariable = "PATH";
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
-        const string LayoutCommand = "--layout";
         const string PropertyCommand = "--property";
+        const string LayoutCommand = "--visualizer-layout";
         const string DebugScriptCommand = "--debug-scripts";
         const string EditorScaleCommand = "--editor-scale";
         const string StartWithoutDebugging = "--start-no-debug";
