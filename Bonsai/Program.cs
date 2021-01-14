@@ -14,6 +14,7 @@ namespace Bonsai
         const string PathEnvironmentVariable = "PATH";
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
+        const string LayoutCommand = "--layout";
         const string PropertyCommand = "--property";
         const string DebugScriptCommand = "--debug-scripts";
         const string EditorScaleCommand = "--editor-scale";
@@ -47,12 +48,14 @@ namespace Bonsai
             var updatePackages = false;
             var launchResult = default(EditorResult);
             var initialFileName = default(string);
+            var layoutPath = default(string);
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
             var parser = new CommandLineParser();
             parser.RegisterCommand(StartCommand, () => start = debugging = true);
             parser.RegisterCommand(StartWithoutDebugging, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
+            parser.RegisterCommand(LayoutCommand, path => layoutPath = path);
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
@@ -137,7 +140,7 @@ namespace Bonsai
                     libFolders.ForEach(path => ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     using var scriptExtensions = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, editorRepositoryPath, debugScripts);
                     ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, packageConfiguration, propertyAssignments);
+                    if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, layoutPath, packageConfiguration, propertyAssignments);
                     else return Launcher.LaunchWorkflowEditor(
                         packageConfiguration,
                         scriptExtensions,

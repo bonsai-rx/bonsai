@@ -89,6 +89,15 @@ namespace Bonsai.Editor
 
         public static void Run(string fileName, Dictionary<string, string> propertyAssignments, IObservable<TypeVisualizerDescriptor> visualizerProvider = null)
         {
+            Run(fileName, propertyAssignments, visualizerProvider);
+        }
+
+        public static void Run(
+            string fileName,
+            Dictionary<string, string> propertyAssignments,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider = null,
+            string layoutPath = null)
+        {
             if (string.IsNullOrEmpty(fileName))
             {
                 throw new ArgumentNullException(nameof(fileName));
@@ -113,7 +122,7 @@ namespace Bonsai.Editor
                 workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
             }
 
-            var layoutPath = LayoutHelper.GetLayoutPath(fileName);
+            layoutPath ??= LayoutHelper.GetLayoutPath(fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {
                 VisualizerLayout layout = null;

@@ -115,7 +115,11 @@ namespace Bonsai
             }
         }
 
-        internal static int LaunchWorkflowPlayer(string fileName, PackageConfiguration packageConfiguration, Dictionary<string, string> propertyAssignments)
+        internal static int LaunchWorkflowPlayer(
+            string fileName,
+            string layoutPath,
+            PackageConfiguration packageConfiguration,
+            Dictionary<string, string> propertyAssignments)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -128,7 +132,7 @@ namespace Bonsai
                 EditorBootstrapper.EnableVisualStyles();
                 return TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration);
             });
-            WorkflowRunner.Run(fileName, propertyAssignments, visualizerProvider);
+            WorkflowRunner.Run(fileName, propertyAssignments, visualizerProvider, layoutPath);
             return Program.NormalExitCode;
         }
 
