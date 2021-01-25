@@ -13,7 +13,7 @@ namespace Bonsai.Osc.Net
 
         internal override ITransport CreateTransport()
         {
-            var listener = new TcpListener(IPAddress.Loopback, Port);
+            var listener = new TcpListener(IPAddress.Any, Port);
             listener.AllowNatTraversal(AllowNatTraversal);
             return new TcpServerTransport(listener, NoDelay);
         }
