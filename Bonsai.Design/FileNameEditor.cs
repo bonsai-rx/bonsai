@@ -31,7 +31,7 @@ namespace Bonsai.Design
                         var directoryName = Path.GetDirectoryName(fileName);
                         if (directoryName != null && Directory.Exists(directoryName))
                         {
-                            dialog.InitialDirectory = directoryName;
+                            dialog.InitialDirectory = Path.GetFullPath(directoryName);
                         }
                     }
 
