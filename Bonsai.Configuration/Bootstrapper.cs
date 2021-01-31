@@ -67,7 +67,12 @@ namespace Bonsai.Configuration
             {
                 async Task RestoreMissingPackages()
                 {
-                    using var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, bootstrapperPath, bootstrapperPackage);
+                    using var monitor = new PackageConfigurationUpdater(
+                        projectFramework,
+                        packageConfiguration,
+                        packageManager,
+                        bootstrapperPath,
+                        bootstrapperPackage);
                     foreach (var package in missingPackages)
                     {
                         await packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version), projectFramework);
@@ -84,7 +89,12 @@ namespace Bonsai.Configuration
             {
                 async Task RestoreEditorPackage()
                 {
-                    using var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, bootstrapperPath, bootstrapperPackage);
+                    using var monitor = new PackageConfigurationUpdater(
+                        projectFramework,
+                        packageConfiguration,
+                        packageManager,
+                        bootstrapperPath,
+                        bootstrapperPackage);
                     var package = await packageManager.StartInstallPackage(bootstrapperPackage.Id, bootstrapperPackage.Version, projectFramework);
                     editorPackage = packageManager.LocalRepository.GetLocalPackage(package.GetIdentity());
                 };

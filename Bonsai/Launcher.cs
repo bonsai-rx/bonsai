@@ -32,7 +32,12 @@ namespace Bonsai
         {
             EditorBootstrapper.EnableVisualStyles();
             using (var packageManagerDialog = new PackageManagerDialog(ProjectFramework, editorRepositoryPath))
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
+            using (var monitor = new PackageConfigurationUpdater(
+                ProjectFramework,
+                packageConfiguration,
+                packageManagerDialog.PackageManager,
+                editorPath,
+                editorPackageName))
             {
                 packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Browse;
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
@@ -203,7 +208,12 @@ namespace Bonsai
         {
             EditorBootstrapper.EnableVisualStyles();
             using (var galleryDialog = new GalleryDialog(ProjectFramework, editorRepositoryPath))
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageName))
+            using (var monitor = new PackageConfigurationUpdater(
+                ProjectFramework,
+                packageConfiguration,
+                galleryDialog.PackageManager,
+                editorPath,
+                editorPackageName))
             {
                 if (galleryDialog.ShowDialog() == DialogResult.OK)
                 {

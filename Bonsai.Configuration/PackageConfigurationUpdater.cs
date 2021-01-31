@@ -33,6 +33,7 @@ namespace Bonsai.Configuration
         readonly string bootstrapperDirectory;
         readonly string bootstrapperPackageId;
         readonly NuGetVersion bootstrapperVersion;
+        readonly NuGetFramework bootstrapperFramework;
         readonly IPackageManager packageManager;
         readonly SourceRepository galleryRepository;
         readonly PackageConfiguration packageConfiguration;
@@ -40,12 +41,12 @@ namespace Bonsai.Configuration
         static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly NuGetFramework NativeFramework = NuGetFramework.ParseFrameworkName("native,Version=v0.0", DefaultFrameworkNameProvider.Instance);
-        static readonly NuGetFramework DefaultFramework = NuGetFramework.ParseFolder("net472");
 
-        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
+        public PackageConfigurationUpdater(NuGetFramework projectFramework, PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
         {
             packageManager = manager ?? throw new ArgumentNullException(nameof(manager));
             packageConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            bootstrapperFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
             bootstrapperDirectory = Path.GetDirectoryName(bootstrapperExePath);
             bootstrapperPackageId = bootstrapperName != null ? bootstrapperName.Id : string.Empty;
@@ -56,6 +57,7 @@ namespace Bonsai.Configuration
             var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
             var galleryPackageSource = new PackageSource(galleryPath);
             galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
+            bootstrapperFramework = projectFramework;
         }
 
         string GetRelativePath(string path)
@@ -113,9 +115,9 @@ namespace Bonsai.Configuration
             return platformName;
         }
 
-        static IEnumerable<string> GetAssemblyLocations(PackageReaderBase package)
+        static IEnumerable<string> GetAssemblyLocations(NuGetFramework projectFramework, PackageReaderBase package)
         {
-            var nearestFramework = package.GetItems(BuildDirectory).GetNearest(DefaultFramework);
+            var nearestFramework = package.GetItems(BuildDirectory).GetNearest(projectFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
 
             return from file in nearestFramework.Items
@@ -137,16 +139,16 @@ namespace Bonsai.Configuration
                    select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
         }
 
-        static IEnumerable<string> GetCompatibleAssemblyReferences(PackageReaderBase package)
+        static IEnumerable<string> GetCompatibleAssemblyReferences(NuGetFramework projectFramework, PackageReaderBase package)
         {
-            var nearestFramework = package.GetReferenceItems().GetNearest(DefaultFramework);
+            var nearestFramework = package.GetReferenceItems().GetNearest(projectFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
             return nearestFramework.Items.Select(PathUtility.GetPathWithDirectorySeparator);
         }
 
         void RegisterAssemblyLocations(PackageReaderBase package, string installPath, string relativePath, bool addReferences)
         {
-            var assemblyLocations = GetAssemblyLocations(package);
+            var assemblyLocations = GetAssemblyLocations(bootstrapperFramework, package);
             RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, addReferences);
         }
 
@@ -176,7 +178,7 @@ namespace Bonsai.Configuration
 
         void RemoveAssemblyLocations(PackageReaderBase package, string installPath, bool removeReference)
         {
-            var assemblyLocations = GetAssemblyLocations(package);
+            var assemblyLocations = GetAssemblyLocations(bootstrapperFramework, package);
             RemoveAssemblyLocations(assemblyLocations, installPath, removeReference);
         }
 
@@ -299,7 +301,7 @@ namespace Bonsai.Configuration
             public override async Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var entryPoint = package.Id + BonsaiExtension;
-                var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(DefaultFramework);
+                var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(Owner.bootstrapperFramework);
                 var executablePackage = nearestFrameworkGroup?.Items.Any(file => PathUtility.GetRelativePath(ContentFolder, file) == entryPoint);
                 if (executablePackage.GetValueOrDefault())
                 {
@@ -376,7 +378,7 @@ namespace Bonsai.Configuration
                     }
                 }
 
-                var assemblyLocations = GetCompatibleAssemblyReferences(packageReader);
+                var assemblyLocations = GetCompatibleAssemblyReferences(Owner.bootstrapperFramework, packageReader);
                 Owner.RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, taggedPackage);
                 packageConfiguration.Save();
 
@@ -422,7 +424,7 @@ namespace Bonsai.Configuration
                     }
                 }
 
-                var assemblyLocations = GetCompatibleAssemblyReferences(packageReader);
+                var assemblyLocations = GetCompatibleAssemblyReferences(Owner.bootstrapperFramework, packageReader);
                 Owner.RemoveAssemblyLocations(assemblyLocations, installPath, taggedPackage);
                 Owner.packageConfiguration.Save();
 
