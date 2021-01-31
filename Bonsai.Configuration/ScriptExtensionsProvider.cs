@@ -17,13 +17,13 @@ namespace Bonsai.Configuration
 {
     public static class ScriptExtensionsProvider
     {
-        static readonly NuGetFramework DefaultFramework = NuGetFramework.ParseFolder("net472");
         const string OutputAssemblyName = "Extensions";
         const string ProjectExtension = ".csproj";
         const string ScriptExtension = "*.cs";
         const string DllExtension = ".dll";
 
         static IEnumerable<string> FindAssemblyReferences(
+            NuGetFramework projectFramework,
             DependencyInfoResource dependencyResource,
             FindLocalPackagesResource localPackageResource,
             SourceCacheContext cacheContext,
@@ -33,7 +33,7 @@ namespace Bonsai.Configuration
             if (packageInfo == null) yield break;
             using (var reader = packageInfo.GetReader())
             {
-                var nearestFramework = reader.GetReferenceItems().GetNearest(DefaultFramework);
+                var nearestFramework = reader.GetReferenceItems().GetNearest(projectFramework);
                 if (nearestFramework != null)
                 {
                     foreach (var assembly in nearestFramework.Items)
@@ -43,17 +43,21 @@ namespace Bonsai.Configuration
                 }
             }
 
-            var dependencyInfo = dependencyResource.ResolvePackage(packageInfo.Identity, DefaultFramework, cacheContext, NullLogger.Instance, CancellationToken.None).Result;
+            var dependencyInfo = dependencyResource.ResolvePackage(packageInfo.Identity, projectFramework, cacheContext, NullLogger.Instance, CancellationToken.None).Result;
             foreach (var dependency in dependencyInfo.Dependencies)
             {
-                foreach (var reference in FindAssemblyReferences(dependencyResource, localPackageResource, cacheContext, dependency.Id))
+                foreach (var reference in FindAssemblyReferences(projectFramework, dependencyResource, localPackageResource, cacheContext, dependency.Id))
                 {
                     yield return reference;
                 }
             }
         }
 
-        public static ScriptExtensions CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
+        public static ScriptExtensions CompileAssembly(
+            NuGetFramework projectFramework,
+            PackageConfiguration configuration,
+            string editorRepositoryPath,
+            bool includeDebugInformation)
         {
             var path = Environment.CurrentDirectory;
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
@@ -76,7 +80,12 @@ namespace Bonsai.Configuration
             using (var cacheContext = new SourceCacheContext())
             {
                 var projectReferences = from id in scriptEnvironment.GetPackageReferences()
-                                        from assemblyReference in FindAssemblyReferences(dependencyResource, localPackageResource, cacheContext, id)
+                                        from assemblyReference in FindAssemblyReferences(
+                                            projectFramework,
+                                            dependencyResource,
+                                            localPackageResource,
+                                            cacheContext,
+                                            packageId: id)
                                         select assemblyReference;
                 assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
                 assemblyNames.AddRange(projectReferences);
