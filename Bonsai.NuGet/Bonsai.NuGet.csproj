@@ -3,15 +3,12 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFramework>net472</TargetFramework>
-    <Version>2.6.1</Version>
+    <Version>2.6.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Rx-Main" Version="2.2.5" />
     <PackageReference Include="NuGet.Protocol" Version="5.8.0" />
     <PackageReference Include="NuGet.Resolver" Version="5.8.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
