@@ -12,12 +12,16 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Xml;
 
 namespace Bonsai.Configuration
 {
     public static class ScriptExtensionsProvider
     {
         const string OutputAssemblyName = "Extensions";
+        const string ReferenceElement = "Reference";
+        const string IncludeAttribute = "Include";
+        const string PropertyExtension = ".props";
         const string ProjectExtension = ".csproj";
         const string ScriptExtension = "*.cs";
         const string DllExtension = ".dll";
@@ -33,12 +37,30 @@ namespace Bonsai.Configuration
             if (packageInfo == null) yield break;
             using (var reader = packageInfo.GetReader())
             {
-                var nearestFramework = reader.GetReferenceItems().GetNearest(projectFramework);
-                if (nearestFramework != null)
+                var assemblyReferences = reader.GetReferenceItems().GetNearest(projectFramework);
+                if (assemblyReferences != null)
                 {
-                    foreach (var assembly in nearestFramework.Items)
+                    foreach (var assembly in assemblyReferences.Items)
                     {
                         yield return Path.GetFileName(assembly);
+                    }
+                }
+
+                var buildReferences = reader.GetBuildItems().GetNearest(projectFramework);
+                if (buildReferences != null)
+                {
+                    var buildProperties = buildReferences.Items.FirstOrDefault(item => Path.GetExtension(item) == PropertyExtension);
+                    if (buildProperties != null)
+                    {
+                        using (var propertyStream = reader.GetStream(buildProperties))
+                        using (var propertyReader = XmlReader.Create(propertyStream))
+                        {
+                            while (propertyReader.ReadToFollowing(ReferenceElement))
+                            {
+                                var assemblyName = propertyReader.GetAttribute(IncludeAttribute);
+                                yield return Path.ChangeExtension(assemblyName, DllExtension);
+                            }
+                        }
                     }
                 }
             }
