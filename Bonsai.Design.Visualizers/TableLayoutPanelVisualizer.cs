@@ -78,8 +78,11 @@ namespace Bonsai.Design.Visualizers
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             var tableLayoutBuilder = (TableLayoutPanelBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             UpdateLayoutPanel(tableLayoutBuilder);
-            var container = new TableLayoutPanelContainer(Panel, tableLayoutBuilder.CellSpans, provider);
-            base.LoadMashups(container);
+            var container = new TableLayoutPanelContainer(this, tableLayoutBuilder.CellSpans, provider);
+            foreach (var mashup in Mashups)
+            {
+                mashup.Visualizer.Load(container);
+            }
         }
 
         public override void UnloadMashups()
@@ -96,7 +99,7 @@ namespace Bonsai.Design.Visualizers
 
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            return Observable.Merge(Mashups.Select(mashup => mashup.Visualizer.Visualize(mashup.Source, provider)));
+            return Observable.Merge(Mashups.Select(mashup => mashup.Visualizer.Visualize(((ITypeVisualizerContext)mashup).Source.Output, provider)));
         }
 
         public override void Unload()
@@ -109,14 +112,14 @@ namespace Bonsai.Design.Visualizers
 
         class TableLayoutPanelContainer : IDialogTypeVisualizerService, IServiceProvider
         {
-            public TableLayoutPanelContainer(TableLayoutPanel panel, IReadOnlyList<TableLayoutPanelCellSpan> cellSpans, IServiceProvider provider)
+            public TableLayoutPanelContainer(TableLayoutPanelVisualizer visualizer, IReadOnlyList<TableLayoutPanelCellSpan> cellSpans, IServiceProvider provider)
             {
-                Panel = panel ?? throw new ArgumentNullException(nameof(panel));
+                Visualizer = visualizer ?? throw new ArgumentNullException(nameof(visualizer));
                 CellSpans = cellSpans ?? throw new ArgumentNullException(nameof(cellSpans));
                 Provider = provider ?? throw new ArgumentNullException(nameof(provider));
             }
 
-            private TableLayoutPanel Panel { get; }
+            private TableLayoutPanelVisualizer Visualizer { get; }
 
             private IReadOnlyList<TableLayoutPanelCellSpan> CellSpans { get; }
 
@@ -125,23 +128,24 @@ namespace Bonsai.Design.Visualizers
             public void AddControl(Control control)
             {
                 int column, row;
-                var index = Panel.Controls.Count;
-                if (Panel.ColumnCount == 0)
+                var panel = Visualizer.Panel;
+                var index = panel.Controls.Count;
+                if (panel.ColumnCount == 0)
                 {
-                    column = index / Panel.RowCount;
-                    row = index % Panel.RowCount;
+                    column = index / panel.RowCount;
+                    row = index % panel.RowCount;
                 }
                 else
                 {
-                    column = index % Panel.ColumnCount;
-                    row = index / Panel.ColumnCount;
+                    column = index % panel.ColumnCount;
+                    row = index / panel.ColumnCount;
                 }
-                Panel.Controls.Add(control, column, row);
+                panel.Controls.Add(control, column, row);
                 if (index < CellSpans.Count)
                 {
                     var cellSpan = CellSpans[index];
-                    Panel.SetColumnSpan(control, cellSpan.ColumnSpan);
-                    Panel.SetRowSpan(control, cellSpan.RowSpan);
+                    panel.SetColumnSpan(control, cellSpan.ColumnSpan);
+                    panel.SetRowSpan(control, cellSpan.RowSpan);
                 }
             }
 
@@ -150,6 +154,17 @@ namespace Bonsai.Design.Visualizers
                 if (serviceType == typeof(IDialogTypeVisualizerService))
                 {
                     return this;
+                }
+
+                if (serviceType == typeof(DialogMashupVisualizer))
+                {
+                    return Visualizer;
+                }
+
+                if (serviceType == typeof(ITypeVisualizerContext))
+                {
+                    var index = Visualizer.Panel.Controls.Count;
+                    return Visualizer.Mashups[index];
                 }
 
                 return Provider.GetService(serviceType);
