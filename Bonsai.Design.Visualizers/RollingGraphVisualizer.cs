@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using System;
 using System.Windows.Forms;
 using ZedGraph;
@@ -7,6 +7,8 @@ namespace Bonsai.Design.Visualizers
 {
     public class RollingGraphVisualizer : DialogTypeVisualizer
     {
+        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
+        DateTimeOffset updateTime;
         GraphControl graph;
         RollingGraphBuilder.VisualizerController controller;
         IPointListEdit[] lineSeries;
@@ -75,8 +77,13 @@ namespace Bonsai.Design.Visualizers
 
         public override void Show(object value)
         {
+            var time = DateTime.Now;
             controller.AddValues(value, this);
-            graph.Invalidate();
+            if ((time - updateTime) > TargetElapsedTime)
+            {
+                graph.Invalidate();
+                updateTime = time;
+            }
         }
 
         public override void Unload()
