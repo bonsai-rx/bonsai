@@ -1,28 +1,32 @@
-﻿using System;
+﻿using Bonsai.Expressions;
+using System;
 
 namespace Bonsai.Design
 {
-    public class VisualizerMashup
+    public class VisualizerMashup : ITypeVisualizerContext
     {
-        public VisualizerMashup(IObservable<IObservable<object>> source, MashupTypeVisualizer visualizer)
+        readonly InspectBuilder inspectBuilder;
+
+        public VisualizerMashup(InspectBuilder source, MashupTypeVisualizer visualizer)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-
-            if (visualizer == null)
-            {
-                throw new ArgumentNullException("visualizer");
-            }
-
-            Source = source;
-            Visualizer = visualizer;
+            inspectBuilder = source ?? throw new ArgumentNullException(nameof(source));
+            Visualizer = visualizer ?? throw new ArgumentNullException(nameof(visualizer));
+            Source = inspectBuilder.Output;
         }
 
+        [Obsolete]
+        public VisualizerMashup(IObservable<IObservable<object>> source, MashupTypeVisualizer visualizer)
+        {
+            Source = source ?? throw new ArgumentNullException(nameof(source));
+            Visualizer = visualizer ?? throw new ArgumentNullException(nameof(visualizer));
+        }
+
+        [Obsolete]
         public IObservable<IObservable<object>> Source { get; private set; }
 
         public MashupTypeVisualizer Visualizer { get; private set; }
+
+        InspectBuilder ITypeVisualizerContext.Source => inspectBuilder;
     }
 
     public static class VisualizerMashup<TMashupVisualizer>

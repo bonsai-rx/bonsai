@@ -667,10 +667,10 @@ namespace Bonsai.Editor.GraphView
                     var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
                     if (mashupVisualizer != null)
                     {
-                        foreach (var mashup in mashupVisualizer.Mashups)
+                        foreach (ITypeVisualizerContext mashup in mashupVisualizer.Mashups)
                         {
                             var mashupIndex = topologicalOrder
-                                .Select((n, i) => ExpressionBuilder.GetVisualizerElement(n.Value).Output == mashup.Source ? (int?)i : null)
+                                .Select((n, i) => ExpressionBuilder.GetVisualizerElement(n.Value) == mashup.Source ? (int?)i : null)
                                 .FirstOrDefault(index => index.HasValue);
                             if (mashupIndex.HasValue)
                             {
