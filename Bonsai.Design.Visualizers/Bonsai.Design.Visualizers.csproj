@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <Version>2.6.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ZedGraph" Version="5.1.7" />

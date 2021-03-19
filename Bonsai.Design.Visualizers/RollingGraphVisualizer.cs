@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using System;
 using System.Windows.Forms;
 using ZedGraph;
@@ -84,6 +84,7 @@ namespace Bonsai.Design.Visualizers
             graph.Dispose();
             graph = null;
             controller = null;
+            lineSeries = null;
         }
     }
 }
