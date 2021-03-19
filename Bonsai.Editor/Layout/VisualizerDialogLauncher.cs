@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.ComponentModel.Design;
 using Bonsai.Expressions;
@@ -206,7 +206,7 @@ namespace Bonsai.Design
             {
                 var graphNode = (GraphNode)e.Data.GetData(typeof(GraphNode));
                 var visualizerDialog = graphView.GetVisualizerDialogLauncher(graphNode);
-                if (visualizerDialog != null)
+                if (visualizerDialog != null && visualizerDialog != this)
                 {
                     var dialogMashupType = VisualizerType;
                     if (dialogMashupType.IsSubclassOf(typeof(DialogMashupVisualizer)))
