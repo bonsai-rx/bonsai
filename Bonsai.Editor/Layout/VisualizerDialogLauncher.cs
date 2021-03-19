@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.ComponentModel.Design;
 using Bonsai.Expressions;
@@ -118,12 +118,15 @@ namespace Bonsai.Design
 
             if (e.KeyCode == Keys.Delete && e.Control)
             {
-                if (Visualizer.Value is DialogMashupVisualizer dialogMashup && dialogMashup.Mashups.Count > 0)
+                VisualizerDialog.BeginInvoke((Action)(() =>
                 {
-                    UnloadMashups();
-                    dialogMashup.Mashups.RemoveAt(dialogMashup.Mashups.Count - 1);
-                    ReloadMashups();
-                }
+                    if (Visualizer.Value is DialogMashupVisualizer dialogMashup && dialogMashup.Mashups.Count > 0)
+                    {
+                        UnloadMashups();
+                        dialogMashup.Mashups.RemoveAt(dialogMashup.Mashups.Count - 1);
+                        ReloadMashups();
+                    }
+                }));
             }
         }
 
@@ -132,7 +135,7 @@ namespace Bonsai.Design
             if (visualizerObserver != null && Visualizer.Value is DialogMashupVisualizer dialogMashup)
             {
                 dialogMashup.LoadMashups(visualizerContext);
-                var visualizerOutput = Visualizer.Value.Visualize(visualizerSource.Output, visualizerContext);
+                var visualizerOutput = dialogMashup.Visualize(visualizerSource.Output, visualizerContext);
                 visualizerObserver = SubscribeDialog(visualizerOutput, VisualizerDialog);
             }
         }
@@ -179,7 +182,7 @@ namespace Bonsai.Design
                 {
                     UnloadMashups();
                     var visualizerMashup = (MashupTypeVisualizer)Activator.CreateInstance(mashupVisualizer);
-                    dialogMashup.Mashups.Add(new VisualizerMashup(visualizerDialog.visualizerSource.Output, visualizerMashup));
+                    dialogMashup.Mashups.Add(new VisualizerMashup(visualizerDialog.visualizerSource, visualizerMashup));
                     ReloadMashups();
                 }
             }
