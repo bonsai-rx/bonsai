@@ -70,7 +70,7 @@ namespace Bonsai
             packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
-            var files = manifest.Files ?? GetContentFiles(basePath);
+            var files = manifest.Files?.Count == 0 ? GetContentFiles(basePath) : manifest.Files;
             packageBuilder.PopulateFiles(basePath, files);
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
             foreach (var dependency in packageBuilder.DependencyGroups.Where(group => group.TargetFramework == NuGetFramework.AnyFramework)
