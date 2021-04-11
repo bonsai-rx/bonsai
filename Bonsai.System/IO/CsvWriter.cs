@@ -23,6 +23,7 @@ namespace Bonsai.IO
         string delimiter;
         static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == "Join" &&
                                                                                              m.GetParameters().Length == 2 &&
+                                                                                             m.GetParameters()[0].ParameterType == typeof(string) &&
                                                                                              m.GetParameters()[1].ParameterType == typeof(string[]));
         static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().Single(m => m.Name == "WriteLine" &&
                                                                                                   m.GetParameters().Length == 1 &&
