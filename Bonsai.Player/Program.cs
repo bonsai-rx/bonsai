@@ -26,7 +26,7 @@ namespace Bonsai.Player
 
             WorkflowBuilder workflowBuilder;
             var packageConfiguration = ConfigurationHelper.Load();
-            Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, Environment.CurrentDirectory);
+            Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, AppDomain.CurrentDomain.BaseDirectory);
             ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
             using (var reader = XmlReader.Create(fileName))
             {
