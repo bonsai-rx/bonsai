@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace Bonsai
 {
@@ -26,7 +27,6 @@ namespace Bonsai
         const string ExportPackageCommand = "--export-package";
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
-        const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
         internal const int NormalExitCode = 0;
@@ -185,21 +185,14 @@ namespace Bonsai
                         editorArgs = extraArgs.ToArray();
                     }
 
-                    var setupInfo = new AppDomainSetup();
-                    setupInfo.ApplicationBase = editorFolder;
-                    setupInfo.PrivateBinPath = editorFolder;
-                    var currentEvidence = AppDomain.CurrentDomain.Evidence;
-                    var currentPermissionSet = AppDomain.CurrentDomain.PermissionSet;
+                    var editorContext = new AssemblyLoadContext(typeof(Program).FullName, isCollectible: true);
                     var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
-                    setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-                    setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo, currentPermissionSet);
-                    var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
+                    var exitCode = (EditorResult)Main(editorArgs);
                     Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
-                    var editorFlags = AppResult.GetResult<EditorFlags>(editorDomain);
-                    launchResult = AppResult.GetResult<EditorResult>(editorDomain);
-                    if (launchEditor)
+                    var editorFlags = AppResult.GetResult<EditorFlags>();
+                    launchResult = AppResult.GetResult<EditorResult>();
+                    if (startScreen && launchResult == EditorResult.ReloadEditor)
                     {
                         if (launchResult == EditorResult.ReloadEditor) launchEditor = false;
                         else startScreen = launchResult != EditorResult.Exit;
@@ -210,7 +203,7 @@ namespace Bonsai
                         if (launchResult == EditorResult.OpenGallery ||
                             launchResult == EditorResult.ManagePackages)
                         {
-                            var result = AppResult.GetResult<string>(editorDomain);
+                            var result = AppResult.GetResult<string>();
                             if (!string.IsNullOrEmpty(result) && File.Exists(result))
                             {
                                 initialFileName = result;
@@ -223,11 +216,11 @@ namespace Bonsai
                     {
                         debugScripts = editorFlags.HasFlag(EditorFlags.DebugScripts);
                         updatePackages = editorFlags.HasFlag(EditorFlags.UpdatesAvailable);
-                        initialFileName = AppResult.GetResult<string>(editorDomain);
+                        initialFileName = AppResult.GetResult<string>();
                         launchResult = exitCode;
                     }
 
-                    AppDomain.Unload(editorDomain);
+                    editorContext.Unload();
                 }
                 while (launchResult != EditorResult.Exit);
             }

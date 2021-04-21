@@ -4,12 +4,9 @@ namespace Bonsai
 {
     static class AppResult
     {
-        public static TResult GetResult<TResult>(AppDomain domain)
+        public static TResult GetResult<TResult>()
         {
-            var resultHolder = (ResultHolder<TResult>)domain.CreateInstanceAndUnwrap(
-                typeof(ResultHolder<TResult>).Assembly.FullName,
-                typeof(ResultHolder<TResult>).FullName);
-            return resultHolder.Result;
+            return ResultHolder<TResult>.ResultValue;
         }
 
         public static void SetResult<TResult>(TResult result)
@@ -17,18 +14,9 @@ namespace Bonsai
             ResultHolder<TResult>.ResultValue = result;
         }
 
-        class ResultHolder<TResult> : MarshalByRefObject
+        class ResultHolder<TResult>
         {
             public static TResult ResultValue;
-
-            public ResultHolder()
-            {
-            }
-
-            public TResult Result
-            {
-                get { return ResultValue; }
-            }
         }
     }
 }

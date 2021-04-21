@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -105,7 +106,7 @@ namespace Bonsai.Configuration
             return dependencies;
         }
 
-        public static void SetAssemblyResolve(PackageConfiguration configuration)
+        public static void SetAssemblyResolve(PackageConfiguration configuration, AssemblyLoadContext context = null)
         {
             var platform = GetEnvironmentPlatform();
             var configurationRoot = GetConfigurationRoot(configuration);
@@ -123,7 +124,7 @@ namespace Bonsai.Configuration
             }
 
             Dictionary<string, Assembly> assemblyLoadCache = null;
-            ResolveEventHandler assemblyResolveHandler = (sender, args) =>
+            Func<AssemblyLoadContext, AssemblyName, Assembly> assemblyResolveHandler = (sender, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name).Name;
                 var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
@@ -135,7 +136,10 @@ namespace Bonsai.Configuration
                         if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out Assembly assembly))
                         {
                             var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
-                            assembly = Assembly.Load(assemblyBytes);
+                            using (var byteStream = new MemoryStream(assemblyBytes))
+                            {
+                                assembly = context.LoadFromStream(byteStream);
+                            }
                             assemblyLoadCache.Add(uri.LocalPath, assembly);
                         }
                         return assembly;
@@ -148,14 +152,15 @@ namespace Bonsai.Configuration
 
                     if (File.Exists(assemblyLocation))
                     {
-                        return Assembly.LoadFrom(assemblyLocation);
+                        return context.LoadFromAssemblyPath(assemblyLocation);
                     }
                 }
 
                 return null;
             };
 
-            AppDomain.CurrentDomain.AssemblyResolve += assemblyResolveHandler;
+            context ??= AssemblyLoadContext.Default;
+            context.Resolving += assemblyResolveHandler;
         }
 
         public static void SetAssemblyResolve()

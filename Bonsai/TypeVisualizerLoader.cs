@@ -7,14 +7,18 @@ using System.Reactive.Linq;
 using Bonsai.Configuration;
 using Bonsai.Editor;
 using System.Diagnostics;
+using System.Runtime.Loader;
 
 namespace Bonsai
 {
-    sealed class TypeVisualizerLoader : MarshalByRefObject
+    sealed class TypeVisualizerLoader : IDisposable
     {
+        readonly AssemblyLoadContext reflectionContext;
+
         public TypeVisualizerLoader(PackageConfiguration configuration)
         {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
+            reflectionContext = new AssemblyLoadContext("ReflectionOnly", isCollectible: true);
+            ConfigurationHelper.SetAssemblyResolve(configuration, reflectionContext);
         }
 
         static IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly)
@@ -77,11 +81,16 @@ namespace Bonsai
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource<TypeVisualizerLoader>(configuration),
+                () => new TypeVisualizerLoader(configuration),
                 resource => from assemblyRef in assemblies.ToObservable()
-                            let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
+                            let typeVisualizers = resource.GetReflectionTypeVisualizerAttributes(assemblyRef)
                             from typeVisualizer in typeVisualizers
                             select typeVisualizer);
+        }
+
+        public void Dispose()
+        {
+            reflectionContext.Unload();
         }
     }
 }
