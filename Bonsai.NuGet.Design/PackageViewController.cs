@@ -1,4 +1,3 @@
-using Bonsai.Design;
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
 using NuGet.Frameworks;

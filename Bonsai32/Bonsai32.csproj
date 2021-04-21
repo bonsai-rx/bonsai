@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai32</Title>
     <Description>The x86 bootstrapper for the Bonsai environment.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
-    <UseWindowsForms>true</UseWindowsForms>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.19041</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <Version>3.0.0</Version>
     <OutputType>Exe</OutputType>

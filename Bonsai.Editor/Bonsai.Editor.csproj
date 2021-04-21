@@ -1,12 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai - Editor</Title>
     <Description>An integrated development environment for the Bonsai visual programming language.</Description>
     <PackageTags>Bonsai Editor Rx Reactive Extensions</PackageTags>
-    <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.19041</TargetFramework>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

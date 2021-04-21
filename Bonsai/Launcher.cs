@@ -21,7 +21,9 @@ namespace Bonsai
 {
     static class Launcher
     {
-        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net472");
+        internal static readonly NuGetFramework ProjectFramework = new FallbackFramework(
+            NuGetFramework.ParseFolder("net5.0-windows10.0.19041"),
+            new[] { NuGetFramework.ParseFolder("net472") });
 
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,

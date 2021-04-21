@@ -10,14 +10,18 @@ using Bonsai.Configuration;
 using Bonsai.Editor;
 using System.Xml;
 using System.Diagnostics;
+using System.Runtime.Loader;
 
 namespace Bonsai
 {
-    sealed class WorkflowElementLoader : MarshalByRefObject
+    sealed class WorkflowElementLoader : IDisposable
     {
-        public WorkflowElementLoader(PackageConfiguration configuration)
+        readonly AssemblyLoadContext reflectionContext;
+
+        private WorkflowElementLoader(PackageConfiguration configuration)
         {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
+            reflectionContext = new AssemblyLoadContext("ReflectionOnly", isCollectible: true);
+            ConfigurationHelper.SetAssemblyResolve(configuration, reflectionContext);
         }
 
         static bool IsWorkflowElement(Type type)
@@ -110,7 +114,7 @@ namespace Bonsai
             var types = Enumerable.Empty<WorkflowElementDescriptor>();
             try
             {
-                var assembly = Assembly.Load(assemblyRef);
+                var assembly = reflectionContext.LoadFromAssemblyName(new AssemblyName(assemblyRef));
                 types = types.Concat(GetWorkflowElements(assembly));
             }
             catch (FileLoadException ex) { Trace.TraceError("{0}", ex); }
@@ -124,17 +128,22 @@ namespace Bonsai
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource<WorkflowElementLoader>(configuration),
+                () => new WorkflowElementLoader(configuration),
                 resource => from assemblyRef in assemblies.ToObservable()
-                            from package in resource.Loader
+                            from package in resource
                                 .GetReflectionWorkflowElementTypes(assemblyRef)
                                 .GroupBy(element => element.Namespace)
                             select package);
+        }
+
+        public void Dispose()
+        {
+            reflectionContext.Unload();
         }
     }
 }

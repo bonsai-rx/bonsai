@@ -10,12 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Xml;
 
 namespace Bonsai
 {
-    sealed class DependencyInspector : MarshalByRefObject
+    sealed class DependencyInspector : IDisposable
     {
+        readonly AssemblyLoadContext reflectionContext;
         readonly ScriptExtensions scriptEnvironment;
         readonly PackageConfiguration packageConfiguration;
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
@@ -28,7 +30,8 @@ namespace Bonsai
 
         public DependencyInspector(PackageConfiguration configuration)
         {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
+            reflectionContext = new AssemblyLoadContext("ReflectionOnly", isCollectible: true);
+            ConfigurationHelper.SetAssemblyResolve(configuration, reflectionContext);
             scriptEnvironment = new ScriptExtensions(configuration, null);
             packageConfiguration = configuration;
         }
@@ -138,10 +141,15 @@ namespace Bonsai
             }
 
             return Observable.Using(
-                () => new LoaderResource<DependencyInspector>(configuration),
-                resource => from dependency in resource.Loader.GetWorkflowPackageDependencies(fileNames).ToObservable()
+                () => new DependencyInspector(configuration),
+                resource => from dependency in resource.GetWorkflowPackageDependencies(fileNames).ToObservable()
                             let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)
                             select new PackageDependency(dependency.Id, versionRange));
+        }
+
+        public void Dispose()
+        {
+            reflectionContext.Unload();
         }
     }
 }
