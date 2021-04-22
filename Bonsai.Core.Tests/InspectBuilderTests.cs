@@ -28,7 +28,7 @@ namespace Bonsai.Core.Tests
                 previous = node;
             }
             var result = workflowBuilder.Workflow.BuildObservable();
-            var errors = workflowBuilder.Workflow.InspectErrorsEx();
+            var errors = workflowBuilder.Workflow.InspectErrors();
             using (var error = errors.Subscribe(ex => { throw ex; }))
             using (var subscription = result.Subscribe())
             {

@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Subjects;
+using System.Reflection;
 
 namespace Bonsai.Editor.GraphModel
 {
@@ -736,7 +737,16 @@ namespace Bonsai.Editor.GraphModel
             if (!type.IsSubclassOf(typeof(ExpressionBuilder)))
             {
                 var element = Activator.CreateInstance(type);
-                builder = ExpressionBuilder.FromWorkflowElement(element, elementCategory);
+                if (type.IsDefined(typeof(CombinatorAttribute), true))
+                {
+                    var combinatorAttribute = type.GetCustomAttribute<CombinatorAttribute>(true);
+                    var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
+                    var combinatorBuilder = (CombinatorBuilder)Activator.CreateInstance(builderType);
+                    combinatorBuilder.Combinator = element;
+                    builder = combinatorBuilder;
+                }
+
+                throw new InvalidOperationException("Invalid workflow element type.");
             }
             else builder = (ExpressionBuilder)Activator.CreateInstance(type);
             return builder;

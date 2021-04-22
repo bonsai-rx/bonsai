@@ -60,14 +60,4 @@ namespace Bonsai.Reactive
             return source.Select(input => input.ThenByDescending(keySelector));
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="ThenByDescending"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(ThenByDescending))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class ThenByDescendingBuilder : ThenByDescending
-    {
-    }
 }

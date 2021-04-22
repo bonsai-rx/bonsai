@@ -56,14 +56,4 @@ namespace Bonsai.Reactive
             return source.Distinct(keySelector);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="DistinctBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(DistinctBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class DistinctByBuilder : DistinctBy
-    {
-    }
 }

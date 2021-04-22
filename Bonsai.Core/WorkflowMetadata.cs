@@ -9,8 +9,6 @@ namespace Bonsai
     /// </summary>
     public class WorkflowMetadata
     {
-        internal bool Legacy { get; set; }
-
         internal HashSet<Type> Types { get; set; }
 
         /// <summary>

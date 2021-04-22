@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DefaultProperty("Value")]
     [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
-    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder, ISerializableElement
+    public abstract class BinaryOperatorBuilder : SelectBuilder, ISerializableElement
     {
         static readonly MethodInfo GetEnumeratorMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
         static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
@@ -31,16 +31,6 @@ namespace Bonsai.Expressions
         {
             get { return Operand; }
         }
-
-        /// <summary>
-        /// Gets the collection of property mappings assigned to this expression builder.
-        /// Property mapping subscriptions are processed before evaluating other output generation
-        /// expressions.
-        /// </summary>
-        [Obsolete]
-        [Browsable(false)]
-        [XmlArrayItem("PropertyMapping")]
-        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         /// <summary>
         /// When overridden in a derived class, returns the expression that applies a binary

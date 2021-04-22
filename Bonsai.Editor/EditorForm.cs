@@ -185,31 +185,6 @@ namespace Bonsai.Editor
 
         #region Loading
 
-        [Obsolete]
-        public bool LaunchPackageManager
-        {
-            get { return EditorResult == EditorResult.ManagePackages; }
-            set
-            {
-                if (value) EditorResult = EditorResult.ManagePackages;
-                else EditorResult = EditorResult.Exit;
-            }
-        }
-
-        [Obsolete]
-        public string InitialFileName
-        {
-            get { return FileName; }
-            set { FileName = value; }
-        }
-
-        [Obsolete]
-        public bool StartOnLoad
-        {
-            get { return LoadAction != LoadAction.None; }
-            set { LoadAction = value ? LoadAction.Start : LoadAction.None; }
-        }
-
         public EditorResult EditorResult { get; set; }
 
         public LoadAction LoadAction { get; set; }
@@ -1224,7 +1199,7 @@ namespace Bonsai.Editor
                         return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
-                        .InspectErrorsEx()
+                        .InspectErrors()
                         .Do(RegisterWorkflowError)
                         .IgnoreElements()))
                     .SubscribeOn(NewThreadScheduler.Default.Catch<Exception>(HandleSchedulerError))

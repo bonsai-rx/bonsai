@@ -60,14 +60,4 @@ namespace Bonsai.Reactive
             return source.Select(input => input.ThenBy(keySelector));
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="ThenBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(ThenBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class ThenByBuilder : ThenBy
-    {
-    }
 }

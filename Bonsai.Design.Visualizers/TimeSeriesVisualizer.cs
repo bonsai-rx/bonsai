@@ -50,12 +50,6 @@ namespace Bonsai.Design.Visualizers
 
         public bool AutoScale { get; set; }
 
-        [Obsolete]
-        protected GraphControl Graph
-        {
-            get { return view.Graph; }
-        }
-
         internal override RollingGraphView CreateView()
         {
             var view = base.CreateView();
@@ -108,12 +102,6 @@ namespace Bonsai.Design.Visualizers
                 view.Graph.Invalidate();
                 updateTime = time;
             }
-        }
-
-        [Obsolete]
-        protected void AddValue(DateTime time, params object[] value)
-        {
-            AddValue(time, Array.ConvertAll(value, x => Convert.ToDouble(x)));
         }
 
         protected void AddValue(DateTime time, params double[] value)

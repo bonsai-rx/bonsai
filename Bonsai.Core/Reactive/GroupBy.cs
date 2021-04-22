@@ -85,14 +85,4 @@ namespace Bonsai.Reactive
             return source.GroupBy(keySelector, elementSelector);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="GroupBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(GroupBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class GroupByBuilder : GroupBy
-    {
-    }
 }

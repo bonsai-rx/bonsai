@@ -14,40 +14,6 @@ namespace Bonsai
     public static class ObservableCombinators
     {
         /// <summary>
-        /// Generates a new observable sequence by starting a new <see cref="Thread"/> that
-        /// applies the specified action on subscribed observers in a loop which recurs as
-        /// fast as possible.
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the sequence.</typeparam>
-        /// <param name="generator">
-        /// The action that will be applied to an observer every time the generator
-        /// completes a loop.
-        /// </param>
-        /// <returns>A new observable sequence which notifies observers in a loop.</returns>
-        [Obsolete]
-        public static IObservable<TSource> GenerateWithThread<TSource>(Action<IObserver<TSource>> generator)
-        {
-            return Observable.Create<TSource>(observer =>
-            {
-                var running = true;
-                var thread = new Thread(() =>
-                {
-                    while (running)
-                    {
-                        generator(observer);
-                    }
-                });
-
-                thread.Start();
-                return () =>
-                {
-                    running = false;
-                    if (thread != Thread.CurrentThread) thread.Join();
-                };
-            });
-        }
-
-        /// <summary>
         /// Takes the single next element from the sequence every time the specified
         /// interval elapses.
         /// </summary>
@@ -167,24 +133,6 @@ namespace Bonsai
         {
             return source.Window(openGate, window => closeGate)
                          .SelectMany(window => window.Take(1));
-        }
-
-        /// <summary>
-        /// Returns a connectable observable sequence that upon connection causes the <paramref name="source"/>
-        /// to push results into a new fresh subject, which is created by invoking the specified
-        /// <paramref name="subjectFactory"/>.
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <typeparam name="TResult">The type of the elements in the result sequence.</typeparam>
-        /// <param name="source">The source sequence whose elements will be pushed into the specified subject.</param>
-        /// <param name="subjectFactory">
-        /// The factory function used to create the subject that notifications will be pushed into.
-        /// </param>
-        /// <returns>The reconnectable sequence.</returns>
-        [Obsolete]
-        public static IConnectableObservable<TResult> Multicast<TSource, TResult>(this IObservable<TSource> source, Func<ISubject<TSource, TResult>> subjectFactory)
-        {
-            return MulticastReconnectable(source, subjectFactory);
         }
 
         /// <summary>

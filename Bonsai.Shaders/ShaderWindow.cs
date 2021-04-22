@@ -18,8 +18,6 @@ namespace Bonsai.Shaders
         RectangleF viewport;
         RectangleF scissor;
         List<Shader> shaders;
-        IDictionary<string, Texture> textures;
-        IDictionary<string, Mesh> meshes;
         ResourceManager resourceManager;
         ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
@@ -98,34 +96,6 @@ namespace Bonsai.Shaders
         public IEnumerable<Shader> Shaders
         {
             get { return shaders; }
-        }
-
-        [Obsolete]
-        public IDictionary<string, Texture> Textures
-        {
-            get
-            {
-                if (textures == null)
-                {
-                    textures = new ResourceDictionary<Texture>(resourceManager);
-                }
-
-                return textures;
-            }
-        }
-
-        [Obsolete]
-        public IDictionary<string, Mesh> Meshes
-        {
-            get
-            {
-                if (meshes == null)
-                {
-                    meshes = new ResourceDictionary<Mesh>(resourceManager);
-                }
-
-                return meshes;
-            }
         }
 
         public ResourceManager ResourceManager

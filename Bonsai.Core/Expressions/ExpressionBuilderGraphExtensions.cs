@@ -111,22 +111,6 @@ namespace Bonsai.Expressions
 
         /// <summary>
         /// Redirects any build or execution errors signaled by <see cref="InspectBuilder"/> nodes in
-        /// the specified expression builder workflow into an empty observable sequence.
-        /// </summary>
-        /// <param name="source">The expression builder workflow for which to redirect errors.</param>
-        /// <returns>
-        /// An observable sequence with no elements except for error termination messages.
-        /// </returns>
-        [Obsolete]
-        public static IObservable<Unit> InspectErrors(this ExpressionBuilderGraph source)
-        {
-            return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>())
-                .Merge(Scheduler.Immediate)
-                .SelectMany(xs => Observable.Throw(xs, Unit.Default));
-        }
-
-        /// <summary>
-        /// Redirects any build or execution errors signaled by <see cref="InspectBuilder"/> nodes in
         /// the specified expression builder workflow into a single observable sequence.
         /// </summary>
         /// <param name="source">The expression builder workflow for which to redirect errors.</param>
@@ -134,7 +118,7 @@ namespace Bonsai.Expressions
         /// An observable sequence where all elements are errors raised by
         /// <see cref="InspectBuilder"/> nodes.
         /// </returns>
-        public static IObservable<Exception> InspectErrorsEx(this ExpressionBuilderGraph source)
+        public static IObservable<Exception> InspectErrors(this ExpressionBuilderGraph source)
         {
             return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge(Scheduler.Immediate);
         }
@@ -147,7 +131,7 @@ namespace Bonsai.Expressions
                                     select inspectBuilder)
             {
                 var inspectBuilder = builder;
-                yield return inspectBuilder.ErrorEx.Select(xs => BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack));
+                yield return inspectBuilder.Error.Select(xs => BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack));
 
                 if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowExpression && workflowExpression.Workflow != null)
                 {

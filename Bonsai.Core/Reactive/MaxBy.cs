@@ -48,14 +48,4 @@ namespace Bonsai.Reactive
             return Expression.Call(maxBy.MakeGenericMethod(parameterType, keySelector.ReturnType), source, keySelector);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="MaxBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(MaxBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class MaxByBuilder : MaxBy
-    {
-    }
 }
