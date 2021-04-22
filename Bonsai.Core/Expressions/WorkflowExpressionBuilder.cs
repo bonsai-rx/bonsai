@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IRequireBuildContext
     {
         IBuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;
@@ -89,17 +89,6 @@ namespace Bonsai.Expressions
                 workflow.AddDescriptor(value);
             }
         }
-
-        /// <summary>
-        /// Gets the collection of property mappings assigned to this expression builder.
-        /// Property mapping subscriptions are processed before evaluating other output generation
-        /// expressions. In the case of an encapsulated workflow, mappings to nested workflow
-        /// properties are also allowed.
-        /// </summary>
-        [Obsolete]
-        [Browsable(false)]
-        [XmlArrayItem("PropertyMapping")]
-        public PropertyMappingCollection PropertyMappings { get; } = new PropertyMappingCollection();
 
         /// <summary>
         /// Gets the range of input arguments that this expression builder accepts.

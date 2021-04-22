@@ -57,19 +57,11 @@ namespace Bonsai.Expressions
         public IObservable<IObservable<object>> Output { get; private set; }
 
         /// <summary>
-        /// Gets an observable sequence that multicasts errors and termination
-        /// messages from all subscriptions made to the output of the decorated
-        /// expression builder.
-        /// </summary>
-        [Obsolete]
-        public IObservable<Unit> Error { get; private set; }
-
-        /// <summary>
         /// Gets an observable sequence that multicasts error notifications
         /// from all subscriptions made to the output of the decorated
         /// expression builder.
         /// </summary>
-        public IObservable<Exception> ErrorEx { get; private set; }
+        public IObservable<Exception> Error { get; private set; }
 
         /// <summary>
         /// Gets the range of input arguments that the decorated expression builder accepts.
@@ -111,7 +103,7 @@ namespace Bonsai.Expressions
             if (VisualizerElement != null)
             {
                 Output = VisualizerElement.Output;
-                ErrorEx = Observable.Empty<Exception>();
+                Error = Observable.Empty<Exception>();
                 VisualizerElement = GetVisualizerElement(VisualizerElement);
                 return source;
             }
@@ -131,7 +123,7 @@ namespace Bonsai.Expressions
             else
             {
                 Output = Observable.Empty<IObservable<object>>();
-                ErrorEx = Observable.Empty<Exception>();
+                Error = Observable.Empty<Exception>();
                 if (VisualizerElement != null)
                 {
                     return Expression.Call(Expression.Constant(this), nameof(Process), new[] { ObservableType }, source);
@@ -189,8 +181,7 @@ namespace Bonsai.Expressions
         {
             var subject = new ReplaySubject<IObservable<TSource>>(1);
             Output = subject.Select(ys => ys.Select(xs => (object)xs));
-            Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
-            ErrorEx = subject.SelectMany(xs => xs
+            Error = subject.SelectMany(xs => xs
                 .IgnoreElements()
                 .Select(x => default(Exception))
                 .Catch<Exception, Exception>(ex => Observable.Return(ex)));

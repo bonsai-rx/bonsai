@@ -41,14 +41,4 @@ namespace Bonsai.Reactive
             return Expression.Call(scanMethod.MakeGenericMethod(parameterType), source, accumulator);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="Accumulate"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(Accumulate))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class AccumulateBuilder : Accumulate
-    {
-    }
 }

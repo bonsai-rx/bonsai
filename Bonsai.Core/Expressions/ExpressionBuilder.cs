@@ -148,37 +148,6 @@ namespace Bonsai.Expressions
             return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
         }
 
-        /// <summary>
-        /// Creates a new expression builder from the specified editor browsable element and category.
-        /// </summary>
-        /// <param name="element">The editor browsable element for which to build a new expression builder.</param>
-        /// <param name="elementCategory">The workflow category of the specified element.</param>
-        /// <returns>A new <see cref="ExpressionBuilder"/> object.</returns>
-        public static ExpressionBuilder FromWorkflowElement(object element, ElementCategory elementCategory)
-        {
-            if (element == null)
-            {
-                throw new ArgumentNullException(nameof(element));
-            }
-
-            var elementType = element.GetType();
-            if (elementType.IsDefined(typeof(CombinatorAttribute), true))
-            {
-                var combinatorAttribute = elementType.GetCustomAttribute<CombinatorAttribute>(true);
-                var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
-                var builder = (CombinatorBuilder)Activator.CreateInstance(builderType);
-                builder.Combinator = element;
-                return builder;
-            }
-
-            if (elementCategory == ElementCategory.Source)
-            {
-                return new SourceBuilder { Generator = element };
-            }
-
-            throw new InvalidOperationException("Invalid workflow element type.");
-        }
-
         static string RemoveSuffix(string source, string suffix)
         {
             var suffixStart = source.LastIndexOf(suffix);
@@ -961,22 +930,6 @@ namespace Bonsai.Expressions
 
             selector = memberPath.Length > 1 ? memberPath[1] : string.Empty;
             return Tuple.Create(source, selector);
-        }
-
-        [Obsolete]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        protected static IEnumerable<Expression> SelectMembers(Expression expression, string selector)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            return ExpressionHelper.SelectMembers(expression, selector);
-        }
-
-        [Obsolete]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            return BuildArgumentAccess(arguments, selector);
         }
 
         internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName)

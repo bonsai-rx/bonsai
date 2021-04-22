@@ -48,14 +48,4 @@ namespace Bonsai.Reactive
             return Expression.Call(minBy.MakeGenericMethod(parameterType, keySelector.ReturnType), source, keySelector);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="MinBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(MinBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class MinByBuilder : MinBy
-    {
-    }
 }

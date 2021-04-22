@@ -31,7 +31,6 @@ namespace Bonsai
         const string VersionAttributeName = "Version";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
         const string TypeArgumentsAttributeName = "TypeArguments";
-        const string ExtensionTypeNodeName = "ExtensionTypes";
         const string DescriptionElementName = "Description";
         const string WorkflowNodeName = "Workflow";
         const string TypeNodeName = "Type";
@@ -131,27 +130,6 @@ namespace Bonsai
                 else workflowMarkup = ReadXmlExtensions(reader, types, serializerNamespaces);
             }
 
-            if (reader.ReadToNextSibling(ExtensionTypeNodeName))
-            {
-                reader.ReadStartElement();
-                while (reader.ReadToNextSibling(TypeNodeName))
-                {
-                    var typeName = reader.ReadElementString();
-                    var type = LookupType(typeName);
-                    var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
-                    if (proxyTypeAttribute != null) type = proxyTypeAttribute.Type;
-                    types.Add(type);
-                }
-
-                if (reader.NodeType == XmlNodeType.EndElement && reader.Name == ExtensionTypeNodeName)
-                {
-                    reader.ReadEndElement();
-                }
-
-                types.ExceptWith(SerializerExtraTypes);
-                metadata.Legacy = true;
-            }
-
             metadata.Types = types;
             metadata.WorkflowMarkup = workflowMarkup;
             return metadata;
@@ -168,7 +146,7 @@ namespace Bonsai
         {
             var metadata = ReadMetadata(reader);
             Description = metadata.Description;
-            var serializer = metadata.Legacy ? GetXmlSerializerLegacy(metadata.Types) : GetXmlSerializer(metadata.Types);
+            var serializer = GetXmlSerializer(metadata.Types);
             using (var workflowReader = new StringReader(metadata.WorkflowMarkup))
             {
                 var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
@@ -233,7 +211,6 @@ namespace Bonsai
         static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
-        static readonly Type[] SerializerLegacyTypes = new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) };
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -299,33 +276,6 @@ namespace Bonsai
             }
 
             return serializerNamespaces;
-        }
-
-        static XmlSerializer GetXmlSerializerLegacy(HashSet<Type> serializerTypes)
-        {
-            var overrides = new XmlAttributeOverrides();
-            foreach (var type in serializerTypes)
-            {
-                var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
-                var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
-                if (xmlTypeDefined && !obsolete) continue;
-
-                var attributes = new XmlAttributes();
-                if (obsolete && xmlTypeDefined)
-                {
-                    var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
-                    attributes.XmlType = xmlType;
-                }
-                else attributes.XmlType = new XmlTypeAttribute { Namespace = GetXmlNamespace(type) };
-                overrides.Add(type, attributes);
-            }
-
-            var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
-            overrides.Add(typeof(IndexBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute() { Namespace = Constants.XmlNamespace } });
-            overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
-            overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
-            var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
-            return new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
         }
 
         static XmlSerializer GetXmlSerializer(HashSet<Type> types)

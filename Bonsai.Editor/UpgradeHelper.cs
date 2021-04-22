@@ -59,23 +59,6 @@ namespace Bonsai.Editor
             GetArgumentCount(workflow, argumentCount);
             return workflow.Convert(builder =>
             {
-                if (builder is SourceBuilder sourceBuilder)
-                {
-                    return new CombinatorBuilder
-                    {
-                        Combinator = sourceBuilder.Generator
-                    };
-                }
-
-                if (builder is WindowWorkflowBuilder windowWorkflowBuilder)
-                {
-                    return new CreateObservableBuilder(windowWorkflowBuilder.Workflow)
-                    {
-                        Name = windowWorkflowBuilder.Name,
-                        Description = windowWorkflowBuilder.Description
-                    };
-                }
-
                 if (builder is ExternalizedProperty property)
                 {
                     if (argumentCount.TryGetValue(property, out int count))
@@ -102,14 +85,6 @@ namespace Bonsai.Editor
                     return new ParseBuilder
                     {
                         Pattern = parse.Pattern.Replace("%p", "%T")
-                    };
-                }
-
-                if (workflowElement is Reactive.Index index)
-                {
-                    return new CombinatorBuilder
-                    {
-                        Combinator = new Reactive.ElementIndex()
                     };
                 }
 
@@ -188,8 +163,7 @@ namespace Bonsai.Editor
                 }
 
                 var successor = node.Successors.FirstOrDefault(edge => edge.Label.Index == 0 &&
-                                                                       (edge.Target.Value is SelectManyBuilder ||
-                                                                        edge.Target.Value is WindowWorkflowBuilder));
+                                                                       (edge.Target.Value is SelectManyBuilder));
                 if (successor != null)
                 {
                     var inputDependency = new WorkflowInputDependency();

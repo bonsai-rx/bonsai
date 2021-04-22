@@ -56,14 +56,4 @@ namespace Bonsai.Reactive
             return source.DistinctUntilChanged(keySelector);
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="DistinctUntilChangedBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(DistinctUntilChangedBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class DistinctUntilChangedByBuilder : DistinctUntilChangedBy
-    {
-    }
 }

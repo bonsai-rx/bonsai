@@ -24,9 +24,6 @@ namespace Bonsai.Shaders
             shaderWindow = window;
         }
 
-        [Obsolete]
-        public bool Enabled { get; set; }
-
         public string Name { get; private set; }
 
         public int Program

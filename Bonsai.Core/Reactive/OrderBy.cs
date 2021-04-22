@@ -60,14 +60,4 @@ namespace Bonsai.Reactive
             return source.Select(input => input.OrderBy(keySelector));
         }
     }
-
-    /// <summary>
-    /// This type is obsolete. Please use the <see cref="OrderBy"/> operator instead.
-    /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(OrderBy))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    public class OrderByBuilder : OrderBy
-    {
-    }
 }
