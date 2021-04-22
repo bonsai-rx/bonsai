@@ -330,7 +330,7 @@ namespace Bonsai.Editor.GraphModel
             else return CanConnect(nodes, target);
         }
 
-        PropertyMappingBuilder ConvertExternalizedMapping(ExternalizedMappingBuilder mappingBuilder)
+        static PropertyMappingBuilder ConvertExternalizedMapping(ExternalizedMappingBuilder mappingBuilder)
         {
             var builder = new PropertyMappingBuilder();
             foreach (var mapping in mappingBuilder.ExternalizedProperties)
@@ -627,7 +627,7 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        ExpressionBuilderGraph CloneWorkflowElements(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
+        static ExpressionBuilderGraph CloneWorkflowElements(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
         {
             var builder = new WorkflowBuilder(nodes.FromInspectableGraph(true));
             var markup = ElementStore.StoreWorkflowElements(builder);
@@ -725,7 +725,7 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.EndCompositeCommand();
         }
 
-        ExpressionBuilder CreateBuilder(string typeName, ElementCategory elementCategory)
+        static ExpressionBuilder CreateBuilder(string typeName)
         {
             var type = Type.GetType(typeName);
             if (type == null)
@@ -733,26 +733,25 @@ namespace Bonsai.Editor.GraphModel
                 throw new ArgumentException(Resources.TypeNotFound_Error, nameof(typeName));
             }
 
-            ExpressionBuilder builder;
-            if (!type.IsSubclassOf(typeof(ExpressionBuilder)))
+            if (type.IsSubclassOf(typeof(ExpressionBuilder)))
             {
-                var element = Activator.CreateInstance(type);
-                if (type.IsDefined(typeof(CombinatorAttribute), true))
-                {
-                    var combinatorAttribute = type.GetCustomAttribute<CombinatorAttribute>(true);
-                    var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
-                    var combinatorBuilder = (CombinatorBuilder)Activator.CreateInstance(builderType);
-                    combinatorBuilder.Combinator = element;
-                    builder = combinatorBuilder;
-                }
-
+                return (ExpressionBuilder)Activator.CreateInstance(type);
+            }
+            
+            if (!type.IsDefined(typeof(CombinatorAttribute), true))
+            {
                 throw new InvalidOperationException("Invalid workflow element type.");
             }
-            else builder = (ExpressionBuilder)Activator.CreateInstance(type);
-            return builder;
+
+            var combinatorAttribute = type.GetCustomAttribute<CombinatorAttribute>(true);
+            var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
+            var combinatorBuilder = (CombinatorBuilder)Activator.CreateInstance(builderType);
+            var element = Activator.CreateInstance(type);
+            combinatorBuilder.Combinator = element;
+            return combinatorBuilder;
         }
 
-        WorkflowExpressionBuilder CreateWorkflowBuilder(string typeName, ExpressionBuilderGraph graph)
+        static WorkflowExpressionBuilder CreateWorkflowBuilder(string typeName, ExpressionBuilderGraph graph)
         {
             var type = Type.GetType(typeName);
             if (!typeof(WorkflowExpressionBuilder).IsAssignableFrom(type))
@@ -822,7 +821,7 @@ namespace Bonsai.Editor.GraphModel
             }
             else
             {
-                builder = CreateBuilder(typeName, elementCategory);
+                builder = CreateBuilder(typeName);
                 ConfigureBuilder(builder, selectedNode, arguments);
             }
 
