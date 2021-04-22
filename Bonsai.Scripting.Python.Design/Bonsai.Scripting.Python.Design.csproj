@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Bonsai - Python Scripting Design Library</Title>
+    <Description>Bonsai Design Library containing editor classes for Python scripting in Bonsai.</Description>
+    <PackageTags>Bonsai Rx Scripting Python Design</PackageTags>
+    <TargetFramework>net5.0-windows10.0.19041</TargetFramework>
+    <Version>3.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="unofficial.ScintillaNET" Version="3.8.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Scripting.Python\Bonsai.Scripting.Python.csproj" />
+  </ItemGroup>
+</Project>
