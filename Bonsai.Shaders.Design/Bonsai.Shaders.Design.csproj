@@ -8,7 +8,7 @@
     <Version>0.25.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
+    <PackageReference Include="unofficial.ScintillaNET" Version="3.8.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
