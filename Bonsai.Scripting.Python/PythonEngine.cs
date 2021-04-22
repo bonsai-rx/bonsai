@@ -1,15 +1,14 @@
-﻿using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
+﻿using Microsoft.Scripting.Hosting;
 using System.IO;
 using System.Reflection;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Python
 {
     static class PythonEngine
     {
         internal static ScriptEngine Create()
         {
-            var engine = Python.CreateEngine();
+            var engine = global::IronPython.Hosting.Python.CreateEngine();
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var libPath = Directory.GetDirectories(Path.Combine(basePath, "../../../"), "IronPython.StdLib.*");
             if (libPath.Length == 1)

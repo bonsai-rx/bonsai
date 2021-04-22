@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Bonsai - Python Scripting Library</Title>
+    <Description>Bonsai Scripting Library containing Python scripting infrastructure for Bonsai.</Description>
+    <PackageTags>Bonsai Rx Scripting Python</PackageTags>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>3.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="IronPython" Version="2.7.11" />
+    <PackageReference Include="IronPython.StdLib" Version="2.7.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
+  </ItemGroup>
+</Project>

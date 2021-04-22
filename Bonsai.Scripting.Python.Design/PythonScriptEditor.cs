@@ -1,0 +1,33 @@
+﻿using System;
+using System.Drawing.Design;
+using System.ComponentModel;
+using System.Windows.Forms.Design;
+using System.Windows.Forms;
+
+namespace Bonsai.Scripting.Python.Design
+{
+    public class PythonScriptEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+            if (editorService != null)
+            {
+                var script = value as string;
+                var editorDialog = new PythonScriptEditorDialog();
+                editorDialog.Script = script;
+                if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
+                {
+                    return editorDialog.Script;
+                }
+            }
+
+            return base.EditValue(context, provider, value);
+        }
+    }
+}
