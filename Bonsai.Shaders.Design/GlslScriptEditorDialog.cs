@@ -280,18 +280,6 @@ void main()
             }
         }
 
-        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
-        {
-            var imageSize = toolStrip.ImageScalingSize;
-            var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
-            if (scalingFactor > 1)
-            {
-                toolStrip.ImageScalingSize = new Size((int)(imageSize.Width * scalingFactor), (int)(imageSize.Height * scalingFactor));
-                menuStrip.ImageScalingSize = toolStrip.ImageScalingSize;
-            }
-            base.ScaleControl(factor, specified);
-        }
-
         protected override void OnLoad(EventArgs e)
         {
             exampleToolStripMenuItem.Visible = shaderExamples.Count > 0;

@@ -339,7 +339,7 @@ namespace Bonsai.Editor
             scaleFactor = factor;
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
-            const float DefaultToolboxSplitterDistance = 245f;
+            const float DefaultToolboxSplitterDistance = 230f;
             var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f : 1.0f;
             var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f : 1.0f;
             toolboxSplitterScale *= DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
@@ -348,17 +348,6 @@ namespace Bonsai.Editor
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
             toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * toolboxSplitterScale * factor.Height);
             workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
-
-            var imageSize = toolStrip.ImageScalingSize;
-            var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
-            if (scalingFactor > 1)
-            {
-                startToolStripSplitButton.DropDownButtonWidth = (int)(startToolStripSplitButton.DropDownButtonWidth * scalingFactor);
-                toolStrip.ImageScalingSize = new Size((int)(imageSize.Width * scalingFactor), (int)(imageSize.Height * scalingFactor));
-                menuStrip.ImageScalingSize = toolStrip.ImageScalingSize;
-                statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
-                propertyGrid.LargeButtons = scalingFactor >= 2;
-            }
             base.ScaleControl(factor, specified);
         }
 
