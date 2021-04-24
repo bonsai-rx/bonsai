@@ -18,12 +18,16 @@ namespace Bonsai.Editor
             var activeForm = Form.ActiveForm;
             try
             {
+                var startInfo = new ProcessStartInfo();
                 if (activeForm != null) activeForm.Cursor = Cursors.AppStarting;
                 if (EditorSettings.IsRunningOnMono && Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    Process.Start("xdg-open", url);
+                    startInfo.FileName = "xdg-open";
+                    startInfo.Arguments = url;
                 }
-                else Process.Start(url);
+                else startInfo.FileName = url;
+                startInfo.UseShellExecute = true;
+                Process.Start(startInfo);
             }
             catch { } //best effort
             finally

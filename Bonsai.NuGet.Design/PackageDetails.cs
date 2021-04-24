@@ -95,7 +95,11 @@ namespace Bonsai.NuGet.Design
             var linkUri = (Uri)e.Link.LinkData;
             if (linkUri != null)
             {
-                Process.Start(linkUri.AbsoluteUri);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = linkUri.AbsoluteUri,
+                    UseShellExecute = true
+                });
             }
         }
 

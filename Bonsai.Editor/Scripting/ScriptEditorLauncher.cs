@@ -26,11 +26,13 @@ namespace Bonsai.Editor.Scripting
 
             try
             {
-                var process = new Process();
-                process.StartInfo.FileName = ScriptEditor;
-                process.StartInfo.Arguments = arguments;
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                process.Start();
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = ScriptEditor,
+                    Arguments = arguments,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = true
+                });
             }
             catch (Win32Exception)
             {
@@ -42,7 +44,7 @@ namespace Bonsai.Editor.Scripting
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    Process.Start("https://code.visualstudio.com/");
+                    EditorDialog.OpenUri("https://code.visualstudio.com/");
                 }
             }
         }
