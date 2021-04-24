@@ -136,7 +136,11 @@ void main()
                 if (result == DialogResult.OK)
                 {
                     Cursor = Cursors.AppStarting;
-                    Process.Start(url);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = url,
+                        UseShellExecute = true
+                    });
                 }
             }
             catch { } //best effort
