@@ -6,7 +6,8 @@
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="1.1.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" />
