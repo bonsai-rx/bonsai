@@ -1,12 +1,12 @@
-﻿using Microsoft.CSharp;
+﻿using Basic.Reference.Assemblies;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
-using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,7 +42,7 @@ namespace Bonsai.Configuration
                 {
                     foreach (var assembly in assemblyReferences.Items)
                     {
-                        yield return Path.GetFileName(assembly);
+                        yield return Path.GetFileNameWithoutExtension(assembly);
                     }
                 }
 
@@ -58,7 +58,7 @@ namespace Bonsai.Configuration
                             while (propertyReader.ReadToFollowing(ReferenceElement))
                             {
                                 var assemblyName = propertyReader.GetAttribute(IncludeAttribute);
-                                yield return Path.ChangeExtension(assemblyName, DllExtension);
+                                yield return assemblyName;
                             }
                         }
                     }
@@ -92,7 +92,7 @@ namespace Bonsai.Configuration
             var scriptFiles = Directory.GetFiles(extensionsPath, ScriptExtension, SearchOption.AllDirectories);
             if (scriptFiles.Length == 0) return new ScriptExtensions(configuration, null);
 
-            var assemblyNames = new HashSet<string>();
+            HashSet<string> packageReferences;
             var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
             var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
             var packageSource = new PackageSource(editorRepositoryPath);
@@ -101,59 +101,56 @@ namespace Bonsai.Configuration
             var localPackageResource = packageRepository.GetResource<FindLocalPackagesResource>();
             using (var cacheContext = new SourceCacheContext())
             {
-                var projectReferences = from id in scriptEnvironment.GetPackageReferences()
-                                        from assemblyReference in FindAssemblyReferences(
-                                            projectFramework,
-                                            dependencyResource,
-                                            localPackageResource,
-                                            cacheContext,
-                                            packageId: id)
-                                        select assemblyReference;
-                assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
-                assemblyNames.AddRange(projectReferences);
+                packageReferences = (from id in scriptEnvironment.GetPackageReferences()
+                                     from assemblyReference in FindAssemblyReferences(
+                                         projectFramework,
+                                         dependencyResource,
+                                         localPackageResource,
+                                         cacheContext,
+                                         packageId: id)
+                                     select assemblyReference).ToHashSet();
             }
 
             var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
-            var assemblyReferences = (from fileName in assemblyNames
-                                      let assemblyName = Path.GetFileNameWithoutExtension(fileName)
+            var assemblyReferences = (from assemblyName in packageReferences
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
-                                      select assemblyLocation == null ? fileName :
-                                      Path.IsPathRooted(assemblyLocation) ? assemblyLocation :
-                                      Path.Combine(configurationRoot, assemblyLocation))
-                                      .ToArray();
-            var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile);
-            compilerParameters.GenerateExecutable = false;
-            compilerParameters.GenerateInMemory = false;
-            compilerParameters.IncludeDebugInformation = includeDebugInformation;
-            if (!includeDebugInformation)
+                                      where assemblyLocation != null
+                                      select (MetadataReference)MetadataReference.CreateFromFile(
+                                          Path.IsPathRooted(assemblyLocation) ? assemblyLocation :
+                                          Path.Combine(configurationRoot, assemblyLocation)))
+                                          .ToList();
+            assemblyReferences.AddRange(NetStandard20.All);
+            var syntaxTrees = Array.ConvertAll(scriptFiles, scriptFile =>
             {
-                compilerParameters.CompilerOptions = "/optimize";
-            }
+                var sourceText = File.ReadAllText(scriptFile);
+                return CSharpSyntaxTree.ParseText(sourceText);
+            });
 
-            using (var codeProvider = new CSharpCodeProvider())
+            var compilationOptions = new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary,
+                optimizationLevel: includeDebugInformation ? OptimizationLevel.Debug : OptimizationLevel.Release);
+            var compilation = CSharpCompilation.Create(OutputAssemblyName, syntaxTrees, assemblyReferences, compilationOptions);
+            var result = compilation.Emit(assemblyFile);
+            if (result.Success)
             {
-                var results = codeProvider.CompileAssemblyFromFile(compilerParameters, scriptFiles);
-                if (results.Errors.HasErrors)
-                {
-                    try
-                    {
-                        Console.Error.WriteLine("--- Error building script extensions ---");
-                        foreach (var error in results.Errors)
-                        {
-                            Console.Error.WriteLine(error);
-                        }
-                    }
-                    finally { scriptEnvironment.Dispose(); }
-                    return new ScriptExtensions(configuration, null);
-                }
-                else
-                {
-                    var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                    configuration.AssemblyReferences.Add(assemblyName.Name);
-                    configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyName.CodeBase);
-                    scriptEnvironment.AssemblyName = assemblyName;
-                }
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                configuration.AssemblyReferences.Add(assemblyName.Name);
+                configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyFile);
+                scriptEnvironment.AssemblyName = assemblyName;
                 return scriptEnvironment;
+            }
+            else
+            {
+                try
+                {
+                    Console.Error.WriteLine("--- Error building script extensions ---");
+                    foreach (var error in result.Diagnostics)
+                    {
+                        Console.Error.WriteLine(error);
+                    }
+                }
+                finally { scriptEnvironment.Dispose(); }
+                return new ScriptExtensions(configuration, null);
             }
         }
     }

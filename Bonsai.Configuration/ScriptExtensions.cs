@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace Bonsai.Configuration
 {
-    public class ScriptExtensions : IDisposable
+    public sealed class ScriptExtensions : IDisposable
     {
         const string OuterIndent = "  ";
         const string InnerIndent = "    ";
@@ -19,19 +19,18 @@ namespace Bonsai.Configuration
         const string PackageReferenceElement = "PackageReference";
         const string PackageIncludeAttribute = "Include";
         const string PackageVersionAttribute = "Version";
-        const string UseWindowsFormsElement = "UseWindowsForms";
         const string ItemGroupElement = "ItemGroup";
         const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
 </Project>";
-
-        IDictionary<string, Configuration.PackageReference> packageMap;
-        PackageConfiguration packageConfiguration;
-        TempDirectory assemblyFolder;
+        
+        readonly IDictionary<string, Configuration.PackageReference> packageMap;
+        readonly PackageConfiguration packageConfiguration;
+        readonly TempDirectory assemblyFolder;
 
         public ScriptExtensions(PackageConfiguration configuration, string outputPath)
         {
@@ -81,25 +80,6 @@ namespace Bonsai.Configuration
                         }
                     }
                 }
-            }
-        }
-
-        public IEnumerable<string> GetAssemblyReferences()
-        {
-            yield return "System.dll";
-            yield return "System.Core.dll";
-            yield return "System.Drawing.dll";
-            yield return "System.Reactive.Linq.dll";
-            yield return "System.Xml.dll";
-            yield return "Bonsai.Core.dll";
-
-            if (!File.Exists(ProjectFileName)) yield break;
-            using var stream = File.OpenRead(ProjectFileName);
-            var document = XmlUtility.LoadSafe(stream);
-            var useWindowsForms = document.Descendants(XName.Get(UseWindowsFormsElement)).FirstOrDefault();
-            if (useWindowsForms != null && useWindowsForms.Value == "true")
-            {
-                yield return "System.Windows.Forms.dll";
             }
         }
 
