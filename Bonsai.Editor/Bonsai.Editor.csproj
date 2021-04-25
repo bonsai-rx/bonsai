@@ -12,7 +12,7 @@
     <EmbeddedResource Include="**\*.svg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SvgNet" Version="2.0.3" />
+    <PackageReference Include="SvgNet" Version="2.1.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
