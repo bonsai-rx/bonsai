@@ -15,8 +15,7 @@ namespace Bonsai.Vision.Design
     public class PointMashupVisualizer : MashupTypeVisualizer
     {
         TrackingMode tracking;
-        Queue<Point> points;
-        Queue<Queue<Point>> polylines;
+        Queue<Point?> points;
         ImageMashupVisualizer visualizer;
         IDisposable subscription;
 
@@ -40,51 +39,47 @@ namespace Bonsai.Vision.Design
             }
 
             var image = visualizer.VisualizerImage;
-            if (!point.HasValue)
+            if (tracking != TrackingMode.None)
             {
-                points = null;
-            }
-            else if (tracking != TrackingMode.None)
-            {
-                if (points == null)
-                {
-                    points = new Queue<Point>(1);
-                    polylines.Enqueue(points);
-                }
-
-                points.Enqueue(point.Value);
+                points.Enqueue(point);
                 if (tracking == TrackingMode.Fixed)
                 {
-                    var head = polylines.Peek();
-                    head.Dequeue();
-                    if (head.Count == 0)
-                    {
-                        polylines.Dequeue();
-                    }
+                    points.Dequeue();
                 }
             }
+            else points.Clear();
 
-            if (polylines.Count > 0)
+            if (points.Count > 0)
             {
-                CV.PolyLine(image, polylines.Select(ps => ps.ToArray()).ToArray(), false, Scalar.Rgb(255, 0, 0), 2);
+                var segment = new List<Point>();
+                var polyline = new List<Point[]>();
+                foreach (var p in points)
+                {
+                    if (p.HasValue) segment.Add(p.Value);
+                    else if (segment.Count > 0)
+                    {
+                        polyline.Add(segment.ToArray());
+                        segment.Clear();
+                    }
+                }
+
+                if (segment.Count > 0)
+                {
+                    polyline.Add(segment.ToArray());
+                }
+
+                CV.PolyLine(image, polyline.ToArray(), false, Scalar.Rgb(255, 0, 0), 2);
             }
 
             if (point.HasValue)
             {
                 CV.Circle(image, point.Value, 3, Scalar.Rgb(0, 255, 0), 3);
             }
-
-            if (tracking == TrackingMode.None)
-            {
-                polylines.Clear();
-                points = null;
-            }
         }
 
         public override void Load(IServiceProvider provider)
         {
-            points = new Queue<Point>(1);
-            polylines = new Queue<Queue<Point>>(1);
+            points = new Queue<Point?>(1);
             visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
             MouseEventHandler mouseHandler = (sender, e) =>
             {
@@ -108,7 +103,6 @@ namespace Bonsai.Vision.Design
                 subscription.Dispose();
                 subscription = null;
                 visualizer = null;
-                polylines = null;
                 points = null;
             }
         }
