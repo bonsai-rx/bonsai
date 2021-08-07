@@ -7,6 +7,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(DisableState))]
     [XmlInclude(typeof(ViewportState))]
     [XmlInclude(typeof(ScissorState))]
+    [XmlInclude(typeof(ClearColorState))]
     [XmlInclude(typeof(LineWidthState))]
     [XmlInclude(typeof(PointSizeState))]
     [XmlInclude(typeof(DepthMaskState))]

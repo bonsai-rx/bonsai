@@ -14,7 +14,6 @@ namespace Bonsai.Shaders
 {
     public class ShaderWindow : GameWindow
     {
-        Color4 clearColor;
         ClearBufferMask clearMask;
         RectangleF viewport;
         RectangleF scissor;
@@ -44,7 +43,7 @@ namespace Bonsai.Shaders
             settings = configuration;
             VSync = configuration.VSync;
             swapSync = configuration.SwapSync;
-            clearColor = configuration.ClearColor;
+            ClearColor = configuration.ClearColor;
             clearMask = configuration.ClearMask;
             Title = configuration.Title ?? DefaultTitle;
             CursorVisible = configuration.CursorVisible;
@@ -222,7 +221,7 @@ namespace Bonsai.Shaders
                 if (viewport != DefaultViewport) Viewport = DefaultViewport;
                 if (scissor != DefaultViewport) Scissor = DefaultViewport;
                 GL.DepthMask(true);
-                GL.ClearColor(clearColor);
+                GL.ClearColor(ClearColor);
                 GL.Clear(clearMask);
             }
 
