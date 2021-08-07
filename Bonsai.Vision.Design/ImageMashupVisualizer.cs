@@ -100,7 +100,7 @@ namespace Bonsai.Vision.Design
 
             if (Mashups.Count > 0)
             {
-                var mergedMashups = Mashups.Select(xs => xs.Visualizer.Visualize(xs.Source, provider).Publish().RefCount()).ToArray();
+                var mergedMashups = Mashups.Select(xs => xs.Visualizer.Visualize(((ITypeVisualizerContext)xs).Source.Output, provider).Publish().RefCount()).ToArray();
                 dataSource = Observable
                     .CombineLatest(mergedMashups.Prepend(mergedSource))
                     .Window(mergedMashups.Last())
