@@ -133,6 +133,45 @@ namespace Bonsai.Shaders
             get { return resourceManager; }
         }
 
+        public new Size ClientSize
+        {
+            get { return WindowBorder == WindowBorder.Hidden ? Size : base.ClientSize; }
+            set
+            {
+                if (WindowBorder == WindowBorder.Hidden)
+                {
+                    Size = value;
+                }
+                else base.ClientSize = value;
+            }
+        }
+
+        public new int Width
+        {
+            get { return WindowBorder == WindowBorder.Hidden ? Size.Width : base.Width; }
+            set
+            {
+                if (WindowBorder == WindowBorder.Hidden)
+                {
+                    Size = new Size(value, Size.Height);
+                }
+                else base.Width = value;
+            }
+        }
+
+        public new int Height
+        {
+            get { return WindowBorder == WindowBorder.Hidden ? Size.Height : base.Height; }
+            set
+            {
+                if (WindowBorder == WindowBorder.Hidden)
+                {
+                    Size = new Size(Size.Width, value);
+                }
+                else base.Height = value;
+            }
+        }
+
         internal void AddShader(Shader shader)
         {
             shaders.Add(shader);
@@ -140,7 +179,8 @@ namespace Bonsai.Shaders
 
         internal void UpdateViewport()
         {
-            UpdateViewport(Width, Height);
+            var size = ClientSize;
+            UpdateViewport(size.Width, size.Height);
         }
 
         internal void UpdateViewport(float width, float height)
@@ -154,7 +194,8 @@ namespace Bonsai.Shaders
 
         internal void UpdateScissor()
         {
-            UpdateScissor(Width, Height);
+            var size = ClientSize;
+            UpdateScissor(size.Width, size.Height);
         }
 
         internal void UpdateScissor(float width, float height)
