@@ -22,27 +22,25 @@ namespace Bonsai.Vision.Design
 
         public override void Show(object value)
         {
-            Point point;
+            Point? point;
             if (value is Point)
             {
                 point = (Point)value;
             }
-            else if (value is Point2f)
+            else if (value is Point2f point2f)
             {
-                var point2f = (Point2f)value;
-                point.X = float.IsNaN(point2f.X) ? -1 : (int)point2f.X;
-                point.Y = float.IsNaN(point2f.Y) ? -1 : (int)point2f.Y;
+                if (float.IsNaN(point2f.X) || float.IsNaN(point2f.Y)) point = null;
+                else point = new Point(point2f);
             }
             else
             {
                 var point2d = (Point2d)value;
-                point.X = double.IsNaN(point2d.X) ? -1 : (int)point2d.X;
-                point.Y = double.IsNaN(point2d.Y) ? -1 : (int)point2d.Y;
+                if (double.IsNaN(point2d.X) || double.IsNaN(point2d.Y)) point = null;
+                else point = new Point((int)point2d.X, (int)point2d.Y);
             }
 
             var image = visualizer.VisualizerImage;
-            if (point.X < 0 || point.Y < 0 ||
-                point.X >= image.Width || point.Y >= image.Height)
+            if (!point.HasValue)
             {
                 points = null;
             }
@@ -54,7 +52,7 @@ namespace Bonsai.Vision.Design
                     polylines.Enqueue(points);
                 }
 
-                points.Enqueue(point);
+                points.Enqueue(point.Value);
                 if (tracking == TrackingMode.Fixed)
                 {
                     var head = polylines.Peek();
@@ -71,7 +69,11 @@ namespace Bonsai.Vision.Design
                 CV.PolyLine(image, polylines.Select(ps => ps.ToArray()).ToArray(), false, Scalar.Rgb(255, 0, 0), 2);
             }
 
-            CV.Circle(image, point, 3, Scalar.Rgb(0, 255, 0), 3);
+            if (point.HasValue)
+            {
+                CV.Circle(image, point.Value, 3, Scalar.Rgb(0, 255, 0), 3);
+            }
+
             if (tracking == TrackingMode.None)
             {
                 polylines.Clear();
