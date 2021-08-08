@@ -1,4 +1,4 @@
-﻿using NuGet.Common;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -294,8 +294,7 @@ namespace Bonsai.NuGet
                 var dependencyPackages = await dependencyInfoResource.ResolvePackages(packageId, projectFramework, cacheContext, NullLogger.Instance, token);
                 foreach (var package in dependencyPackages)
                 {
-                    if (!versionRange.Satisfies(package.Version)) continue;
-                    if (dependencyInfo == null || package.Version < dependencyInfo.Version)
+                    if (versionRange.IsBetter(dependencyInfo?.Version, package.Version))
                     {
                         dependencyInfo = package;
                     }
@@ -322,7 +321,10 @@ namespace Bonsai.NuGet
             // dependency was not found in any repository
             if (dependencyInfo == null)
             {
-                var message = $"The package '{packageId} {versionRange}' could not be found.";
+                var versionInfo = versionRange.MinVersion == versionRange.MaxVersion
+                    ? versionRange.MinVersion.ToNormalizedString()
+                    : versionRange.ToShortString();
+                var message = $"The package '{packageId} {versionInfo}' could not be found.";
                 throw new InvalidOperationException(message);
             }
         }
