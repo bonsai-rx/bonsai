@@ -1,4 +1,4 @@
-using NuGet.Common;
+﻿using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -180,7 +180,9 @@ namespace Bonsai.NuGet
                 var installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
                 var localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, projectFramework);
                 var sourcePackages = localPackages.ToDictionary(dependencyInfo => dependencyInfo, PackageIdentityComparer.Default);
-                var packageVersion = new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
+                var packageVersion = ignoreDependencies
+                    ? new VersionRange(package.Version, maxVersion: package.Version, includeMaxVersion: true)
+                    : new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
                 await GetPackageDependencies(package.Id, packageVersion, projectFramework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
 
                 var resolverContext = new PackageResolverContext(
