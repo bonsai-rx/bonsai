@@ -90,6 +90,7 @@ namespace Bonsai.Configuration
             yield return "System.Core.dll";
             yield return "System.Drawing.dll";
             yield return "System.Reactive.Linq.dll";
+            yield return "System.Xml.dll";
             yield return "Bonsai.Core.dll";
 
             if (!File.Exists(ProjectFileName)) yield break;
