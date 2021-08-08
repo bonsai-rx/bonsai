@@ -95,11 +95,32 @@ namespace Bonsai.NuGet
                 token);
 
             installPath = PathResolver.GetInstalledPath(packageInfo);
-            foreach (var plugin in PackageManagerPlugins)
+            try
             {
-                await plugin.OnPackageInstalledAsync(packageInfo, projectFramework, downloadResult.PackageReader, installPath);
+                foreach (var plugin in PackageManagerPlugins)
+                {
+                    await plugin.OnPackageInstalledAsync(packageInfo, projectFramework, downloadResult.PackageReader, installPath);
+                }
+            }
+            catch
+            {
+                var packagePath = PathResolver.GetInstalledPackageFilePath(packageInfo);
+                await DeletePackageFiles(downloadResult.PackageReader, installPath, CancellationToken.None);
+                FileUtility.Delete(packagePath);
+                var installTree = new DirectoryInfo(installPath);
+                DeleteDirectoryTree(installTree);
+                throw;
             }
             return downloadResult.PackageReader;
+        }
+
+        private async Task DeletePackageFiles(PackageReaderBase packageReader, string installPath, CancellationToken token)
+        {
+            foreach (var file in await packageReader.GetPackageFilesAsync(PackageSaveMode, token))
+            {
+                var path = Path.Combine(installPath, file);
+                FileUtility.Delete(path);
+            }
         }
 
         static void DeleteDirectoryTree(DirectoryInfo directory)
@@ -125,11 +146,7 @@ namespace Bonsai.NuGet
                     if (!accepted) continue;
                 }
 
-                foreach (var file in await packageReader.GetPackageFilesAsync(PackageSaveMode, token))
-                {
-                    var path = Path.Combine(installPath, file);
-                    FileUtility.Delete(path);
-                }
+                await DeletePackageFiles(packageReader, installPath, token);
             }
 
             FileUtility.Delete(package.Path);
