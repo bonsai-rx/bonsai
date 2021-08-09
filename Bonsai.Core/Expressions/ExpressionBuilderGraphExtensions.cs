@@ -499,6 +499,16 @@ namespace Bonsai.Expressions
             else return new DependencyLink(name, workflow, publishNode, subscribeNode);
         }
 
+        static WorkflowBuildException BuildDependencyLinkExceptionStack(Exception innerException, DependencyElement dependencyElement)
+        {
+            if (dependencyElement.InnerDependency != null)
+            {
+                innerException = BuildDependencyLinkExceptionStack(innerException, dependencyElement.InnerDependency);
+            }
+
+            return new WorkflowBuildException(innerException.Message, dependencyElement.Node.Value, innerException);
+        }
+
         static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             Dictionary<string, DependencyNode> dependencies = null;
@@ -540,7 +550,7 @@ namespace Bonsai.Expressions
                         try { if (!enumerator.MoveNext()) break; }
                         catch (Exception e)
                         {
-                            throw new WorkflowBuildException(e.Message, node.Value, e);
+                            throw BuildDependencyLinkExceptionStack(e, dependencyElement);
                         }
 
                         var link = enumerator.Current;
