@@ -65,6 +65,7 @@ namespace Bonsai.Expressions
                     Attribute.IsDefined(p[p.Length - 1], typeof(ParamArrayAttribute)));
 
                 if (paramArray) SetArgumentRange(1, maxArgumentCount = int.MaxValue);
+                else if (processMethodParameters.Length == 0) SetArgumentRange(0, maxArgumentCount = int.MaxValue);
                 else
                 {
                     var min = processMethodParameters.Min(p => p.Length);
