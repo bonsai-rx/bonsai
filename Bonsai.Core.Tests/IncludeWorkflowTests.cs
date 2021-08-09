@@ -138,6 +138,20 @@ namespace Bonsai.Core.Tests
             var result = workflowBuilder.Workflow.Build(unitArgument);
             Assert.AreEqual(unitArgument.Type, result.Type);
         }
+
+        [TestMethod]
+        public void Build_NestedIncludeWorkflowMissing_EnsureStackTrace()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowMissing.bonsai");
+            try { workflowBuilder.Workflow.Build(); }
+            catch (WorkflowBuildException ex)
+            {
+                Assert.IsInstanceOfType(ex.Builder, typeof(IncludeWorkflowBuilder));
+                Assert.IsInstanceOfType(ex.InnerException, typeof(WorkflowBuildException));
+                ex = (WorkflowBuildException)ex.InnerException;
+                Assert.IsNotInstanceOfType(ex.Builder, typeof(IncludeWorkflowBuilder));
+            }
+        }
     }
 
     public class PolymorphicPropertyTest : Sink
