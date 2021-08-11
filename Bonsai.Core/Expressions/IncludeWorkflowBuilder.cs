@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -87,6 +87,18 @@ namespace Bonsai.Expressions
         public string Description
         {
             get { return description; }
+        }
+
+        /// <summary>
+        /// Gets the range of input arguments the included workflow accepts.
+        /// </summary>
+        public override Range<int> ArgumentRange
+        {
+            get
+            {
+                if (workflow == null) EnsureWorkflow();
+                return base.ArgumentRange;
+            }
         }
 
         IBuildContext IRequireBuildContext.BuildContext
