@@ -179,13 +179,15 @@ namespace Bonsai.NuGet.Design
         {
             iconCache.Clear();
             var prefix = SearchPrefix;
+            var updateFeed = getUpdateFeed();
             var searchTerm = searchComboBox.Text;
+            var pageSize = updateFeed ? int.MaxValue : PackagesPerPage;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
-            packageQuery = new PackageQuery(searchTerm, PackagesPerPage, GetPackageQuery(searchTerm));
+            packageQuery = new PackageQuery(searchTerm, pageSize, GetPackageQuery(searchTerm, updateFeed));
             packagePageSelector.SelectedPage = 0;
         }
 
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, bool updateFeed)
         {
             if (PackageManager == null)
             {
@@ -194,7 +196,6 @@ namespace Bonsai.NuGet.Design
 
             var selectedRepository = SelectedRepository;
             var allowPrereleaseVersions = AllowPrereleaseVersions;
-            var updateFeed = getUpdateFeed();
             if (selectedRepository == null)
             {
                 var repositories = PackageManager.SourceRepositoryProvider.GetRepositories();
