@@ -95,7 +95,7 @@ namespace Bonsai.Expressions
         {
             for (int i = 0; i < properties.Length; i++)
             {
-                if (!properties[i].CanResetValue(component))
+                if (!properties[i].CanResetValue(instances[i]))
                 {
                     return false;
                 }
@@ -186,7 +186,7 @@ namespace Bonsai.Expressions
         {
             for (int i = 0; i < properties.Length; i++)
             {
-                if (properties[i].ShouldSerializeValue(component))
+                if (properties[i].ShouldSerializeValue(instances[i]))
                 {
                     return true;
                 }
