@@ -181,13 +181,13 @@ namespace Bonsai.NuGet.Design
             var prefix = SearchPrefix;
             var updateFeed = getUpdateFeed();
             var searchTerm = searchComboBox.Text;
-            var pageSize = updateFeed ? int.MaxValue : PackagesPerPage;
+            var pageSize = updateFeed || SelectedRepository == PackageManager.LocalRepository ? int.MaxValue - 1 : PackagesPerPage;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
-            packageQuery = new PackageQuery(searchTerm, pageSize, GetPackageQuery(searchTerm, updateFeed));
+            packageQuery = new PackageQuery(searchTerm, pageSize, GetPackageQuery(searchTerm, pageSize, updateFeed));
             packagePageSelector.SelectedPage = 0;
         }
 
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, bool updateFeed)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, int pageSize, bool updateFeed)
         {
             if (PackageManager == null)
             {
@@ -199,22 +199,22 @@ namespace Bonsai.NuGet.Design
             if (selectedRepository == null)
             {
                 var repositories = PackageManager.SourceRepositoryProvider.GetRepositories();
-                var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, allowPrereleaseVersions, updateFeed)).ToList();
+                var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, pageSize, allowPrereleaseVersions, updateFeed)).ToList();
                 if (packageQueries.Count == 1) return packageQueries[0];
                 else return AggregateQuery.Create(packageQueries, results => results.SelectMany(xs => xs));
             }
 
-            return GetPackageQuery(selectedRepository, searchTerm, allowPrereleaseVersions, updateFeed);
+            return GetPackageQuery(selectedRepository, searchTerm, pageSize, allowPrereleaseVersions, updateFeed);
         }
 
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, bool includePrerelease, bool updateFeed)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
         {
             if (updateFeed)
             {
                 var localPackages = PackageManager.LocalRepository.GetLocalPackages();
                 return new UpdateQuery(repository, localPackages, includePrerelease);
             }
-            else return new SearchQuery(repository, searchTerm, PackagesPerPage, includePrerelease, packageTypes);
+            else return new SearchQuery(repository, searchTerm, pageSize, includePrerelease, packageTypes);
         }
 
         static Bitmap ResizeImage(Image image, Size newSize)
