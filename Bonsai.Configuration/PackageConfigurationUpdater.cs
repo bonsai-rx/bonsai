@@ -187,11 +187,14 @@ namespace Bonsai.Configuration
             foreach (var path in assemblyLocations)
             {
                 var assemblyFile = Path.Combine(installPath, path);
-                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                packageConfiguration.AssemblyLocations.Remove(Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture));
-                if (removeReference)
+                var location = packageConfiguration.AssemblyLocations.FirstOrDefault(item => item.Location == assemblyFile);
+                if (location != null)
                 {
-                    packageConfiguration.AssemblyReferences.Remove(assemblyName.Name);
+                    packageConfiguration.AssemblyLocations.Remove(Tuple.Create(location.AssemblyName, location.ProcessorArchitecture));
+                    if (removeReference)
+                    {
+                        packageConfiguration.AssemblyReferences.Remove(location.AssemblyName);
+                    }
                 }
             }
         }
@@ -399,7 +402,7 @@ namespace Bonsai.Configuration
                 return base.OnPackageInstalledAsync(package, projectFramework, packageReader, installPath);
             }
 
-            public override async Task<bool> OnPackageUninstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
+            public override async Task OnPackageUninstalledAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var taggedPackage = IsTaggedPackage(packageReader);
                 var relativePath = Owner.GetRelativePath(installPath);
@@ -407,7 +410,7 @@ namespace Bonsai.Configuration
 
                 Owner.RemoveContentFolders(packageReader, installPath, ExtensionsDirectory);
                 Owner.RemoveLibraryFolders(packageReader, relativePath);
-                Owner.RemoveAssemblyLocations(packageReader, installPath, false);
+                Owner.RemoveAssemblyLocations(packageReader, relativePath, false);
                 var pivots = OverlayHelper.FindPivots(packageReader, installPath).ToArray();
                 if (pivots.Length > 0)
                 {
@@ -419,13 +422,13 @@ namespace Bonsai.Configuration
                         {
                             using var pivotReader = pivotPackage.GetReader();
                             Owner.RemoveLibraryFolders(pivotReader, relativePath);
-                            Owner.RemoveAssemblyLocations(pivotReader, installPath, false);
+                            Owner.RemoveAssemblyLocations(pivotReader, relativePath, false);
                         }
                     }
                 }
 
                 var assemblyLocations = GetCompatibleAssemblyReferences(Owner.bootstrapperFramework, packageReader);
-                Owner.RemoveAssemblyLocations(assemblyLocations, installPath, taggedPackage);
+                Owner.RemoveAssemblyLocations(assemblyLocations, relativePath, taggedPackage);
                 Owner.packageConfiguration.Save();
 
                 if (pivots.Length > 0)
@@ -439,8 +442,6 @@ namespace Bonsai.Configuration
                         await overlayManager.UninstallPackageAsync(pivotIdentity, projectFramework, removeDependencies: false, CancellationToken.None);
                     }
                 }
-
-                return true;
             }
         }
 
