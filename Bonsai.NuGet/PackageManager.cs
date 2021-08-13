@@ -143,19 +143,19 @@ namespace Bonsai.NuGet
                 foreach (var plugin in PackageManagerPlugins)
                 {
                     var accepted = await plugin.OnPackageUninstallingAsync(package.Identity, projectFramework, packageReader, installPath);
-                    if (!accepted) continue;
+                    if (!accepted) return;
                 }
 
                 await DeletePackageFiles(packageReader, installPath, token);
+                foreach (var plugin in PackageManagerPlugins)
+                {
+                    await plugin.OnPackageUninstalledAsync(package.Identity, projectFramework, packageReader, installPath);
+                }
             }
 
             FileUtility.Delete(package.Path);
             var installTree = new DirectoryInfo(installPath);
             DeleteDirectoryTree(installTree);
-            foreach (var plugin in PackageManagerPlugins)
-            {
-                await plugin.OnPackageUninstalledAsync(package.Identity, projectFramework, null, installPath);
-            }
         }
 
         public async Task<IEnumerable<LocalPackageInfo>> GetInstalledPackagesAsync(CancellationToken token)
