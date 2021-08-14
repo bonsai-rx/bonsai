@@ -11,9 +11,13 @@ namespace Bonsai.Scripting
         {
             var engine = Python.CreateEngine();
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var lib = Path.Combine(basePath, "../../../IronPython.StdLib.2.7.5/content/Lib");
-            var sitePackages = Path.Combine(lib, "site-packages");
-            engine.SetSearchPaths(new[] { lib, sitePackages });
+            var libPath = Directory.GetDirectories(Path.Combine(basePath, "../../../"), "IronPython.StdLib.*");
+            if (libPath.Length == 1)
+            {
+                var lib = Path.Combine(libPath[0], $"content/Lib");
+                var sitePackages = Path.Combine(lib, "site-packages");
+                engine.SetSearchPaths(new[] { lib, sitePackages });
+            }
             return engine;
         }
     }
