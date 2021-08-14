@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -920,9 +920,11 @@ namespace Bonsai.Editor.GraphView
                         {
                             WorkflowBuilder workflowBuilder;
                             try { workflowBuilder = editorService.LoadWorkflow(path[0]); }
-                            catch (InvalidOperationException ex)
+                            catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
                             {
-                                uiService.ShowError(ex.InnerException, Resources.OpenWorkflow_Error);
+                                var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                                errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(path[0]), errorMessage);
+                                uiService.ShowError(errorMessage);
                                 return;
                             }
 

@@ -189,8 +189,8 @@ Copyright (c) .NET Foundation and Contributors</value>
     <value>Interface Error</value>
   </data>
   <data name="OpenWorkflow_Error" xml:space="preserve">
-    <value>There was an error opening the Bonsai workflow:
-{0}</value>
+    <value>There was an error opening the workflow {0}:
+{1}</value>
   </data>
   <data name="OpenWorkflow_Error_Caption" xml:space="preserve">
     <value>Open Error</value>

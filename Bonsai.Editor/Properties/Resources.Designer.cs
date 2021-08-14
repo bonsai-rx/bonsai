@@ -286,8 +286,8 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an error opening the Bonsai workflow:
-        ///{0}.
+        ///   Looks up a localized string similar to There was an error opening the workflow {0}:
+        ///{1}.
         /// </summary>
         internal static string OpenWorkflow_Error {
             get {

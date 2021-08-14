@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -830,16 +830,16 @@ namespace Bonsai.Editor
         {
             SemanticVersion workflowVersion;
             try { workflowBuilder = LoadWorkflow(fileName, out workflowVersion); }
-            catch (InvalidOperationException ex)
+            catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
             {
-                var activeException = ex.InnerException != null ? ex.InnerException : ex;
+                var activeException = ex.InnerException ?? ex;
                 var errorMessage = activeException.Message;
                 if (activeException.InnerException != null)
                 {
                     errorMessage += Environment.NewLine + activeException.InnerException.Message;
                 }
 
-                errorMessage = string.Format(Resources.OpenWorkflow_Error, errorMessage);
+                errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(fileName), errorMessage);
                 MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
@@ -853,7 +853,8 @@ namespace Bonsai.Editor
                 try { workflowBuilder.Workflow.Build(); }
                 catch (WorkflowBuildException ex)
                 {
-                    var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                    var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(fileName), errorMessage);
                     MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
