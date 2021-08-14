@@ -103,6 +103,9 @@ namespace Bonsai
                                 Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
                             }
                         }
+                        AppResult.SetResult(EditorResult.Exit);
+                        AppResult.SetResult(initialFileName);
+                        return (int)launchResult;
                     }
                 }
 
@@ -163,7 +166,7 @@ namespace Bonsai
                 do
                 {
                     string[] editorArgs;
-                    if (startScreen) launchResult = EditorResult.Exit;
+                    if (launchEditor && startScreen) launchResult = EditorResult.Exit;
                     if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
                     else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
                     else if (launchResult == EditorResult.ManagePackages)
@@ -196,9 +199,10 @@ namespace Bonsai
 
                     var editorFlags = AppResult.GetResult<EditorFlags>(editorDomain);
                     launchResult = AppResult.GetResult<EditorResult>(editorDomain);
-                    if (startScreen && launchResult == EditorResult.ReloadEditor)
+                    if (launchEditor)
                     {
-                        startScreen = false;
+                        if (launchResult == EditorResult.ReloadEditor) launchEditor = false;
+                        else startScreen = launchResult != EditorResult.Exit;
                     }
 
                     if (launchResult != EditorResult.Exit && launchResult != EditorResult.ReloadEditor)
