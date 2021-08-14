@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -15,6 +15,7 @@ using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
 using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
+using System.Xml;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -241,12 +242,17 @@ namespace Bonsai.Editor.GraphView
 
         private void InsertWorkflow(ExpressionBuilderGraph workflow)
         {
+            var branch = ModifierKeys.HasFlag(BranchModifier);
+            var nodeType = ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+            InsertWorkflow(workflow, nodeType, branch);
+        }
+
+        private void InsertWorkflow(ExpressionBuilderGraph workflow, CreateGraphNodeType nodeType, bool branch)
+        {
             if (workflow.Count > 0)
             {
-                var branch = Control.ModifierKeys.HasFlag(BranchModifier);
-                var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 commandExecutor.BeginCompositeCommand();
-                Editor.InsertGraphElements(workflow, predecessor, branch);
+                Editor.InsertGraphElements(workflow, nodeType, branch);
                 commandExecutor.EndCompositeCommand();
             }
         }
@@ -819,10 +825,9 @@ namespace Bonsai.Editor.GraphView
             }
             else if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
-                var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                if (path != null && path.Length == 1 &&
-                    Path.GetExtension(path[0]) == BonsaiExtension &&
-                    File.Exists(path[0]))
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                if (files != null && Array.TrueForAll(files, path =>
+                    Path.GetExtension(path) == BonsaiExtension))
                 {
                     OnDragFileDrop(e);
                 }
@@ -915,24 +920,26 @@ namespace Bonsai.Editor.GraphView
                     var group = (e.KeyState & CtrlModifier) != 0;
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
-                        var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                        if (path.Length == 1)
+                        var files = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                        var elements = new ExpressionBuilderGraph();
+                        foreach (var path in files)
                         {
                             WorkflowBuilder workflowBuilder;
-                            try { workflowBuilder = editorService.LoadWorkflow(path[0]); }
+                            try { workflowBuilder = editorService.LoadWorkflow(path); }
                             catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
                             {
                                 var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                                errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(path[0]), errorMessage);
+                                errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(path), errorMessage);
                                 uiService.ShowError(errorMessage);
                                 return;
                             }
 
                             var groupBuilder = new GroupWorkflowBuilder(workflowBuilder.Workflow);
-                            groupBuilder.Name = Path.GetFileNameWithoutExtension(path[0]);
+                            groupBuilder.Name = Path.GetFileNameWithoutExtension(path);
                             groupBuilder.Description = workflowBuilder.Description;
-                            Editor.CreateGraphNode(groupBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
+                            elements.Add(groupBuilder);
                         }
+                        InsertWorkflow(elements, nodeType, branch);
                     }
                     else
                     {
@@ -952,9 +959,14 @@ namespace Bonsai.Editor.GraphView
                 {
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
-                        var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                        var includeBuilder = new IncludeWorkflowBuilder { Path = PathConvert.GetProjectPath(path[0]) };
-                        Editor.CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
+                        var files = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                        var elements = new ExpressionBuilderGraph();
+                        foreach (var path in files)
+                        {
+                            var includeBuilder = new IncludeWorkflowBuilder { Path = PathConvert.GetProjectPath(path) };
+                            elements.Add(includeBuilder);
+                        }
+                        InsertWorkflow(elements, nodeType, branch);
                     }
                     else
                     {
