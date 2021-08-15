@@ -152,6 +152,28 @@ namespace Bonsai.Core.Tests
                 Assert.IsNotInstanceOfType(ex.Builder, typeof(IncludeWorkflowBuilder));
             }
         }
+
+        [TestMethod]
+        public void Deserialize_SharedMixedXElementProperties_EnsureAssignment()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflow.SharedProperties.Mixed.bonsai");
+            workflowBuilder.Workflow.Build();
+
+            var dueTimeProperty = TypeDescriptor.GetProperties(workflowBuilder.Workflow)["DueTime"];
+            var dueTime = dueTimeProperty.GetValue(workflowBuilder.Workflow);
+            Assert.AreEqual(TimeSpan.FromSeconds(1), dueTime);
+        }
+
+        [TestMethod]
+        public void Deserialize_PureMixedXElementProperties_EnsureAssignment()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflow.SharedProperties.Pure.bonsai");
+            workflowBuilder.Workflow.Build();
+
+            var dueTimeProperty = TypeDescriptor.GetProperties(workflowBuilder.Workflow)["DueTime"];
+            var dueTime = dueTimeProperty.GetValue(workflowBuilder.Workflow);
+            Assert.AreEqual(TimeSpan.FromSeconds(1), dueTime);
+        }
     }
 
     public class PolymorphicPropertyTest : Sink
