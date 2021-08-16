@@ -89,19 +89,16 @@ namespace Bonsai.Design
             {
                 get
                 {
-                    var desktopBounds = Bounds;
-                    if (WindowState != FormWindowState.Normal)
-                    {
-                        desktopBounds.Size = RestoreBounds.Size;
-                    }
-                    else desktopBounds = DesktopBounds;
-                    return ScaleBounds(desktopBounds, inverseScaleFactor);
+                    var layoutBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
+                    return ScaleBounds(layoutBounds, inverseScaleFactor);
                 }
                 set
                 {
-                    var bounds = ScaleBounds(value, scaleFactor);
-                    if (bounds.Size.IsEmpty) DesktopLocation = bounds.Location;
-                    else DesktopBounds = bounds;
+                    var layoutBounds = ScaleBounds(value, scaleFactor);
+                    if (layoutBounds.Width > 0)
+                    {
+                        Bounds = layoutBounds;
+                    }
                 }
             }
 

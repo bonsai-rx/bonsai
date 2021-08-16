@@ -243,7 +243,7 @@ namespace Bonsai.Editor
             var desktopBounds = ScaleBounds(EditorSettings.Instance.DesktopBounds, scaleFactor);
             if (desktopBounds.Width > 0)
             {
-                DesktopBounds = desktopBounds;
+                Bounds = desktopBounds;
             }
 
             WindowState = EditorSettings.Instance.WindowState;
@@ -253,13 +253,8 @@ namespace Bonsai.Editor
         void CloseEditorForm()
         {
             Application.RemoveMessageFilter(hotKeys);
-            var desktopBounds = EditorSettings.Instance.DesktopBounds;
-            if (WindowState != FormWindowState.Normal)
-            {
-                desktopBounds.Size = RestoreBounds.Size;
-            }
-            else desktopBounds = ScaleBounds(DesktopBounds, inverseScaleFactor);
-            EditorSettings.Instance.DesktopBounds = desktopBounds;
+            var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
+            EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
             if (WindowState == FormWindowState.Minimized)
             {
                 EditorSettings.Instance.WindowState = FormWindowState.Normal;
