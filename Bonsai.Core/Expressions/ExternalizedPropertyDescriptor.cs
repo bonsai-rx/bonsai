@@ -95,7 +95,7 @@ namespace Bonsai.Expressions
         {
             for (int i = 0; i < properties.Length; i++)
             {
-                if (!properties[i].CanResetValue(instances[i]))
+                if (!properties[i].CanResetValue(instances[i] ?? component))
                 {
                     return false;
                 }
@@ -130,7 +130,7 @@ namespace Bonsai.Expressions
             for (int i = 0; i < properties.Length; i++)
             {
                 if (properties[i] == null) continue;
-                var value = properties[i].GetValue(instances[i]);
+                var value = properties[i].GetValue(instances[i] ?? component);
                 if (result == null) result = value;
                 else if (!result.Equals(value)) return null;
             }
@@ -169,7 +169,7 @@ namespace Bonsai.Expressions
             for (int i = 0; i < properties.Length; i++)
             {
                 if (properties[i] == null) continue;
-                properties[i].ResetValue(instances[i]);
+                properties[i].ResetValue(instances[i] ?? component);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Bonsai.Expressions
             for (int i = 0; i < properties.Length; i++)
             {
                 if (properties[i] == null) continue;
-                properties[i].SetValue(instances[i], value);
+                properties[i].SetValue(instances[i] ?? component, value);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Bonsai.Expressions
         {
             for (int i = 0; i < properties.Length; i++)
             {
-                if (properties[i].ShouldSerializeValue(instances[i]))
+                if (properties[i].ShouldSerializeValue(instances[i] ?? component))
                 {
                     return true;
                 }

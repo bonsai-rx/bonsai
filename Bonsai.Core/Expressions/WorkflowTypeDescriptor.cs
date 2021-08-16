@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Bonsai.Expressions
 {
@@ -9,7 +10,6 @@ namespace Bonsai.Expressions
         readonly AttributeCollection attributes;
         readonly ExpressionBuilderGraph workflow;
         static readonly Attribute[] EmptyAttributes = new Attribute[0];
-        static readonly PropertyDescriptor[] EmptyProperties = new PropertyDescriptor[0];
         static readonly Attribute[] ExternalizableAttributes = new Attribute[] { BrowsableAttribute.Yes, ExternalizableAttribute.Default };
 
         public WorkflowTypeDescriptor(object instance, params Attribute[] attrs)
@@ -42,20 +42,20 @@ namespace Bonsai.Expressions
                              let targetProperties = Array.ConvertAll(targetComponents, component => TypeDescriptor.GetProperties(component, ExternalizableAttributes))
                              from property in externalizedBuilder.GetExternalizedProperties()
                              where !string.IsNullOrEmpty(property.Name)
-                             let aggregateProperties = GetAggregateProperties(property, targetProperties)
-                             where aggregateProperties.Length > 0
-                             select new ExternalizedPropertyDescriptor(property, aggregateProperties, targetComponents);
+                             let workflowProperty = GetWorkflowProperty(property, targetProperties, targetComponents)
+                             where workflowProperty != null
+                             select workflowProperty;
             return new PropertyDescriptorCollection(properties.ToArray());
         }
 
-        static PropertyDescriptor[] GetAggregateProperties(ExternalizedMapping property, PropertyDescriptorCollection[] components)
+        static ExternalizedPropertyDescriptor GetWorkflowProperty(ExternalizedMapping property, PropertyDescriptorCollection[] targetProperties, object[] targetComponents)
         {
             var propertyType = default(Type);
-            var properties = new PropertyDescriptor[components.Length];
+            var properties = new PropertyDescriptor[targetProperties.Length];
             for (int i = 0; i < properties.Length; i++)
             {
-                var descriptor = components[i][property.Name];
-                if (descriptor == null) return EmptyProperties;
+                var descriptor = targetProperties[i][property.Name];
+                if (descriptor == null) return null;
 
                 if (propertyType == null)
                 {
@@ -63,13 +63,17 @@ namespace Bonsai.Expressions
                 }
                 else if (descriptor.PropertyType != propertyType)
                 {
-                    return EmptyProperties;
+                    if (descriptor is XmlPropertyDescriptor || propertyType == typeof(XElement))
+                    {
+                        return IncludeWorkflowBuilder.GetDeferredProperties(property, targetProperties, targetComponents);
+                    }
+                    else return null;
                 }
 
                 properties[i] = descriptor;
             }
 
-            return properties;
+            return new ExternalizedPropertyDescriptor(property, properties, targetComponents);
         }
     }
 }

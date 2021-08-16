@@ -492,5 +492,133 @@ namespace Bonsai.Expressions
                 }
             }
         }
+
+        class IncludeWorkflowDeferredPropertyDescriptor : PropertyDescriptor
+        {
+            readonly ExternalizedPropertyDescriptor property;
+
+            public IncludeWorkflowDeferredPropertyDescriptor(ExternalizedPropertyDescriptor externalizedProperty)
+                : base(externalizedProperty)
+            {
+                property = externalizedProperty;
+            }
+
+            public override Type ComponentType
+            {
+                get { return typeof(IncludeWorkflowBuilder); }
+            }
+
+            public override bool IsReadOnly
+            {
+                get { return false; }
+            }
+
+            public override Type PropertyType
+            {
+                get { return typeof(XElement); }
+            }
+
+            public override bool CanResetValue(object component)
+            {
+                return false;
+            }
+
+            public override object GetValue(object component)
+            {
+                if (!(component is IncludeWorkflowBuilder includeWorkflow))
+                {
+                    throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component));
+                }
+
+                var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
+                return includeWorkflow.SerializeProperty(serializableProperty);
+            }
+
+            public override void ResetValue(object component)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetValue(object component, object value)
+            {
+                if (!(value is XElement element))
+                {
+                    throw new ArgumentException("Incompatible types found in workflow property assignment.", nameof(value));
+                }
+
+                if (!(component is IncludeWorkflowBuilder includeWorkflow))
+                {
+                    throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component));
+                }
+
+                var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
+                includeWorkflow.DeserializeProperty(element, serializableProperty);
+            }
+
+            public override bool ShouldSerializeValue(object component)
+            {
+                return false;
+            }
+        }
+
+        struct DescriptorInfo
+        {
+            public PropertyDescriptor Property;
+            public object Component;
+        }
+
+        static void GetDescriptorProperties(List<DescriptorInfo> descriptors, out PropertyDescriptor[] properties, out object[] components)
+        {
+            properties = new PropertyDescriptor[descriptors.Count];
+            components = new object[descriptors.Count];
+            for (int i = 0; i < descriptors.Count; i++)
+            {
+                properties[i] = descriptors[i].Property;
+                components[i] = descriptors[i].Component;
+            }
+        }
+
+        internal static ExternalizedPropertyDescriptor GetDeferredProperties(ExternalizedMapping property, PropertyDescriptorCollection[] targetProperties, object[] targetComponents)
+        {
+            var propertyType = default(Type);
+            var xmlDescriptors = new List<DescriptorInfo>();
+            var instanceDescriptors = new List<DescriptorInfo>();
+
+            for (int i = 0; i < targetProperties.Length; i++)
+            {
+                DescriptorInfo descriptor;
+                descriptor.Property = targetProperties[i][property.Name];
+                descriptor.Component = targetComponents[i];
+                if (descriptor.Property is XmlPropertyDescriptor)
+                {
+                    xmlDescriptors.Add(descriptor);
+                    continue;
+                }
+
+                if (propertyType == null)
+                {
+                    propertyType = descriptor.Property.PropertyType;
+                }
+                else if (descriptor.Property.PropertyType != propertyType)
+                {
+                    return null;
+                }
+
+                instanceDescriptors.Add(descriptor);
+            }
+
+            if (instanceDescriptors.Count > 0)
+            {
+                DescriptorInfo instanceDescriptor;
+                GetDescriptorProperties(instanceDescriptors, out PropertyDescriptor[] instanceProperties, out object[] instanceComponents);
+                var externalizedProperty = new ExternalizedPropertyDescriptor(property, instanceProperties, instanceComponents);
+                instanceDescriptor.Property = new IncludeWorkflowDeferredPropertyDescriptor(externalizedProperty);
+                instanceDescriptor.Component = null;
+                xmlDescriptors.Add(instanceDescriptor);
+            }
+
+            GetDescriptorProperties(xmlDescriptors, out PropertyDescriptor[] xmlProperties, out object[] xmlComponents);
+            return new ExternalizedPropertyDescriptor(property, xmlProperties, xmlComponents);
+        }
     }
 }
