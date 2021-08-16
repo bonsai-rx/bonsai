@@ -23,6 +23,8 @@ namespace Bonsai.Vision.Design
         CurveItem val3;
         GraphControl graph;
         DateTimeOffset updateTime;
+        float[] binRanges;
+        int binCount;
 
         CurveItem CreateHistogramCurve(Color color)
         {
@@ -37,9 +39,9 @@ namespace Bonsai.Vision.Design
         void UpdateHistogramValues(Histogram histogram, CurveItem values)
         {
             values.Clear();
-            for (int i = 0; i < 256; i++)
+            for (int i = 0; i < binCount; i++)
             {
-                values.AddPoint(i, histogram.QueryValue(i));
+                values.AddPoint(binRanges[i], histogram.QueryValue(i));
             }
         }
 
@@ -55,6 +57,20 @@ namespace Bonsai.Vision.Design
                 if (values == null)
                 {
                     values = CreateHistogramCurve(color);
+                    binCount = histogram.Bins.GetDimSize(0);
+                    binRanges = histogram.GetBinRanges()[0];
+                    if (binRanges.Length != binCount && binRanges.Length == 2)
+                    {
+                        var minMax = binRanges;
+                        var maxRange = minMax[1];
+                        var minRange = minMax[0];
+                        var rangeStep = (maxRange - minRange) / binCount;
+                        binRanges = new float[binCount];
+                        for (int i = 0; i < binRanges.Length; i++)
+                        {
+                            binRanges[i] = minRange + i * rangeStep;
+                        }
+                    }
                 }
 
                 UpdateHistogramValues(histogram, values);
