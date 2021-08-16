@@ -11,7 +11,8 @@ namespace Bonsai.Vision
     {
         static Histogram ComputeChannelHistogram(IplImage channel)
         {
-            var histogram = new Histogram(1, new[] { 256 }, HistogramType.Array, new[] { new[] { 0, 256f } });
+            var range = channel.Depth == IplDepth.U16 ? ushort.MaxValue : byte.MaxValue;
+            var histogram = new Histogram(1, new[] { 256 }, HistogramType.Array, new[] { new[] { 0f, range + 1 } });
             histogram.CalcArrHist(new[] { channel });
             histogram.Normalize(1);
             return histogram;
