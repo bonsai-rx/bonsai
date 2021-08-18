@@ -935,8 +935,9 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
-        void SaveWorkflowExtension(string fileName, GraphNode groupNode)
+        void SaveWorkflowExtension(string fileName, GraphNode node)
         {
+            var groupNode = node;
             var model = selectionModel.SelectedView;
             if (groupNode == null)
             {
@@ -949,17 +950,26 @@ namespace Bonsai.Editor
                 }
             }
 
+            var includePath = PathConvert.GetProjectPath(fileName);
             var groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(groupNode.Value);
-            groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
+            if (groupBuilder.Workflow.Descendants().Any(builder =>
+                    builder is IncludeWorkflowBuilder includeBuilder &&
+                    includeBuilder.Path == includePath))
+            {
+                var errorMessage = string.Format("Included workflow '{0}' includes itself.", includePath);
+                MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (node == null && model.CanEdit) editorSite.Undo(false);
+                return;
+            }
 
+            groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
             var serializerWorkflowBuilder = LayeredGraphExtensions.ToWorkflowBuilder(new[] { groupNode });
             groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
             serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
             serializerWorkflowBuilder.Description = groupBuilder.Description;
             if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder) && model.CanEdit)
             {
-                var includeBuilder = new IncludeWorkflowBuilder();
-                includeBuilder.Path = PathConvert.GetProjectPath(fileName);
+                var includeBuilder = new IncludeWorkflowBuilder { Path = includePath };
                 model.Editor.ReplaceGraphNode(groupNode, includeBuilder);
                 editorSite.ValidateWorkflow();
             }
