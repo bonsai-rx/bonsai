@@ -133,9 +133,11 @@ namespace Bonsai.NuGet.Design
             // 
             // prereleaseCheckBox
             // 
-            this.prereleaseCheckBox.Location = new System.Drawing.Point(341, 3);
+            this.prereleaseCheckBox.AutoSize = true;
+            this.prereleaseCheckBox.Location = new System.Drawing.Point(341, 6);
+            this.prereleaseCheckBox.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.prereleaseCheckBox.Name = "prereleaseCheckBox";
-            this.prereleaseCheckBox.Size = new System.Drawing.Size(160, 26);
+            this.prereleaseCheckBox.Size = new System.Drawing.Size(147, 21);
             this.prereleaseCheckBox.TabIndex = 4;
             this.prereleaseCheckBox.Text = "Include prerelease";
             this.prereleaseCheckBox.UseVisualStyleBackColor = true;
@@ -420,6 +422,7 @@ namespace Bonsai.NuGet.Design
             this.mainLayoutPanel.ResumeLayout(false);
             this.packageViewLayoutPanel.ResumeLayout(false);
             this.filterLayoutPanel.ResumeLayout(false);
+            this.filterLayoutPanel.PerformLayout();
             this.pageSelectorPanel.ResumeLayout(false);
             this.pageSelectorPanel.PerformLayout();
             this.packageViewPanel.ResumeLayout(false);
