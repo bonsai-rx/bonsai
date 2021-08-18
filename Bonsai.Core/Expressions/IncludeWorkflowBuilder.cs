@@ -44,7 +44,7 @@ namespace Bonsai.Expressions
         }
 
         internal IncludeWorkflowBuilder(IncludeWorkflowBuilder builder, bool inspect)
-            : base(builder.ArgumentRange.LowerBound, builder.ArgumentRange.UpperBound)
+            : base(minArguments: 0, maxArguments: 1)
         {
             inspectWorkflow = inspect;
             workflow = builder.workflow;
