@@ -1,4 +1,4 @@
-﻿namespace Bonsai.NuGet.Design
+namespace Bonsai.NuGet.Design
 {
     partial class PackageManagerDialog
     {
@@ -133,9 +133,11 @@
             // 
             // prereleaseCheckBox
             // 
+            this.prereleaseCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.prereleaseCheckBox.Location = new System.Drawing.Point(341, 3);
             this.prereleaseCheckBox.Name = "prereleaseCheckBox";
-            this.prereleaseCheckBox.Size = new System.Drawing.Size(147, 26);
+            this.prereleaseCheckBox.Size = new System.Drawing.Size(374, 26);
             this.prereleaseCheckBox.TabIndex = 4;
             this.prereleaseCheckBox.Text = "Include prerelease";
             this.prereleaseCheckBox.UseVisualStyleBackColor = true;
