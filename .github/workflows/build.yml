@@ -25,4 +25,10 @@ jobs:
       run: nuget restore Bonsai.sln
  
     - name: Build Bonsai
-      run: msbuild Bonsai.sln /p:Configuration=Release
+      run: msbuild Bonsai.sln /t:Bonsai /p:Configuration=Release
+
+    - name: Build Bonsai32
+      run: msbuild Bonsai.sln /t:Bonsai32 /p:Configuration=Release
+
+    - name: Build Templates
+      run: msbuild Bonsai.Templates/Bonsai.Templates.sln /p:Configuration=Release
