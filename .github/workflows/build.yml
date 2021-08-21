@@ -32,3 +32,9 @@ jobs:
 
     - name: Build Templates
       run: msbuild Bonsai.Templates/Bonsai.Templates.sln /p:Configuration=Release
+
+    - name: Setup WiX
+      run: nuget restore Bonsai.Setup.sln
+
+    - name: Build Installer
+      run: msbuild Bonsai.Setup.sln /p:Configuration=Release
