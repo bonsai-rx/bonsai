@@ -62,7 +62,7 @@
     <Content Include="Dependencies\vcredist_x64.exe" />
     <Content Include="Dependencies\vcredist_x86.exe" />
     <Content Include="License.rtf" />
-    <Content Include="Theme\RtfTheme.xml" />
+    <Content Include="Theme\RtfLargeTheme.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Dependencies" />
