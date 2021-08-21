@@ -10,9 +10,10 @@
 	<Bundle Name="$(var.ProductDisplayName)" Version="!(bind.PackageVersion.Bonsai)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf"
+                                              ShowVersion="yes"
                                               LogoFile="Bonsai.png"
                                               SuppressOptionsUI="no"
-                                              ThemeFile="Theme\RtfTheme.xml"
+                                              ThemeFile="Theme\RtfLargeTheme.xml"
                                               LaunchTarget="Bonsai.exe"
                                               LaunchWorkingFolder="[InstallFolder]"/>
     </BootstrapperApplicationRef>
