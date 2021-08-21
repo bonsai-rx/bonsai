@@ -1,8 +1,0 @@
-Build Configuration
--------------------
-
-In order to properly build the WiX installer, please copy the following packages to this directory.
-
-Visual C++ Redistributable for Visual Studio 2012
-VCRedist x86: vcredist_x86.exe
-VCRedist x64: vcredist_x64.exe

@@ -24,8 +24,8 @@
 
 		<Chain>
       <PackageGroupRef Id="NetFx472Web"/>
-      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
-      <ExePackage Id="VCRT64" SourceFile="Dependencies\vcredist_x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
+      <ExePackage Id="VCRT" SourceFile="vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT64" SourceFile="vcredist_x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
         <MsiProperty Name="INSTALLVSIX" Value="[InstallVsixCheckbox]"/>
