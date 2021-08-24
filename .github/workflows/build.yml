@@ -30,6 +30,9 @@ jobs:
     - name: Build Bonsai32
       run: msbuild Bonsai.sln /t:Bonsai32 /p:Configuration=Release
 
+    - name: Run Tests
+      run: msbuild Bonsai.Tests.proj
+
     - name: Build Templates
       run: msbuild Bonsai.Templates/Bonsai.Templates.sln /p:Configuration=Release
 
