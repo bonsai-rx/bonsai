@@ -72,7 +72,7 @@ namespace Bonsai.Shaders
         }
 
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [FileNameFilter("Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif")]
+        [FileNameFilter("Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff;*.exr|PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg|TIFF Files|*.tif;*.tiff|EXR Files|*.exr|All Files|*.*")]
         [Description("The name of the image file.")]
         public string FileName
         {
