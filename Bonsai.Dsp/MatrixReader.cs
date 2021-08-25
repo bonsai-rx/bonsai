@@ -98,6 +98,7 @@ namespace Bonsai.Dsp
             {
                 var depth = Depth;
                 var channelCount = ChannelCount;
+                var depthSize = ArrHelper.ElementSize(depth);
                 var offset = Offset;
                 if (offset > 0)
                 {
@@ -107,14 +108,13 @@ namespace Bonsai.Dsp
                 var bufferLength = BufferLength;
                 if (bufferLength == 0)
                 {
-                    bufferLength = (int)(reader.BaseStream.Length - offset);
+                    bufferLength = (int)(reader.BaseStream.Length - offset) / depthSize;
                 }
 
                 byte[] buffer = null;
                 while (true)
                 {
                     var output = new Mat(channelCount, bufferLength, depth, 1);
-                    var depthSize = output.Step / bufferLength;
                     buffer = buffer ?? new byte[bufferLength * channelCount * depthSize];
                     var bytesRead = reader.Read(buffer, 0, buffer.Length);
                     if (bytesRead < buffer.Length) yield break;

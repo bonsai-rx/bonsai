@@ -67,6 +67,21 @@ namespace Bonsai.Dsp
             }
         }
 
+        public static int ElementSize(Depth depth)
+        {
+            switch (depth)
+            {
+                case Depth.U8:
+                case Depth.S8: return 1;
+                case Depth.U16:
+                case Depth.S16: return 2;
+                case Depth.S32:
+                case Depth.F32: return 4;
+                case Depth.F64: return 8;
+                default: throw new ArgumentException("Invalid depth was specified.");
+            }
+        }
+
         public static byte[] ToArray(Mat input, MatrixLayout layout = MatrixLayout.RowMajor)
         {
             var step = input.ElementSize * input.Cols;

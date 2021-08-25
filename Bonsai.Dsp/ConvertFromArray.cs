@@ -21,21 +21,6 @@ namespace Bonsai.Dsp
         [Description("The optional number of channels in the output buffer.")]
         public int? Channels { get; set; }
 
-        static int ElementSize(Depth depth)
-        {
-            switch (depth)
-            {
-                case OpenCV.Net.Depth.U8:
-                case OpenCV.Net.Depth.S8: return 1;
-                case OpenCV.Net.Depth.U16:
-                case OpenCV.Net.Depth.S16: return 2;
-                case OpenCV.Net.Depth.S32:
-                case OpenCV.Net.Depth.F32: return 4;
-                case OpenCV.Net.Depth.F64: return 8;
-                default: throw new ArgumentException("Invalid depth was specified.");
-            }
-        }
-
         Mat FromArray<TData>(TData[] input, Depth? defaultDepth) where TData : struct
         {
             var size = Size;
@@ -55,8 +40,8 @@ namespace Bonsai.Dsp
                 var rows = size.Height;
                 var cols = size.Width;
                 if (rows == 0 && cols == 0) rows = 1;
-                if (rows == 0) rows = input.Length * elementSize / (ElementSize(depth.Value) * channels.Value * cols);
-                if (cols == 0) cols = input.Length * elementSize / (ElementSize(depth.Value) * channels.Value * rows);
+                if (rows == 0) rows = input.Length * elementSize / (ArrHelper.ElementSize(depth.Value) * channels.Value * cols);
+                if (cols == 0) cols = input.Length * elementSize / (ArrHelper.ElementSize(depth.Value) * channels.Value * rows);
                 return Mat.FromArray(input, rows, cols, depth.Value, channels.Value);
             }
             else return null;
