@@ -20,7 +20,7 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-    - name: Setup VSTest.console.exe
+    - name: Setup VSTest
       uses: darenm/Setup-VSTest@v1
        
     - name: Setup NuGet
@@ -35,8 +35,11 @@ jobs:
     - name: Build Bonsai32
       run: msbuild Bonsai.sln /t:Bonsai32 /p:Configuration=Release
 
-    - name: Run Tests
-      run: msbuild Bonsai.Tests.proj
+    - name: Run Core Tests
+      run: vstest.console Bonsai.Core.Tests\bin\Release\net462\Bonsai.Core.Tests.dll
+      
+    - name: Run System Tests
+      run: vstest.console Bonsai.System.Tests\bin\Release\net462\Bonsai.System.Tests.dll
 
   installer:
     name: Build Installer
