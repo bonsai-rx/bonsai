@@ -35,11 +35,11 @@ jobs:
     - name: Build Bonsai32
       run: msbuild Bonsai.sln /t:Bonsai32 /p:Configuration=Release
 
-    - name: Run Core Tests
-      run: vstest.console .\Bonsai.Core.Tests\bin\Release\net462\Bonsai.Core.Tests.dll
-      
-    - name: Run System Tests
-      run: vstest.console .\Bonsai.System.Tests\bin\Release\net462\Bonsai.System.Tests.dll
+    - name: Build Tests
+      run: msbuild Bonsai.sln /t:Bonsai_Core_Tests /t:Bonsai_System_Tests /p:Configuration=Release
+
+    - name: Run Tests
+      run: vstest.console Bonsai.Core.Tests\bin\Release\net462\Bonsai.Core.Tests.dll Bonsai.System.Tests\bin\Release\net462\Bonsai.System.Tests.dll
 
   installer:
     name: Build Installer
