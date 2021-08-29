@@ -39,7 +39,7 @@ jobs:
       run: msbuild Bonsai.sln /t:Bonsai_Core_Tests /t:Bonsai_System_Tests /p:Configuration=Release
 
     - name: Run Tests
-      run: vstest.console Bonsai.Core.Tests\bin\Release\net462\Bonsai.Core.Tests.dll Bonsai.System.Tests\bin\Release\net462\Bonsai.System.Tests.dll
+      run: msbuild Bonsai.Tests.proj
 
   installer:
     name: Build Installer

@@ -5,7 +5,6 @@
   </ItemGroup>
 
   <Target Name="Test">
-    <Exec Condition=" '@(TestAssemblies)' != ''"
-          Command="vstest.console.exe @(TestAssemblies ->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="vstest.console.exe @(TestAssemblies ->'&quot;%(FullPath)&quot;', ' ')" />
   </Target>
 </Project>
