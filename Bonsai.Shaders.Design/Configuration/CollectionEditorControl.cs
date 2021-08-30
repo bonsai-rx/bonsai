@@ -19,8 +19,6 @@ namespace Bonsai.Shaders.Configuration.Design
         int initialHeight;
         int initialListHeight;
         const int ButtonMargin = 2;
-        static readonly object AfterExpandEvent = new object();
-        static readonly object BeforeExpandEvent = new object();
         static readonly object SelectedItemChangedEvent = new object();
         Lazy<XmlSerializer> itemCollectionSerializer;
 
@@ -67,16 +65,6 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             add { Events.AddHandler(SelectedItemChangedEvent, value); }
             remove { Events.RemoveHandler(SelectedItemChangedEvent, value); }
-        }
-
-        void SetExpanded(bool expanded)
-        {
-            selectionListBox.Visible = expanded;
-            addButton.Visible = expanded;
-            removeButton.Visible = expanded;
-            upButton.Visible = expanded;
-            downButton.Visible = expanded;
-            OnSelectedItemChanged(EventArgs.Empty);
         }
 
         private void OnSelectedItemChanged(EventArgs e)
