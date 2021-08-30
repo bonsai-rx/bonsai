@@ -293,20 +293,15 @@ namespace Bonsai.Resources.Design
 
         private void selectionListBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
-            {
-                Copy();
-            }
-
-            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
-            {
-                Paste();
-            }
-
-            if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
+            if (e.Modifiers == Keys.Control)
             {
                 e.SuppressKeyPress = true;
-                SelectAll();
+                switch (e.KeyCode)
+                {
+                    case Keys.C: Copy(); break;
+                    case Keys.V: Paste(); break;
+                    case Keys.A: SelectAll(); break;
+                }
             }
 
             if (e.KeyCode == Keys.Delete)
