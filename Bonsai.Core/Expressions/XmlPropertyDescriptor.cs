@@ -82,7 +82,7 @@ namespace Bonsai.Expressions
 
         public override bool ShouldSerializeValue(object component)
         {
-            return false;
+            return true;
         }
 
         class XProperty : XElement

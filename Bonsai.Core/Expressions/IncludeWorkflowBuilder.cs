@@ -531,7 +531,12 @@ namespace Bonsai.Expressions
                 }
 
                 var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
-                return includeWorkflow.SerializeProperty(serializableProperty);
+                if (serializableProperty != null)
+                {
+                    return includeWorkflow.SerializeProperty(serializableProperty);
+                }
+
+                return null;
             }
 
             public override void ResetValue(object component)
@@ -552,12 +557,15 @@ namespace Bonsai.Expressions
                 }
 
                 var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
-                includeWorkflow.DeserializeProperty(element, serializableProperty);
+                if (serializableProperty != null)
+                {
+                    includeWorkflow.DeserializeProperty(element, serializableProperty);
+                }
             }
 
             public override bool ShouldSerializeValue(object component)
             {
-                return false;
+                return true;
             }
         }
 
