@@ -126,15 +126,25 @@ namespace Bonsai.Expressions
 
         public override object GetValue(object component)
         {
+            return GetValue(component, out _);
+        }
+
+        public object GetValue(object component, out bool allEqual)
+        {
             var result = default(object);
             for (int i = 0; i < properties.Length; i++)
             {
                 if (properties[i] == null) continue;
                 var value = properties[i].GetValue(instances[i] ?? component);
                 if (result == null) result = value;
-                else if (!result.Equals(value)) return null;
+                else if (!result.Equals(value))
+                {
+                    allEqual = false;
+                    return null;
+                }
             }
 
+            allEqual = true;
             return result;
         }
 

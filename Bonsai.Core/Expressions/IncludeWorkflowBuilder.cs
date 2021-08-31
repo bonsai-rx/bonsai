@@ -166,7 +166,10 @@ namespace Bonsai.Expressions
         XElement[] GetXmlProperties()
         {
             var properties = TypeDescriptor.GetProperties(this);
-            return GetXmlSerializableProperties(properties).Select(SerializeProperty).ToArray();
+            return GetXmlSerializableProperties(properties)
+                .Select(SerializeProperty)
+                .Where(element => element != null)
+                .ToArray();
         }
 
         void SetXmlProperties(XElement[] xmlProperties)
@@ -252,13 +255,16 @@ namespace Bonsai.Expressions
             }
         }
 
-        XElement SerializeProperty(PropertyDescriptor property)
+        XElement SerializeProperty(ExternalizedPropertyDescriptor property)
         {
+            var value = property.GetValue(this, out bool allEqual);
+            if (!allEqual) return null;
+
             var document = new XDocument();
             var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
             using (var writer = document.CreateWriter())
             {
-                serializer.Serialize(writer, property.GetValue(this), DefaultSerializerNamespaces);
+                serializer.Serialize(writer, value, DefaultSerializerNamespaces);
             }
             return document.Root;
         }
