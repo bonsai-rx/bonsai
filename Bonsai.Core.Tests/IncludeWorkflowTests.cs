@@ -87,29 +87,6 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_SerializeWorkflowWithPolymorphicProperties_NoPrefixClash()
-        {
-            var builder = new WorkflowBuilder();
-            var polymorphic = new PolymorphicPropertyTest();
-            polymorphic.Types.Add(new PolyType());
-            polymorphic.Types.Add(new MorphicType());
-            polymorphic.Types.Add(new ExtraTypes.ExtraType());
-            builder.Workflow.Add(new CombinatorBuilder { Combinator = polymorphic });
-
-            using (var sw = new StringWriter())
-            using (var writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true }))
-            {
-                WorkflowBuilder.Serializer.Serialize(writer, builder);
-                var text = sw.ToString();
-                var output = XDocument.Parse(text);
-                var result = output.Root
-                    .Descendants()
-                    .Any(element => element.Name.LocalName == typeof(PolymorphicType).Name);
-                Assert.IsTrue(result);
-            }
-        }
-
-        [TestMethod]
         public void Build_IncludedWorkflowWithPolymorphicProperties_ReuseTopLevelPrefixes()
         {
             var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowPolymorphic.bonsai");
@@ -150,6 +127,49 @@ namespace Bonsai.Core.Tests
                 Assert.IsInstanceOfType(ex.InnerException, typeof(WorkflowBuildException));
                 ex = (WorkflowBuildException)ex.InnerException;
                 Assert.IsNotInstanceOfType(ex.Builder, typeof(IncludeWorkflowBuilder));
+            }
+        }
+
+        [TestMethod]
+        public void Serialize_WorkflowWithPolymorphicProperties_NoPrefixClash()
+        {
+            var builder = new WorkflowBuilder();
+            var polymorphic = new PolymorphicPropertyTest();
+            polymorphic.Types.Add(new PolyType());
+            polymorphic.Types.Add(new MorphicType());
+            polymorphic.Types.Add(new ExtraTypes.ExtraType());
+            builder.Workflow.Add(new CombinatorBuilder { Combinator = polymorphic });
+
+            using (var sw = new StringWriter())
+            using (var writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true }))
+            {
+                WorkflowBuilder.Serializer.Serialize(writer, builder);
+                var text = sw.ToString();
+                var output = XDocument.Parse(text);
+                var result = output.Root
+                    .Descendants()
+                    .Any(element => element.Name.LocalName == typeof(PolymorphicType).Name);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void Serialize_NonEqualExternalizedProperties_DoNotSerializeProperty()
+        {
+            var workflowName = "IncludeWorkflow.SharedProperties.NonEqualProperty.bonsai";
+            var workflowBuilder = LoadEmbeddedWorkflow(workflowName);
+            workflowBuilder.Workflow.Build();
+
+            using (var sw = new StringWriter())
+            using (var writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true }))
+            {
+                WorkflowBuilder.Serializer.Serialize(writer, workflowBuilder);
+                var text = sw.ToString();
+                var output = XDocument.Parse(text);
+                var result = output.Root
+                    .Descendants()
+                    .Any(element => element.Name.LocalName == nameof(Reactive.Timer.DueTime));
+                Assert.IsFalse(result);
             }
         }
 
