@@ -23,31 +23,41 @@ namespace Bonsai.Osc.Net
                 {
                     var sizeBuffer = new byte[sizeof(int)];
                     var dispatcher = new Dispatcher(observer, scheduler);
-                    return scheduler.Schedule(recurse =>
+                    return scheduler.Schedule(async recurse =>
                     {
                         try
                         {
-                            var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                            if (bytesRead == 0) observer.OnCompleted();
-                            else if (bytesRead < sizeBuffer.Length)
+                            var bytesToRead = sizeBuffer.Length;
+                            while (bytesToRead > 0)
                             {
-                                observer.OnError(new InvalidOperationException("Unexpected end of stream."));
+                                var bytesRead = await stream.ReadAsync(sizeBuffer, sizeBuffer.Length - bytesToRead, bytesToRead);
+                                if (bytesRead == 0)
+                                {
+                                    observer.OnCompleted();
+                                    return;
+                                }
+
+                                bytesToRead -= bytesRead;
                             }
-                            else
+
+                            var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
+                            var packet = new byte[packetSize];
+                            bytesToRead = packet.Length;
+
+                            while (bytesToRead > 0)
                             {
-                                var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
-                                var packet = new byte[packetSize];
-                                bytesRead = stream.Read(packet, 0, packet.Length);
-                                if (bytesRead < packet.Length)
+                                var bytesRead = await stream.ReadAsync(packet, packet.Length - bytesToRead, bytesToRead);
+                                if (bytesRead == 0)
                                 {
-                                    observer.OnError(new InvalidOperationException("Unexpected end of stream."));
+                                    observer.OnCompleted();
+                                    return;
                                 }
-                                else
-                                {
-                                    dispatcher.Process(packet);
-                                    recurse();
-                                }
+
+                                bytesToRead -= bytesRead;
                             }
+
+                            dispatcher.Process(packet);
+                            recurse();
                         }
                         catch (Exception e)
                         {
