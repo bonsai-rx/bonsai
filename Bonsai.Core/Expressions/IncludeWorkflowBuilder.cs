@@ -48,9 +48,14 @@ namespace Bonsai.Expressions
         {
             inspectWorkflow = inspect;
             workflow = builder.workflow;
-            if (workflow != null && inspect != builder.inspectWorkflow)
+            if (workflow != null)
             {
-                workflow = inspect ? workflow.ToInspectableGraph() : workflow.FromInspectableGraph();
+                var parameterCount = workflow.GetNestedParameters().Count();
+                SetArgumentRange(0, parameterCount);
+                if (inspect != builder.inspectWorkflow)
+                {
+                    workflow = inspect ? workflow.ToInspectableGraph() : workflow.FromInspectableGraph();
+                }
             }
 
             writeTime = builder.writeTime;
