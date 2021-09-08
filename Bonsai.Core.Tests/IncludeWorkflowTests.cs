@@ -194,6 +194,25 @@ namespace Bonsai.Core.Tests
             var dueTime = dueTimeProperty.GetValue(workflowBuilder.Workflow);
             Assert.AreEqual(TimeSpan.FromSeconds(1), dueTime);
         }
+
+        [TestMethod]
+        public void ArgumentRange_MissingWorkflow_DoNotThrow()
+        {
+            var includeWorkflow = new IncludeWorkflowBuilder { Path = "MissingWorkflow.bonsai" };
+            Assert.AreEqual(0, includeWorkflow.ArgumentRange.LowerBound);
+        }
+
+        [TestMethod]
+        public void ArgumentRange_CopyConstructor_AreEqual()
+        {
+            var includeWorkflow = new IncludeWorkflowBuilder
+            {
+                Path = $"{typeof(IncludeWorkflowTests).Namespace}:IncludeWorkflow.ArgumentRange.TwoInputs.bonsai"
+            };
+            Assert.AreEqual(2, includeWorkflow.ArgumentRange.UpperBound);
+            var inspectWorkflow = includeWorkflow.AsInspectBuilder();
+            Assert.AreEqual(includeWorkflow.ArgumentRange.UpperBound, inspectWorkflow.ArgumentRange.UpperBound);
+        }
     }
 
     public class PolymorphicPropertyTest : Sink

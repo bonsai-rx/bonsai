@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.6.1</Version>
+    <Version>2.6.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.bonsai" />
