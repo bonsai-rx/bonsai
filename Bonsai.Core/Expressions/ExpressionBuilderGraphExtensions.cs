@@ -740,7 +740,7 @@ namespace Bonsai.Expressions
 
                 if (arguments.Count > argumentRange.UpperBound)
                 {
-                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.LowerBound), builder);
+                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.UpperBound), builder);
                 }
 
                 var externalizedBuilder = workflowElement as IExternalizedMappingBuilder;
