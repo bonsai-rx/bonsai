@@ -96,7 +96,11 @@ namespace Bonsai.Expressions
         {
             get
             {
-                if (workflow == null) EnsureWorkflow();
+                if (workflow == null)
+                {
+                    try { EnsureWorkflow(); }
+                    catch (Exception) { }
+                }
                 return base.ArgumentRange;
             }
         }
