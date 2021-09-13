@@ -51,7 +51,7 @@ namespace Bonsai.Shaders.Rendering
                         {
                             modelViewMatrix.Invert();
                         }
-                        else modelViewMatrix = Matrix4.Identity;
+                        else modelViewMatrix = Matrix4.Zero;
                         GL.UniformMatrix4(normalMatrixLocation, transpose: true, ref modelViewMatrix);
                     }
                 };
