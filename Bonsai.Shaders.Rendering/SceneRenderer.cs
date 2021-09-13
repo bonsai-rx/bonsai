@@ -39,11 +39,21 @@ namespace Bonsai.Shaders.Rendering
             var modelViewMatrixLocation = GL.GetUniformLocation(shader.Program, ShaderConstants.ModelViewMatrix);
             if (modelViewMatrixLocation >= 0)
             {
+                var normalMatrixLocation = GL.GetUniformLocation(shader.Program, ShaderConstants.NormalMatrix);
                 setModelViewMatrix = transform =>
                 {
                     var modelViewMatrix = ViewMatrix;
                     Matrix4.Mult(ref transform, ref modelViewMatrix, out modelViewMatrix);
                     GL.UniformMatrix4(modelViewMatrixLocation, transpose: false, ref modelViewMatrix);
+                    if (normalMatrixLocation >= 0)
+                    {
+                        if (modelViewMatrix.Determinant != 0)
+                        {
+                            modelViewMatrix.Invert();
+                        }
+                        else modelViewMatrix = Matrix4.Identity;
+                        GL.UniformMatrix4(normalMatrixLocation, transpose: true, ref modelViewMatrix);
+                    }
                 };
             }
 
