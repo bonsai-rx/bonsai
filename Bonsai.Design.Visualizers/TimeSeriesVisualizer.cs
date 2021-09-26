@@ -84,9 +84,7 @@ namespace Bonsai.Design.Visualizers
             if (array != null)
             {
                 XDate time = DateTime.Now;
-                if (array.Length != view.Graph.NumSeries) view.Graph.NumSeries = array.Length;
-                view.Graph.AddValues(time, array);
-                UpdateView(DateTime.Now);
+                AddValue(time, array);
             }
             else base.Show(value);
         }
@@ -122,6 +120,18 @@ namespace Bonsai.Design.Visualizers
         {
             view.AddValues((XDate)time, value);
             UpdateView(time);
+        }
+
+        internal void AddValue(DateTime time, Array array)
+        {
+            if (array.Length != view.Graph.NumSeries) view.Graph.NumSeries = array.Length;
+            var values = new double[array.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = Convert.ToDouble(array.GetValue(i));
+            }
+
+            AddValue(time, values);
         }
 
         public override void Show(object value)
