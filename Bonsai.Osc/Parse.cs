@@ -45,10 +45,11 @@ namespace Bonsai.Osc
             if (string.IsNullOrEmpty(typeTag)) return source;
             else
             {
+                var typeTagArgument = Expression.Constant(typeTag);
                 var readerParameter = Expression.Parameter(typeof(BinaryReader));
                 var parseMessage = MessageParser.Content(typeTag, readerParameter);
                 var messageParser = Expression.Lambda(parseMessage, readerParameter);
-                return Expression.Call(typeof(Parse), nameof(Process), new[] { messageParser.ReturnType }, source, messageParser);
+                return Expression.Call(typeof(Parse), nameof(Process), new[] { messageParser.ReturnType }, source, typeTagArgument, messageParser);
             }
         }
 
@@ -75,14 +76,21 @@ namespace Bonsai.Osc
             return source.Where(message => message.IsMatch(address));
         }
 
-        static IObservable<TResult> Process<TResult>(IObservable<Message> source, Func<BinaryReader, TResult> messageReader)
+        static IObservable<TResult> Process<TResult>(IObservable<Message> source, string typeTag, Func<BinaryReader, TResult> messageParser)
         {
             return source.Select(message =>
             {
+                const int CommaOffset = 1;
+                if ((message.TypeTag.Length != typeTag.Length + CommaOffset) ||
+                    string.Compare(message.TypeTag, CommaOffset, typeTag, 0, typeTag.Length) != 0)
+                {
+                    throw new InvalidOperationException($"Invalid message type tag: expected {typeTag}, actual {message.TypeTag.Substring(CommaOffset)}.");
+                }
+
                 var contents = message.GetContentStream();
                 using (var reader = new BigEndianReader(contents))
                 {
-                    return messageReader(reader);
+                    return messageParser(reader);
                 }
             });
         }
