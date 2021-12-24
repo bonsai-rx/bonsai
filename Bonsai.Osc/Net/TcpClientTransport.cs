@@ -12,13 +12,11 @@ namespace Bonsai.Osc.Net
     {
         IDisposable subscription;
         TcpTransport connection;
-        readonly TcpClient owner;
         readonly ManualResetEvent initialized;
         readonly Subject<Message> messageReceived;
 
         public TcpClientTransport(TcpClient client, string host, int port)
         {
-            owner = client;
             initialized = new ManualResetEvent(false);
             messageReceived = new Subject<Message>();
             subscription = Observable
@@ -56,7 +54,6 @@ namespace Bonsai.Osc.Net
             {
                 disposable.Dispose();
                 messageReceived.Dispose();
-                owner.Close();
             }
         }
 
