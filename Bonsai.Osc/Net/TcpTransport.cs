@@ -61,7 +61,8 @@ namespace Bonsai.Osc.Net
                         }
                         catch (Exception e)
                         {
-                            observer.OnError(e);
+                            if (!client.Connected) observer.OnCompleted();
+                            else observer.OnError(e);
                         }
                     });
                 }))

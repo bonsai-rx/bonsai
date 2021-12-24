@@ -1,6 +1,7 @@
 ﻿using Bonsai.Osc.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reactive.Linq;
@@ -14,14 +15,14 @@ namespace Bonsai.Osc.Net
         IDisposable subscription;
         readonly TcpListener owner;
         readonly object connectionsLock = new object();
-        readonly Dictionary<TcpClient, TcpTransport> connections;
+        readonly List<TcpTransport> connections;
         readonly Subject<Message> messageReceived;
 
         public TcpServerTransport(TcpListener listener, bool noDelay)
         {
             listener.Start();
             owner = listener;
-            connections = new Dictionary<TcpClient, TcpTransport>();
+            connections = new List<TcpTransport>();
             messageReceived = new Subject<Message>();
             subscription = Observable
                 .FromAsync(owner.AcceptTcpClientAsync)
@@ -31,10 +32,10 @@ namespace Bonsai.Osc.Net
                     () => new TcpTransport(client),
                     transport =>
                     {
-                        lock (connectionsLock) { connections.Add(client, transport); }
+                        lock (connectionsLock) { connections.Add(transport); }
                         return transport.MessageReceived.Finally(() =>
                         {
-                            lock (connectionsLock) { connections.Remove(client); }
+                            lock (connectionsLock) { connections.Remove(transport); }
                             client.Dispose();
                         });
                     }))
@@ -48,12 +49,23 @@ namespace Bonsai.Osc.Net
 
         public void SendPacket(Action<BigEndianWriter> writePacket)
         {
-            lock (connections)
+            lock (connectionsLock)
             {
-                foreach (var connection in connections.Values)
+                connections.RemoveAll(connection =>
                 {
-                    connection.SendPacket(writePacket);
-                }
+                    try
+                    {
+                        connection.SendPacket(writePacket);
+                        return false;
+                    }
+                    catch (Exception ex)
+                    when (ex is IOException ||
+                          ex is ObjectDisposedException ||
+                          ex is ArgumentException)
+                    {
+                        return true;
+                    }
+                });
             }
         }
 
