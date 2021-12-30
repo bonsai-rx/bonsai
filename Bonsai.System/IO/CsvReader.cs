@@ -110,12 +110,12 @@ namespace Bonsai.IO
                 },
                 (reader, token) =>
                 {
-                    if (token.IsCancellationRequested || reader.EndOfStream)
+                    if (token.IsCancellationRequested)
                     {
                         return Task.FromResult(Observable.Empty<TResult>());
                     }
 
-                    return Task.FromResult(source.Select(input =>
+                    return Task.FromResult(source.TakeWhile(input => !reader.EndOfStream).Select(input =>
                     {
                         var line = reader.ReadLine();
                         return parser(line);
