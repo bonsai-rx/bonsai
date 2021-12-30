@@ -100,16 +100,24 @@ namespace Bonsai.Shaders
             GL.BindVertexArray(0);
         }
 
+        MeshInstanced CreateMesh(Shader shader, string meshName, int stride)
+        {
+            if (string.IsNullOrEmpty(meshName))
+            {
+                return null;
+            }
+
+            var mesh = shader.Window.ResourceManager.Load<Mesh>(meshName);
+            var instance = new MeshInstanced(mesh);
+            BindInstanceAttributes(instance, stride, instanceAttributes);
+            return instance;
+        }
+
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
             return Observable.Create<TVertex[]>(observer =>
             {
-                var name = MeshName;
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new InvalidOperationException("A mesh name must be specified.");
-                }
-
+                string meshName = null;
                 MeshInstanced instance = null;
                 return source.CombineEither(
                     ShaderManager.ReserveMaterial(ShaderName),
@@ -117,16 +125,12 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            if (instance == null)
+                            if (meshName != MeshName)
                             {
                                 try
                                 {
-                                    var mesh = material.Window.ResourceManager.Load<Mesh>(name);
-                                    instance = new MeshInstanced(mesh);
-                                    BindInstanceAttributes(
-                                        instance,
-                                        BlittableValueType<TVertex>.Stride,
-                                        instanceAttributes);
+                                    meshName = MeshName;
+                                    instance = CreateMesh(material, meshName, BlittableValueType<TVertex>.Stride);
                                 }
                                 catch (Exception ex)
                                 {
@@ -135,6 +139,7 @@ namespace Bonsai.Shaders
                                 }
                             }
 
+                            if (instance == null) return;
                             if (input != null)
                             {
                                 instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
@@ -156,12 +161,7 @@ namespace Bonsai.Shaders
         {
             return Observable.Create<Mat>(observer =>
             {
-                var name = MeshName;
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new InvalidOperationException("A mesh name must be specified.");
-                }
-
+                string meshName = null;
                 MeshInstanced instance = null;
                 return source.CombineEither(
                     ShaderManager.ReserveMaterial(ShaderName),
@@ -169,16 +169,14 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            if (instance == null && input != null)
+                            if (meshName != MeshName || instance == null)
                             {
                                 try
                                 {
-                                    var mesh = material.Window.ResourceManager.Load<Mesh>(name);
-                                    instance = new MeshInstanced(mesh);
-                                    BindInstanceAttributes(
-                                        instance,
-                                        input.Cols * input.ElementSize,
-                                        instanceAttributes);
+                                    meshName = MeshName;
+                                    instance = input != null
+                                        ? CreateMesh(material, meshName, stride: input.Cols * input.ElementSize)
+                                        : null;
                                 }
                                 catch (Exception ex)
                                 {
