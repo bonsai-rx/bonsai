@@ -12,7 +12,7 @@ namespace Bonsai.Arduino
             return true;
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             if (context != null)
             {
@@ -23,7 +23,6 @@ namespace Bonsai.Arduino
                                      let createPort = ExpressionBuilder.GetWorkflowElement(builder) as CreateArduino
                                      where createPort != null && !string.IsNullOrEmpty(createPort.PortName)
                                      select !string.IsNullOrEmpty(createPort.Name) ? createPort.Name : createPort.PortName)
-                                     .Concat(ArduinoManager.LoadConfiguration().Select(configuration => configuration.PortName))
                                      .Distinct()
                                      .ToList();
 

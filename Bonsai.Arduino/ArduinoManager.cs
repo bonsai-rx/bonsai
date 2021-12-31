@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Arduino
 {
-    public static class ArduinoManager
+    internal static class ArduinoManager
     {
         public const string DefaultConfigurationFile = "Arduino.config";
         static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<Arduino, RefCountDisposable>>();
@@ -34,7 +34,7 @@ namespace Bonsai.Arduino
                 {
                     if (!string.IsNullOrEmpty(arduinoConfiguration.PortName)) portName = arduinoConfiguration.PortName;
                     else if (openConnections.Count == 1) connection = openConnections.Values.Single();
-                    else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
+                    else throw new ArgumentException("An alias or serial port name must be specified.", nameof(portName));
                 }
 
                 if (connection == null && !openConnections.TryGetValue(portName, out connection))
@@ -42,7 +42,9 @@ namespace Bonsai.Arduino
                     var serialPortName = arduinoConfiguration.PortName;
                     if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
 
+#pragma warning disable CS0612 // Type or member is obsolete
                     var configuration = LoadConfiguration();
+#pragma warning restore CS0612 // Type or member is obsolete
                     if (configuration.Contains(serialPortName))
                     {
                         arduinoConfiguration = configuration[serialPortName];
@@ -67,6 +69,7 @@ namespace Bonsai.Arduino
             return new ArduinoDisposable(connection.Item1, connection.Item2.GetDisposable());
         }
 
+        [Obsolete]
         public static ArduinoConfigurationCollection LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
@@ -75,19 +78,8 @@ namespace Bonsai.Arduino
             }
 
             var serializer = new XmlSerializer(typeof(ArduinoConfigurationCollection));
-            using (var reader = XmlReader.Create(DefaultConfigurationFile))
-            {
-                return (ArduinoConfigurationCollection)serializer.Deserialize(reader);
-            }
-        }
-
-        public static void SaveConfiguration(ArduinoConfigurationCollection configuration)
-        {
-            var serializer = new XmlSerializer(typeof(ArduinoConfigurationCollection));
-            using (var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true }))
-            {
-                serializer.Serialize(writer, configuration);
-            }
+            using var reader = XmlReader.Create(DefaultConfigurationFile);
+            return (ArduinoConfigurationCollection)serializer.Deserialize(reader);
         }
     }
 }

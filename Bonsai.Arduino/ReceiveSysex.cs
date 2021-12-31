@@ -5,17 +5,35 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
 {
-    [DefaultProperty("Feature")]
-    [Description("Receives a sequence of system exclusive messages from the specified Arduino.")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of system exclusive messages
+    /// received from the specified Arduino.
+    /// </summary>
+    [DefaultProperty(nameof(Feature))]
+    [Description("Generates a sequence of system exclusive messages received from the specified Arduino.")]
     public class ReceiveSysex : Source<byte[]>
     {
+        /// <summary>
+        /// Gets or sets the name of the serial port used to communicate with the Arduino.
+        /// </summary>
         [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the feature ID used to identify the system exclusive message payload.
+        /// </summary>
         [Description("The feature ID used to identify the system exclusive message payload.")]
         public int Feature { get; set; }
 
+        /// <summary>
+        /// Generates an observable sequence of all the system exclusive messages with the
+        /// specified feature ID received from the Arduino.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="T:byte[]"/> objects containing the payload data which was
+        /// included with each system exclusive message received from the Arduino.
+        /// </returns>
         public override IObservable<byte[]> Generate()
         {
             return Observable.Create<byte[]>(async observer =>

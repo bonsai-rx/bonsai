@@ -48,7 +48,7 @@ namespace Bonsai.Arduino
                 {
                     if (e.Port == port)
                     {
-                        observer.OnNext(connection.Arduino.DigitalRead(pin) != 0);
+                        observer.OnNext(connection.Arduino.DigitalRead(pin));
                     }
                 };
 

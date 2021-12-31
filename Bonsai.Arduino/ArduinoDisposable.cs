@@ -4,24 +4,14 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Arduino
 {
-    public sealed class ArduinoDisposable : ICancelable, IDisposable
+    internal sealed class ArduinoDisposable : ICancelable, IDisposable
     {
         IDisposable resource;
 
         public ArduinoDisposable(Arduino arduino, IDisposable disposable)
         {
-            if (arduino == null)
-            {
-                throw new ArgumentNullException("arduino");
-            }
-
-            if (disposable == null)
-            {
-                throw new ArgumentNullException("disposable");
-            }
-
-            Arduino = arduino;
-            resource = disposable;
+            Arduino = arduino ?? throw new ArgumentNullException(nameof(arduino));
+            resource = disposable ?? throw new ArgumentNullException(nameof(disposable));
         }
 
         public Arduino Arduino { get; private set; }
