@@ -48,8 +48,8 @@ namespace Bonsai.Reactive
         /// </summary>
         /// <param name="obj">The object to compare with this instance.</param>
         /// <returns>
-        /// <b>true</b> if the current instance is equal to the specified object;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if the current instance is equal to the specified object;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public override bool Equals(object obj)
         {

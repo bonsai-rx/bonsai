@@ -72,8 +72,8 @@ namespace Bonsai.Reactive
         /// </summary>
         /// <param name="other">The <see cref="ElementIndex{T}"/> structure to compare to this instance.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="other"/> has the same value and index as this
-        /// instance; otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="other"/> has the same value and index as this
+        /// instance; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Equals(ElementIndex<T> other)
         {
@@ -86,8 +86,8 @@ namespace Bonsai.Reactive
         /// </summary>
         /// <param name="obj">The <see cref="object"/> to test.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="obj"/> is an <see cref="ElementIndex{T}"/> and has the
-        /// same value and index as this <see cref="ElementIndex{T}"/>; otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="obj"/> is an <see cref="ElementIndex{T}"/> and has the
+        /// same value and index as this <see cref="ElementIndex{T}"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -122,8 +122,8 @@ namespace Bonsai.Reactive
         /// <param name="left">The <see cref="ElementIndex{T}"/> structure on the left of the equality operator.</param>
         /// <param name="right">The <see cref="ElementIndex{T}"/> structure on the right of the equality operator.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> have equal value and index;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> have equal value and index;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(ElementIndex<T> left, ElementIndex<T> right)
         {
@@ -136,8 +136,8 @@ namespace Bonsai.Reactive
         /// <param name="left">The <see cref="ElementIndex{T}"/> structure on the left of the inequality operator.</param>
         /// <param name="right">The <see cref="ElementIndex{T}"/> structure on the right of the inequality operator.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> differ either in value or index;
-        /// <b>false</b> if <paramref name="left"/> and <paramref name="right"/> are equal.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> differ either in value or index;
+        /// <see langword="false"/> if <paramref name="left"/> and <paramref name="right"/> are equal.
         /// </returns>
         public static bool operator !=(ElementIndex<T> left, ElementIndex<T> right)
         {

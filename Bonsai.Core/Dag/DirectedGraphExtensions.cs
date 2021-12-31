@@ -269,7 +269,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph to test.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="source"/> has no cycles; otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="source"/> has no cycles; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool Acyclic<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {

@@ -60,7 +60,7 @@ namespace Bonsai.Dag
         /// </summary>
         /// <param name="obj">An object to compare with this instance.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="obj"/> is an instance of <see cref="Edge{TNodeValue, TEdgeLabel}"/>
+        /// <see langword="true"/> if <paramref name="obj"/> is an instance of <see cref="Edge{TNodeValue, TEdgeLabel}"/>
         /// and its index equals the index value of this instance; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)

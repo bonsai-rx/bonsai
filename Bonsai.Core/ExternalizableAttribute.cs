@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Bonsai
 {
@@ -19,8 +19,8 @@ namespace Bonsai
         /// Initializes a new instance of the <see cref="ExternalizableAttribute"/> class.
         /// </summary>
         /// <param name="externalizable">
-        /// <b>true</b> if the property can be explicitly externalized on a workflow editor;
-        /// otherwise, <b>false</b>. The default is <b>true</b>.
+        /// <see langword="true"/> if the property can be explicitly externalized on a workflow editor;
+        /// otherwise, <see langword="false"/>. The default is <see langword="true"/>.
         /// </param>
         public ExternalizableAttribute(bool externalizable)
         {

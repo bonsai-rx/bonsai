@@ -61,8 +61,8 @@ namespace Bonsai
         /// </summary>
         /// <param name="value">The value to test.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="value"/> is between or equal to <see cref="LowerBound"/>
-        /// and <see cref="UpperBound"/>; <b>false</b> otherwise.
+        /// <see langword="true"/> if <paramref name="value"/> is between or equal to <see cref="LowerBound"/>
+        /// and <see cref="UpperBound"/>; <see langword="false"/> otherwise.
         /// </returns>
         public bool Contains(TValue value)
         {

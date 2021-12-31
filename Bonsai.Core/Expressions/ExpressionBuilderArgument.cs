@@ -113,7 +113,7 @@ namespace Bonsai.Expressions
         /// </summary>
         /// <param name="obj">An object to compare with this instance.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="obj"/> is an instance of <see cref="ExpressionBuilderArgument"/>
+        /// <see langword="true"/> if <paramref name="obj"/> is an instance of <see cref="ExpressionBuilderArgument"/>
         /// and its index equals the index value of this instance; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)
@@ -127,8 +127,8 @@ namespace Bonsai.Expressions
         /// </summary>
         /// <param name="other">The argument object to compare with the current argument.</param>
         /// <returns>
-        /// <b>true</b> if the specified argument object is equal to the current argument;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if the specified argument object is equal to the current argument;
+        /// otherwise, <see langword="false"/>.
         public bool Equals(ExpressionBuilderArgument other)
         {
             if (other is null) return false;
@@ -159,8 +159,8 @@ namespace Bonsai.Expressions
         /// <param name="left">The <see cref="ExpressionBuilderArgument"/> instance on the left of the equality operator.</param>
         /// <param name="right">The <see cref="ExpressionBuilderArgument"/> instance on the right of the equality operator.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> have equal index;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> have equal index;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
@@ -174,8 +174,8 @@ namespace Bonsai.Expressions
         /// <param name="left">The <see cref="ExpressionBuilderArgument"/> instance on the left of the inequality operator.</param>
         /// <param name="right">The <see cref="ExpressionBuilderArgument"/> instance on the right of the inequality operator.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> differ in index;
-        /// <b>false</b> if <paramref name="left"/> and <paramref name="right"/> are equal.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> differ in index;
+        /// <see langword="false"/> if <paramref name="left"/> and <paramref name="right"/> are equal.
         /// </returns>
         public static bool operator !=(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
@@ -194,8 +194,8 @@ namespace Bonsai.Expressions
         /// The <see cref="ExpressionBuilderArgument"/> object on the right of the less than operator.
         /// </param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> has an index smaller than <paramref name="right"/>;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="left"/> has an index smaller than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {
@@ -214,8 +214,8 @@ namespace Bonsai.Expressions
         /// The <see cref="ExpressionBuilderArgument"/> object on the right of the greater than operator.
         /// </param>
         /// <returns>
-        /// <b>true</b> if <paramref name="left"/> has an index greater than <paramref name="right"/>;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="left"/> has an index greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
         {

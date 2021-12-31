@@ -21,7 +21,7 @@ namespace Bonsai
         /// A <see cref="Type"/> that represents the type you want to convert from.
         /// </param>
         /// <returns>
-        /// <b>true</b> if this converter can perform the conversion; otherwise, <b>false</b>.
+        /// <see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {

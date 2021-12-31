@@ -59,8 +59,8 @@ namespace Bonsai
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to test.</param>
         /// <returns>
-        /// <b>true</b> if the type implements the generic enumerable interface;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if the type implements the generic enumerable interface;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool IsEnumerableType(Type type)
         {
@@ -78,8 +78,8 @@ namespace Bonsai
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to test.</param>
         /// <returns>
-        /// <b>true</b> if the type implements a serialization compatible collection;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if the type implements a serialization compatible collection;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool IsCollectionType(Type type)
         {

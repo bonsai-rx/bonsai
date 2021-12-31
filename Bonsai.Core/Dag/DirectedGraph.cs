@@ -349,8 +349,8 @@ namespace Bonsai.Dag
         /// </summary>
         /// <param name="node">The node to locate in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="node"/> is found in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>;
-        /// otherwise, <b>false</b>.
+        /// <see langword="true"/> if <paramref name="node"/> is found in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public bool Contains(Node<TNodeValue, TEdgeLabel> node)
         {
@@ -362,8 +362,8 @@ namespace Bonsai.Dag
         /// </summary>
         /// <param name="node">The node to remove from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.</param>
         /// <returns>
-        /// <b>true</b> if <paramref name="node"/> is successfully removed; otherwise, <b>false</b>.
-        /// This method also returns <b>false</b> if <paramref name="node"/> was not found in the
+        /// <see langword="true"/> if <paramref name="node"/> is successfully removed; otherwise, <see langword="false"/>.
+        /// This method also returns <see langword="false"/> if <paramref name="node"/> was not found in the
         /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
         /// </returns>
         public bool Remove(Node<TNodeValue, TEdgeLabel> node)
@@ -396,8 +396,8 @@ namespace Bonsai.Dag
         /// The outgoing edge to remove from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
         /// </param>
         /// <returns>
-        /// <b>true</b> if <paramref name="edge"/> is successfully removed; otherwise, <b>false</b>.
-        /// This method also returns <b>false</b> if <paramref name="edge"/> was not found in the
+        /// <see langword="true"/> if <paramref name="edge"/> is successfully removed; otherwise, <see langword="false"/>.
+        /// This method also returns <see langword="false"/> if <paramref name="edge"/> was not found in the
         /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
         /// </returns>
         public bool RemoveEdge(Node<TNodeValue, TEdgeLabel> from, Edge<TNodeValue, TEdgeLabel> edge)

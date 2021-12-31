@@ -37,7 +37,7 @@ namespace Bonsai.IO
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether element writing should be buffered. If <b>true</b>,
+        /// Gets or sets a value indicating whether element writing should be buffered. If <see langword="true"/>,
         /// the write commands will be queued in memory as fast as possible and will be processed
         /// by the writer in a different thread. Otherwise, writing will be done in the same
         /// thread in which notifications arrive.

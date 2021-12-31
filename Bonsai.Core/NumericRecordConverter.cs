@@ -45,7 +45,7 @@ namespace Bonsai
         /// A <see cref="Type"/> that represents the type you want to convert from.
         /// </param>
         /// <returns>
-        /// <b>true</b> if this converter can perform the conversion; otherwise, <b>false</b>.
+        /// <see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -161,8 +161,8 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <returns>
-        /// <b>true</b> if changing a property on this object requires a call to <see cref="TypeConverter.CreateInstance(IDictionary)"/>
-        /// to create a new value; otherwise, <b>false</b>.
+        /// <see langword="true"/> if changing a property on this object requires a call to <see cref="TypeConverter.CreateInstance(IDictionary)"/>
+        /// to create a new value; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool GetCreateInstanceSupported(ITypeDescriptorContext context)
         {
@@ -176,8 +176,8 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <returns>
-        /// <b>true</b> if <see cref="TypeConverter.GetProperties(object)"/> should be called
-        /// to find the properties of this object; otherwise, <b>false</b>.
+        /// <see langword="true"/> if <see cref="TypeConverter.GetProperties(object)"/> should be called
+        /// to find the properties of this object; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
         {
