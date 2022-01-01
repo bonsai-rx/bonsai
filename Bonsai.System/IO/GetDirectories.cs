@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reactive.Linq;
@@ -27,7 +27,7 @@ namespace Bonsai.IO
 
         public override IObservable<string[]> Generate()
         {
-            return Observable.Return(Directory.GetDirectories(Path, SearchPattern, SearchOption));
+            return Observable.Defer(() => Observable.Return(Directory.GetDirectories(Path, SearchPattern, SearchOption)));
         }
     }
 }
