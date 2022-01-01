@@ -3,6 +3,9 @@ using System.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Reactive.Linq;
+using System;
 
 namespace Bonsai.Expressions
 {
@@ -10,11 +13,16 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that generates an expression tree using a nested
     /// expression builder workflow.
     /// </summary>
-    [DisplayName("NestedWorkflow")]
     [XmlType("NestedWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Encapsulates complex workflow logic into a new build context.")]
     public class NestedWorkflowBuilder : WorkflowExpressionBuilder
     {
+        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Defer" &&
+                                                                                m.GetParameters()[0].ParameterType
+                                                                                 .GetGenericArguments()[0]
+                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NestedWorkflowBuilder"/> class.
         /// </summary>
@@ -46,8 +54,12 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = arguments.FirstOrDefault();
-            return BuildWorkflow(arguments, source, expression => expression);
+            return BuildWorkflow(arguments, null, selectorBody =>
+            {
+                var factory = Expression.Lambda(selectorBody);
+                var resultType = selectorBody.Type.GetGenericArguments()[0];
+                return Expression.Call(deferMethod.MakeGenericMethod(resultType), factory);
+            });
         }
     }
 }
