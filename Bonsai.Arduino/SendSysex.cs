@@ -29,12 +29,12 @@ namespace Bonsai.Arduino
         /// Writes a sequence of system exclusive messages to the specified Arduino.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="T:byte[]"/> specifying the payload data to include in each
+        /// A sequence of <see cref="byte"/> arrays specifying the payload data to include in each
         /// of the system exclusive messages sent to the Arduino. The specified feature ID will
         /// be used to identify each message.
         /// </param>
         /// <returns>
-        /// A sequence of <see cref="T:byte[]"/> objects containing the payload data which was
+        /// A sequence of <see cref="byte"/> arrays containing the payload data which was
         /// included with each system exclusive message sent to the Arduino.
         /// </returns>
         /// <remarks>

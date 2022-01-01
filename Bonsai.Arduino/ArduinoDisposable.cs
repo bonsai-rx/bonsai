@@ -23,7 +23,7 @@ namespace Bonsai.Arduino
 
         public void Dispose()
         {
-            var disposable = Interlocked.Exchange<IDisposable>(ref resource, null);
+            var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
                 disposable.Dispose();

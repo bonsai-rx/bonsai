@@ -28,8 +28,8 @@ namespace Bonsai.Arduino
         /// Generates an observable sequence of digitized analog values. 
         /// </summary>
         /// <returns>
-        /// An observable sequence that reports the digitized analog readings
-        /// from the specified Arduino analog input pin.
+        /// A sequence of <see cref="int"/> values that report the digitized analog
+        /// readings from the specified Arduino analog input pin.
         /// </returns>
         public override IObservable<int> Generate()
         {

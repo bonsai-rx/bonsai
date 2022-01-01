@@ -58,7 +58,8 @@ namespace Bonsai.Arduino
         /// Generates an observable sequence that contains the Firmata connection object.
         /// </summary>
         /// <returns>
-        /// An instance of the <see cref="Arduino"/> class representing the Firmata connection.
+        /// A sequence containing a single instance of the <see cref="Arduino"/> class
+        /// representing the Firmata connection.
         /// </returns>
         public override IObservable<Arduino> Generate()
         {

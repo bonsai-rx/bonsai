@@ -31,7 +31,7 @@ namespace Bonsai.Arduino
         /// specified feature ID received from the Arduino.
         /// </summary>
         /// <returns>
-        /// A sequence of <see cref="T:byte[]"/> objects containing the payload data which was
+        /// A sequence of <see cref="byte"/> arrays containing the payload data which was
         /// included with each system exclusive message received from the Arduino.
         /// </returns>
         public override IObservable<byte[]> Generate()

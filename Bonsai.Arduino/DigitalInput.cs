@@ -29,9 +29,9 @@ namespace Bonsai.Arduino
         /// sequence of all its state transitions.
         /// </summary>
         /// <returns>
-        /// An observable sequence that reports the binary state transitions
-        /// from the specified Arduino input pin: <see langword="true"/> if the
-        /// pin is HIGH; <see langword="false"/> if the pin is LOW.
+        /// A sequence of <see cref="bool"/> values that report the binary state
+        /// transitions of the specified Arduino input pin: <see langword="true"/>
+        /// if the pin is now HIGH; <see langword="false"/> if the pin is now LOW.
         /// </returns>
         public override IObservable<bool> Generate()
         {
