@@ -21,8 +21,9 @@ namespace Bonsai.IO
         /// The sequence containing the elements to write to the standard output stream.
         /// </param>
         /// <returns>
-        /// An observable sequence that is identical to the source sequence but where there is
-        /// an additional side effect of writing the elements to the standard output stream.
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence but
+        /// where there is an additional side effect of writing the elements to the standard
+        /// output stream.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
@@ -42,10 +43,9 @@ namespace Bonsai.IO
         /// representation of the elements of the <paramref name="source"/> sequence.
         /// </param>
         /// <returns>
-        /// <returns>
-        /// An observable sequence that is identical to the source sequence but where there is
-        /// an additional side effect of writing the elements to all active output streams.
-        /// </returns>
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of writing the elements to all active
+        /// output streams.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<System.IO.TextWriter> writer)
         {

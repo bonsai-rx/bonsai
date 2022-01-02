@@ -39,8 +39,8 @@ namespace Bonsai.Arduino
         /// used to control the servomotor connected to the specified Arduino output pin.
         /// </returns>
         /// <remarks>
-        /// This operator only subscribes to the source sequence after initializing the connection
-        /// to the Arduino and configuring the digital pin as a Servo output.
+        /// This operator only subscribes to the <paramref name="source"/> sequence after initializing
+        /// the connection to the Arduino and configuring the digital pin as a Servo output.
         /// </remarks>
         public override IObservable<int> Process(IObservable<int> source)
         {

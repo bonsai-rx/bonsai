@@ -37,8 +37,8 @@ namespace Bonsai.Arduino
         /// output pin.
         /// </returns>
         /// <remarks>
-        /// This operator only subscribes to the source sequence after initializing the connection
-        /// to the Arduino and configuring the output pin mode to PWM.
+        /// This operator only subscribes to the <paramref name="source"/> sequence after initializing
+        /// the connection to the Arduino and configuring the output pin mode to PWM.
         /// </remarks>
         public override IObservable<int> Process(IObservable<int> source)
         {

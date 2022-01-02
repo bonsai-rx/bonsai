@@ -38,8 +38,8 @@ namespace Bonsai.Arduino
         /// included with each system exclusive message sent to the Arduino.
         /// </returns>
         /// <remarks>
-        /// This operator only subscribes to the source sequence after initializing the connection
-        /// to the Arduino.
+        /// This operator only subscribes to the <paramref name="source"/> sequence after
+        /// initializing the connection to the Arduino.
         /// </remarks>
         public override IObservable<byte[]> Process(IObservable<byte[]> source)
         {

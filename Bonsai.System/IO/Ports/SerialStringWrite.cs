@@ -33,8 +33,9 @@ namespace Bonsai.IO
         /// The sequence containing the elements to write to the serial port.
         /// </param>
         /// <returns>
-        /// An observable sequence that is identical to the source sequence but where there is
-        /// an additional side effect of writing the elements to the serial port.
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of writing the elements to
+        /// the serial port.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

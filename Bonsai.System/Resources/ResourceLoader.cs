@@ -25,7 +25,7 @@ namespace Bonsai.Resources
         /// Bundles a set of resources to be loaded into the resource manager.
         /// </summary>
         /// <param name="source">
-        /// A sequence of <see cref="ResourceManager"/> objects onto which the resources
+        /// A sequence of <see cref="ResourceManager"/> objects into which the resources
         /// will be loaded.
         /// </param>
         /// <returns>

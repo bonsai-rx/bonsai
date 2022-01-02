@@ -11,7 +11,7 @@ namespace Bonsai.IO
     /// into a file.
     /// </summary>
     [Combinator]
-    [DefaultProperty("FileName")]
+    [DefaultProperty(nameof(FileName))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     public abstract class FileSink
     {
@@ -85,8 +85,8 @@ namespace Bonsai.IO
         /// of inputs accepted by the file writer.
         /// </param>
         /// <returns>
-        /// An observable sequence that is identical to the source sequence but where
-        /// there is an additional side effect of writing the elements to a file.
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of writing the elements to a file.
         /// </returns>
         protected IObservable<TElement> Process<TElement>(IObservable<TElement> source, Func<TElement, TSource> selector)
         {
@@ -149,8 +149,8 @@ namespace Bonsai.IO
         /// </summary>
         /// <param name="source">The source sequence for which to write elements.</param>
         /// <returns>
-        /// An observable sequence that is identical to the source sequence but where
-        /// there is an additional side effect of writing the elements to a file.
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of writing the elements to a file.
         /// </returns>
         public virtual IObservable<TSource> Process(IObservable<TSource> source)
         {

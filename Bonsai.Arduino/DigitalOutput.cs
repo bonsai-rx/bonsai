@@ -39,8 +39,9 @@ namespace Bonsai.Arduino
         /// output pin.
         /// </returns>
         /// <remarks>
-        /// This operator only subscribes to the source sequence after initializing the connection
-        /// to the Arduino and configuring the digital pin mode to OUTPUT.
+        /// This operator only subscribes to the <paramref name="source"/> sequence after
+        /// initializing the connection to the Arduino and configuring the digital pin mode
+        /// to OUTPUT.
         /// </remarks>
         public override IObservable<bool> Process(IObservable<bool> source)
         {
