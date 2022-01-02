@@ -5,24 +5,14 @@ using System.IO.Ports;
 
 namespace Bonsai.IO
 {
-    public sealed class SerialPortDisposable : ICancelable, IDisposable
+    internal sealed class SerialPortDisposable : ICancelable, IDisposable
     {
         IDisposable resource;
 
         public SerialPortDisposable(SerialPort serialPort, IDisposable disposable)
         {
-            if (serialPort == null)
-            {
-                throw new ArgumentNullException("serialPort");
-            }
-
-            if (disposable == null)
-            {
-                throw new ArgumentNullException("disposable");
-            }
-
-            SerialPort = serialPort;
-            resource = disposable;
+            SerialPort = serialPort ?? throw new ArgumentNullException(nameof(serialPort));
+            resource = disposable ?? throw new ArgumentNullException(nameof(disposable));
         }
 
         public SerialPort SerialPort { get; private set; }
@@ -34,7 +24,7 @@ namespace Bonsai.IO
 
         public void Dispose()
         {
-            var disposable = Interlocked.Exchange<IDisposable>(ref resource, null);
+            var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
                 disposable.Dispose();

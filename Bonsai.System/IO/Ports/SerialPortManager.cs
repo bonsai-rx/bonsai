@@ -9,7 +9,7 @@ using System.IO.Ports;
 
 namespace Bonsai.IO
 {
-    public static class SerialPortManager
+    internal static class SerialPortManager
     {
         public const string DefaultConfigurationFile = "SerialPort.config";
         static readonly Dictionary<string, Tuple<SerialPort, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<SerialPort, RefCountDisposable>>();
@@ -36,11 +36,13 @@ namespace Bonsai.IO
                     var serialPortName = serialPortConfiguration.PortName;
                     if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
 
+#pragma warning disable CS0612 // Type or member is obsolete
                     var configuration = LoadConfiguration();
                     if (configuration.Contains(serialPortName))
                     {
                         serialPortConfiguration = configuration[serialPortName];
                     }
+#pragma warning restore CS0612 // Type or member is obsolete
 
                     var serialPort = new SerialPort(
                         serialPortName,
@@ -81,6 +83,7 @@ namespace Bonsai.IO
             return new SerialPortDisposable(connection.Item1, connection.Item2.GetDisposable());
         }
 
+        [Obsolete]
         public static SerialPortConfigurationCollection LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
@@ -89,19 +92,16 @@ namespace Bonsai.IO
             }
 
             var serializer = new XmlSerializer(typeof(SerialPortConfigurationCollection));
-            using (var reader = XmlReader.Create(DefaultConfigurationFile))
-            {
-                return (SerialPortConfigurationCollection)serializer.Deserialize(reader);
-            }
+            using var reader = XmlReader.Create(DefaultConfigurationFile);
+            return (SerialPortConfigurationCollection)serializer.Deserialize(reader);
         }
 
+        [Obsolete]
         public static void SaveConfiguration(SerialPortConfigurationCollection configuration)
         {
             var serializer = new XmlSerializer(typeof(SerialPortConfigurationCollection));
-            using (var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true }))
-            {
-                serializer.Serialize(writer, configuration);
-            }
+            using var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true });
+            serializer.Serialize(writer, configuration);
         }
     }
 }

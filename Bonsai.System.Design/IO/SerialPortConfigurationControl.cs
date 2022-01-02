@@ -16,18 +16,11 @@ namespace Bonsai.IO.Design
 
         protected override object LoadConfiguration()
         {
-            return SerialPortManager.LoadConfiguration();
+            return null;
         }
 
         protected override void SaveConfiguration(object configuration)
         {
-            var serialPortConfiguration = configuration as SerialPortConfigurationCollection;
-            if (serialPortConfiguration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
-            SerialPortManager.SaveConfiguration(serialPortConfiguration);
         }
 
         protected override UITypeEditor CreateConfigurationEditor(Type type)
