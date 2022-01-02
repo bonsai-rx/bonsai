@@ -11,34 +11,54 @@ using System.Threading.Tasks;
 
 namespace Bonsai.IO
 {
-    [DefaultProperty("FileName")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of values for every line in a text file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
     [WorkflowElementCategory(ElementCategory.Source)]
-    [Description("Sources individual lines of a text file as an observable sequence.")]
+    [Description("Generates a sequence of values for every line in a text file.")]
     public class CsvReader : CombinatorExpressionBuilder
     {
         static readonly string[] EmptySeparator = new string[0];
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CsvReader"/> class.
+        /// </summary>
         public CsvReader()
             : base(minArguments: 0, maxArguments: 1)
         {
         }
 
+        /// <summary>
+        /// Gets or sets the name of the CSV file.
+        /// </summary>
         [Description("The name of the CSV file.")]
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the separator used to delimit elements in variable length rows. This argument is optional.
+        /// </summary>
         [Description("The separator used to delimit elements in variable length rows. This argument is optional.")]
         public string ListSeparator { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional parse pattern for scanning individual lines.
+        /// In case of variable length rows, the pattern will be applied to each individual element.
+        /// </summary>
         [TypeConverter("Bonsai.Expressions.ParseBuilder+PatternConverter, Bonsai.Core")]
         [Editor("Bonsai.Design.ParsePatternEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The optional parse pattern for scanning individual lines. In case of variable length rows, the pattern will be applied to each individual element.")]
         public string ScanPattern { get; set; }
 
+        /// <summary>
+        /// Gets or sets the number of lines to skip at the start of the file.
+        /// </summary>
         [Description("The number of lines to skip at the start of the file.")]
         public int SkipRows { get; set; }
 
+        /// <inheritdoc/>
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             Expression parseBody;

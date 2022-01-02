@@ -14,27 +14,30 @@ namespace Bonsai.IO
     /// into a named stream (e.g. a named pipe).
     /// </summary>
     [Combinator]
-    [DefaultProperty("Path")]
+    [DefaultProperty(nameof(Path))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     public abstract class StreamSink
     {
         /// <summary>
         /// Gets or sets the identifier of the named stream on which to write the elements.
+        /// If the identifier uses the named pipe prefix <c>\\.\pipe\</c>, a corresponding
+        /// <see cref="NamedPipeServerStream"/> object is created; otherwise a regular
+        /// <see cref="FileStream"/> is used.
         /// </summary>
-        [Description("The name of the output data path.")]
+        [Description("The identifier of the named stream on which to write the elements.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path { get; set; }
 
         /// <summary>
         /// Gets or sets the suffix that should be applied to the path before creating the writer.
         /// </summary>
-        [Description("The optional suffix used to generate path names.")]
+        [Description("The suffix that should be applied to the path before creating the writer.")]
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to overwrite the output if it already exists.
+        /// Gets or sets a value indicating whether to overwrite the output path if it already exists.
         /// </summary>
-        [Description("Indicates whether the output should be overwritten if it already exists.")]
+        [Description("Indicates whether to overwrite the output path if it already exists.")]
         public bool Overwrite { get; set; }
     }
 
@@ -89,7 +92,8 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Writes all elements of an observable sequence into the specified stream.
+        /// Writes all elements of an observable sequence into the specified stream
+        /// using the specified selector function.
         /// </summary>
         /// <param name="source">The source sequence for which to write elements.</param>
         /// <param name="selector">
@@ -104,12 +108,12 @@ namespace Bonsai.IO
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (selector == null)
             {
-                throw new ArgumentNullException("selector");
+                throw new ArgumentNullException(nameof(selector));
             }
 
             return Observable.Create<TElement>(observer =>

@@ -5,17 +5,31 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Resources
 {
+    /// <summary>
+    /// Represents a resource manager that can be used to load and release sets of resources at run time,
+    /// and manage their lifespan. Disposing the resource manager will also dispose of any loaded resources.
+    /// </summary>
     public sealed class ResourceManager : IDisposable
     {
         bool disposed;
         readonly Dictionary<ResourceKey, IResourceConfiguration> preload = new Dictionary<ResourceKey, IResourceConfiguration>();
         readonly Dictionary<ResourceKey, IDisposable> resources = new Dictionary<ResourceKey, IDisposable>();
 
+        /// <summary>
+        /// Loads a set of resources into the resource manager.
+        /// </summary>
+        /// <param name="source">
+        /// A collection of resources to load into the resource manager.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDisposable"/> object which can be used to unload the
+        /// loaded resources.
+        /// </returns>
         public IDisposable Load(IEnumerable<IResourceConfiguration> source)
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(typeof(ResourceManager).Name);
+                throw new ObjectDisposedException(nameof(ResourceManager));
             }
 
             foreach (var resource in source)
@@ -44,6 +58,15 @@ namespace Bonsai.Resources
             });
         }
 
+        /// <summary>
+        /// Loads the resource with the specified name into the resource manager.
+        /// </summary>
+        /// <typeparam name="TResource">The type of the loaded resource.</typeparam>
+        /// <param name="name">The name of the resource to load.</param>
+        /// <returns>
+        /// The loaded resource. Repeated calls to load the same resource will return
+        /// the same object instance.
+        /// </returns>
         public TResource Load<TResource>(string name) where TResource : IDisposable
         {
             return (TResource)Load(typeof(TResource), name);
@@ -59,11 +82,9 @@ namespace Bonsai.Resources
             ResourceKey key;
             key.Name = name;
             key.Type = type;
-            IDisposable resource;
-            if (!resources.TryGetValue(key, out resource))
+            if (!resources.TryGetValue(key, out IDisposable resource))
             {
-                IResourceConfiguration configuration;
-                if (!preload.TryGetValue(key, out configuration))
+                if (!preload.TryGetValue(key, out IResourceConfiguration configuration))
                 {
                     throw new ArgumentException(string.Format("The {1} resource with name '{0}' was not found.", key.Name, key.Type.Name));
                 }
@@ -75,6 +96,9 @@ namespace Bonsai.Resources
             return resource;
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="ResourceManager"/> class.
+        /// </summary>
         public void Dispose()
         {
             if (!disposed)

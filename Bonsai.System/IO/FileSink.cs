@@ -26,14 +26,14 @@ namespace Bonsai.IO
         /// <summary>
         /// Gets or sets the name of the file on which to write the elements.
         /// </summary>
-        [Description("The name of the output file.")]
+        [Description("The name of the file on which to write the elements.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         /// <summary>
-        /// Gets or sets the suffix that should be applied to the path before creating the writer.
+        /// Gets or sets the suffix used to generate file names.
         /// </summary>
-        [Description("The optional suffix used to generate file names.")]
+        [Description("The suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Bonsai.IO
         /// <summary>
         /// Gets or sets a value indicating whether to overwrite the output file if it already exists.
         /// </summary>
-        [Description("Indicates whether the output file should be overwritten if it already exists.")]
+        [Description("Indicates whether to overwrite the output file if it already exists.")]
         public bool Overwrite { get; set; }
     }
 

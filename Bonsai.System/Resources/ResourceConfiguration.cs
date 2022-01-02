@@ -4,17 +4,45 @@ using System.IO;
 
 namespace Bonsai.Resources
 {
+    /// <summary>
+    /// Provides a mechanism for loading different types of resources.
+    /// </summary>
     public interface IResourceConfiguration
     {
+        /// <summary>
+        /// Gets the identifier of the resource.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets the type of the resource.
+        /// </summary>
         Type Type { get; }
 
+        /// <summary>
+        /// Creates the contents of the resource using the specified resource manager.
+        /// </summary>
+        /// <param name="resourceManager">
+        /// The <see cref="ResourceManager"/> object onto which the resource will be loaded.
+        /// The resource manager can be accessed to load additional resource dependencies which
+        /// may be required to create the new resource.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDisposable"/> object which can be used to access and release the
+        /// resource contents.
+        /// </returns>
         IDisposable CreateResource(ResourceManager resourceManager);
     }
 
+    /// <summary>
+    /// Provides the abstract base class for configuring and loading specific resources.
+    /// </summary>
+    /// <typeparam name="TResource">The type of the resource.</typeparam>
     public abstract class ResourceConfiguration<TResource> : IResourceConfiguration where TResource : IDisposable
     {
+        /// <summary>
+        /// Gets or sets the name of the resource.
+        /// </summary>
         [Description("The name of the resource.")]
         public string Name { get; set; }
 
@@ -28,8 +56,19 @@ namespace Bonsai.Resources
             return CreateResource(resourceManager);
         }
 
+        /// <summary>
+        /// When overridden in a derived class, creates a new resource of type
+        /// <typeparamref name="TResource"/>.
+        /// </summary>
+        /// <param name="resourceManager">
+        /// The <see cref="ResourceManager"/> object onto which this resource will be loaded.
+        /// The resource manager can be accessed to load additional resource dependencies which
+        /// may be required to create the new resource.
+        /// </param>
+        /// <returns>A new instance of type <typeparamref name="TResource"/>.</returns>
         public abstract TResource CreateResource(ResourceManager resourceManager);
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
@@ -38,6 +77,11 @@ namespace Bonsai.Resources
             else return string.Format("{0} [{1}]", name, typeName);
         }
 
+        /// <summary>
+        /// Opens a stream for reading the specified resource.
+        /// </summary>
+        /// <param name="path">The name of the resource to be opened for reading.</param>
+        /// <returns>A <see cref="Stream"/> object for reading the resource.</returns>
         protected Stream OpenResource(string path)
         {
             const char AssemblySeparator = ':';

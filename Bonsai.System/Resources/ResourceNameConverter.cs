@@ -6,15 +6,33 @@ using System.Linq;
 
 namespace Bonsai.Resources
 {
+    /// <summary>
+    /// Provides a type converter to convert a resource name to and from other representations.
+    /// It also provides a mechanism to find existing resources declared in the workflow.
+    /// </summary>
     public class ResourceNameConverter : StringConverter
     {
         readonly Type targetType;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceNameConverter"/> class
+        /// for the specified type.
+        /// </summary>
+        /// <param name="type">The type of resources supported by this converter.</param>
         protected ResourceNameConverter(Type type)
         {
             targetType = type;
         }
 
+        /// <summary>
+        /// Returns a value indicating whether the specified resource is supported
+        /// by this converter.
+        /// </summary>
+        /// <param name="resource">The resource to be tested.</param>
+        /// <returns>
+        /// <see langword="true"/> if the specified resource is supported;
+        /// <see langword="false"/> otherwise.
+        /// </returns>
         protected virtual bool IsResourceSupported(IResourceConfiguration resource)
         {
             return resource.Type == targetType;
@@ -56,10 +74,12 @@ namespace Bonsai.Resources
             foreach (var element in SelectContextElements(source))
             {
                 var groupBuilder = element as IWorkflowExpressionBuilder;
-                if (IsGroup(groupBuilder) && groupBuilder.Workflow == target) return true;
+                if (IsGroup(groupBuilder) && groupBuilder.Workflow == target)
+                {
+                    return true;
+                }
 
-                var workflowBuilder = element as WorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (element is WorkflowExpressionBuilder workflowBuilder)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
                     {
@@ -72,12 +92,23 @@ namespace Bonsai.Resources
             return false;
         }
 
+        /// <inheritdoc/>
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
             return true;
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        /// <summary>
+        /// Returns a collection of resource names which are available in the call context
+        /// of this type converter request.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="TypeConverter.StandardValuesCollection"/> containing the set of
+        /// available resources. Only resources for which <see cref="IsResourceSupported(IResourceConfiguration)"/>
+        /// returns <see langword="true"/> will be included.
+        /// </returns>
+        /// <inheritdoc/>
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             if (context != null)
             {

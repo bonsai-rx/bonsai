@@ -1,12 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 
 namespace Bonsai.Resources
 {
+    /// <summary>
+    /// Provides a type converter to convert a resource file name to and from other representations.
+    /// </summary>
     public class ResourceFileNameConverter : StringConverter
     {
-        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+        /// <summary>
+        /// Converts the given <paramref name="value"/> object to a resource file name,
+        /// and also sets the <c>Name</c> property of the object that is connected to this type
+        /// converter request, if it exists.
+        /// </summary>
+        /// <inheritdoc/>
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             var instance = context.Instance;
             var fileName = value as string;

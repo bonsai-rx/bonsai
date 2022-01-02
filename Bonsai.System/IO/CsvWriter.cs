@@ -15,29 +15,42 @@ using System.Text.RegularExpressions;
 
 namespace Bonsai.IO
 {
-    [DefaultProperty("FileName")]
+    /// <summary>
+    /// Represents an operator that writes a delimited text representation of each element
+    /// of the sequence to a text file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [Description("Sinks individual elements of the input sequence to a text file.")]
+    [Description("Writes a delimited text representation of each element of the sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
     {
         string delimiter;
-        static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == "Join" &&
+        static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == nameof(string.Join) &&
                                                                                              m.GetParameters().Length == 2 &&
                                                                                              m.GetParameters()[1].ParameterType == typeof(string[]));
-        static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().Single(m => m.Name == "WriteLine" &&
+        static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().Single(m => m.Name == nameof(StreamWriter.WriteLine) &&
                                                                                                   m.GetParameters().Length == 1 &&
                                                                                                   m.GetParameters()[0].ParameterType == typeof(string));
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CsvWriter"/> class.
+        /// </summary>
         public CsvWriter()
             : base(minArguments: 1, maxArguments: 1)
         {
         }
         
-        [Description("The name of the output file.")]
+        /// <summary>
+        /// Gets or sets the name of the output CSV file.
+        /// </summary>
+        [Description("The name of the output CSV file.")]
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional delimiter used to separate columns in the output file.
+        /// </summary>
         [DefaultValue("")]
         [Description("The optional delimiter used to separate columns in the output file.")]
         public string Delimiter
@@ -46,29 +59,54 @@ namespace Bonsai.IO
             set
             {
                 delimiter = value;
+#pragma warning disable CS0612 // Type or member is obsolete
                 CompatibilityMode = false;
+#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
+        /// <summary>
+        /// Gets or sets the separator used to delimit elements in variable length rows. This argument is optional.
+        /// </summary>
         [Description("The separator used to delimit elements in variable length rows. This argument is optional.")]
         public string ListSeparator { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether data should be appended to the output file if it already exists.
+        /// </summary>
         [Description("Indicates whether data should be appended to the output file if it already exists.")]
         public bool Append { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the output file should be overwritten if it already exists.
+        /// </summary>
         [Description("Indicates whether the output file should be overwritten if it already exists.")]
         public bool Overwrite { get; set; }
 
-        [Description("The optional suffix used to generate file names.")]
+        /// <summary>
+        /// Gets or sets the suffix used to generate file names.
+        /// </summary>
+        [Description("The suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
-        [Description("Indicates whether to include a text header with column names for multi-dimensional input.")]
+        /// <summary>
+        /// Gets or sets a value indicating whether to include a text header with column names for multi-attribute values.
+        /// </summary>
+        [Description("Indicates whether to include a text header with column names for multi-attribute values.")]
         public bool IncludeHeader { get; set; }
 
-        [Description("The inner properties that will be selected for output in each element of the sequence.")]
+        /// <summary>
+        /// Gets or sets the inner properties that will be selected when writing each element of the sequence.
+        /// </summary>
+        [Description("The inner properties that will be selected when writing each element of the sequence.")]
         [Editor("Bonsai.IO.Design.DataMemberSelectorEditor, Bonsai.System.Design", DesignTypes.UITypeEditor)]
         public string Selector { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the serialized <see cref="CsvWriter"/> should use
+        /// white space rather than commas as default delimiter.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         [DefaultValue(false)]
         public bool CompatibilityMode { get; set; }
@@ -166,6 +204,7 @@ namespace Bonsai.IO
             }
         }
 
+        /// <inheritdoc/>
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const string InputParameterName = "input";
@@ -182,7 +221,9 @@ namespace Bonsai.IO
             var delimiter = Delimiter;
             if (string.IsNullOrEmpty(delimiter))
             {
+#pragma warning disable CS0612 // Type or member is obsolete
                 delimiter = CompatibilityMode ? " " : CultureInfo.InvariantCulture.TextInfo.ListSeparator;
+#pragma warning restore CS0612 // Type or member is obsolete
             }
 
             var listSeparator = ListSeparator;
@@ -196,9 +237,11 @@ namespace Bonsai.IO
                 ? delimiterConstant
                 : Expression.Constant(Regex.Unescape(listSeparator));
 
+#pragma warning disable CS0612 // Type or member is obsolete
             var legacyCharacter = CompatibilityMode
                 ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)
                 : Enumerable.Empty<Expression>();
+#pragma warning restore CS0612 // Type or member is obsolete
             var memberAccessExpressions = legacyCharacter.Concat(MakeMemberAccess(selectedMembers))
                 .Select(memberAccess => GetDataString(memberAccess))
                 .ToArray();
