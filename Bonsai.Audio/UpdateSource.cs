@@ -75,7 +75,7 @@ namespace Bonsai.Audio
         /// <returns>
         /// An observable sequence that is identical to the <paramref name="source"/> sequence
         /// but where there is an additional side effect of updating the properties of the
-        /// specified audio source whenever the sequence emits a new notification.
+        /// specified audio source whenever the sequence emits a notification.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
