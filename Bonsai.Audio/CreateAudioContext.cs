@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using OpenTK.Audio.OpenAL;
 using System;
 using System.ComponentModel;
@@ -9,7 +9,7 @@ namespace Bonsai.Audio
 {
     [TypeConverter(typeof(AudioContextConverter))]
     [Description("Creates an audio context using the specified device and listener properties.")]
-    public class CreateAudioContext : Source<AudioContext>
+    public class CreateAudioContext : Source<AudioContextManager>
     {
         public CreateAudioContext()
         {
@@ -55,7 +55,7 @@ namespace Bonsai.Audio
         [Description("The amount of amplification applied to the listener. Each multiplication by 2 increases gain by +6dB.")]
         public float Gain { get; set; }
 
-        public override IObservable<AudioContext> Generate()
+        public override IObservable<AudioContextManager> Generate()
         {
             return Observable.Using(
                 () => AudioManager.ReserveContext(DeviceName, SampleRate, Refresh),

@@ -1,4 +1,4 @@
-﻿using Bonsai.Audio.Configuration;
+using Bonsai.Audio.Configuration;
 using Bonsai.Resources;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace Bonsai.Audio
             return buffers.Concat<IResourceConfiguration>(sources);
         }
 
-        public IObservable<ResourceConfigurationCollection> Process(IObservable<AudioContext> source)
+        public IObservable<ResourceConfigurationCollection> Process(IObservable<AudioContextManager> source)
         {
             return source.Select(context =>
             {

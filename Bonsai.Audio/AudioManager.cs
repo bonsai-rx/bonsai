@@ -7,10 +7,10 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Audio
 {
-    public static class AudioManager
+    internal static class AudioManager
     {
         public const string DefaultConfigurationFile = "Audio.config";
-        static readonly Dictionary<string, Tuple<AudioContext, RefCountDisposable>> activeContexts = new Dictionary<string, Tuple<AudioContext, RefCountDisposable>>();
+        static readonly Dictionary<string, Tuple<AudioContextManager, RefCountDisposable>> activeContexts = new Dictionary<string, Tuple<AudioContextManager, RefCountDisposable>>();
         static readonly object activeContextLock = new object();
 
         public static AudioContextDisposable ReserveContext(string deviceName)
@@ -27,22 +27,24 @@ namespace Bonsai.Audio
                 else deviceName = OpenTK.Audio.AudioContext.DefaultDevice;
             }
 
-            Tuple<AudioContext, RefCountDisposable> activeContext;
+            Tuple<AudioContextManager, RefCountDisposable> activeContext;
             lock (activeContextLock)
             {
                 if (!activeContexts.TryGetValue(deviceName, out activeContext))
                 {
-                    AudioContext context;
+                    AudioContextManager context;
+#pragma warning disable CS0612 // Type or member is obsolete
                     var configuration = LoadConfiguration();
                     if (configuration.Contains(deviceName))
                     {
                         var contextConfiguration = configuration[deviceName];
-                        context = new AudioContext(
+                        context = new AudioContextManager(
                             deviceName,
                             contextConfiguration.SampleRate,
                             contextConfiguration.Refresh);
                     }
-                    else context = new AudioContext(deviceName, sampleRate, refresh);
+#pragma warning restore CS0612 // Type or member is obsolete
+                    else context = new AudioContextManager(deviceName, sampleRate, refresh);
                     
                     var dispose = Disposable.Create(() =>
                     {
@@ -60,6 +62,7 @@ namespace Bonsai.Audio
             return new AudioContextDisposable(activeContext.Item1, activeContext.Item2.GetDisposable());
         }
 
+        [Obsolete]
         public static AudioContextConfigurationCollection LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
@@ -68,19 +71,16 @@ namespace Bonsai.Audio
             }
 
             var serializer = new XmlSerializer(typeof(AudioContextConfigurationCollection));
-            using (var reader = XmlReader.Create(DefaultConfigurationFile))
-            {
-                return (AudioContextConfigurationCollection)serializer.Deserialize(reader);
-            }
+            using var reader = XmlReader.Create(DefaultConfigurationFile);
+            return (AudioContextConfigurationCollection)serializer.Deserialize(reader);
         }
 
+        [Obsolete]
         public static void SaveConfiguration(AudioContextConfigurationCollection configuration)
         {
             var serializer = new XmlSerializer(typeof(AudioContextConfigurationCollection));
-            using (var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true }))
-            {
-                serializer.Serialize(writer, configuration);
-            }
+            using var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true });
+            serializer.Serialize(writer, configuration);
         }
     }
 }

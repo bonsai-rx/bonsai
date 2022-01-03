@@ -4,27 +4,17 @@ using System.Threading;
 
 namespace Bonsai.Audio
 {
-    public sealed class AudioContextDisposable : ICancelable, IDisposable
+    internal sealed class AudioContextDisposable : ICancelable, IDisposable
     {
         IDisposable resource;
 
-        public AudioContextDisposable(AudioContext context, IDisposable disposable)
+        public AudioContextDisposable(AudioContextManager context, IDisposable disposable)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-
-            if (disposable == null)
-            {
-                throw new ArgumentNullException("disposable");
-            }
-
-            Context = context;
-            resource = disposable;
+            Context = context ?? throw new ArgumentNullException(nameof(context));
+            resource = disposable ?? throw new ArgumentNullException(nameof(disposable));
         }
 
-        public AudioContext Context { get; private set; }
+        public AudioContextManager Context { get; private set; }
 
         public bool IsDisposed
         {
@@ -33,7 +23,7 @@ namespace Bonsai.Audio
 
         public void Dispose()
         {
-            var disposable = Interlocked.Exchange<IDisposable>(ref resource, null);
+            var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
                 disposable.Dispose();
