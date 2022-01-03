@@ -10,24 +10,34 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
-    [DefaultProperty("FileName")]
-    [Description("Sources buffered audio samples from an uncompressed RIFF/WAV file.")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of buffered audio samples from an
+    /// uncompressed RIFF/WAV file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
+    [Description("Generates a sequence of buffered audio samples from an uncompressed RIFF/WAV file.")]
     public class AudioReader : Source<Mat>
     {
-        public AudioReader()
-        {
-            BufferLength = 10;
-        }
-
+        /// <summary>
+        /// Gets or sets the name of the WAV file.
+        /// </summary>
         [Description("The name of the WAV file.")]
         [FileNameFilter("WAV Files (*.wav;*.wave)|*.wav;*.wave|All Files|*.*")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
-        [Description("The length of the sample buffer (ms).")]
-        public double BufferLength { get; set; }
+        /// <summary>
+        /// Gets or sets the length of the sample buffer, in milliseconds.
+        /// </summary>
+        [Description("The length of the sample buffer, in milliseconds.")]
+        public double BufferLength { get; set; } = 10;
 
-        [Description("The optional sample rate, in Hz, used to playback the sample buffers.")]
+        /// <summary>
+        /// Gets or sets the sample rate, in Hz, used to playback the sample buffers.
+        /// If it is zero, samples will be played at the rate specified in the
+        /// RIFF/WAV file header.
+        /// </summary>
+        [Description("The sample rate, in Hz, used to playback the sample buffers.")]
         public int SampleRate { get; set; }
 
         IEnumerable<Mat> CreateReader(double bufferLength)
@@ -61,6 +71,13 @@ namespace Bonsai.Audio
             }
         }
 
+        /// <summary>
+        /// Generates a sequence of buffered audio samples from the specified WAV file.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing audio sample
+        /// buffers of a fixed length. See <see cref="BufferLength"/>.
+        /// </returns>
         public override IObservable<Mat> Generate()
         {
             return Observable.Create<Mat>((observer, cancellationToken) =>
@@ -98,6 +115,18 @@ namespace Bonsai.Audio
             });
         }
 
+        /// <summary>
+        /// Generates a sequence of buffered audio samples from the specified WAV file, where
+        /// each new buffer is emitted only when an observable sequence raises a notification.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting audio buffers.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing audio sample
+        /// buffers of a fixed length. See <see cref="BufferLength"/>.
+        /// </returns>
         public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
         {
             return source.Zip(CreateReader(BufferLength), (x, output) => output);

@@ -5,7 +5,10 @@ using System.Text;
 
 namespace Bonsai.Audio
 {
-    public class RiffWriter : IDisposable
+    /// <summary>
+    /// Writes audio data into a stream following the RIFF/WAV format.
+    /// </summary>
+    public sealed class RiffWriter : IDisposable
     {
         bool disposed;
         long dataSize;
@@ -16,6 +19,14 @@ namespace Bonsai.Audio
         static readonly byte[] fmtId = Encoding.ASCII.GetBytes(RiffHeader.FmtId);
         static readonly byte[] dataId = Encoding.ASCII.GetBytes(RiffHeader.DataId);
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RiffWriter"/> class using
+        /// the specified stream, number of channels, sample rate and bits per sample.
+        /// </summary>
+        /// <param name="stream">The output stream.</param>
+        /// <param name="channels">The number of audio channels.</param>
+        /// <param name="samplesPerSecond">The playback sample frequency, in samples per second.</param>
+        /// <param name="bitsPerSample">The number of bits per audio sample.</param>
         public RiffWriter(Stream stream, int channels, int samplesPerSecond, int bitsPerSample)
         {
             format.wFormatTag = 1;
@@ -55,32 +66,30 @@ namespace Bonsai.Audio
             writer.Write(dataSize);
         }
 
+        /// <summary>
+        /// Writes an array containing raw audio data into the WAV stream.
+        /// </summary>
+        /// <param name="buffer">A <see cref="byte"/> array containing the data to write.</param>
         public void Write(byte[] buffer)
         {
             writer.Write(buffer);
             dataSize += buffer.LongLength;
         }
 
-        protected virtual void Dispose(bool disposing)
+        /// <summary>
+        /// Closes the current <see cref="RiffWriter"/> and the underlying stream.
+        /// </summary>
+        public void Close()
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    var position = writer.BaseStream.Position;
-                    writer.BaseStream.Seek(0, SeekOrigin.Begin);
-                    WriteRiffHeader(writer, format, (uint)dataSize);
-                    writer.BaseStream.Seek(position, SeekOrigin.Begin);
-                    writer.Close();
-                    disposed = true;
-                }
+                var position = writer.BaseStream.Position;
+                writer.BaseStream.Seek(0, SeekOrigin.Begin);
+                WriteRiffHeader(writer, format, (uint)dataSize);
+                writer.BaseStream.Seek(position, SeekOrigin.Begin);
+                writer.Close();
+                disposed = true;
             }
-        }
-
-        public void Close()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         void IDisposable.Dispose()

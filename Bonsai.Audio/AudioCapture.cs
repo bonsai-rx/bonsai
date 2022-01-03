@@ -8,12 +8,19 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
-    [Description("Produces a sequence of buffered samples acquired from the specified audio capture device.")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of buffered samples acquired from the
+    /// specified audio capture device.
+    /// </summary>
+    [Description("Generates a sequence of buffered samples acquired from the specified audio capture device.")]
     public class AudioCapture : Source<Mat>
     {
-        IObservable<Mat> source;
+        readonly IObservable<Mat> source;
         readonly object captureLock = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioCapture"/> class.
+        /// </summary>
         public AudioCapture()
         {
             SampleFormat = ALFormat.Mono16;
@@ -67,14 +74,24 @@ namespace Bonsai.Audio
             .RefCount();
         }
 
+        /// <summary>
+        /// Gets or sets the name of the capture device from which to acquire samples.
+        /// </summary>
         [Description("The name of the capture device from which to acquire samples.")]
         [TypeConverter(typeof(CaptureDeviceNameConverter))]
         public string DeviceName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the sample rate used by the audio capture device, in Hz.
+        /// </summary>
         [Description("The sample rate used by the audio capture device, in Hz.")]
         public int SampleRate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the sample rate used by the audio capture device, in Hz.
+        /// </summary>
         [Browsable(false)]
+        [Obsolete("Use SampleRate instead for consistent wording with signal processing operator properties.")]
         public int? Frequency
         {
             get { return null; }
@@ -87,19 +104,37 @@ namespace Bonsai.Audio
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="Frequency"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public bool FrequencySpecified
         {
             get { return Frequency.HasValue; }
         }
 
+        /// <summary>
+        /// Gets or sets the format of capture buffer samples.
+        /// </summary>
         [TypeConverter(typeof(SampleFormatConverter))]
-        [Description("The requested capture buffer format.")]
+        [Description("The format of capture buffer samples.")]
         public ALFormat SampleFormat { get; set; }
 
-        [Description("The length of the capture buffer (ms).")]
+        /// <summary>
+        /// Gets or sets the length of the capture buffer, in milliseconds.
+        /// </summary>
+        [Description("The length of the capture buffer, in milliseconds.")]
         public double BufferLength { get; set; }
 
+        /// <summary>
+        /// Generates an observable sequence of buffered audio samples acquired
+        /// from the specified audio capture device.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing audio capture
+        /// buffers of a fixed length. See <see cref="BufferLength"/>.
+        /// </returns>
         public override IObservable<Mat> Generate()
         {
             return source;
@@ -122,7 +157,7 @@ namespace Bonsai.Audio
                 return true;
             }
 
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
             {
                 return new StandardValuesCollection(new[] { ALFormat.Mono16, ALFormat.Stereo16 });
             }

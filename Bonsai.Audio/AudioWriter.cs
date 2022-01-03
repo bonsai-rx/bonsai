@@ -7,18 +7,31 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Audio
 {
-    [Description("Writes the incoming sample sequence into an uncompressed RIFF/WAV file.")]
+    /// <summary>
+    /// Represents an operator that writes a sequence of buffered samples into an uncompressed RIFF/WAV file.
+    /// </summary>
+    [Description("Writes a sequence of buffered samples into an uncompressed RIFF/WAV file.")]
     public class AudioWriter : FileSink<Mat, RiffWriter>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioWriter"/> class.
+        /// </summary>
         public AudioWriter()
         {
             SampleRate = 44100;
         }
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Description("The sample rate of the input signal, in Hz.")]
         public int SampleRate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Browsable(false)]
+        [Obsolete("Use SampleRate instead for consistent wording with signal processing operator properties.")]
         public double? SamplingFrequency
         {
             get { return null; }
@@ -31,12 +44,17 @@ namespace Bonsai.Audio
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="SamplingFrequency"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public bool SamplingFrequencySpecified
         {
             get { return SamplingFrequency.HasValue; }
         }
 
+        /// <inheritdoc/>
         protected override RiffWriter CreateWriter(string fileName, Mat input)
         {
             var sampleRate = SampleRate;
@@ -50,6 +68,13 @@ namespace Bonsai.Audio
             return new RiffWriter(stream, input.Rows, sampleRate, bitsPerSample);
         }
 
+        /// <summary>
+        /// Writes a sample buffer into the WAV file.
+        /// </summary>
+        /// <param name="writer">The <see cref="RiffWriter"/> used to write data into the WAV file.</param>
+        /// <param name="input">
+        /// A <see cref="Mat"/> object containing the audio samples to write into the file.
+        /// </param>
         protected override void Write(RiffWriter writer, Mat input)
         {
             var dataDepth = input.Depth == Depth.U8 ? Depth.U8 : Depth.S16;

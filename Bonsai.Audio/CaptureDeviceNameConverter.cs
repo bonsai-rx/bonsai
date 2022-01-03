@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Audio
 {
-    public class CaptureDeviceNameConverter : TypeConverter
+    internal class CaptureDeviceNameConverter : TypeConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {

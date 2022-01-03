@@ -7,17 +7,18 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Audio
 {
-    [Description("Plays the sequence of buffered samples to the specified audio output device.")]
+    /// <summary>
+    /// Represents an operator that plays a sequence of buffered samples to the specified audio device.
+    /// </summary>
+    [Description("Plays the sequence of buffered samples to the specified audio device.")]
     public class AudioPlayback : Sink<Mat>
     {
         readonly CreateSource createSource = new CreateSource();
 
-        public AudioPlayback()
-        {
-            SampleRate = 44100;
-        }
-
-        [Description("The name of the output device used for playback.")]
+        /// <summary>
+        /// Gets or sets the name of the audio device used for playback.
+        /// </summary>
+        [Description("The name of the audio device used for playback.")]
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
         public string DeviceName
         {
@@ -25,14 +26,24 @@ namespace Bonsai.Audio
             set { createSource.DeviceName = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the optional name of the source used to playback the audio buffers.
+        /// </summary>
         [TypeConverter(typeof(SourceNameConverter))]
-        [Description("The optional name of the source used to playback the input buffers.")]
+        [Description("The optional name of the source used to playback the audio buffers.")]
         public string SourceName { get; set; }
 
-        [Description("The sample rate, in Hz, used to playback the input buffers.")]
-        public int SampleRate { get; set; }
+        /// <summary>
+        /// Gets or sets the sample rate, in Hz, used to playback the audio buffers.
+        /// </summary>
+        [Description("The sample rate, in Hz, used to playback the audio buffers.")]
+        public int SampleRate { get; set; } = 44100;
 
+        /// <summary>
+        /// Gets or sets the sample rate, in Hz, used to playback the audio buffers.
+        /// </summary>
         [Browsable(false)]
+        [Obsolete("Use SampleRate instead for consistent wording with signal processing operator properties.")]
         public int? Frequency
         {
             get { return null; }
@@ -45,24 +56,59 @@ namespace Bonsai.Audio
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="Frequency"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public bool FrequencySpecified
         {
             get { return Frequency.HasValue; }
         }
 
+        /// <summary>
+        /// Plays an observable sequence of buffered samples to the specified audio device.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the buffered audio samples
+        /// to queue for playback on the specified audio device.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of queueing the audio buffers for
+        /// playback on the specified audio device.
+        /// </returns>
+        /// <remarks>
+        /// This operator only subscribes to the <paramref name="source"/> sequence after
+        /// initializing the audio context on the specified audio device.
+        /// </remarks>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return createSource.Generate().SelectMany(audioSource =>
-                Process(Observable.Return(audioSource), source).Finally(audioSource.Dispose));
+                Process(source, Observable.Return(audioSource)).Finally(audioSource.Dispose));
         }
 
+        /// <summary>
+        /// Plays an observable sequence of buffered samples to all the specified audio sources.
+        /// </summary>
+        /// <param name="dataSource">
+        /// A sequence of <see cref="Mat"/> objects representing the buffered audio samples
+        /// to queue for playback on all the active audio sources.
+        /// </param>
+        /// <param name="audioSource">
+        /// A sequence of <see cref="AudioSource"/> objects on which to queue the buffered
+        /// audio samples for playback.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="dataSource"/>
+        /// sequence but where there is an additional side effect of queueing the audio buffers
+        /// for playback on all the active audio sources.
+        /// </returns>
+        /// <remarks>
+        /// This operator only subscribes to the <paramref name="dataSource"/> sequence
+        /// after initializing the audio context on the specified audio device.
+        /// </remarks>
         public IObservable<Mat> Process(IObservable<Mat> dataSource, IObservable<AudioSource> audioSource)
-        {
-            return Process(audioSource, dataSource);
-        }
-
-        public IObservable<Mat> Process(IObservable<AudioSource> audioSource, IObservable<Mat> dataSource)
         {
             return Observable.Using(
                 () => AudioManager.ReserveContext(DeviceName),
@@ -78,6 +124,32 @@ namespace Bonsai.Audio
                         AL.SourcePlay(source.Id);
                     }
                 })));
+        }
+
+        /// <summary>
+        /// Plays an observable sequence of buffered samples to all the specified audio sources.
+        /// </summary>
+        /// <param name="audioSource">
+        /// A sequence of <see cref="AudioSource"/> objects on which to queue the buffered
+        /// audio samples for playback.
+        /// </param>
+        /// <param name="dataSource">
+        /// A sequence of <see cref="Mat"/> objects representing the buffered audio samples
+        /// to queue for playback on all the active audio sources.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="dataSource"/>
+        /// sequence but where there is an additional side effect of queueing the audio buffers
+        /// for playback on all the active audio sources.
+        /// </returns>
+        /// <remarks>
+        /// This operator only subscribes to the <paramref name="dataSource"/> sequence
+        /// after initializing the audio context on the specified audio device.
+        /// </remarks>
+        [Obsolete]
+        public IObservable<Mat> Process(IObservable<AudioSource> audioSource, IObservable<Mat> dataSource)
+        {
+            return Process(dataSource, audioSource);
         }
     }
 }

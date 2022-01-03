@@ -7,15 +7,29 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Audio.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for WAV audio buffers.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class SoundBuffer : BufferConfiguration
     {
+        /// <summary>
+        /// Gets or sets the name of the sound WAV file.
+        /// </summary>
         [Description("The name of the sound WAV file.")]
         [FileNameFilter("WAV Files (*.wav;*.wave)|*.wav;*.wave|All Files|*.*")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Creates a new buffer resource by reading and storing audio data from a WAV file.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Buffer"/> class storing audio data from
+        /// the loaded WAV file.
+        /// </returns>
+        /// <inheritdoc/>
         public override Buffer CreateResource(ResourceManager resourceManager)
         {
             var buffer = base.CreateResource(resourceManager);
@@ -38,6 +52,7 @@ namespace Bonsai.Audio.Configuration
             return buffer;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
