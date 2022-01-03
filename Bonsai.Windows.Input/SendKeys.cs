@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
 
@@ -13,7 +13,7 @@ namespace Bonsai.Windows.Input
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Do(input => System.Windows.Forms.SendKeys.SendWait(Keys));
+            return source.Do(input => System.Windows.Forms.SendKeys.Send(Keys));
         }
     }
 }
