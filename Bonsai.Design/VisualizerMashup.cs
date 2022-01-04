@@ -85,7 +85,7 @@ namespace Bonsai.Design
     /// The type visualizer which will accept to be combined with <typeparamref name="TVisualizer"/>.
     /// </typeparam>
     /// <typeparam name="TVisualizer">
-    /// The type visualizer which can be stacked on top of <typeparamref name="TMashupVisualizer"/>.
+    /// The type visualizer which can be combined with <typeparamref name="TMashupVisualizer"/>.
     /// </typeparam>
     public static class VisualizerMashup<TMashupVisualizer, TVisualizer>
         where TMashupVisualizer : DialogMashupVisualizer
