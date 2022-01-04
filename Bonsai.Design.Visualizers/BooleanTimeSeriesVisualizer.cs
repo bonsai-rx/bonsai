@@ -5,14 +5,15 @@ using Bonsai.Design.Visualizers;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for boolean time series data.
+    /// </summary>
     public class BooleanTimeSeriesVisualizer : TimeSeriesVisualizerBase
     {
-        public BooleanTimeSeriesVisualizer()
-        {
-            Capacity = 640;
-        }
-
-        public int Capacity { get; set; }
+        /// <summary>
+        /// Gets or sets the maximum number of time points displayed at any one moment in the graph.
+        /// </summary>
+        public int Capacity { get; set; } = 640;
 
         internal override RollingGraphView CreateView()
         {

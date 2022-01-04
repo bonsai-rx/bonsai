@@ -8,26 +8,46 @@ using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Represents an operator that configures a visualizer to plot each element
+    /// of the sequence as a bar graph.
+    /// </summary>
     [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(BarGraphVisualizer))]
     [Description("A visualizer that plots each element of the sequence as a bar graph.")]
     public class BarGraphBuilder : SingleArgumentExpressionBuilder
     {
+        /// <summary>
+        /// Gets or sets the name of the property that will be used as index for the graph.
+        /// </summary>
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The inner property that will be used as index for the graph.")]
+        [Description("The name of the property that will be used as index for the graph.")]
         public string IndexSelector { get; set; }
 
+        /// <summary>
+        /// Gets or sets the names of the properties that will be displayed in the graph.
+        /// </summary>
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The inner properties that will be displayed in the graph.")]
+        [Description("The names of the properties that will be displayed in the graph.")]
         public string ValueSelector { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the axis on which the bars in the graph will be displayed.
+        /// </summary>
         [TypeConverter(typeof(BaseAxisConverter))]
-        [Description("Specifies the axis from which the bars in the graph will be displayed.")]
+        [Description("Specifies the axis on which the bars in the graph will be displayed.")]
         public BarBase BaseAxis { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying how the different bars in the graph will be visually arranged.
+        /// </summary>
         [Description("Specifies how the different bars in the graph will be visually arranged.")]
         public BarType BarType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional capacity used for rolling bar graphs. If no capacity is specified,
+        /// all data points will be displayed.
+        /// </summary>
         [Description("The optional capacity used for rolling bar graphs. If no capacity is specified, all data points will be displayed.")]
         public int? Capacity { get; set; }
 
@@ -43,6 +63,11 @@ namespace Bonsai.Design.Visualizers
             internal BarBase BaseAxis;
         }
 
+        /// <summary>
+        /// Builds the expression tree for configuring and calling the
+        /// bar graph visualizer on the specified input argument.
+        /// </summary>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();

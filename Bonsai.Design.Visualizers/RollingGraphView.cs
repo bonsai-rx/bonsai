@@ -7,9 +7,9 @@ namespace Bonsai.Design.Visualizers
 {
     partial class RollingGraphView : UserControl
     {
-        ToolStripTextBox minTextBox;
-        ToolStripTextBox maxTextBox;
-        ToolStripTextBox capacityTextBox;
+        readonly ToolStripTextBox minTextBox;
+        readonly ToolStripTextBox maxTextBox;
+        readonly ToolStripTextBox capacityTextBox;
 
         public RollingGraphView()
         {
@@ -86,11 +86,7 @@ namespace Bonsai.Design.Visualizers
 
         protected virtual void OnAxisChanged(EventArgs e)
         {
-            var handler = AxisChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            AxisChanged?.Invoke(this, e);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -180,9 +176,8 @@ namespace Bonsai.Design.Visualizers
 
         private void capacityTextBox_LostFocus(object sender, EventArgs e)
         {
-            int capacity;
             if (capacityTextBox.Text != capacityValueLabel.Text &&
-                int.TryParse(capacityTextBox.Text, out capacity))
+                int.TryParse(capacityTextBox.Text, out int capacity))
             {
                 Capacity = capacity;
             }
@@ -190,9 +185,8 @@ namespace Bonsai.Design.Visualizers
 
         private void maxTextBox_LostFocus(object sender, EventArgs e)
         {
-            double max;
             if (maxTextBox.Text != maxStatusLabel.Text &&
-                double.TryParse(maxTextBox.Text, out max))
+                double.TryParse(maxTextBox.Text, out double max))
             {
                 Max = max;
             }
@@ -200,9 +194,8 @@ namespace Bonsai.Design.Visualizers
 
         private void minTextBox_LostFocus(object sender, EventArgs e)
         {
-            double min;
             if (minTextBox.Text != minStatusLabel.Text &&
-                double.TryParse(minTextBox.Text, out min))
+                double.TryParse(minTextBox.Text, out double min))
             {
                 Min = min;
             }

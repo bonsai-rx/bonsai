@@ -4,27 +4,36 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for 
+    /// </summary>
     public class StateTimeVisualizer : DialogTypeVisualizer
     {
         int stateIndex;
         const int StateColumns = 10;
         GraphControl graph;
-        RollingPointPairList values;
+        readonly RollingPointPairList values;
 
         object state;
         DateTime stateEnter;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StateTimeVisualizer"/> class.
+        /// </summary>
         public StateTimeVisualizer()
         {
             values = new RollingPointPairList(StateColumns);
         }
 
+        /// <summary>
+        /// Gets the underlying graph control.
+        /// </summary>
         protected GraphControl Graph
         {
             get { return graph; }
         }
 
-        protected void AddValue(DateTime time, object value)
+        internal void AddValue(DateTime time, object value)
         {
             if (value == null) return;
             if (values.Count > 0)
@@ -50,11 +59,13 @@ namespace Bonsai.Design.Visualizers
             graph.Invalidate();
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             AddValue(DateTime.Now, value);
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             graph = new GraphControl();
@@ -84,6 +95,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             values.Clear();

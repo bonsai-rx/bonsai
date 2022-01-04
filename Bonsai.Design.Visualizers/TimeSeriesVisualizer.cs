@@ -25,13 +25,27 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for multi-dimensional time series data.
+    /// </summary>
     public class TimeSeriesVisualizer : TimeSeriesVisualizerBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeSeriesVisualizer"/> class.
+        /// </summary>
         public TimeSeriesVisualizer()
             : this(1)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeSeriesVisualizer"/> class
+        /// using the specified number of dimensions.
+        /// </summary>
+        /// <param name="numSeries">
+        /// The number of dimensions in the time series graph. Each dimension will be
+        /// plotted on its own visual trace.
+        /// </param>
         public TimeSeriesVisualizer(int numSeries)
         {
             NumSeries = numSeries;
@@ -42,14 +56,30 @@ namespace Bonsai.Design.Visualizers
 
         private int NumSeries { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum number of time points displayed at any one moment in the graph.
+        /// </summary>
         public int Capacity { get; set; }
 
+        /// <summary>
+        /// Gets or sets the lower limit of the y-axis range when using a fixed scale.
+        /// </summary>
         public double Min { get; set; }
 
+        /// <summary>
+        /// Gets or sets the upper limit of the y-axis range when using a fixed scale.
+        /// </summary>
         public double Max { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the y-axis range should be recalculated
+        /// automatically as the graph updates.
+        /// </summary>
         public bool AutoScale { get; set; }
 
+        /// <summary>
+        /// Gets the underlying graph control.
+        /// </summary>
         [Obsolete]
         protected GraphControl Graph
         {
@@ -78,6 +108,7 @@ namespace Bonsai.Design.Visualizers
             return view;
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var array = value as Array;
@@ -90,6 +121,10 @@ namespace Bonsai.Design.Visualizers
         }
     }
 
+    /// <summary>
+    /// Provides a base class for rolling graph visualizers of multi-dimensional
+    /// time series data.
+    /// </summary>
     public class TimeSeriesVisualizerBase : DialogTypeVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
@@ -110,12 +145,27 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <summary>
+        /// Adds a new data point to the multi-dimensional time series.
+        /// </summary>
+        /// <param name="time">The timestamp associated with the data point.</param>
+        /// <param name="value">
+        /// An array representing all the attribute dimensions of the data point.
+        /// </param>
         [Obsolete]
         protected void AddValue(DateTime time, params object[] value)
         {
             AddValue(time, Array.ConvertAll(value, x => Convert.ToDouble(x)));
         }
 
+        /// <summary>
+        /// Adds a new data point to the multi-dimensional time series.
+        /// </summary>
+        /// <param name="time">The timestamp associated with the data point.</param>
+        /// <param name="value">
+        /// A <see cref="double"/> array representing all the attribute dimensions
+        /// of the data point.
+        /// </param>
         protected void AddValue(DateTime time, params double[] value)
         {
             view.AddValues((XDate)time, value);
@@ -134,11 +184,13 @@ namespace Bonsai.Design.Visualizers
             AddValue(time, values);
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             AddValue(DateTime.Now, Convert.ToDouble(value));
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             view = CreateView();
@@ -153,6 +205,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             view.Dispose();

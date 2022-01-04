@@ -5,6 +5,9 @@ using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for displaying an object as a rolling graph.
+    /// </summary>
     public class RollingGraphVisualizer : DialogTypeVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
@@ -14,11 +17,11 @@ namespace Bonsai.Design.Visualizers
         IPointListEdit[] lineSeries;
         bool labelLines;
 
-        public void AddValues(string index, params double[] values) => AddValues(0, index, values);
+        internal void AddValues(string index, params double[] values) => AddValues(0, index, values);
 
-        public void AddValues(double index, params double[] values) => AddValues(index, null, values);
+        internal void AddValues(double index, params double[] values) => AddValues(index, null, values);
 
-        public void AddValues(double index, string tag, params double[] values)
+        internal void AddValues(double index, string tag, params double[] values)
         {
             EnsureSeries(values.Length);
             for (int i = 0; i < lineSeries.Length; i++)
@@ -49,6 +52,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -75,6 +79,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var time = DateTime.Now;
@@ -86,6 +91,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             graph.Dispose();

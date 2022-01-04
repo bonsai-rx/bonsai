@@ -15,10 +15,17 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer that can be used to arrange other visualizers in a grid.
+    /// </summary>
     public class TableLayoutPanelVisualizer : DialogMashupVisualizer
     {
         internal TableLayoutPanel Panel { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the mashup visualizer settings for all visualizers which have been
+        /// combined with the table layout panel.
+        /// </summary>
         [XmlAnyElement]
         public XElement[] MashupsXml { get; set; }
 
@@ -57,6 +64,7 @@ namespace Bonsai.Design.Visualizers
             SetStyles(Panel.RowStyles, tableLayoutBuilder.RowStyles, rowCount, () => new RowStyle(SizeType.Percent, 100f / rowCount));
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             Mashups.Deserialize(MashupsXml);
@@ -73,6 +81,7 @@ namespace Bonsai.Design.Visualizers
             base.Load(provider);
         }
 
+        /// <inheritdoc/>
         public override void LoadMashups(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -85,6 +94,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void UnloadMashups()
         {
             base.UnloadMashups();
@@ -93,15 +103,18 @@ namespace Bonsai.Design.Visualizers
             Panel.ColumnStyles.Clear();
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
         }
 
+        /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             return Observable.Merge(Mashups.Select(mashup => mashup.Visualizer.Visualize(((ITypeVisualizerContext)mashup).Source.Output, provider)));
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             MashupsXml = Mashups.Serialize();

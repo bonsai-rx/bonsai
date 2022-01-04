@@ -9,6 +9,9 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a dynamic graph control with a built-in color cycle palette.
+    /// </summary>
     public class GraphControl : ZedGraphControl
     {
         const int PenWidth = 3;
@@ -42,6 +45,9 @@ namespace Bonsai.Design.Visualizers
             ColorTranslator.FromHtml("#7893BE")
         };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GraphControl"/> class.
+        /// </summary>
         public GraphControl()
         {
             SuspendLayout();
@@ -70,15 +76,34 @@ namespace Bonsai.Design.Visualizers
             ResumeLayout(false);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to recalculate the axis range automatically
+        /// when redrawing the graph.
+        /// </summary>
         [DefaultValue(true)]
         public bool AutoScaleAxis { get; set; }
 
+        /// <summary>
+        /// Occurs when the mouse pointer is over the control and a mouse button is pressed.
+        /// </summary>
         public new IObservable<MouseEventArgs> MouseDown { get; private set; }
 
+        /// <summary>
+        /// Occurs when the mouse pointer is over the control and a mouse button is released.
+        /// </summary>
         public new IObservable<MouseEventArgs> MouseUp { get; private set; }
 
+        /// <summary>
+        /// Occurs when the mouse pointer is moved over the control.
+        /// </summary>
         public new IObservable<MouseEventArgs> MouseMove { get; private set; }
 
+        /// <summary>
+        /// Returns the next color in the color cycle, and increments the color index.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Color"/> value representing the next color in the color cycle.
+        /// </returns>
         public Color GetNextColor()
         {
             var color = BrightPastelPalette[colorIndex];
@@ -86,26 +111,49 @@ namespace Bonsai.Design.Visualizers
             return color;
         }
 
+        /// <summary>
+        /// Returns the color in the color cycle at the specified index.
+        /// </summary>
+        /// <param name="colorIndex">The index of the color to retrieve.</param>
+        /// <returns>
+        /// A <see cref="Color"/> value representing the color at the specified
+        /// index of the color cycle.
+        /// </returns>
         public static Color GetColor(int colorIndex)
         {
             if (colorIndex < 0)
             {
-                throw new ArgumentOutOfRangeException("colorIndex");
+                throw new ArgumentOutOfRangeException(nameof(colorIndex));
             }
 
             return BrightPastelPalette[colorIndex % BrightPastelPalette.Length];
         }
 
+        /// <summary>
+        /// Resets the color cycle to the first color in the palette.
+        /// </summary>
         public void ResetColorCycle()
         {
             colorIndex = 0;
         }
 
+        /// <summary>
+        /// Sets the auto layout strategy for graphs with multiple panes.
+        /// </summary>
+        /// <param name="layout">
+        /// Specifies the auto layout options for graphs with multiple panes.
+        /// </param>
         public void SetLayout(PaneLayout layout)
         {
             paneLayout = layout;
         }
 
+        /// <summary>
+        /// Sets the number of rows and columns in the layout explicitly for
+        /// graphs with multiple panes.
+        /// </summary>
+        /// <param name="rows">The number of rows in the pane layout.</param>
+        /// <param name="columns">The number of columns in the pane layout.</param>
         public void SetLayout(int rows, int columns)
         {
             paneLayoutSize = new Size(columns, rows);
@@ -168,6 +216,17 @@ namespace Bonsai.Design.Visualizers
             MouseMove = mouseMoveEvent;
         }
 
+        /// <summary>
+        /// Computes a rectangle defined by the specified points which is also contained inside
+        /// the pane boundaries.
+        /// </summary>
+        /// <param name="bounds">The bounds of the pane on which to contain the rectangle.</param>
+        /// <param name="p1">The first point defining the selected rectangle.</param>
+        /// <param name="p2">The second point defining the selected rectangle.</param>
+        /// <returns>
+        /// A <see cref="Rectangle"/> which is contained inside the pane boundaries and is
+        /// defined by the specified points.
+        /// </returns>
         protected static Rectangle GetNormalizedRectangle(RectangleF bounds, Point p1, Point p2)
         {
             p2.X = (int)Math.Max(bounds.Left, Math.Min(p2.X, bounds.Right));
@@ -185,11 +244,9 @@ namespace Bonsai.Design.Visualizers
                 !previousRectangle.IsEmpty &&
                 IsMinimumDragDisplacement(previousRectangle.Width, previousRectangle.Height))
             {
-                double minX, maxX;
-                double minY, maxY;
                 selectedPane.ZoomStack.Push(selectedPane, ZoomState.StateType.Zoom);
-                selectedPane.ReverseTransform(previousRectangle.Location, out minX, out maxY);
-                selectedPane.ReverseTransform(previousRectangle.Location + previousRectangle.Size, out maxX, out minY);
+                selectedPane.ReverseTransform(previousRectangle.Location, out double minX, out double maxY);
+                selectedPane.ReverseTransform(previousRectangle.Location + previousRectangle.Size, out double maxX, out double minY);
                 if (IsEnableHZoom)
                 {
                     selectedPane.XAxis.Scale.Min = minX;
@@ -208,6 +265,16 @@ namespace Bonsai.Design.Visualizers
             UpdateRubberBand(rect.GetValueOrDefault(), Rectangle.Truncate(selectedPane.Chart.Rect));
         }
 
+        /// <summary>
+        /// Updates the state of the rubber band selection overlay.
+        /// </summary>
+        /// <param name="bandRect">
+        /// The location and size of the rubber band selection.
+        /// </param>
+        /// <param name="invalidateRect">
+        /// The region of the control that should be invalidated following the rubber band
+        /// update operation. See the <see cref="Control.Invalidate(Rectangle)"/> method.
+        /// </param>
         protected void UpdateRubberBand(Rectangle bandRect, Rectangle invalidateRect)
         {
             if (!Focused) Select();
@@ -217,6 +284,7 @@ namespace Bonsai.Design.Visualizers
             previousRectangle = bandRect;
         }
 
+        /// <inheritdoc/>
         protected override void OnPaint(PaintEventArgs e)
         {
             if (AutoScaleAxis) MasterPane.AxisChange(e.Graphics);
@@ -240,6 +308,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnHandleDestroyed(EventArgs e)
         {
             if (rubberBandNotifications != null)

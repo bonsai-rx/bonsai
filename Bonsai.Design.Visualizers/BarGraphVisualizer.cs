@@ -5,6 +5,9 @@ using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for displaying an object as a bar graph.
+    /// </summary>
     public class BarGraphVisualizer : DialogTypeVisualizer
     {
         GraphControl graph;
@@ -90,6 +93,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -119,12 +123,14 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             controller.AddValues(value, this);
             graph.Invalidate();
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             graph.Dispose();

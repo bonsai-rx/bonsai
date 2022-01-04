@@ -10,7 +10,7 @@ namespace Bonsai.Design.Visualizers
 {
     static class GraphHelper
     {
-        static ConstructorInfo NewPointPair = typeof(PointPair).GetConstructor(new[] { typeof(double), typeof(double) });
+        static readonly ConstructorInfo NewPointPair = typeof(PointPair).GetConstructor(new[] { typeof(double), typeof(double) });
 
         internal static void SetAxisLabel(Axis axis, string label)
         {
@@ -31,7 +31,7 @@ namespace Bonsai.Design.Visualizers
         {
             if (type == typeof(XDate))
             {
-                GraphHelper.FormatDateAxis(axis);
+                FormatDateAxis(axis);
             }
             else if (type == typeof(string))
             {

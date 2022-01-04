@@ -7,24 +7,49 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Represents an operator that configures a visualizer to plot each element
+    /// of the sequence as a rolling graph.
+    /// </summary>
     [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(RollingGraphVisualizer))]
     [Description("A visualizer that plots each element of the sequence as a rolling graph.")]
     public class RollingGraphBuilder : SingleArgumentExpressionBuilder
     {
+        /// <summary>
+        /// Gets or sets the name of the property that will be used as index for the graph.
+        /// </summary>
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The inner property that will be used as index for the graph.")]
+        [Description("The name of the property that will be used as index for the graph.")]
         public string IndexSelector { get; set; }
 
+        /// <summary>
+        /// Gets or sets the names of the properties that will be displayed in the graph.
+        /// </summary>
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The inner properties that will be used as values for the graph.")]
+        [Description("The names of the properties that will be displayed in the graph.")]
         public string ValueSelector { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional capacity used for rolling line graphs. If no capacity is specified,
+        /// all data points will be displayed.
+        /// </summary>
         [Description("The optional capacity used for rolling line graphs. If no capacity is specified, all data points will be displayed.")]
         public int? Capacity { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether to serialize the element selector property.
+        /// </summary>
+        /// <returns>
+        /// This method always returns <see langword="false"/> as this is an obsolete property.
+        /// </returns>
+        [Obsolete]
         public bool ShouldSerializeElementSelector() => false;
 
+        /// <summary>
+        /// Gets or sets the names of the properties that will be displayed in the graph.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public string ElementSelector
         {
@@ -43,6 +68,11 @@ namespace Bonsai.Design.Visualizers
             internal Action<object, RollingGraphVisualizer> AddValues;
         }
 
+        /// <summary>
+        /// Builds the expression tree for configuring and calling the
+        /// line graph visualizer on the specified input argument.
+        /// </summary>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();

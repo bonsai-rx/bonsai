@@ -24,8 +24,13 @@ using Bonsai.Design.Visualizers;
 
 namespace Bonsai.Design.Visualizers
 {
+    /// <summary>
+    /// Provides a type visualizer for multi-dimensional timestamped data.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements to visualize.</typeparam>
     public class TimestampedTimeSeriesVisualizer<T> : TimeSeriesVisualizer
     {
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var timestamped = (Timestamped<T>)value;
