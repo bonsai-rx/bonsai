@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace Bonsai.Design
@@ -33,31 +33,6 @@ namespace Bonsai.Design
                     treeView.SelectedNode = null;
                 }
             }
-        }
-
-        public void AddMember(Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
-            controller.InitializeMemberTree(treeView.Nodes, type);
-        }
-
-        public void AddMember(string name, Type type)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
-            controller.EnsureNode(treeView.Nodes, name, type);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
