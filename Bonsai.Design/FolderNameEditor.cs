@@ -7,13 +7,19 @@ using System.IO;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface editor that displays a browser dialog box
+    /// from which the user can select a folder.
+    /// </summary>
     public class FolderNameEditor : UITypeEditor
     {
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

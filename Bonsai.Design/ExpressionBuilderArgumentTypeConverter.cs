@@ -7,9 +7,14 @@ using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a type converter to convert expression builder arguments
+    /// to and from other representations.
+    /// </summary>
     [Obsolete]
     public class ExpressionBuilderArgumentTypeConverter : TypeConverter
     {
+        /// <inheritdoc/>
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Pen)) return true;
@@ -17,6 +22,7 @@ namespace Bonsai.Design
             return base.CanConvertTo(context, destinationType);
         }
 
+        /// <inheritdoc/>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (value != null)

@@ -5,6 +5,9 @@ using System.Globalization;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Represents a slider control used to select values from a continuous range.
+    /// </summary>
     public partial class Slider : UserControl
     {
         const int TrackBarPadding = 16;
@@ -13,6 +16,9 @@ namespace Bonsai.Design
         double maximum;
         double value;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Slider"/> class.
+        /// </summary>
         public Slider()
         {
             maximum = 100;
@@ -20,20 +26,33 @@ namespace Bonsai.Design
             trackBar.Top = -10;
         }
 
+        /// <summary>
+        /// Gets or sets the type converter used to convert the slider value to a text representation.
+        /// </summary>
         public TypeConverter Converter { get; set; }
 
+        /// <summary>
+        /// Gets or sets the upper limit of values in the slider.
+        /// </summary>
         public double Minimum
         {
             get { return minimum; }
             set { minimum = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the lower limit of values in the slider.
+        /// </summary>
         public double Maximum
         {
             get { return maximum; }
             set { maximum = value; }
         }
 
+        /// <summary>
+        /// Gets or sets an optional maximum number of decimal places used
+        /// when formatting the numeric display of the slider.
+        /// </summary>
         public int? DecimalPlaces
         {
             get { return decimalPlaces; }
@@ -48,6 +67,9 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Gets or sets a numeric value which represents the position of the slider.
+        /// </summary>
         public double Value
         {
             get { return value; }
@@ -63,6 +85,9 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Occurs when the slider value changes.
+        /// </summary>
         public event EventHandler ValueChanged
         {
             add { trackBar.ValueChanged += value; }
@@ -85,6 +110,7 @@ namespace Bonsai.Design
             this.value = value;
         }
 
+        /// <inheritdoc/>
         protected override void OnSizeChanged(EventArgs e)
         {
             UpdateTrackBarRange();

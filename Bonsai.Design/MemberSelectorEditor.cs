@@ -10,32 +10,53 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface editor that displays a dialog for selecting
+    /// members of a workflow expression type.
+    /// </summary>
     public class MemberSelectorEditor : UITypeEditor
     {
-        bool allowMultiSelection;
-        Func<Expression, Type> typeSelector;
+        readonly bool isMultiMemberSelector;
+        readonly Func<Expression, Type> getType;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemberSelectorEditor"/> class.
+        /// </summary>
         public MemberSelectorEditor()
             : this(false)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemberSelectorEditor"/> class
+        /// using either a multi- or single-selection dialog.
+        /// </summary>
+        /// <param name="allowMultiSelection">
+        /// Indicates whether the interface allows selecting multiple members.
+        /// </param>
         public MemberSelectorEditor(bool allowMultiSelection)
             : this(expression => expression.Type.GetGenericArguments()[0], allowMultiSelection)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemberSelectorEditor"/> class
+        /// using either a multi- or single-selection dialog and the specified method
+        /// for selecting the expression type.
+        /// </summary>
+        /// <param name="typeSelector">
+        /// A method for selecting the type from which to select members.
+        /// </param>
+        /// <param name="allowMultiSelection">
+        /// Indicates whether the interface allows selecting multiple members.
+        /// </param>
         public MemberSelectorEditor(Func<Expression, Type> typeSelector, bool allowMultiSelection)
         {
-            if (typeSelector == null)
-            {
-                throw new ArgumentNullException("typeSelector");
-            }
-
-            this.typeSelector = typeSelector;
-            this.allowMultiSelection = allowMultiSelection;
+            getType = typeSelector ?? throw new ArgumentNullException(nameof(typeSelector));
+            isMultiMemberSelector = allowMultiSelection;
         }
 
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -86,6 +107,7 @@ namespace Bonsai.Design
             return null;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var selector = value as string ?? string.Empty;
@@ -118,9 +140,9 @@ namespace Bonsai.Design
                 if (predecessor != null)
                 {
                     var expression = workflow.Build(predecessor.Value);
-                    var expressionType = typeSelector(expression);
+                    var expressionType = getType(expression);
                     if (expressionType == null) return base.EditValue(context, provider, value);
-                    using (var editorDialog = allowMultiSelection ?
+                    using (var editorDialog = isMultiMemberSelector ?
                            (IMemberSelectorEditorDialog)
                            new MultiMemberSelectorEditorDialog(expressionType) :
                            new MemberSelectorEditorDialog(expressionType))

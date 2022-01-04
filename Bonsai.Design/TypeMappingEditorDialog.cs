@@ -89,7 +89,7 @@ namespace Bonsai.Design
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             var root = treeView.Nodes.Add(provider.GetTypeOutput(new CodeTypeReference(type)));

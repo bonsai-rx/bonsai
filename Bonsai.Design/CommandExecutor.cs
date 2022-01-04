@@ -4,29 +4,47 @@ using System.ComponentModel;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Represents a command execution stack with support for undo and redo operations.
+    /// </summary>
     public class CommandExecutor : Component
     {
         Command composite;
         private int currentCommand = -1;
         private readonly List<Command> history = new List<Command>();
 
+        /// <summary>
+        /// Occurs when the command execution stack has changed, either by executing
+        /// a new command, or calling undo or redo operations.
+        /// </summary>
         public event EventHandler StatusChanged;
 
+        /// <summary>
+        /// Gets a value indicating whether there are any commands available to undo on
+        /// the command execution stack.
+        /// </summary>
         public bool CanUndo
         {
             get { return currentCommand >= 0; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether there are any commands available to redo
+        /// on the command execution stack.
+        /// </summary>
         public bool CanRedo
         {
             get { return currentCommand < history.Count - 1; }
         }
 
+        /// <summary>
+        /// Clears the entire command execution history.
+        /// </summary>
         public void Clear()
         {
             if (composite != null)
             {
-                throw new InvalidOperationException("EndComposite must be called before clearing the command history.");
+                throw new InvalidOperationException($"{nameof(EndCompositeCommand)} must be called before clearing the command history.");
             }
 
             history.Clear();
@@ -34,21 +52,39 @@ namespace Bonsai.Design
             OnStatusChanged(EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Marks the beginning of a composite command execution.
+        /// </summary>
+        /// <remarks>
+        /// Every command executed until <see cref="EndCompositeCommand"/> will be considered
+        /// part of the composite action. Calling undo or redo on a composite action will affect
+        /// all commands in the composite, as if they were effectively part of a single command.
+        /// </remarks>
         public void BeginCompositeCommand()
         {
             if (composite != null)
             {
-                throw new InvalidOperationException("EndComposite must be called before creating a new composite command.");
+                throw new InvalidOperationException($"{nameof(EndCompositeCommand)} must be called before creating a new composite command.");
             }
 
             composite = new Command(null, () => { });
         }
 
+        /// <summary>
+        /// Specifies a new action for immediate execution, together with the optional
+        /// undo action which reverses the effects of the command.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="undo">
+        /// The undo action which reverses the effects of the <paramref name="command"/>.
+        /// If no undo action is specified, the entire command history up to the execution
+        /// of this command will be cleared.
+        /// </param>
         public void Execute(Action command, Action undo)
         {
             if (command == null)
             {
-                throw new ArgumentNullException("command");
+                throw new ArgumentNullException(nameof(command));
             }
 
             command();
@@ -73,11 +109,14 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Marks the end of a composite command execution.
+        /// </summary>
         public void EndCompositeCommand()
         {
             if (composite == null)
             {
-                throw new InvalidOperationException("BeginComposite must be called before this operation.");
+                throw new InvalidOperationException($"{nameof(BeginCompositeCommand)} must be called before this operation.");
             }
 
             if (composite.Execute == null)
@@ -102,16 +141,28 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Undo the effects of the previously executed command.
+        /// </summary>
         public void Undo()
         {
             Undo(true);
         }
 
+        /// <summary>
+        /// Undo the effects of the previously executed command, with
+        /// optional support for redo operations.
+        /// </summary>
+        /// <param name="allowRedo">
+        /// If this parameter is <see langword="true"/>, redo operations will be allowed
+        /// after undoing the previous command. Otherwise, all the forward history, including
+        /// the command being undone will be cleared.
+        /// </param>
         public void Undo(bool allowRedo)
         {
             if (composite != null)
             {
-                throw new InvalidOperationException("EndComposite must be called before any undo/redo operations.");
+                throw new InvalidOperationException($"{nameof(EndCompositeCommand)} must be called before any undo/redo operations.");
             }
 
             if (CanUndo)
@@ -128,11 +179,14 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Redo the effects of the command which was previously undone.
+        /// </summary>
         public void Redo()
         {
             if (composite != null)
             {
-                throw new InvalidOperationException("EndComposite must be called before any undo/redo operations.");
+                throw new InvalidOperationException($"{nameof(EndCompositeCommand)} must be called before any undo/redo operations.");
             }
 
             if (CanRedo)
@@ -142,13 +196,13 @@ namespace Bonsai.Design
             }
         }
 
+        /// <summary>
+        /// Raises the <see cref="StatusChanged"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnStatusChanged(EventArgs e)
         {
-            var handler = StatusChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            StatusChanged?.Invoke(this, e);
         }
 
         private class Command

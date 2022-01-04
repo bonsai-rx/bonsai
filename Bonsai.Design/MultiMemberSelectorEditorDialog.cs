@@ -1,22 +1,33 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Represents a dialog for selecting multiple members of a workflow expression type.
+    /// </summary>
     public partial class MultiMemberSelectorEditorDialog : Form, IMemberSelectorEditorDialog
     {
         int mouseClicks;
         const int ButtonMargin = 2;
         readonly MemberSelectorEditorController controller;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MultiMemberSelectorEditorDialog"/> class
+        /// using the specified type.
+        /// </summary>
+        /// <param name="type">The type from which to select inner properties.</param>
         public MultiMemberSelectorEditorDialog(Type type)
         {
             InitializeComponent();
             controller = new MemberSelectorEditorController(treeView, type);
         }
 
+        /// <summary>
+        /// Gets or sets the selected inner properties of the expression type.
+        /// </summary>
         public string Selector
         {
             get
@@ -42,12 +53,14 @@ namespace Bonsai.Design
             }
         }
 
+        /// <inheritdoc/>
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             selectionListBox.ItemHeight = (int)(13 * factor.Height);
             base.ScaleControl(factor, specified);
         }
 
+        /// <inheritdoc/>
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             controller.Dispose();

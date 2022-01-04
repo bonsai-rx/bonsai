@@ -5,15 +5,25 @@ using System.Drawing;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface with a scaled description panel that can edit
+    /// most types of collections at design time.
+    /// </summary>
     public class DescriptiveCollectionEditor : CollectionEditor
     {
         const float DefaultDpi = 96f;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DescriptiveCollectionEditor"/>
+        /// class using the specified type.
+        /// </summary>
+        /// <param name="type">The type of the collection for this editor to edit.</param>
         public DescriptiveCollectionEditor(Type type)
             : base(type)
         {
         }
 
+        /// <inheritdoc/>
         protected override CollectionForm CreateCollectionForm()
         {
             var form = base.CreateCollectionForm();

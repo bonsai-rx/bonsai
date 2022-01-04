@@ -7,10 +7,10 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    class MemberSelectorEditorController : IDisposable
+    sealed class MemberSelectorEditorController : IDisposable
     {
-        TreeNode root;
-        TreeView treeView;
+        readonly TreeNode root;
+        readonly TreeView treeView;
         CSharpCodeProvider provider;
         const string IndexBegin = "[";
         const string RootLabel = "Source";
@@ -109,19 +109,13 @@ namespace Bonsai.Design
             }
         }
 
-        void Dispose(bool disposing)
+        public void Dispose()
         {
-            if (provider != null && disposing)
+            if (provider != null)
             {
                 provider.Dispose();
                 provider = null;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

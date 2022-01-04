@@ -9,6 +9,9 @@ using System.Drawing;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for displaying any object type as text.
+    /// </summary>
     public class ObjectTextVisualizer : DialogTypeVisualizer
     {
         const int AutoScaleHeight = 13;
@@ -19,6 +22,7 @@ namespace Bonsai.Design
         Queue<string> buffer;
         int bufferSize;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             value = value ?? string.Empty;
@@ -30,6 +34,7 @@ namespace Bonsai.Design
             textBox.Text = string.Join(Environment.NewLine, buffer);
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             buffer = new Queue<string>();
@@ -72,6 +77,7 @@ namespace Bonsai.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             bufferSize = 0;

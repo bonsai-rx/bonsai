@@ -10,8 +10,12 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface for selecting method overloads from a workflow operator.
+    /// </summary>
     public class TypeMappingEditor : UITypeEditor
     {
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -31,6 +35,7 @@ namespace Bonsai.Design
             return (TypeMapping)Activator.CreateInstance(mappingType);
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

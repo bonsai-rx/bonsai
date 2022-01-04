@@ -4,8 +4,12 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface for browsing the properties of an object.
+    /// </summary>
     public class PropertyGrid : System.Windows.Forms.PropertyGrid
     {
+        /// <inheritdoc/>
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             ScaleDescriptionPanel(this, factor);

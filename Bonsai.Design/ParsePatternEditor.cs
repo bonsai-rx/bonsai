@@ -1,18 +1,25 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Linq.Expressions;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a drop-down user interface for selecting available format specifiers
+    /// which can be passed to the <see cref="ExpressionHelper.Parse(Expression, string)"/> method.
+    /// </summary>
     public class ParsePatternEditor : UITypeEditor
     {
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.DropDown;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var pattern = (string)value;

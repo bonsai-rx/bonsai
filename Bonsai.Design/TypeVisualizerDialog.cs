@@ -3,13 +3,20 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Represents a window or panel where a type visualizer can be displayed.
+    /// </summary>
     public partial class TypeVisualizerDialog : Form, IDialogTypeVisualizerService
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeVisualizerDialog"/> class.
+        /// </summary>
         public TypeVisualizerDialog()
         {
             InitializeComponent();
         }
 
+        /// <inheritdoc/>
         public void AddControl(Control control)
         {
             ClientSize = control.Size;
@@ -22,6 +29,7 @@ namespace Bonsai.Design
             Controls.Add(control);
         }
 
+        /// <inheritdoc/>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape && !e.Handled)

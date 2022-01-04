@@ -6,6 +6,10 @@ using System.Drawing;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a type converter to convert expression builder objects
+    /// to and from other representations.
+    /// </summary>
     [Obsolete]
     public class ExpressionBuilderTypeConverter : TypeConverter
     {
@@ -15,6 +19,7 @@ namespace Bonsai.Design
             DashPattern = new[] { 4f, 2f }
         };
 
+        /// <inheritdoc/>
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(ElementCategory)) return true;
@@ -25,6 +30,7 @@ namespace Bonsai.Design
             return base.CanConvertTo(context, destinationType);
         }
 
+        /// <inheritdoc/>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == typeof(string))

@@ -7,15 +7,29 @@ using System.IO;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides the abstract base class for user interface editors
+    /// that display a dialog box from which the user can select a file.
+    /// </summary>
     public abstract class FileNameEditor : UITypeEditor
     {
+        /// <summary>
+        /// When overridden in a derived class, initializes the dialog
+        /// box from which the user can select a file.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="FileDialog"/> object which will display the
+        /// dialog box from which the user can select a file.
+        /// </returns>
         protected abstract FileDialog CreateFileDialog();
 
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

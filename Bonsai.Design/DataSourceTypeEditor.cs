@@ -8,13 +8,34 @@ using System.ComponentModel;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides an abstract base class for visual property editors that require inspecting
+    /// the runtime notifications of an operator to provide their functionality.
+    /// </summary>
     public abstract class DataSourceTypeEditor : UITypeEditor
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceTypeEditor"/> class
+        /// using the specified data source.
+        /// </summary>
+        /// <param name="source">
+        /// Specifies the source of runtime notifications to the visual property editor.
+        /// </param>
         protected DataSourceTypeEditor(DataSource source)
             : this(source, null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataSourceTypeEditor"/> class
+        /// using the specified data source and target data type.
+        /// </summary>
+        /// <param name="source">
+        /// Specifies the source of runtime notifications to the visual property editor.
+        /// </param>
+        /// <param name="targetType">
+        /// The type of values emitted by the data source.
+        /// </param>
         protected DataSourceTypeEditor(DataSource source, Type targetType)
         {
             Source = source;
@@ -25,9 +46,19 @@ namespace Bonsai.Design
 
         private Type TargetType { get; set; }
 
+        /// <summary>
+        /// Specifies the source of runtime notifications to the visual property editor.
+        /// </summary>
         protected enum DataSource
         {
+            /// <summary>
+            /// Runtime notifications will come from the first input sequence to the operator.
+            /// </summary>
             Input,
+
+            /// <summary>
+            /// Runtime notifications will come from the observable output of the operator.
+            /// </summary>
             Output
         }
 
@@ -74,11 +105,25 @@ namespace Bonsai.Design
             return dataSource;
         }
 
+        /// <summary>
+        /// Gets the source of runtime notifications arriving to or from the operator.
+        /// </summary>
+        /// <param name="context">
+        /// An <see cref="ITypeDescriptorContext"/> object that can be used to obtain
+        /// additional context information.
+        /// </param>
+        /// <param name="provider">
+        /// An <see cref="IServiceProvider"/> object that this editor can use to obtain services.
+        /// </param>
+        /// <returns>
+        /// An <see cref="InspectBuilder"/> object that can be used to subscribe to runtime
+        /// notifications arriving to or from the operator.
+        /// </returns>
         protected InspectBuilder GetDataSource(ITypeDescriptorContext context, IServiceProvider provider)
         {
             if (provider == null)
             {
-                throw new ArgumentNullException("provider");
+                throw new ArgumentNullException(nameof(provider));
             }
 
             var mappingName = context.PropertyDescriptor.Name;

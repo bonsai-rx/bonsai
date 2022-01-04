@@ -6,6 +6,10 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Provides a user interface editor that displays an up-down control for selecting
+    /// numeric values.
+    /// </summary>
     public class NumericUpDownEditor : UITypeEditor
     {
         static Type GetPropertyType(Type type)
@@ -13,6 +17,7 @@ namespace Bonsai.Design
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             if (context != null && context.PropertyDescriptor != null)
@@ -33,6 +38,7 @@ namespace Bonsai.Design
             }
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

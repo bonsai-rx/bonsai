@@ -7,8 +7,8 @@ namespace Bonsai.Design
 {
     class ConfigurationEditorService : IWindowsFormsEditorService, IServiceProvider, ITypeDescriptorContext
     {
-        Control ownerControl;
-        IServiceProvider parentProvider;
+        readonly Control ownerControl;
+        readonly IServiceProvider parentProvider;
 
         public ConfigurationEditorService(Control owner, IServiceProvider provider)
         {

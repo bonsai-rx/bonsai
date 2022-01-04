@@ -6,6 +6,9 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Specifies a folder browser dialog box.
+    /// </summary>
     public class FolderBrowserDialog : CommonDialog
     {
         const uint FOS_PICKFOLDERS = 0x20;
@@ -13,44 +16,50 @@ namespace Bonsai.Design
         const uint SIGDN_FILESYSPATH = 0x80058000;
         const uint S_OK = 0;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FolderBrowserDialog"/> class.
+        /// </summary>
         public FolderBrowserDialog()
         {
             SelectedPath = string.Empty;
         }
 
+        /// <summary>
+        /// Gets or sets the path to the selected folder.
+        /// </summary>
         [DefaultValue("")]
         public string SelectedPath { get; set; }
 
+        /// <summary>
+        /// Resets the properties of the folder browser dialog to their default values.
+        /// </summary>
         public override void Reset()
         {
             SelectedPath = string.Empty;
         }
 
+        /// <summary>
+        /// Displays a folder browser dialog.
+        /// </summary>
+        /// <inheritdoc/>
         protected override bool RunDialog(IntPtr hwndOwner)
         {
-            uint options;
             var dialog = (IFileDialog)new FileOpenDialogRCW();
-            dialog.GetOptions(out options);
+            dialog.GetOptions(out uint options);
             options |= FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM;
             dialog.SetOptions(options);
 
-            if (dialog.Show(hwndOwner) == S_OK)
+            if (dialog.Show(hwndOwner) == S_OK &&
+                dialog.GetResult(out IShellItem shellItem) == S_OK &&
+                shellItem.GetDisplayName(SIGDN_FILESYSPATH, out IntPtr pszName) == S_OK &&
+                pszName != IntPtr.Zero)
             {
-                IShellItem shellItem;
-                if (dialog.GetResult(out shellItem) == S_OK)
+                try
                 {
-                    IntPtr pszName;
-                    if (shellItem.GetDisplayName(SIGDN_FILESYSPATH, out pszName) == S_OK &&
-                        pszName != IntPtr.Zero)
-                    {
-                        try
-                        {
-                            SelectedPath = Marshal.PtrToStringAuto(pszName);
-                            return true;
-                        }
-                        finally { Marshal.FreeCoTaskMem(pszName); }
-                    }
+                    SelectedPath = Marshal.PtrToStringAuto(pszName);
+                    return true;
                 }
+                finally { Marshal.FreeCoTaskMem(pszName); }
             }
 
             return false;

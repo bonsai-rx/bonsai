@@ -5,30 +5,44 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Design
 {
+    /// <summary>
+    /// Represents an object that schedules units of work using the UI thread
+    /// of a Windows Forms control.
+    /// </summary>
     public class ControlScheduler : IScheduler
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ControlScheduler"/> class
+        /// using the specified control.
+        /// </summary>
+        /// <param name="control">
+        /// A <see cref="Control"/> object whose underlying handle will be used to
+        /// schedule units of work.
+        /// </param>
         public ControlScheduler(Control control)
         {
-            if (control == null)
-            {
-                throw new ArgumentNullException("control");
-            }
-
-            Control = control;
+            Control = control ?? throw new ArgumentNullException(nameof(control));
         }
 
+        /// <summary>
+        /// Gets the control object used to schedule units of work.
+        /// </summary>
         public Control Control { get; private set; }
 
+        /// <summary>
+        /// Gets the current time according to the local machine's system clock.
+        /// </summary>
         public DateTimeOffset Now
         {
             get { return Scheduler.Now; }
         }
 
+        /// <inheritdoc/>
         public IDisposable Schedule<TState>(TState state, Func<IScheduler, TState, IDisposable> action)
         {
             if (action == null)
             {
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             }
 
             var result = new SingleAssignmentDisposable();
@@ -43,11 +57,12 @@ namespace Bonsai.Design
             return result;
         }
 
+        /// <inheritdoc/>
         public IDisposable Schedule<TState>(TState state, TimeSpan dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             if (action == null)
             {
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             }
 
             var scheduledTime = Now + dueTime;
@@ -80,11 +95,12 @@ namespace Bonsai.Design
             else return Schedule(state, scheduledAction);
         }
 
+        /// <inheritdoc/>
         public IDisposable Schedule<TState>(TState state, DateTimeOffset dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             if (action == null)
             {
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             }
 
             return Schedule(state, dueTime - Now, action);
