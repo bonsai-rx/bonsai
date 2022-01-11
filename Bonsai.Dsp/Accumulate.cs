@@ -6,9 +6,28 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Computes the accumulated per-element sum of input arrays.")]
+    /// <summary>
+    /// Represents an operator that calculates the cumulative sum of the arrays in a sequence
+    /// and returns each intermediate result.
+    /// </summary>
+    [Description("Calculates the cumulative sum of the arrays in a sequence and returns each intermediate result.")]
     public class Accumulate : ArrayTransform
     {
+        /// <summary>
+        /// Calculates the cumulative sum of the arrays in an observable sequence and returns
+        /// each intermediate result.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of multi-channel array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of multi-channel array values, where each array stores the
+        /// cumulative sum of all previous array values in the <paramref name="source"/>
+        /// sequence.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateFactory;

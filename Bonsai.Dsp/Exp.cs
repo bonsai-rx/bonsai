@@ -6,14 +6,40 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Calculates the exponent of every input array element.")]
+    /// <summary>
+    /// Represents an operator that calculates the exponent of every element in the sequence.
+    /// </summary>
+    [Description("Calculates the exponent of every element in the sequence.")]
     public class Exp : ArrayTransform
     {
+        /// <summary>
+        /// Calculates the exponent of each 64-bit floating-point number in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 64-bit floating-point numbers.
+        /// </param>
+        /// <returns>
+        /// A sequence of 64-bit floating-point numbers, where each value
+        /// represents <c>e</c> raised to the corresponding power. See <see cref="Math.Exp(double)"/>.
+        /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
             return source.Select(input => Math.Exp(input));
         }
 
+        /// <summary>
+        /// Calculates the exponent of individual elements for all arrays in the sequence.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of multi-channel array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of multi-channel array values, where each element of the array
+        /// represents <c>e</c> raised to the corresponding power.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateFactory;

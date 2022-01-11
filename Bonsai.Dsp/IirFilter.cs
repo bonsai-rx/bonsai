@@ -9,21 +9,33 @@ using System.Globalization;
 
 namespace Bonsai.Dsp
 {
-    [Description("Transforms the input signal using an infinite-impulse response filter.")]
+    /// <summary>
+    /// Represents an operator that filters the input signal using an infinite-impulse response.
+    /// </summary>
+    [Description("Filters the input signal using an infinite-impulse response.")]
     public class IirFilter : Transform<Mat, Mat>
     {
         static readonly double[] IdentityWeight = new[] { 1.0 };
 
+        /// <summary>
+        /// Gets or sets the feedforward filter coefficients for the infinite-impulse response.
+        /// </summary>
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
-        [Description("The feedforward filter coefficients for the IIR filter.")]
+        [Description("The feedforward filter coefficients for the infinite-impulse response.")]
         public double[] FeedforwardCoefficients { get; set; }
 
+        /// <summary>
+        /// Gets or sets the feedback filter coefficients for the infinite-impulse response.
+        /// </summary>
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
-        [Description("The feedback filter coefficients for the IIR filter.")]
+        [Description("The feedback filter coefficients for the infinite-impulse response.")]
         public double[] FeedbackCoefficients { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the feedforward coefficients for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("FeedforwardCoefficients")]
         public string FeedforwardCoefficientsXml
@@ -32,6 +44,9 @@ namespace Bonsai.Dsp
             set { FeedforwardCoefficients = (double[])ArrayConvert.ToArray(value, 1, typeof(double), CultureInfo.InvariantCulture); }
         }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the feedback coefficients for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("FeedbackCoefficients")]
         public string FeedbackCoefficientsXml
@@ -104,6 +119,17 @@ namespace Bonsai.Dsp
             return weights;
         }
 
+        /// <summary>
+        /// Filters the input signal using the specified infinite-impulse response.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
@@ -166,6 +192,17 @@ namespace Bonsai.Dsp
             });
         }
 
+        /// <summary>
+        /// Filters the input signal using the specified infinite-impulse response.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
             return Observable.Using(
@@ -178,6 +215,15 @@ namespace Bonsai.Dsp
                 });
         }
 
+        /// <summary>
+        /// Filters the input position signal using the specified infinite-impulse response.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D points representing the position signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D points representing the filtered position signal.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Point2f> source)
         {
             return Observable.Using(

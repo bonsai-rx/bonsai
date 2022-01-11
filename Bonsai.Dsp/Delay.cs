@@ -7,12 +7,33 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Delays the input sequence by a specified number of samples.")]
+    /// <summary>
+    /// Represents an operator that delays the input signal by the specified number of samples.
+    /// </summary>
+    [Description("Delays the input signal by the specified number of samples.")]
     public class Delay : Transform<Mat, Mat>
     {
-        [Description("The number of samples by which to delay the array sequence.")]
+        /// <summary>
+        /// Gets or sets the number of samples by which to delay the input signal.
+        /// </summary>
+        /// <remarks>
+        /// To avoid changing the number of buffers in the sequence, the beginning of the
+        /// signal will be padded with zeros.
+        /// </remarks>
+        [Description("The number of samples by which to delay the input signal.")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// Delays the input signal by the specified number of samples.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal to delay.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// delayed signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>

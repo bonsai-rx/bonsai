@@ -6,14 +6,33 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Subtracts a reference channel from all the channels in the input array.")]
+    /// <summary>
+    /// Represents an operator that subtracts a reference channel from all the
+    /// individual rows in a 2D array sequence.
+    /// </summary>
+    [Description("Subtracts a reference channel from all the individual rows in a 2D array sequence.")]
     public class ReferenceChannels : Transform<Mat, Mat>
     {
+        /// <summary>
+        /// Gets or sets the indices of the channels to use as reference. If not specified,
+        /// the average of all the array channels is used.
+        /// </summary>
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", DesignTypes.UITypeEditor)]
-        [Description("The channels to use as reference. If empty, the average of all the array channels is used.")]
+        [Description("The indices of the channels to use as reference. If not specified, the average of all the array channels is used.")]
         public int[] Channels { get; set; }
 
+        /// <summary>
+        /// Subtracts a reference channel from all the individual rows in an observable sequence
+        /// of 2D array values.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D array values, where the reference channel for each array
+        /// has been subtracted from every row.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return source.Select(input =>

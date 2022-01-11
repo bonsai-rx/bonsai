@@ -6,16 +6,37 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that projects each element of the sequence into a
+    /// buffered array based on element count information.
+    /// </summary>
     [Obsolete]
     [Description("Projects each element of the sequence into a buffered array based on element count information.")]
     public class ElementCountBuffer : Combinator<Mat, Mat>
     {
+        /// <summary>
+        /// Gets or sets the number of elements in each buffer.
+        /// </summary>
         [Description("The number of elements in each buffer.")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional number of elements to skip between the creation of each buffer.
+        /// </summary>
         [Description("The optional number of elements to skip between the creation of each buffer.")]
         public int? Skip { get; set; }
 
+        /// <summary>
+        /// Projects each element of the sequence into a buffered array based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of multi-channel matrices to buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of arrays containing buffers of samples of the
+        /// multi-channel matrix sequence.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>

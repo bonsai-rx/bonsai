@@ -6,12 +6,34 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Performs a forward or inverse Discrete Fourier transform of a 1D or 2D array.")]
+    /// <summary>
+    /// Represents an operator that performs a forward or inverse discrete Fourier transform
+    /// on each 1D or 2D array in the sequence.
+    /// </summary>
+    [Description("Performs a forward or inverse discrete Fourier transform on each 1D or 2D array in the sequence.")]
     public class DiscreteFourierTransform : ArrayTransform
     {
-        [Description("Specifies the operation of the DFT.")]
+        /// <summary>
+        /// Gets or sets a value specifying the operation of the discrete Fourier transform.
+        /// </summary>
+        [Description("Specifies the operation of the Discrete Fourier transform.")]
         public DiscreteTransformFlags OperationFlags { get; set; }
 
+        /// <summary>
+        /// Performs a forward or inverse discrete Fourier transform on each 1D or 2D array
+        /// in an observable sequence.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of array-like objects for which to compute the discrete
+        /// Fourier transform.
+        /// </param>
+        /// <returns>
+        /// A sequence of two-channel array of complex numbers representing the discrete
+        /// Fourier transform of each array in the input sequence.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateSizeFactory;

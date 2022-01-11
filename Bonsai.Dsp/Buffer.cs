@@ -7,19 +7,45 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that collects each element of the sequence into zero or more
+    /// array buffers based on element count information.
+    /// </summary>
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Projects each element of the sequence into a buffered array based on element count information.")]
+    [Description("Collects each element of the sequence into zero or more array buffers based on element count information.")]
     public class Buffer
     {
-        [Description("The number of elements in each buffer.")]
+        /// <summary>
+        /// Gets or sets the number of elements in each array buffer.
+        /// </summary>
+        [Description("The number of elements in each array buffer.")]
         public int Count { get; set; }
 
-        [Description("The optional number of elements to skip between the creation of each buffer.")]
+        /// <summary>
+        /// Gets or sets the optional number of elements to skip between the creation of consecutive buffers.
+        /// </summary>
+        /// <remarks>
+        /// If no value is specified, it is considered to be be equal to <see cref="Count"/> in order
+        /// to generate consecutive non-overlapping buffers. If the value is less than <see cref="Count"/>
+        /// this operator will generate overlapping sliding windows.
+        /// </remarks>
+        [Description("The optional number of elements to skip between the creation of consecutive buffers.")]
         public int? Skip { get; set; }
 
         #region One Channel
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<byte> source)
         {
             var skip = Skip;
@@ -27,6 +53,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<short> source)
         {
             var skip = Skip;
@@ -34,6 +71,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<ushort> source)
         {
             var skip = Skip;
@@ -41,6 +89,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<int> source)
         {
             var skip = Skip;
@@ -48,6 +107,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<float> source)
         {
             var skip = Skip;
@@ -55,6 +125,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> vectors of length equal to <see cref="Count"/>
+        /// containing the buffered data.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<double> source)
         {
             var skip = Skip;
@@ -78,6 +159,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte>> source)
         {
             var skip = Skip;
@@ -85,6 +177,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short>> source)
         {
             var skip = Skip;
@@ -92,6 +195,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort>> source)
         {
             var skip = Skip;
@@ -99,6 +213,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int>> source)
         {
             var skip = Skip;
@@ -106,6 +231,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float>> source)
         {
             var skip = Skip;
@@ -113,6 +249,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// two rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double>> source)
         {
             var skip = Skip;
@@ -137,6 +284,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte>> source)
         {
             var skip = Skip;
@@ -144,6 +302,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short>> source)
         {
             var skip = Skip;
@@ -151,6 +320,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort>> source)
         {
             var skip = Skip;
@@ -158,6 +338,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int>> source)
         {
             var skip = Skip;
@@ -165,6 +356,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float>> source)
         {
             var skip = Skip;
@@ -172,6 +374,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triples of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// three rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double>> source)
         {
             var skip = Skip;
@@ -197,6 +410,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte>> source)
         {
             var skip = Skip;
@@ -204,6 +428,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short>> source)
         {
             var skip = Skip;
@@ -211,6 +446,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort>> source)
         {
             var skip = Skip;
@@ -218,6 +464,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int>> source)
         {
             var skip = Skip;
@@ -225,6 +482,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float>> source)
         {
             var skip = Skip;
@@ -232,6 +500,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quadruples of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// four rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double>> source)
         {
             var skip = Skip;
@@ -258,6 +537,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte>> source)
         {
             var skip = Skip;
@@ -265,6 +555,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short>> source)
         {
             var skip = Skip;
@@ -272,6 +573,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort>> source)
         {
             var skip = Skip;
@@ -279,6 +591,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int>> source)
         {
             var skip = Skip;
@@ -286,6 +609,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float>> source)
         {
             var skip = Skip;
@@ -293,6 +627,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of quintuples of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// five rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double>> source)
         {
             var skip = Skip;
@@ -320,6 +665,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte, byte>> source)
         {
             var skip = Skip;
@@ -327,6 +683,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short, short>> source)
         {
             var skip = Skip;
@@ -334,6 +701,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort, ushort>> source)
         {
             var skip = Skip;
@@ -341,6 +719,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int, int>> source)
         {
             var skip = Skip;
@@ -348,6 +737,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float, float>> source)
         {
             var skip = Skip;
@@ -355,6 +755,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of sextuples of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// six rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double, double>> source)
         {
             var skip = Skip;
@@ -383,6 +794,17 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte, byte, byte>> source)
         {
             var skip = Skip;
@@ -390,6 +812,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short, short, short>> source)
         {
             var skip = Skip;
@@ -397,6 +830,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort, ushort, ushort>> source)
         {
             var skip = Skip;
@@ -404,6 +848,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int, int, int>> source)
         {
             var skip = Skip;
@@ -411,6 +866,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float, float, float>> source)
         {
             var skip = Skip;
@@ -418,6 +884,17 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of septuples of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// seven rows and column length equal to <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double, double, double>> source)
         {
             var skip = Skip;
@@ -454,6 +931,18 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 8-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<byte>> source)
         {
             var skip = Skip;
@@ -461,6 +950,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 16-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<short>> source)
         {
             var skip = Skip;
@@ -468,6 +969,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 16-bit unsigned integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<ushort>> source)
         {
             var skip = Skip;
@@ -475,6 +988,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 32-bit signed integer values to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<int>> source)
         {
             var skip = Skip;
@@ -482,6 +1007,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 32-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<float>> source)
         {
             var skip = Skip;
@@ -489,6 +1026,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of lists of 64-bit floating-point numbers to buffer.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// as many rows as there are elements in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<IList<double>> source)
         {
             var skip = Skip;
@@ -496,6 +1045,18 @@ namespace Bonsai.Dsp
             return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
+        /// <summary>
+        /// Collects each element of the sequence into zero or more array buffers based on
+        /// element count information.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of array buffers containing the samples to buffer
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects containing the buffered data, with
+        /// the same number of rows as each element in each list, and column length equal to
+        /// <see cref="Count"/>.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>

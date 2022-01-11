@@ -6,6 +6,10 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that detects spike events in the input signal and
+    /// extracts their waveforms.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Detects spike events in the input signal and extracts their waveforms.")]
     public class DetectSpikes : Combinator<Mat, SpikeWaveformCollection>
@@ -13,11 +17,9 @@ namespace Bonsai.Dsp
         static readonly double[] DefaultThreshold = new[] { 0.0 };
         readonly Delay delay = new Delay();
 
-        public DetectSpikes()
-        {
-            WaveformRefinement = SpikeWaveformRefinement.AlignPeaks;
-        }
-
+        /// <summary>
+        /// Gets or sets the delay of each spike waveform from its trigger, in samples.
+        /// </summary>
         [Description("The delay of each spike waveform from its trigger, in samples.")]
         public int Delay
         {
@@ -25,17 +27,37 @@ namespace Bonsai.Dsp
             set { delay.Count = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the length of each spike waveform, in samples.
+        /// </summary>
         [Description("The length of each spike waveform, in samples.")]
         public int Length { get; set; }
 
+        /// <summary>
+        /// Gets or sets the per-channel threshold for detecting individual spikes.
+        /// </summary>
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", DesignTypes.UITypeEditor)]
         [Description("The per-channel threshold for detecting individual spikes.")]
         public double[] Threshold { get; set; }
 
-        [Description("The waveform refinement method.")]
-        public SpikeWaveformRefinement WaveformRefinement { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the waveform refinement method.
+        /// </summary>
+        [Description("Specifies the waveform refinement method.")]
+        public SpikeWaveformRefinement WaveformRefinement { get; set; } = SpikeWaveformRefinement.AlignPeaks;
 
+        /// <summary>
+        /// Detects spike events in the input signal and extracts their waveforms.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal from which to extract spike waveforms.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="SpikeWaveformCollection"/> representing the spikes
+        /// detected in each buffer of the signal waveform.
+        /// </returns>
         public override IObservable<SpikeWaveformCollection> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
@@ -133,10 +155,8 @@ namespace Bonsai.Dsp
             var samplesTaken = buffer.Update(source, index);
             if (buffer.Completed && !buffer.Refined)
             {
-                double min, max;
-                Point minLoc, maxLoc;
                 var waveform = buffer.Samples;
-                CV.MinMaxLoc(waveform, out min, out max, out minLoc, out maxLoc);
+                CV.MinMaxLoc(waveform, out _, out _, out Point minLoc, out Point maxLoc);
 
                 var offset = threshold > 0 ? maxLoc.X - delay : minLoc.X - delay;
                 if (offset > 0)

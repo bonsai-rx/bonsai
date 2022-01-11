@@ -4,6 +4,10 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that filters frequencies in the input signal using a linear phase
+    /// filter with the specified design parameters.
+    /// </summary>
     [Description("Filters frequencies in the input signal using a linear phase filter with the specified design parameters.")]
     public class FrequencyFilter : Transform<Mat, Mat>
     {
@@ -11,8 +15,11 @@ namespace Bonsai.Dsp
         FilterType filterType;
         double cutoff1, cutoff2;
         int sampleRate = 44100;
-        FirFilter filter = new FirFilter();
+        readonly FirFilter filter = new FirFilter();
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Description("The sample rate of the input signal, in Hz.")]
         public int SampleRate
         {
@@ -24,7 +31,11 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Browsable(false)]
+        [Obsolete("Use SampleRate instead for consistent wording with signal processing operator properties.")]
         public double? SamplingFrequency
         {
             get { return null; }
@@ -37,13 +48,20 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="SamplingFrequency"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public bool SamplingFrequencySpecified
         {
             get { return SamplingFrequency.HasValue; }
         }
 
-        [Description("The first cutoff frequency (Hz) applied to the input signal.")]
+        /// <summary>
+        /// Gets or sets the first cutoff frequency, in Hz, applied to the input signal.
+        /// </summary>
+        [Description("The first cutoff frequency, in Hz, applied to the input signal.")]
         public double Cutoff1
         {
             get { return cutoff1; }
@@ -54,7 +72,10 @@ namespace Bonsai.Dsp
             }
         }
 
-        [Description("The second cutoff frequency (Hz) applied to the input signal.")]
+        /// <summary>
+        /// Gets or sets the second cutoff frequency, in Hz, applied to the input signal.
+        /// </summary>
+        [Description("The second cutoff frequency, in Hz, applied to the input signal.")]
         public double Cutoff2
         {
             get { return cutoff2; }
@@ -65,8 +86,12 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the size of the finite-impulse response kernel used to
+        /// design the linear filter.
+        /// </summary>
         [TypeConverter(typeof(KernelLengthConverter))]
-        [Description("The size of the FIR kernel used to design the linear filter.")]
+        [Description("The size of the finite-impulse response kernel used to design the linear filter.")]
         public int KernelLength
         {
             get { return kernelLength; }
@@ -77,7 +102,10 @@ namespace Bonsai.Dsp
             }
         }
 
-        [Description("The type of filter to apply on the signal.")]
+        /// <summary>
+        /// Gets or sets a value specifying the type of filter to apply on the signal.
+        /// </summary>
+        [Description("Specifies the type of filter to apply on the signal.")]
         public FilterType FilterType
         {
             get { return filterType; }
@@ -176,11 +204,35 @@ namespace Bonsai.Dsp
             return result;
         }
 
+        /// <summary>
+        /// Filters frequencies in the input signal using a linear phase
+        /// filter with the specified design parameters.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return filter.Process(source);
         }
 
+        /// <summary>
+        /// Filters frequencies in the input signal using a linear phase
+        /// filter with the specified design parameters.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
             return filter.Process(source);

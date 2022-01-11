@@ -6,14 +6,34 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Computes the running average of all the input array buffers.")]
+    /// <summary>
+    /// Represents an operator that computes the running average of all the arrays in the sequence.
+    /// </summary>
+    [Description("Computes the running average of all the arrays in the sequence.")]
     public class RunningAverage : ArrayTransform
     {
+        /// <summary>
+        /// Gets or sets the weight to assign to each new array in the sequence.
+        /// This parameter determines how fast the average forgets previous values.
+        /// </summary>
         [Range(0, 1)]
         [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
-        [Description("The weight of the input buffer. This parameter determines how fast the average forgets previous input arrays.")]
+        [Description("The weight to assign to each new array in the sequence. This parameter determines how fast the average forgets previous values.")]
         public double Alpha { get; set; }
 
+        /// <summary>
+        /// Computes the running average of all the arrays in an observable sequence.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of multi-channel array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of multi-channel arrays, where each element represents the weighted
+        /// sum of the corresponding input value and the accumulated average.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateFactory;

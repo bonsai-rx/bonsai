@@ -6,25 +6,43 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Repeats the input array in the horizontal or vertical dimensions.")]
+    /// <summary>
+    /// Represents an operator that replicates each array in the sequence along the
+    /// horizontal or vertical dimensions.
+    /// </summary>
+    [Description("Replicates each array in the sequence along the horizontal or vertical dimensions.")]
     public class Tile : ArrayTransform
     {
-        public Tile()
-        {
-            RowTiles = 1;
-            ColumnTiles = 1;
-        }
-
+        /// <summary>
+        /// Gets or sets the number of times to repeat each array in the vertical dimension.
+        /// </summary>
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        [Description("The number of times to repeat the input array in the vertical dimension.")]
-        public int RowTiles { get; set; }
+        [Description("The number of times to repeat each array in the vertical dimension.")]
+        public int RowTiles { get; set; } = 1;
 
+        /// <summary>
+        /// Gets or sets the number of times to repeat each array in the horizontal dimension.
+        /// </summary>
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        [Description("The number of times to repeat the input array in the horizontal dimension.")]
-        public int ColumnTiles { get; set; }
+        [Description("The number of times to repeat each array in the horizontal dimension.")]
+        public int ColumnTiles { get; set; } = 1;
 
+        /// <summary>
+        /// Replicates each array in an observable sequence along the horizontal or
+        /// vertical dimensions.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of multi-channel array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of multi-channel array values, where each array is created by
+        /// replicating the original array along the horizontal or vertical dimension.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateDepthChannelFactory;

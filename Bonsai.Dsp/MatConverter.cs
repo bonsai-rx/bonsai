@@ -40,12 +40,11 @@ namespace Bonsai.Dsp
         /// <param name="culture">
         /// The <see cref="CultureInfo"/> to use as the current culture.
         /// </param>
-        /// <param name="value">The <see cref="Object"/> to convert.</param>
-        /// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+        /// <param name="value">The <see cref="object"/> to convert.</param>
+        /// <returns>An <see cref="object"/> that represents the converted value.</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            var valueString = value as string;
-            if (valueString != null)
+            if (value is string valueString)
             {
                 var array = (float[,])ArrayConvert.ToArray(valueString, 2, typeof(float), culture);
                 return Mat.FromArray(array);
@@ -62,12 +61,12 @@ namespace Bonsai.Dsp
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <param name="culture">
-        /// A <see cref="CultureInfo"/>. If <b>null</b> is passed, the current culture
+        /// A <see cref="CultureInfo"/>. If <see langword="null"/> is passed, the current culture
         /// is assumed.
         /// </param>
-        /// <param name="value">The <see cref="Object"/> to convert.</param>
+        /// <param name="value">The <see cref="object"/> to convert.</param>
         /// <param name="destinationType">The <see cref="Type"/> to convert the value parameter to.</param>
-        /// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+        /// <returns>An <see cref="object"/> that represents the converted value.</returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (value != null && destinationType == typeof(string))

@@ -4,17 +4,27 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Calculates the Nth difference between adjacent elements of the input array.")]
+    /// <summary>
+    /// Represents an operator that calculates the Nth difference between adjacent
+    /// samples in the input signal.
+    /// </summary>
+    [Description("Calculates the Nth difference between adjacent samples in the input signal.")]
     public class Difference : Transform<Mat, Mat>
     {
         int order;
-        FirFilter filter = new FirFilter();
+        readonly FirFilter filter = new FirFilter();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Difference"/> class.
+        /// </summary>
         public Difference()
         {
             Order = 1;
         }
 
+        /// <summary>
+        /// Gets or sets the number of times to apply the difference operator.
+        /// </summary>
         [Description("The number of times to apply the difference operator.")]
         public int Order
         {
@@ -60,16 +70,47 @@ namespace Bonsai.Dsp
             filter.Anchor = kernel.Length - 1;
         }
 
+        /// <summary>
+        /// Calculates the Nth difference between adjacent samples in the input signal.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal for which to compute the difference between adjacent samples.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the differences
+        /// between adjacent samples in the input signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return filter.Process(source);
         }
 
+        /// <summary>
+        /// Calculates the Nth difference between adjacent values in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of floating-point numbers.
+        /// </param>
+        /// <returns>
+        /// A sequence of floating-point numbers representing the differences
+        /// between adjacent values in the original sequence.
+        /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
             return filter.Process(source);
         }
 
+        /// <summary>
+        /// Calculates the Nth difference between adjacent values in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D points with single-precision floating-point coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D vectors representing the differences between adjacent
+        /// points in the original sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Point2f> source)
         {
             return filter.Process(source);

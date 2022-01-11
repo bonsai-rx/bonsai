@@ -7,12 +7,32 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Projects each element of the sequence into a buffered array whenever a trigger signal rises.")]
+    /// <summary>
+    /// Represents an operator that extracts a number of samples from the input signal
+    /// whenever a trigger rises.
+    /// </summary>
+    [Description("Extracts a number of samples from the input signal whenever a trigger rises.")]
     public class TriggeredBuffer : Combinator<Tuple<Mat, Mat>, Mat>
     {
-        [Description("The number of elements in each buffer.")]
+        /// <summary>
+        /// Gets or sets the number of samples in each triggered buffer.
+        /// </summary>
+        [Description("The number of samples in each triggered buffer.")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// Extracts a number of samples from the input signal whenever a trigger rises.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs of 2D matrices, where the first matrix contains the
+        /// signal to extract samples from, and the second matrix contains the
+        /// binary trigger signal, where zero values represent the trigger is in a
+        /// LOW state, and positive values represent the trigger is in a HIGH state.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects storing the extracted samples
+        /// whenever the trigger line changes from LOW to HIGH.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Tuple<Mat, Mat>> source)
         {
             return Observable.Create<Mat>(observer =>

@@ -6,11 +6,27 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that splits the channels of each array in the sequence into separate arrays.
+    /// </summary>
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Splits every channel in the input array into its own buffer.")]
+    [Description("Splits the channels of each array in the sequence into separate arrays.")]
     public class Split
     {
+        /// <summary>
+        /// Splits the channels of each matrix in an observable sequence into
+        /// separate matrices.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D matrix values.
+        /// </param>
+        /// <returns>
+        /// A sequence of tuples of 2D matrix values, where each matrix represents
+        /// a different channel from the original matrix. If the matrix has less than
+        /// four channels, the remaining elements in the tuple after the last channel
+        /// will be set to <see langword="null"/>.
+        /// </returns>
         public IObservable<Tuple<Mat, Mat, Mat, Mat>> Process(IObservable<Mat> source)
         {
             return source.Select(input =>
@@ -28,6 +44,19 @@ namespace Bonsai.Dsp
             });
         }
 
+        /// <summary>
+        /// Splits the channels of each image in an observable sequence into
+        /// separate images.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of image values.
+        /// </param>
+        /// <returns>
+        /// A sequence of tuples of image values, where each image represents
+        /// a different channel from the original matrix. If the image has less than
+        /// four channels, the remaining elements in the tuple after the last channel
+        /// will be set to <see langword="null"/>.
+        /// </returns>
         public IObservable<Tuple<IplImage, IplImage, IplImage, IplImage>> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

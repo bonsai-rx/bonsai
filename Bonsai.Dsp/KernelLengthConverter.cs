@@ -10,7 +10,7 @@ namespace Bonsai.Dsp
             var kernelLength = (int)base.ConvertFrom(context, culture, value);
             if (kernelLength % 2 != 0)
             {
-                throw new ArgumentOutOfRangeException("value", "The length of the filter kernel must be an even number.");
+                throw new ArgumentOutOfRangeException(nameof(value), "The length of the filter kernel must be an even number.");
             }
 
             return kernelLength;

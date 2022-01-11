@@ -6,12 +6,33 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Computes the magnitude and angle of the input array of 2D vectors.")]
+    /// <summary>
+    /// Represents an operator that computes the magnitude and angle of each array
+    /// of 2D vectors in the sequence.
+    /// </summary>
+    [Description("Computes the magnitude and angle of each array of 2D vectors in the sequence.")]
     public class CartToPolar : ArrayTransform
     {
+        /// <summary>
+        /// Gets or sets a value specifying whether vector angle values are measured in degrees.
+        /// </summary>
         [Description("Specifies whether vector angle values are measured in degrees.")]
         public bool AngleInDegrees { get; set; }
 
+        /// <summary>
+        /// Computes the magnitude and angle of each array of 2D vectors in the sequence.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of 2D vector fields represented by a 2-channel array or image,
+        /// for which to compute the magnitude and angle.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2-channel arrays or images, where the first channel of each
+        /// element stores the magnitude and the second channel the angle of a 2D vector.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var channelFactory = ArrFactory<TArray>.TemplateSizeDepthFactory;
@@ -30,6 +51,21 @@ namespace Bonsai.Dsp
             });
         }
 
+        /// <summary>
+        /// Computes the magnitude and angle for each pair of cartesian coordinates in the sequence.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of pairs of arrays, where the first array stores the x-coordinates, and the
+        /// second array the y-coordinates of a 2D vector field for which to compute the magnitude
+        /// and angle.
+        /// </param>
+        /// <returns>
+        /// A sequence of pairs of arrays, where the first array stores the magnitude, and the second
+        /// array stores the angle of a 2D vector.
+        /// </returns>
         public IObservable<Tuple<TArray, TArray>> Process<TArray>(IObservable<Tuple<TArray, TArray>> source)
             where TArray : Arr
         {

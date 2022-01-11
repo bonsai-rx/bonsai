@@ -6,24 +6,35 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Produces a sequence of buffers filled with a specified range of numbers.")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of buffers filled with a
+    /// specified range of numbers.
+    /// </summary>
+    [Description("Generates a sequence of buffers filled with a specified range of numbers.")]
     public class Range : Source<Mat>
     {
-        public Range()
-        {
-            Depth = OpenCV.Net.Depth.F32;
-        }
-
+        /// <summary>
+        /// Gets or sets the number of samples in each output buffer.
+        /// </summary>
         [Description("The number of samples in each output buffer.")]
         public int BufferLength { get; set; }
 
+        /// <summary>
+        /// Gets or sets the bit depth of each element in the output buffer.
+        /// </summary>
         [TypeConverter(typeof(DepthConverter))]
-        [Description("The target bit depth of individual buffer elements.")]
-        public Depth Depth { get; set; }
+        [Description("The bit depth of each element in the output buffer.")]
+        public Depth Depth { get; set; } = Depth.F32;
 
+        /// <summary>
+        /// Gets or sets the inclusive lower bound of the range.
+        /// </summary>
         [Description("The inclusive lower bound of the range.")]
         public double Start { get; set; }
 
+        /// <summary>
+        /// Gets or sets the exclusive upper bound of the range.
+        /// </summary>
         [Description("The exclusive upper bound of the range.")]
         public double End { get; set; }
 
@@ -34,11 +45,36 @@ namespace Bonsai.Dsp
             return buffer;
         }
 
+        /// <summary>
+        /// Generates an observable sequence of buffers filled with a
+        /// specified range of numbers.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing fixed-size buffers
+        /// linearly filled with values between the inclusive lower bound and
+        /// exclusive upper bound.
+        /// </returns>
         public override IObservable<Mat> Generate()
         {
             return Observable.Defer(() => Observable.Return(CreateBuffer()));
         }
 
+        /// <summary>
+        /// Generates an observable sequence of buffers filled with a specified
+        /// range of numbers, and where each new buffer is emitted only when an
+        /// observable sequence raises a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting sample buffers.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing fixed-size buffers
+        /// linearly filled with values between the inclusive lower bound and
+        /// exclusive upper bound.
+        /// </returns>
         public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
         {
             return source.Select(x => CreateBuffer());
@@ -51,7 +87,7 @@ namespace Bonsai.Dsp
             {
             }
 
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
             {
                 return new StandardValuesCollection(new[] { Depth.S32, Depth.F32 });
             }

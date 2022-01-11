@@ -6,26 +6,49 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that converts each array in the sequence to the specified
+    /// bit depth, with optional linear transformation.
+    /// </summary>
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Converts the input array into the specified bit depth, with optional linear transformation.")]
+    [Description("Converts each array in the sequence to the specified bit depth, with optional linear transformation.")]
     public class ConvertScale : ArrayTransform
     {
-        public ConvertScale()
-        {
-            Scale = 1;
-        }
-
+        /// <summary>
+        /// Gets or sets the bit depth of each element in the output array.
+        /// </summary>
+        /// <remarks>
+        /// If this property is not specified, the bit depth of the output array
+        /// will be the same as the bit depth of the input array.
+        /// </remarks>
         [TypeConverter(typeof(DepthConverter))]
-        [Description("The optional target bit depth of individual array elements.")]
+        [Description("The optional bit depth of each element in the output array.")]
         public Depth? Depth { get; set; }
 
-        [Description("The optional scale factor to apply to individual array elements.")]
-        public double Scale { get; set; }
+        /// <summary>
+        /// Gets or sets the optional scale factor to apply to the array elements.
+        /// </summary>
+        [Description("The optional scale factor to apply to the array elements.")]
+        public double Scale { get; set; } = 1;
 
-        [Description("The optional value to be added to individual array elements.")]
+        /// <summary>
+        /// Gets or sets the optional value to be added to the scaled array elements.
+        /// </summary>
+        [Description("The optional value to be added to the scaled array elements.")]
         public double Shift { get; set; }
 
+        /// <summary>
+        /// Converts each array in the sequence to the specified bit depth, with
+        /// optional linear transformation.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">The sequence of arrays to be converted.</param>
+        /// <returns>
+        /// A sequence containing the converted and scaled arrays.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateFactory;

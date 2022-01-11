@@ -68,18 +68,16 @@ namespace Bonsai.Dsp
             var hitMap = new Dictionary<Complex, int>();
             for (int i = 0; i < filter.Poles.Length; i++)
             {
-                int hits;
                 var pole = filter.Poles[i];
-                hitMap.TryGetValue(pole, out hits);
+                hitMap.TryGetValue(pole, out int hits);
                 hitMap[pole] = hits + 1;
                 poles.Add(pole);
             }
 
             for (int i = 0; i < filter.Zeros.Length; i++)
             {
-                int hits;
                 var zero = filter.Zeros[i];
-                hitMap.TryGetValue(zero, out hits);
+                hitMap.TryGetValue(zero, out int hits);
                 if (hits > 0)
                 {
                     hitMap[zero]--;
@@ -286,8 +284,7 @@ namespace Bonsai.Dsp
             zFilter = Reduce(zFilter);
 
             // Output transfer function coefficients
-            Complex[] bz, az;
-            TransferFunction(zFilter, out bz, out az);
+            TransferFunction(zFilter, out Complex[] bz, out Complex[] az);
             b = Array.ConvertAll(bz, c => c.Real);
             a = Array.ConvertAll(az, c => c.Real);
         }

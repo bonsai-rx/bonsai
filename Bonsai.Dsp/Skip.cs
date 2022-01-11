@@ -6,12 +6,30 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Skips a specified number of samples in the input sequence.")]
+    /// <summary>
+    /// Represents an operator that skips a specified number of samples in the input signal.
+    /// </summary>
+    [Description("Skips a specified number of samples in the input signal.")]
     public class Skip : Combinator<Mat, Mat>
     {
+        /// <summary>
+        /// Gets or sets the number of samples to skip.
+        /// </summary>
         [Description("The number of samples to skip.")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// Skips a specified number of samples in the input signal.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing buffers of samples
+        /// from the source signal.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing buffers of samples
+        /// from the source signal, but where a specified number of samples has been
+        /// removed from the start of the sequence.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>

@@ -5,12 +5,19 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that decreases the sampling rate of the input signal
+    /// by the specified factor.
+    /// </summary>
     [Description("Decreases the sampling rate of the input signal by the specified factor.")]
     public class Decimate : Combinator<Mat, Mat>
     {
         int factor;
-        FrequencyFilter filter = new FrequencyFilter();
+        readonly FrequencyFilter filter = new FrequencyFilter();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Decimate"/> class.
+        /// </summary>
         public Decimate()
         {
             Factor = 1;
@@ -18,12 +25,22 @@ namespace Bonsai.Dsp
             Downsampling = DownsamplingMethod.LowPass;
         }
 
-        [Description("The downsampling method used to decimate the input signal.")]
+        /// <summary>
+        /// Gets or sets a value specifying the downsampling method used to decimate the input signal.
+        /// </summary>
+        [Description("Specifies the downsampling method used to decimate the input signal.")]
         public DownsamplingMethod Downsampling { get; set; }
 
-        [Description("The optional length of the output array buffer. If set to zero, the length of the input buffer will be used.")]
+        /// <summary>
+        /// Gets or sets the length of each output array. If set to zero, the length
+        /// of each input buffer will be used.
+        /// </summary>
+        [Description("The optional length of each output array. If set to zero, the length of each input buffer will be used.")]
         public int BufferLength { get; set; }
 
+        /// <summary>
+        /// Gets or sets the integral factor by which to divide the sampling rate of the input signal.
+        /// </summary>
         [Description("The integral factor by which to divide the sampling rate of the input signal.")]
         public int Factor
         {
@@ -35,6 +52,9 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Description("The sample rate of the input signal, in Hz.")]
         public int SampleRate
         {
@@ -46,7 +66,11 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the sample rate of the input signal, in Hz.
+        /// </summary>
         [Browsable(false)]
+        [Obsolete("Use SampleRate instead for consistent wording with signal processing operator properties.")]
         public double? SamplingFrequency
         {
             get { return null; }
@@ -59,14 +83,22 @@ namespace Bonsai.Dsp
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="SamplingFrequency"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
         [Browsable(false)]
         public bool SamplingFrequencySpecified
         {
             get { return SamplingFrequency.HasValue; }
         }
 
+        /// <summary>
+        /// Gets or sets the size of the finite-impulse response kernel used to
+        /// design the downsampling filter.
+        /// </summary>
         [TypeConverter(typeof(KernelLengthConverter))]
-        [Description("The size of the FIR kernel used to design the downsampling filter.")]
+        [Description("The size of the finite-impulse response kernel used to design the downsampling filter.")]
         public int KernelLength
         {
             get { return filter.KernelLength; }
@@ -87,6 +119,17 @@ namespace Bonsai.Dsp
             return new Mat(input.Rows, cols, input.Depth, input.Channels);
         }
 
+        /// <summary>
+        /// Decreases the sampling rate of the input signal by the specified factor.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal to downsample.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// downsampled signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>

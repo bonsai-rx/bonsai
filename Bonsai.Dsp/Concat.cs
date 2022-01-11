@@ -7,9 +7,21 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Concatenates each set of input arrays into a single buffer.")]
+    /// <summary>
+    /// Represents an operator that concatenates each set of arrays in the sequence
+    /// into a single buffer.
+    /// </summary>
+    [Description("Concatenates each set of arrays in the sequence into a single buffer.")]
     public class Concat : BinaryArrayTransform
     {
+        /// <summary>
+        /// Gets or sets the dimension along which to merge the arrays.
+        /// </summary>
+        /// <remarks>
+        /// A value of zero specifies concatenating rows, and a value of one specifies
+        /// concatenating columns. In the case of concatenating single-dimension arrays,
+        /// the <see cref="Axis"/> property is ignored.
+        /// </remarks>
         [Description("The dimension along which to merge the arrays.")]
         public int Axis { get; set; }
 
@@ -88,71 +100,239 @@ namespace Bonsai.Dsp
             return output;
         }
 
+        /// <summary>
+        /// Concatenates each pair of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of pairs of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2 }));
         }
 
+        /// <summary>
+        /// Concatenates each triple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of triples of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3 }));
         }
 
+        /// <summary>
+        /// Concatenates each quadruple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of quadruples of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4 }));
         }
 
+        /// <summary>
+        /// Concatenates each quintuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of quintuples of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5 }));
         }
 
+        /// <summary>
+        /// Concatenates each sextuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of sextuples of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6 }));
         }
 
+        /// <summary>
+        /// Concatenates each septuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of septuples of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6, input.Item7 }));
         }
 
+        /// <summary>
+        /// Concatenates each list of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of lists of arrays to concatenate into a single buffer.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated buffers.
+        /// </returns>
         public IObservable<TArray> Process<TArray>(IObservable<IList<TArray>> source) where TArray : Arr
         {
             return source.Select(input => Process(input));
         }
 
+        /// <summary>
+        /// Concatenates each pair of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of pairs of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2 }));
         }
 
+        /// <summary>
+        /// Concatenates each triple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of triples of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3 }));
         }
 
+        /// <summary>
+        /// Concatenates each quadruple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of quadruples of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4 }));
         }
 
+        /// <summary>
+        /// Concatenates each quintuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of quintuples of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5 }));
         }
 
+        /// <summary>
+        /// Concatenates each sextuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of sextuples of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6 }));
         }
 
+        /// <summary>
+        /// Concatenates each septuple of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of septuples of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
         {
             return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6, input.Item7 }));
         }
 
+        /// <summary>
+        /// Concatenates each list of arrays in the sequence into a single buffer.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements stored in the array sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of lists of arrays to concatenate into a single array.
+        /// </param>
+        /// <returns>
+        /// The sequence of concatenated arrays.
+        /// </returns>
         public IObservable<TElement[]> Process<TElement>(IObservable<IList<TElement[]>> source)
         {
             return source.Select(input => Process(input));

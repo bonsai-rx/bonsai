@@ -6,23 +6,44 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
-    [Description("Shifts the elements of the input array by a specified offset.")]
+    /// <summary>
+    /// Represents an operator that shifts the elements of each array in the sequence
+    /// by a specified offset.
+    /// </summary>
+    [Description("Shifts the elements of each array in the sequence by a specified offset.")]
     public class Shift : Transform<Mat, Mat>
     {
-        public Shift()
-        {
-            BorderType = IplBorder.Wrap;
-        }
-
-        [Description("The offset by which to shift the input buffer in either direction.")]
+        /// <summary>
+        /// Gets or sets the offset by which to shift the input buffer in the
+        /// horizontal and vertical direction.
+        /// </summary>
+        [Description("The offset by which to shift the input buffer in the horizontal and vertical direction.")]
         public Point Offset { get; set; }
 
-        [Description("The method used to generate values on the border of the shift.")]
-        public IplBorder BorderType { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the method used to generate values on the
+        /// border of the shift.
+        /// </summary>
+        [Description("Specifies the method used to generate values on the border of the shift.")]
+        public IplBorder BorderType { get; set; } = IplBorder.Wrap;
 
+        /// <summary>
+        /// Gets or sets the value to which constant border pixels will be set to.
+        /// </summary>
         [Description("The value to which constant border pixels will be set to.")]
         public Scalar FillValue { get; set; }
 
+        /// <summary>
+        /// Shifts the elements of each matrix in an observable sequence by a specified
+        /// offset.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D matrix values.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D matrix values, where the elements in each matrix are
+        /// shifted by the specified offset in the horizontal and vertical direction.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return source.Select(input =>
@@ -42,6 +63,17 @@ namespace Bonsai.Dsp
             });
         }
 
+        /// <summary>
+        /// Shifts the elements of each image in an observable sequence by a specified
+        /// offset.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of image values.
+        /// </param>
+        /// <returns>
+        /// A sequence of image values, where the elements in each image are
+        /// shifted by the specified offset in the horizontal and vertical direction.
+        /// </returns>
         public IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

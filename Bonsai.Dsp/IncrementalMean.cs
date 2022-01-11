@@ -6,9 +6,28 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Incrementally computes the mean of the incoming array sequence.")]
+    /// <summary>
+    /// Represents an operator that incrementally computes the mean of the arrays in the sequence
+    /// and returns each intermediate result.
+    /// </summary>
+    [Description("Incrementally computes the mean of the arrays in the sequence and returns each intermediate result.")]
     public class IncrementalMean : ArrayTransform
     {
+        /// <summary>
+        /// Incrementally computes the mean of the arrays in an observable sequence
+        /// and returns each intermediate result.
+        /// </summary>
+        /// <typeparam name="TArray">
+        /// The type of the array-like objects in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of multi-channel array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of multi-channel array values, where each array stores the
+        /// incremental mean of all previous array values in the <paramref name="source"/>
+        /// sequence.
+        /// </returns>
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             return Observable.Defer(() =>

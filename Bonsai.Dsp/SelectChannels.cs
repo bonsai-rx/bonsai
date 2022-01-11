@@ -6,14 +6,33 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
-    [Description("Selects a subset of the input channels or reorganizes channel layout.")]
+    /// <summary>
+    /// Represents an operator that selects a subset of the input channels or reorganizes
+    /// channel layout for each array in the sequence.
+    /// </summary>
+    [Description("Selects a subset of the input channels or reorganizes channel layout for each array in the sequence.")]
     public class SelectChannels : Transform<Mat, Mat>
     {
+        /// <summary>
+        /// Gets or sets the indices of the channels to include in the output buffer.
+        /// Reordering and duplicating channels is allowed.
+        /// </summary>
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", DesignTypes.UITypeEditor)]
-        [Description("The channels to include in the output buffer. Reordering and duplicating channels is allowed.")]
+        [Description("The indices of the channels to include in the output buffer. Reordering and duplicating channels is allowed.")]
         public int[] Channels { get; set; }
 
+        /// <summary>
+        /// Selects a subset of the input channels or reorganizes channel layout
+        /// for each array in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D array values.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D array values, where the data for each row is selected
+        /// from the specified channels of the original multi-dimensional data.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>

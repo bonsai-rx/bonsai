@@ -9,22 +9,31 @@ using System.Globalization;
 
 namespace Bonsai.Dsp
 {
+    /// <summary>
+    /// Represents an operator that convolves the input signal with a finite-impulse
+    /// response filter kernel.
+    /// </summary>
     [Description("Convolves the input signal with a finite-impulse response filter kernel.")]
     public class FirFilter : Transform<Mat, Mat>
     {
-        public FirFilter()
-        {
-            Anchor = -1;
-        }
+        /// <summary>
+        /// Gets or sets the anchor of the kernel that indicates the relative position
+        /// of a filtered point within the kernel.
+        /// </summary>
+        [Description("The anchor of the kernel that indicates the relative position of a filtered point within the kernel.")]
+        public int Anchor { get; set; } = -1;
 
-        [Description("The anchor of the kernel that indicates the relative position of filtered points.")]
-        public int Anchor { get; set; }
-
+        /// <summary>
+        /// Gets or sets the convolution kernel for the FIR filter.
+        /// </summary>
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Description("The convolution kernel for the FIR filter.")]
         public float[] Kernel { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the kernel value for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("Kernel")]
         public string KernelXml
@@ -33,6 +42,17 @@ namespace Bonsai.Dsp
             set { Kernel = (float[])ArrayConvert.ToArray(value, 1, typeof(float), CultureInfo.InvariantCulture); }
         }
 
+        /// <summary>
+        /// Convolves the input signal with a finite-impulse response filter kernel.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
@@ -43,7 +63,7 @@ namespace Bonsai.Dsp
                 Mat overlapEnd = null;
                 Mat overlapStart = null;
                 Mat overlapFilter = null;
-                Rect overlapOutput = default(Rect);
+                Rect overlapOutput = default;
                 float[] currentKernel = null;
                 return source.Select(input =>
                 {
@@ -87,6 +107,17 @@ namespace Bonsai.Dsp
             });
         }
 
+        /// <summary>
+        /// Convolves the input signal with a finite-impulse response filter kernel.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of floating-point numbers representing the waveform of the
+        /// filtered signal.
+        /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
             return Observable.Using(
@@ -99,6 +130,15 @@ namespace Bonsai.Dsp
                 });
         }
 
+        /// <summary>
+        /// Convolves the input position signal with a finite-impulse response filter kernel.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D points representing the position signal to filter.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D points representing the filtered position signal.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Point2f> source)
         {
             return Observable.Using(
