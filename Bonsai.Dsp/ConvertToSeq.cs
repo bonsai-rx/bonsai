@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -29,7 +29,7 @@ namespace Bonsai.Dsp
 
         public IObservable<Seq> Process(IObservable<byte[]> source)
         {
-            return source.Select(input => FromArray(input, Depth.S8, 1));
+            return source.Select(input => FromArray(input, Depth.U8, 1));
         }
 
         public IObservable<Seq> Process(IObservable<short[]> source)
