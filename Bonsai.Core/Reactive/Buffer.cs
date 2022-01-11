@@ -27,7 +27,7 @@ namespace Bonsai.Reactive
         /// If it is not specified, <see cref="Skip"/> will be equal to <see cref="Count"/> in order
         /// to generate consecutive non-overlapping buffers.
         /// </summary>
-        [Description("The optional number of elements to skip between the creation of each buffer.")]
+        [Description("The optional number of elements to skip between the creation of consecutive buffers.")]
         public int? Skip { get; set; }
 
         /// <summary>

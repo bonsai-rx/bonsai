@@ -24,7 +24,9 @@ namespace Bonsai.Windows.Input
         /// Generates a sequence of values indicating whether the target key is up or down
         /// each time the <paramref name="source"/> sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the notifications indicating when to check whether the key
         /// is up or down.

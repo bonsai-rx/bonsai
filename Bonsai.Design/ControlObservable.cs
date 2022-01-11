@@ -14,7 +14,9 @@ namespace Bonsai.Design
         /// Wraps the source sequence in order to run its observer callbacks in the UI thread of the
         /// specified control.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The observable sequence whose notifications will be scheduled in the UI thread of the
         /// specified control.

@@ -335,7 +335,7 @@ namespace Bonsai
         /// </param>
         /// <param name="pattern">
         /// The parse pattern to match, including data type format specifiers.
-        /// If <paramref name="pattern"/> is <b>null</b>, the input string is returned.
+        /// If <paramref name="pattern"/> is <see langword="null"/>, the input string is returned.
         /// </param>
         /// <returns>
         /// An <see cref="Expression"/> that represents the result of parsing
@@ -462,7 +462,7 @@ namespace Bonsai
         /// </param>
         /// <param name="pattern">
         /// The parse pattern to match, including data type format specifiers.
-        /// If <paramref name="pattern"/> is <b>null</b>, each of the resulting
+        /// If <paramref name="pattern"/> is <see langword="null"/>, each of the resulting
         /// element strings is returned unchanged.
         /// </param>
         /// <param name="separator">

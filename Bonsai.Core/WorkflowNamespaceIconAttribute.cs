@@ -31,7 +31,7 @@ namespace Bonsai
         /// </summary>
         /// <param name="ns">
         /// The specific namespace that will be matched against workflow element types in the assembly this
-        /// attribute is bound to. If this value is <b>null</b> or empty, the match will be successful
+        /// attribute is bound to. If this value is <see langword="null"/> or empty, the match will be successful
         /// against any namespace.
         /// </param>
         /// <param name="name">
@@ -46,7 +46,7 @@ namespace Bonsai
 
         /// <summary>
         /// Gets the optional namespace that will be matched against a workflow element type.
-        /// If this value is <b>null</b> or empty, the match will be successful against any
+        /// If this value is <see langword="null"/> or empty, the match will be successful against any
         /// namespace in the assembly this attribute is bound to.
         /// </summary>
         public string Namespace { get; private set; }

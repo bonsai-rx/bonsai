@@ -36,7 +36,9 @@ namespace Bonsai.IO
         /// for each element of an observable sequence, and surfaces all the exit codes as the
         /// processes terminate.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// An observable sequence used to start the system processes. For each element produced by
         /// this sequence, a new system process will be started.

@@ -20,10 +20,12 @@ namespace Bonsai.IO
     {
         /// <summary>
         /// Gets or sets the identifier of the named stream on which to write the elements.
+        /// </summary>
+        /// <remarks>
         /// If the identifier uses the named pipe prefix <c>\\.\pipe\</c>, a corresponding
         /// <see cref="NamedPipeServerStream"/> object is created; otherwise a regular
         /// <see cref="FileStream"/> is used.
-        /// </summary>
+        /// </remarks>
         [Description("The identifier of the named stream on which to write the elements.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path { get; set; }
@@ -52,17 +54,17 @@ namespace Bonsai.IO
         const string PipeServerPrefix = @"\\.\pipe\";
 
         /// <summary>
-        /// When overridden in a derived class, creates the writer over the specified <see cref="Stream"/>
-        /// instance that will be responsible for handling the input elements.
+        /// When overridden in a derived class, creates the object that will be responsible
+        /// for writing the input elements to the specified <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The stream on which the elements should be written.</param>
-        /// <returns>The writer that will be used to push elements into the stream.</returns>
+        /// <returns>The object that will be used to write elements into the stream.</returns>
         protected abstract TWriter CreateWriter(Stream stream);
 
         /// <summary>
-        /// When overridden in a derived class, writes a new element into the specified writer.
+        /// When overridden in a derived class, writes a new element using the specified writer.
         /// </summary>
-        /// <param name="writer">The writer that is used to push elements into the stream.</param>
+        /// <param name="writer">The writer used to push elements into the stream.</param>
         /// <param name="input">The input element that should be pushed into the stream.</param>
         protected abstract void Write(TWriter writer, TSource input);
 
@@ -92,10 +94,10 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Writes all elements of an observable sequence into the specified stream
+        /// Writes all elements of an observable sequence to the specified stream
         /// using the specified selector function.
         /// </summary>
-        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <param name="source">The sequence of elements to write.</param>
         /// <param name="selector">
         /// The transform function used to convert each element of the sequence into the type
         /// of inputs accepted by the stream writer.
@@ -164,9 +166,9 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Writes all elements of an observable sequence into the specified stream.
+        /// Writes all elements of an observable sequence to the specified stream.
         /// </summary>
-        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <param name="source">The sequence of elements to write.</param>
         /// <returns>
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a stream.

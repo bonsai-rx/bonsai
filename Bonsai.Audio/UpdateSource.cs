@@ -67,7 +67,9 @@ namespace Bonsai.Audio
         /// Updates the properties of the specified audio source whenever the source sequence
         /// emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the notifications used to trigger the update of
         /// the audio source.

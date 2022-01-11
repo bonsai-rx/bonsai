@@ -63,7 +63,7 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <param name="culture">
-        /// A <see cref="CultureInfo"/>. If <b>null</b> is passed, the current culture
+        /// A <see cref="CultureInfo"/>. If <see langword="null"/> is passed, the current culture
         /// is assumed.
         /// </param>
         /// <param name="value">The <see cref="object"/> to convert.</param>

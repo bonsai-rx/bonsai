@@ -24,7 +24,9 @@ namespace Bonsai.Windows.Input
         /// Sends one or more keystrokes to the active window, as if typed at the keyboard,
         /// when an observable sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the notifications indicating when to send the keystrokes to
         /// the active window.

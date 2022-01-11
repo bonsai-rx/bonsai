@@ -16,7 +16,9 @@ namespace Bonsai.IO
         /// Writes the text representation of each element of an observable sequence to the standard
         /// output stream, followed by a line terminator.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the elements to write to the standard output stream.
         /// </param>
@@ -34,7 +36,9 @@ namespace Bonsai.IO
         /// Writes the text representation of each element of an observable sequence to all the
         /// specified output streams, followed by a line terminator.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the elements to write to the active output streams.
         /// </param>

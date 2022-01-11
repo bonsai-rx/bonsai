@@ -105,7 +105,7 @@ namespace Bonsai
         /// An <see cref="ITypeDescriptorContext"/> that provides a format context.
         /// </param>
         /// <param name="culture">
-        /// A <see cref="CultureInfo"/>. If <b>null</b> is passed, the current culture
+        /// A <see cref="CultureInfo"/>. If <see langword="null"/> is passed, the current culture
         /// is assumed.
         /// </param>
         /// <param name="value">The <see cref="object"/> to convert.</param>
@@ -135,7 +135,7 @@ namespace Bonsai
         /// <param name="propertyValues">An <see cref="IDictionary"/> of new property values.</param>
         /// <returns>
         /// An <see cref="object"/> representing the given <see cref="IDictionary"/>,
-        /// or <b>null</b> if the object cannot be created.
+        /// or <see langword="null"/> if the object cannot be created.
         /// </returns>
         public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
         {
@@ -199,7 +199,7 @@ namespace Bonsai
         /// </param>
         /// <returns>
         /// A <see cref="PropertyDescriptorCollection"/> with the properties that are exposed
-        /// for this data type, or <b>null</b> if there are no properties.
+        /// for this data type, or <see langword="null"/> if there are no properties.
         /// </returns>
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {

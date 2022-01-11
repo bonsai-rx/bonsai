@@ -28,7 +28,9 @@ namespace Bonsai.IO
         /// <summary>
         /// Writes the text representation of each element of an observable sequence to a serial port.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// The sequence containing the elements to write to the serial port.
         /// </param>
