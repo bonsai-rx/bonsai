@@ -12,7 +12,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp.Design
 {
-    public partial class WaveformGraph : GraphControl
+    internal partial class WaveformGraph : GraphControl
     {
         const float TitleFontSize = 10;
         const float YAxisMinSpace = 50;
@@ -632,13 +632,9 @@ namespace Bonsai.Dsp.Design
                 pane.XAxis.Scale.MaxAuto = autoScaleX;
                 pane.XAxis.Scale.MinAuto = autoScaleX;
             }
-            if (AutoScaleAxis) Invalidate();
 
-            var handler = AutoScaleXChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            if (AutoScaleAxis) Invalidate();
+            AutoScaleXChanged?.Invoke(this, e);
         }
 
         protected virtual void OnAutoScaleYChanged(EventArgs e)
@@ -649,13 +645,9 @@ namespace Bonsai.Dsp.Design
                 pane.YAxis.Scale.MaxAuto = autoScaleY;
                 pane.YAxis.Scale.MinAuto = autoScaleY;
             }
-            if (AutoScaleAxis) Invalidate();
 
-            var handler = AutoScaleYChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            if (AutoScaleAxis) Invalidate();
+            AutoScaleYChanged?.Invoke(this, e);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

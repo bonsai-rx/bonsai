@@ -7,7 +7,7 @@ namespace Bonsai.Dsp.Design
     {
         int current;
         ReplayMode mode;
-        List<int> replayBuffer = new List<int>();
+        readonly List<int> replayBuffer = new List<int>();
 
         public ReplayMode Mode
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using ZedGraph;
 using System.Globalization;
@@ -8,10 +8,10 @@ namespace Bonsai.Dsp.Design
 {
     public partial class WaveformView : UserControl
     {
-        ToolStripTextBox yminTextBox;
-        ToolStripTextBox ymaxTextBox;
-        ToolStripTextBox xminTextBox;
-        ToolStripTextBox xmaxTextBox;
+        readonly ToolStripTextBox yminTextBox;
+        readonly ToolStripTextBox ymaxTextBox;
+        readonly ToolStripTextBox xminTextBox;
+        readonly ToolStripTextBox xmaxTextBox;
 
         public WaveformView()
         {
@@ -53,7 +53,7 @@ namespace Bonsai.Dsp.Design
             maxTextBox.KeyDown += editableTextBox_KeyDown;
         }
 
-        protected WaveformGraph Graph
+        internal WaveformGraph Graph
         {
             get { return graph; }
         }
@@ -173,33 +173,25 @@ namespace Bonsai.Dsp.Design
 
         protected virtual void OnAxisChanged(EventArgs e)
         {
-            var handler = AxisChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            AxisChanged?.Invoke(this, e);
         }
 
         protected virtual void OnSelectedPageChanged(EventArgs e)
         {
-            var handler = SelectedPageChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            SelectedPageChanged?.Invoke(this, e);
         }
 
-        public virtual void EnsureWaveform(int rows, int columns)
+        internal virtual void EnsureWaveform(int rows, int columns)
         {
             graph.EnsureWaveformRows(rows);
         }
 
-        public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
+        internal void UpdateWaveform(int channel, double[] samples, int rows, int columns)
         {
             graph.UpdateWaveform(channel, samples, rows, columns);
         }
 
-        public virtual void UpdateWaveform(double[] samples, int rows, int columns)
+        internal virtual void UpdateWaveform(double[] samples, int rows, int columns)
         {
             graph.UpdateWaveform(samples, rows, columns);
         }
@@ -243,11 +235,10 @@ namespace Bonsai.Dsp.Design
 
         private bool graph_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
         {
-            double x, y;
             var pane = graph.MasterPane.FindChartRect(e.Location);
             if (pane != null)
             {
-                pane.ReverseTransform(e.Location, out x, out y);
+                pane.ReverseTransform(e.Location, out double x, out double y);
                 cursorStatusLabel.Text = string.Format("Cursor: ({0:F0}, {1:G5})", x, y);
             }
             return false;
@@ -299,9 +290,8 @@ namespace Bonsai.Dsp.Design
 
         private void xmaxTextBox_LostFocus(object sender, EventArgs e)
         {
-            double max;
             if (xmaxTextBox.Text != xmaxStatusLabel.Text &&
-                double.TryParse(xmaxTextBox.Text, out max))
+                double.TryParse(xmaxTextBox.Text, out double max))
             {
                 XMax = max;
             }
@@ -309,9 +299,8 @@ namespace Bonsai.Dsp.Design
 
         private void xminTextBox_LostFocus(object sender, EventArgs e)
         {
-            double min;
             if (xminTextBox.Text != xminStatusLabel.Text &&
-                double.TryParse(xminTextBox.Text, out min))
+                double.TryParse(xminTextBox.Text, out double min))
             {
                 XMin = min;
             }
@@ -319,9 +308,8 @@ namespace Bonsai.Dsp.Design
 
         private void ymaxTextBox_LostFocus(object sender, EventArgs e)
         {
-            double max;
             if (ymaxTextBox.Text != ymaxStatusLabel.Text &&
-                double.TryParse(ymaxTextBox.Text, out max))
+                double.TryParse(ymaxTextBox.Text, out double max))
             {
                 YMax = max;
             }
@@ -329,9 +317,8 @@ namespace Bonsai.Dsp.Design
 
         private void yminTextBox_LostFocus(object sender, EventArgs e)
         {
-            double min;
             if (yminTextBox.Text != yminStatusLabel.Text &&
-                double.TryParse(yminTextBox.Text, out min))
+                double.TryParse(yminTextBox.Text, out double min))
             {
                 YMin = min;
             }

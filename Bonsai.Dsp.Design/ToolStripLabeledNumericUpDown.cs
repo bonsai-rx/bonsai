@@ -7,7 +7,7 @@ namespace Bonsai.Dsp.Design
     [ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.MenuStrip |
                                        ToolStripItemDesignerAvailability.ToolStrip |
                                        ToolStripItemDesignerAvailability.ContextMenuStrip)]
-    public class ToolStripLabeledNumericUpDown : ToolStripControlHost
+    internal class ToolStripLabeledNumericUpDown : ToolStripControlHost
     {
         public ToolStripLabeledNumericUpDown()
             : base(new LabeledNumericUpDown())

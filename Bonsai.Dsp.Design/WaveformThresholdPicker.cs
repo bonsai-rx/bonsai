@@ -112,13 +112,13 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public override void EnsureWaveform(int rows, int columns)
+        internal override void EnsureWaveform(int rows, int columns)
         {
             base.EnsureWaveform(rows, columns);
             InitializeThreshold(columns);
         }
 
-        public override void UpdateWaveform(double[] samples, int rows, int columns)
+        internal override void UpdateWaveform(double[] samples, int rows, int columns)
         {
             base.UpdateWaveform(samples, rows, columns);
             InitializeThreshold(columns);
