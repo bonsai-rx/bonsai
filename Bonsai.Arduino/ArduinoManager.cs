@@ -44,11 +44,11 @@ namespace Bonsai.Arduino
 
 #pragma warning disable CS0612 // Type or member is obsolete
                     var configuration = LoadConfiguration();
-#pragma warning restore CS0612 // Type or member is obsolete
                     if (configuration.Contains(serialPortName))
                     {
                         arduinoConfiguration = configuration[serialPortName];
                     }
+#pragma warning restore CS0612 // Type or member is obsolete
 
                     var arduino = new Arduino(serialPortName, arduinoConfiguration.BaudRate);
                     arduino.Open();
