@@ -32,6 +32,7 @@ namespace Bonsai.Osc
         [Description("The OSC type tag specifying the type of the OSC arguments in the message.")]
         public string TypeTag { get; set; }
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
