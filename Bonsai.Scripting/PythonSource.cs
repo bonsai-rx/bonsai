@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -7,15 +7,23 @@ using System.Reactive.Linq;
 using System.Linq.Expressions;
 using IronPython.Runtime;
 using System.Threading.Tasks;
+using Microsoft.Scripting.Hosting;
 
 namespace Bonsai.Scripting
 {
-    [DefaultProperty("Script")]
+    /// <summary>
+    /// Represents an operator that uses a Python script to generate an observable
+    /// sequence of values.
+    /// </summary>
+    [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Source)]
     [TypeDescriptionProvider(typeof(PythonSourceTypeDescriptionProvider))]
     [Description("A Python script used to generate an observable sequence of values.")]
     public class PythonSource : ZeroArgumentExpressionBuilder, IScriptingElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PythonSource"/> class.
+        /// </summary>
         public PythonSource()
         {
             Script = "@returns(int)\ndef generate():\n  yield 0";
@@ -38,10 +46,14 @@ namespace Bonsai.Scripting
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the script that determines the operation of the source.
+        /// </summary>
         [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The script that determines the operation of the source.")]
         public string Script { get; set; }
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var engine = PythonEngine.Create();
@@ -103,7 +115,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "A Python script used to generate individual elements of an observable sequence.");
+                    "A Python script used to generate an observable sequence of values.");
             }
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -9,12 +9,19 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
-    [DefaultProperty("Script")]
+    /// <summary>
+    /// Represents an operator that uses a Python script to transform each
+    /// element of an observable sequence.
+    /// </summary>
+    [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(PythonTransformTypeDescriptionProvider))]
-    [Description("A Python script used to transform individual values of the input sequence.")]
+    [Description("A Python script used to transform each element of the sequence.")]
     public class PythonTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PythonTransform"/> class.
+        /// </summary>
         public PythonTransform()
         {
             Script = "@returns(bool)\ndef process(value):\n  return True";
@@ -37,10 +44,14 @@ namespace Bonsai.Scripting
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the script that determines the operation of the transform.
+        /// </summary>
         [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The script that determines the operation of the transform.")]
         public string Script { get; set; }
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var engine = PythonEngine.Create();
@@ -132,7 +143,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "A Python script used to process and convert individual elements of the input sequence.");
+                    "A Python script used to transform each element of the sequence.");
             }
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -10,38 +10,49 @@ using IronPython.Runtime;
 
 namespace Bonsai.Scripting
 {
-    [DefaultProperty("Script")]
+    /// <summary>
+    /// Represents an operator that uses a Python script to project each element of an
+    /// observable sequence into multiple elements.
+    /// </summary>
+    [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [TypeDescriptionProvider(typeof(PythonSelectManyTypeDescriptionProvider))]
-    [Description("A Python script used to project each value of the input into an observable sequence.")]
+    [Description("A Python script used to project each element of the sequence into multiple elements.")]
     public class PythonSelectMany : SingleArgumentExpressionBuilder, IScriptingElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PythonSelectMany"/> class.
+        /// </summary>
         public PythonSelectMany()
         {
             Script = "@returns(bool)\ndef process(value):\n  yield True";
         }
 
         /// <summary>
-        /// Gets or sets the name of the python script.
+        /// Gets or sets the name of the python operator.
         /// </summary>
         [Category("Design")]
         [Externalizable(false)]
-        [Description("The name of the python script.")]
+        [Description("The name of the python operator.")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets a description for the python script.
+        /// Gets or sets a description for the python operator.
         /// </summary>
         [Category("Design")]
         [Externalizable(false)]
-        [Description("A description for the python script.")]
+        [Description("A description for the python operator.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the script that determines how each element is projected into a sequence of elements.
+        /// </summary>
         [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
-        [Description("The script that determines how each element is projected into a sequence.")]
+        [Description("The script that determines how each element is projected into a sequence of elements.")]
         public string Script { get; set; }
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var engine = PythonEngine.Create();
@@ -132,7 +143,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "A Python script used to project each element of the input sequence into an enumerable sequence.");
+                    "A Python script used to project each element of the sequence into multiple elements.");
             }
         }
     }

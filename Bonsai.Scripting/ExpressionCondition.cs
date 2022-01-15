@@ -9,37 +9,46 @@ using System.Reflection;
 
 namespace Bonsai.Scripting
 {
-    [DefaultProperty("Expression")]
+    /// <summary>
+    /// Represents an operator that uses an expression script to filter the elements
+    /// of an observable sequence.
+    /// </summary>
+    [DefaultProperty(nameof(Expression))]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
-    [Description("An expression script used to determine which values of the input sequence are accepted.")]
+    [Description("An expression script used to filter the elements of the sequence.")]
     public class ExpressionCondition : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Where" &&
+                                                                   .Single(m => m.Name == nameof(Observable.Where) &&
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        public ExpressionCondition()
-        {
-            Expression = "it";
-        }
-
-        [Category("Design")]
+        /// <summary>
+        /// Gets or sets the name of the expression condition.
+        /// </summary>
         [Externalizable(false)]
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("The name of the expression condition.")]
         public string Name { get; set; }
 
-        [Category("Design")]
+        /// <summary>
+        /// Gets or sets a description for the expression condition.
+        /// </summary>
         [Externalizable(false)]
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("A description for the expression condition.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the expression that determines which elements to filter.
+        /// </summary>
         [Editor("Bonsai.Scripting.ExpressionScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The expression that determines which elements to filter.")]
-        public string Expression { get; set; }
+        public string Expression { get; set; } = "it";
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
@@ -60,7 +69,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "An expression that is used to filter individual elements of the input sequence.");
+                    "An expression script used to filter the elements of the sequence.");
             }
         }
     }

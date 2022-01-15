@@ -9,37 +9,46 @@ using System.Reflection;
 
 namespace Bonsai.Scripting
 {
-    [DefaultProperty("Expression")]
+    /// <summary>
+    /// Represents an operator that uses an expression script to transform each
+    /// element of an observable sequence.
+    /// </summary>
+    [DefaultProperty(nameof(Expression))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(ExpressionTransformTypeDescriptionProvider))]
-    [Description("An expression script used to transform individual values of the input sequence.")]
+    [Description("An expression script used to transform each element of the sequence.")]
     public class ExpressionTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                                    .Single(m => m.Name == "Select" &&
+                                                                    .Single(m => m.Name == nameof(Observable.Select) &&
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        public ExpressionTransform()
-        {
-            Expression = "it";
-        }
-
-        [Category("Design")]
+        /// <summary>
+        /// Gets or sets the name of the expression transform.
+        /// </summary>
         [Externalizable(false)]
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("The name of the expression transform.")]
         public string Name { get; set; }
 
-        [Category("Design")]
+        /// <summary>
+        /// Gets or sets a description for the expression transform.
+        /// </summary>
         [Externalizable(false)]
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("A description for the expression transform.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the expression that determines the operation of the transform.
+        /// </summary>
         [Editor("Bonsai.Scripting.ExpressionScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The expression that determines the operation of the transform.")]
-        public string Expression { get; set; }
+        public string Expression { get; set; } = "it";
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
@@ -60,7 +69,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "An expression that is used to process and convert individual elements of the input sequence.");
+                    "An expression script used to transform each element of the sequence.");
             }
         }
     }

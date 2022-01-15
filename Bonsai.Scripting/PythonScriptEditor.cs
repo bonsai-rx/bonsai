@@ -6,13 +6,19 @@ using System.Windows.Forms;
 
 namespace Bonsai.Scripting
 {
+    /// <summary>
+    /// Provides a user interface editor that displays a dialog box for editing
+    /// the Python script.
+    /// </summary>
     public class PythonScriptEditor : UITypeEditor
     {
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

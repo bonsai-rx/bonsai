@@ -1,25 +1,48 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Reactive.Linq;
 
 namespace Bonsai.Scripting
 {
+    /// <summary>
+    /// Represents an operator that uses a Python script to filter the elements
+    /// of an observable sequence.
+    /// </summary>
     [Obsolete]
-    [DefaultProperty("Script")]
+    [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [Description("A Python script used to determine which elements of the input sequence are accepted.")]
     public class PythonCondition : Combinator
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PythonCondition"/> class.
+        /// </summary>
         public PythonCondition()
         {
             Script = "def process(value):\n  return True";
         }
 
+        /// <summary>
+        /// Gets or sets the script that determines the criteria for the condition.
+        /// </summary>
         [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The script that determines the criteria for the condition.")]
         public string Script { get; set; }
 
+        /// <summary>
+        /// Uses a Python script to filter the elements of an observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The observable sequence to filter.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that contains the elements of the <paramref name="source"/>
+        /// sequence that satisfy the condition.
+        /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Defer(() =>
