@@ -13,27 +13,38 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Dsp.Design
 {
+    /// <summary>
+    /// Provides a user interface editor that displays a drop-down dialog
+    /// for setting spike detection thresholds on individual channels of the
+    /// input signal.
+    /// </summary>
     public class SpikeThresholdEditor : DataSourceTypeEditor
     {
         const string AutoStart = "Auto Start";
         const string AutoStop = "Auto Stop";
         const string DeviationLabel = "SD";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SpikeThresholdEditor"/> class.
+        /// </summary>
         public SpikeThresholdEditor()
             : base(DataSource.Input, typeof(Mat))
         {
         }
 
+        /// <inheritdoc/>
         public override bool IsDropDownResizable
         {
             get { return true; }
         }
 
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.DropDown;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

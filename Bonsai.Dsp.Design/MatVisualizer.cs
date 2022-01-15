@@ -12,10 +12,20 @@ using System.Windows.Forms;
 
 namespace Bonsai.Dsp.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for displaying a matrix as a waveform graph,
+    /// using either separate or overlaying channels.
+    /// </summary>
     public class MatVisualizer : MatVisualizer<WaveformView>
     {
     }
 
+    /// <summary>
+    /// Provides a base class for displaying data as a waveform graph.
+    /// </summary>
+    /// <typeparam name="TWaveformView">
+    /// A type derived from <see cref="WaveformView"/> which will control how data is displayed.
+    /// </typeparam>
     public class MatVisualizer<TWaveformView> : DialogTypeVisualizer where TWaveformView : WaveformView, new()
     {
         const int TargetElapsedTime = (int)(1000.0 / 30);
@@ -23,54 +33,110 @@ namespace Bonsai.Dsp.Design
         Timer updateTimer;
         TWaveformView graph;
 
-        public MatVisualizer()
-        {
-            XMax = 1;
-            YMax = 1;
-            AutoScaleX = true;
-            AutoScaleY = true;
-            ChannelsPerPage = 16;
-            OverlayChannels = true;
-            WaveformBufferLength = 1;
-            HistoryLength = 1;
-        }
+        /// <summary>
+        /// Gets or sets the lower bound of the x-axis displayed in the graph.
+        /// </summary>
+        public double XMin { get; set; } = 0;
 
-        public double XMin { get; set; }
+        /// <summary>
+        /// Gets or sets the upper bound of the x-axis displayed in the graph.
+        /// </summary>
+        public double XMax { get; set; } = 1;
 
-        public double XMax { get; set; }
+        /// <summary>
+        /// Gets or sets the lower bound of the y-axis displayed in the graph.
+        /// </summary>
+        public double YMin { get; set; } = 0;
 
-        public double YMin { get; set; }
+        /// <summary>
+        /// Gets or sets the upper bound of the y-axis displayed in the graph.
+        /// </summary>
+        public double YMax { get; set; } = 1;
 
-        public double YMax { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to compute the range of
+        /// the x-axis automatically based on the range of the data that is
+        /// included in the graph.
+        /// </summary>
+        public bool AutoScaleX { get; set; } = true;
 
-        public bool AutoScaleX { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to compute the range of
+        /// the y-axis automatically based on the range of the data that is
+        /// included in the graph.
+        /// </summary>
+        public bool AutoScaleY { get; set; } = true;
 
-        public bool AutoScaleY { get; set; }
-
+        /// <summary>
+        /// Gets or sets the currently selected channel page. Channels in the
+        /// currently selected page will be the ones displayed in the graph.
+        /// </summary>
         public int SelectedPage { get; set; }
 
-        public int ChannelsPerPage { get; set; }
+        /// <summary>
+        /// Gets or sets the maximum number of channels which should be included
+        /// in a single page.
+        /// </summary>
+        public int ChannelsPerPage { get; set; } = 16;
 
-        public bool OverlayChannels { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to overlay the traces of all
+        /// the channels in the page into a single waveform graph. If this value
+        /// is <see langword="false"/>, channels will be displayed individually
+        /// in separate graph panes.
+        /// </summary>
+        public bool OverlayChannels { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value which will be added to the samples of each channel,
+        /// proportional to channel index, for the purposes of visualization.
+        /// </summary>
         public double ChannelOffset { get; set; }
 
-        public int HistoryLength { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying how many previous data buffers to store
+        /// and display in the graph.
+        /// </summary>
+        /// <remarks>
+        /// Each buffer can contain multiple samples, which means the total number of
+        /// samples displayed in the graph will be <c>HistoryLength * BufferLength</c>,
+        /// where <c>BufferLength</c> is the number of samples per buffer.
+        /// </remarks>
+        public int HistoryLength { get; set; } = 1;
 
-        public int WaveformBufferLength { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying how many previous traces to overlay for
+        /// each channel.
+        /// </summary>
+        /// <remarks>
+        /// This allows overlaying historical traces rather than appending them in time.
+        /// </remarks>
+        public int WaveformBufferLength { get; set; } = 1;
 
+        /// <summary>
+        /// Gets or sets the indices of the channels to display when the visualizer
+        /// is in overlay mode.
+        /// </summary>
         public int[] SelectedChannels { get; set; }
 
+        /// <summary>
+        /// Gets the graph control used to display the data.
+        /// </summary>
         protected internal TWaveformView Graph
         {
             get { return graph; }
         }
 
+        /// <summary>
+        /// Invalidates the entire graph display at the next data update.
+        /// This will send a paint message to the graph control.
+        /// </summary>
         protected void InvalidateGraph()
         {
             requireInvalidate = true;
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             graph = new TWaveformView();
@@ -142,6 +208,7 @@ namespace Bonsai.Dsp.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             updateTimer.Stop();
@@ -151,6 +218,7 @@ namespace Bonsai.Dsp.Design
             graph = null;
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var buffer = (Mat)value;
