@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace Bonsai.Resources.Design
 {
+    /// <summary>
+    /// Provides a modal dialog for editing the contents of a collection using
+    /// a <see cref="UITypeEditor"/>.
+    /// </summary>
     public partial class CollectionEditorDialog : Form
     {
         int initialHeight;
         int initialCollectionEditorHeight;
-        EditorSite editorSite;
+        readonly EditorSite editorSite;
 
         internal CollectionEditorDialog(CollectionEditor editor)
         {
@@ -27,12 +32,16 @@ namespace Bonsai.Resources.Design
             get { return collectionEditorControl; }
         }
 
+        /// <summary>
+        /// Gets or sets the collection of items for this dialog to display.
+        /// </summary>
         public IEnumerable Items
         {
             get { return collectionEditorControl.Items; }
             set { collectionEditorControl.Items = value; }
         }
 
+        /// <inheritdoc/>
         protected override void OnLoad(EventArgs e)
         {
             initialHeight = Height;
@@ -41,6 +50,7 @@ namespace Bonsai.Resources.Design
             base.OnLoad(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnResize(EventArgs e)
         {
             if (initialHeight > 0)
@@ -51,6 +61,7 @@ namespace Bonsai.Resources.Design
             base.OnResize(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             propertyGrid.SelectedObject = null;
@@ -70,7 +81,7 @@ namespace Bonsai.Resources.Design
 
         class EditorSite : ISite
         {
-            CollectionEditorDialog siteDialog;
+            readonly CollectionEditorDialog siteDialog;
 
             public EditorSite(CollectionEditorDialog dialog)
             {

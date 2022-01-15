@@ -8,16 +8,28 @@ using System.Windows.Forms;
 
 namespace Bonsai.Resources.Design
 {
+    /// <summary>
+    /// Provides a user interface editor that displays a dialog for editing a collection
+    /// of resources, supporting drag and drop of compatible file extensions.
+    /// </summary>
     public class ResourceCollectionEditor : CollectionEditor
     {
         string[] supportedExtensions;
         Dictionary<string, Func<string, object>> resourceConstructors;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceCollectionEditor"/> class
+        /// using the specified collection type.
+        /// </summary>
+        /// <inheritdoc/>
         public ResourceCollectionEditor(Type type)
             : base(type)
         {
         }
 
+        /// <summary>
+        /// Gets the file extensions that support drag and drop into the collection editor.
+        /// </summary>
         protected string[] SupportedExtensions
         {
             get
@@ -44,6 +56,13 @@ namespace Bonsai.Resources.Design
             }
         }
 
+        /// <summary>
+        /// Gets the file extensions that support drag and drop into the collection editor.
+        /// </summary>
+        /// <returns>
+        /// The array of file extensions that support drag and drop into the collection
+        /// editor.
+        /// </returns>
         protected virtual string[] CreateSupportedExtensions()
         {
             var newItemTypes = NewItemTypes;
@@ -85,11 +104,20 @@ namespace Bonsai.Resources.Design
             return Array.Exists(SupportedExtensions, extension.Equals);
         }
 
+        /// <summary>
+        /// Creates a new resource configuration object from a specified file name.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file from which the resource configuration object should
+        /// be created.
+        /// </param>
+        /// <returns>
+        /// A new resource configuration object to be added to the collection.
+        /// </returns>
         protected virtual object CreateResourceConfiguration(string fileName)
         {
-            Func<string, object> constructor;
             var extension = Path.GetExtension(fileName);
-            if (resourceConstructors != null && resourceConstructors.TryGetValue(extension, out constructor))
+            if (resourceConstructors != null && resourceConstructors.TryGetValue(extension, out Func<string, object> constructor))
             {
                 return constructor(fileName);
             }
@@ -97,6 +125,7 @@ namespace Bonsai.Resources.Design
             return null;
         }
 
+        /// <inheritdoc/>
         protected override CollectionEditorDialog CreateEditorDialog()
         {
             var editorDialog = base.CreateEditorDialog();

@@ -6,23 +6,31 @@ using System.Drawing.Design;
 
 namespace Bonsai.IO.Design
 {
+    /// <summary>
+    /// Provides a base class for serial port drop-down editor controls
+    /// with custom configuration dialogs.
+    /// </summary>
     [Obsolete]
     public partial class SerialPortConfigurationControl : ConfigurationDropDown
     {
+        /// <inheritdoc/>
         protected override IEnumerable<string> GetConfigurationNames()
         {
             return SerialPort.GetPortNames();
         }
 
+        /// <inheritdoc/>
         protected override object LoadConfiguration()
         {
             return null;
         }
 
+        /// <inheritdoc/>
         protected override void SaveConfiguration(object configuration)
         {
         }
 
+        /// <inheritdoc/>
         protected override UITypeEditor CreateConfigurationEditor(Type type)
         {
             return new SerialPortConfigurationCollectionEditor(type);
