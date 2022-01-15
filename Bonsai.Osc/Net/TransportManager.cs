@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Osc.Net
 {
-    public static class TransportManager
+    internal static class TransportManager
     {
         public const string DefaultConfigurationFile = "Osc.config";
         static readonly Dictionary<string, Tuple<ITransport, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<ITransport, RefCountDisposable>>();
@@ -30,12 +30,14 @@ namespace Bonsai.Osc.Net
             {
                 if (!openConnections.TryGetValue(name, out connection))
                 {
+#pragma warning disable CS0612 // Type or member is obsolete
                     var configuration = LoadConfiguration();
                     if (configuration.Contains(name))
                     {
                         transportConfiguration = configuration[name];
                     }
-                    else if (transportConfiguration == null)
+#pragma warning restore CS0612 // Type or member is obsolete
+                    if (transportConfiguration == null)
                     {
                         throw new ArgumentException("The specified connection name has no matching configuration.");
                     }
@@ -57,6 +59,7 @@ namespace Bonsai.Osc.Net
             return new TransportDisposable(connection.Item1, connection.Item2.GetDisposable());
         }
 
+        [Obsolete]
         public static TransportConfigurationCollection LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
@@ -71,6 +74,7 @@ namespace Bonsai.Osc.Net
             }
         }
 
+        [Obsolete]
         public static void SaveConfiguration(TransportConfigurationCollection configuration)
         {
             var serializer = new XmlSerializer(typeof(TransportConfigurationCollection));

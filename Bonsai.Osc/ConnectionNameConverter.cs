@@ -1,5 +1,4 @@
 ﻿using Bonsai.Expressions;
-using Bonsai.Osc.Net;
 using System.ComponentModel;
 using System.Linq;
 
@@ -12,7 +11,7 @@ namespace Bonsai.Osc
             return true;
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             if (context != null)
             {
@@ -23,7 +22,6 @@ namespace Bonsai.Osc
                                         let createTransport = ExpressionBuilder.GetWorkflowElement(builder) as CreateTransport
                                         where createTransport != null && !string.IsNullOrEmpty(createTransport.Name)
                                         select createTransport.Name)
-                                        .Concat(TransportManager.LoadConfiguration().Select(configuration => configuration.Name))
                                         .Distinct()
                                         .ToList();
                     return new StandardValuesCollection(channelNames);

@@ -4,24 +4,14 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Osc.Net
 {
-    public sealed class TransportDisposable : ICancelable, IDisposable
+    internal sealed class TransportDisposable : ICancelable, IDisposable
     {
         IDisposable resource;
 
         internal TransportDisposable(ITransport transport, IDisposable disposable)
         {
-            if (transport == null)
-            {
-                throw new ArgumentNullException("transport");
-            }
-
-            if (disposable == null)
-            {
-                throw new ArgumentNullException("disposable");
-            }
-
-            Transport = transport;
-            resource = disposable;
+            Transport = transport ?? throw new ArgumentNullException(nameof(transport));
+            resource = disposable ?? throw new ArgumentNullException(nameof(disposable));
         }
 
         internal ITransport Transport { get; private set; }
@@ -33,7 +23,7 @@ namespace Bonsai.Osc.Net
 
         public void Dispose()
         {
-            var disposable = Interlocked.Exchange<IDisposable>(ref resource, null);
+            var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
                 disposable.Dispose();

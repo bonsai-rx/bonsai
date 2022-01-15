@@ -1,4 +1,4 @@
-﻿using Bonsai.Osc.IO;
+using Bonsai.Osc.IO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,8 +139,7 @@ namespace Bonsai.Osc
 
         static string ToString(object obj)
         {
-            var array = obj as object[];
-            if (array != null)
+            if (obj is object[] array)
             {
                 var values = new string[array.Length + 2];
                 values[0] = "[";
@@ -151,12 +150,8 @@ namespace Bonsai.Osc
                 }
                 return string.Join(CultureInfo.InvariantCulture.TextInfo.ListSeparator, values);
             }
-            else
-            {
-                var blob = obj as byte[];
-                if (blob != null) return string.Format("{0}[{1}]", typeof(byte).Name, blob.Length);
-                else return obj.ToString();
-            }
+            else if (obj is byte[] blob) return string.Format("{0}[{1}]", typeof(byte).Name, blob.Length);
+            else return obj.ToString();
         }
 
         public override string ToString()

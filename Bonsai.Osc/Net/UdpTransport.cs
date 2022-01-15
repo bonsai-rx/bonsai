@@ -11,17 +11,12 @@ namespace Bonsai.Osc.Net
 {
     class UdpTransport : ITransport
     {
-        UdpClient client;
-        IObservable<Message> messageReceived;
+        UdpClient owner;
+        readonly IObservable<Message> messageReceived;
 
         public UdpTransport(UdpClient client)
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException("client");
-            }
-
-            this.client = client;
+            owner = client ?? throw new ArgumentNullException(nameof(client));
             messageReceived = Observable.Using(
                 () => new EventLoopScheduler(),
                 scheduler => Observable.Create<Message>(observer =>
@@ -61,9 +56,9 @@ namespace Bonsai.Osc.Net
                 buffer = stream.ToArray();
             }
 
-            lock (client)
+            lock (owner)
             {
-                client.Send(buffer, buffer.Length);
+                owner.Send(buffer, buffer.Length);
             }
         }
 
@@ -74,7 +69,7 @@ namespace Bonsai.Osc.Net
 
         private void Dispose(bool disposing)
         {
-            var disposable = Interlocked.Exchange(ref client, null);
+            var disposable = Interlocked.Exchange(ref owner, null);
             if (disposable != null && disposing)
             {
                 disposable.Close();
