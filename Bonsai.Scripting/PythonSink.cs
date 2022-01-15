@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using Microsoft.Scripting.Hosting;
 using System.Reactive.Linq;
@@ -36,19 +36,14 @@ namespace Bonsai.Scripting
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
 
-                object sink;
                 PythonProcessor<TSource, object> processor;
-                if (PythonHelper.TryGetClass(scope, "Sink", out sink))
+                if (PythonHelper.TryGetClass(scope, "Sink", out object sink))
                 {
                     processor = new PythonProcessor<TSource, object>(engine.Operations, sink);
                 }
                 else processor = new PythonProcessor<TSource, object>(scope);
 
-                if (processor.Load != null)
-                {
-                    processor.Load();
-                }
-
+                processor.Load?.Invoke();
                 return source.Do(input =>
                 {
                     scriptTask = scriptTask.ContinueWith(task =>

@@ -7,9 +7,8 @@ namespace Bonsai.Scripting
     {
         internal PythonProcessor(ScriptScope scope)
         {
-            Action load, unload;
-            scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
-            scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
+            scope.TryGetVariable(PythonHelper.LoadFunction, out Action load);
+            scope.TryGetVariable(PythonHelper.UnloadFunction, out Action unload);
             Process = scope.GetVariable<Func<TSource, TResult>>(PythonHelper.ProcessFunction);
             Load = load;
             Unload = unload;

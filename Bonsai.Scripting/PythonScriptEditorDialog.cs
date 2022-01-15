@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Scripting
 {
-    public partial class PythonScriptEditorDialog : Form
+    internal partial class PythonScriptEditorDialog : Form
     {
         public PythonScriptEditorDialog()
         {

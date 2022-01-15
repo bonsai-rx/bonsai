@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Reactive.Linq;
@@ -28,9 +28,8 @@ namespace Bonsai.Scripting
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
 
-                object condition;
                 PythonProcessor<TSource, bool> processor;
-                if (PythonHelper.TryGetClass(scope, "Condition", out condition))
+                if (PythonHelper.TryGetClass(scope, "Condition", out object condition))
                 {
                     processor = new PythonProcessor<TSource, bool>(engine.Operations, condition);
                 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -55,12 +55,12 @@ namespace Bonsai.Scripting
             var generatorType = Expression.GetFuncType(typeof(PythonGenerator));
             var generateExpression = Expression.Call(
                 scopeExpression,
-                "GetVariable",
+                nameof(ScriptScope.GetVariable),
                 new[] { generatorType },
                 Expression.Constant(PythonHelper.GenerateFunction));
 
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Generate", new[] { outputType }, generateExpression);
+            return Expression.Call(combinatorExpression, nameof(Generate), new[] { outputType }, generateExpression);
         }
 
         IObservable<TResult> Generate<TResult>(Func<PythonGenerator> generate)

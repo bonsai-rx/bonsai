@@ -12,7 +12,7 @@ namespace Bonsai.Scripting
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             element = instance as IScriptingElement;

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Scripting
 {
-    public partial class ExpressionScriptEditorDialog : Form
+    internal partial class ExpressionScriptEditorDialog : Form
     {
         public ExpressionScriptEditorDialog()
         {

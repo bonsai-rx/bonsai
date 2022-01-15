@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -50,17 +50,16 @@ namespace Bonsai.Scripting
             var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
 
-            object selectMany;
             var source = arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
-            if (PythonHelper.TryGetClass(scope, "SelectMany", out selectMany))
+            if (PythonHelper.TryGetClass(scope, "SelectMany", out object selectMany))
             {
                 var classExpression = Expression.Constant(selectMany);
                 var opExpression = Expression.Constant(engine.Operations);
                 var outputType = PythonHelper.GetOutputType(engine.Operations, selectMany, PythonHelper.ProcessFunction);
                 return Expression.Call(
                     typeof(PythonTransform),
-                    "Process",
+                    nameof(Process),
                     new[] { observableType, outputType },
                     source,
                     opExpression,
@@ -72,7 +71,7 @@ namespace Bonsai.Scripting
                 var scopeExpression = Expression.Constant(scope);
                 return Expression.Call(
                     typeof(PythonSelectMany),
-                    "Process",
+                    nameof(Process),
                     new[] { observableType, outputType },
                     source,
                     scopeExpression);
@@ -88,7 +87,7 @@ namespace Bonsai.Scripting
             {
                 var processor = new PythonProcessor<TSource, PythonGenerator>(op, processorClass);
                 var result = source.SelectMany(input => processor.Process(input).Cast<TResult>());
-                if (processor.Load != null) processor.Load();
+                processor.Load?.Invoke();
                 if (processor.Unload != null)
                 {
                     return result.Finally(processor.Unload);

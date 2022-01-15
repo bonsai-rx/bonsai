@@ -16,8 +16,7 @@ namespace Bonsai.Scripting
 
         internal static bool TryGetClass(ScriptScope scope, string className, out object pythonClass)
         {
-            object variable;
-            if (scope.TryGetVariable<object>(className, out variable))
+            if (scope.TryGetVariable(className, out object variable))
             {
                 pythonClass = variable as OldClass;
                 if (pythonClass != null)
@@ -35,9 +34,8 @@ namespace Bonsai.Scripting
 
         internal static Type GetOutputType(ObjectOperations op, object pythonClass, string methodName)
         {
-            object returnType;
             var function = (PythonFunction)op.GetMember<Method>(pythonClass, methodName).__func__;
-            if (function.func_dict.TryGetValue(PythonHelper.ReturnTypeAttribute, out returnType))
+            if (function.func_dict.TryGetValue(ReturnTypeAttribute, out object returnType))
             {
                 return (Type)returnType;
             }
@@ -47,16 +45,14 @@ namespace Bonsai.Scripting
 
         internal static Type GetOutputType(ScriptScope scope, string functionName)
         {
-            object returnType;
             var function = scope.GetVariable<PythonFunction>(functionName);
-            if (function.func_dict.TryGetValue(PythonHelper.ReturnTypeAttribute, out returnType))
+            if (function.func_dict.TryGetValue(ReturnTypeAttribute, out object returnType))
             {
                 return (Type)returnType;
             }
             else
             {
-                Func<Type> getOutputType;
-                if (scope.TryGetVariable<Func<Type>>("getOutputType", out getOutputType))
+                if (scope.TryGetVariable("getOutputType", out Func<Type> getOutputType))
                 {
                     return getOutputType();
                 }
