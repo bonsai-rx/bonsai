@@ -3,11 +3,17 @@ using System.ComponentModel;
 
 namespace Bonsai.Osc
 {
-    [Description("Creates an Open Sound Control communication server over TCP.")]
+    /// <summary>
+    /// Represents an operator that creates an OSC communication server over TCP.
+    /// </summary>
+    [Description("Creates an OSC communication server over TCP.")]
     public class CreateTcpServer : CreateTransport
     {
         readonly TcpServerConfiguration configuration;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateTcpServer"/> class.
+        /// </summary>
         public CreateTcpServer()
             : this(new TcpServerConfiguration())
         {
@@ -19,6 +25,9 @@ namespace Bonsai.Osc
             this.configuration = configuration;
         }
 
+        /// <summary>
+        /// Gets or sets the port on which to listen for incoming connection attempts.
+        /// </summary>
         [Description("The port on which to listen for incoming connection attempts.")]
         public int Port
         {
@@ -26,6 +35,10 @@ namespace Bonsai.Osc
             set { configuration.Port = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value that disables a delay when send or receive buffers
+        /// are not full.
+        /// </summary>
         [Description("If set to true, disables a delay when send or receive buffers are not full.")]
         public bool NoDelay
         {
@@ -33,7 +46,11 @@ namespace Bonsai.Osc
             set { configuration.NoDelay = value; }
         }
 
-        [Description("Enables or disables Network Address Translation (NAT) on the server instance.")]
+        /// <summary>
+        /// Gets or sets a value that enables or disables Network Address
+        /// Translation (NAT) traversal on the TCP server.
+        /// </summary>
+        [Description("Enables or disables Network Address Translation (NAT) on the TCP server.")]
         public bool AllowNatTraversal
         {
             get { return configuration.AllowNatTraversal; }

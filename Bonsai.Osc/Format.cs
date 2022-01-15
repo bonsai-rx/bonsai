@@ -7,18 +7,22 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Osc
 {
+    /// <summary>
+    /// Represents an operator that formats each element of the sequence as
+    /// an OSC message.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Formats input data as an Open Sound Control message.")]
+    [Description("Formats each element of the sequence as an OSC message.")]
     public class Format : SelectBuilder
     {
-        public Format()
-        {
-            Address = MessageBuilder.AddressSeparator;
-        }
+        /// <summary>
+        /// Gets or sets the OSC address pattern specifying which method to invoke
+        /// using the formatted data.
+        /// </summary>
+        [Description("The OSC address pattern specifying which method to invoke using the formatted data.")]
+        public string Address { get; set; } = MessageBuilder.AddressSeparator;
 
-        [Description("The OSC address on which to broadcast the input data.")]
-        public string Address { get; set; }
-
+        /// <inheritdoc/>
         protected override Expression BuildSelector(Expression expression)
         {
             var address = Address;

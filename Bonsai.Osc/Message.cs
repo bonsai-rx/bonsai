@@ -1,4 +1,4 @@
-using Bonsai.Osc.IO;
+﻿using Bonsai.Osc.IO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace Bonsai.Osc
 {
+    /// <summary>
+    /// Represents an OSC message, including its method address and data arguments.
+    /// </summary>
     public sealed class Message
     {
         const char AddressSeparator = '/';
@@ -15,16 +18,44 @@ namespace Bonsai.Osc
         readonly int contentOffset;
         readonly MessagePattern[] addressParts;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Message"/> class using the
+        /// specified binary payload.
+        /// </summary>
+        /// <param name="array">
+        /// An 8-bit unsigned integer array representing the contents of an OSC message.
+        /// </param>
         public Message(byte[] array)
             : this(array, 0, array.Length)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Message"/> class using the
+        /// specified array segment.
+        /// </summary>
+        /// <param name="buffer">
+        /// A section of an 8-bit unsigned integer array representing the contents
+        /// of an OSC message.
+        /// </param>
         public Message(ArraySegment<byte> buffer)
             : this(buffer.Array, buffer.Offset, buffer.Count)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Message"/> class using the
+        /// specified array segment.
+        /// </summary>
+        /// <param name="array">
+        /// An 8-bit unsigned integer array storing the contents of the OSC message.
+        /// </param>
+        /// <param name="offset">
+        /// The zero-based starting position of the OSC message in the array.
+        /// </param>
+        /// <param name="count">
+        /// The number of bytes used by the contents of the OSC message.
+        /// </param>
         public Message(byte[] array, int offset, int count)
         {
             contentOffset = offset;
@@ -37,12 +68,36 @@ namespace Bonsai.Osc
                 pattern => new MessagePattern(pattern));
         }
 
+        /// <summary>
+        /// Gets the OSC address pattern specifying which method to invoke
+        /// with the data in this message.
+        /// </summary>
         public string Address { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the OSC type tag specifying the type of the OSC
+        /// arguments in the message.
+        /// </summary>
         public string TypeTag { get; private set; }
 
+        /// <summary>
+        /// Gets the an 8-bit unsigned integer array segment representing the contents
+        /// of this OSC message.
+        /// </summary>
         public ArraySegment<byte> Buffer { get; }
 
+        /// <summary>
+        /// Returns whether the OSC address pattern in this message matches the
+        /// specified method name.
+        /// </summary>
+        /// <param name="methodName">
+        /// The name of the OSC method to match against the OSC address pattern of
+        /// this message.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the method matches the OSC address pattern;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         public bool IsMatch(string methodName)
         {
             var parts = methodName.Split(AddressSeparator);
@@ -64,11 +119,25 @@ namespace Bonsai.Osc
             return false;
         }
 
+        /// <summary>
+        /// Opens a memory stream into the OSC message contents.
+        /// </summary>
+        /// <returns>
+        /// An instance of the <see cref="Stream"/> class which can be used
+        /// to read the binary contents of the OSC message.
+        /// </returns>
         public Stream GetContentStream()
         {
             return new MemoryStream(Buffer.Array, contentOffset, contentSize, false);
         }
 
+        /// <summary>
+        /// Returns an enumerable sequence of the OSC arguments in this message.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerable"/> object which can be used to enumerate
+        /// all the OSC arguments in this message.
+        /// </returns>
         public IEnumerable GetContents()
         {
             var chars = TypeTag.ToArray();
@@ -154,6 +223,7 @@ namespace Bonsai.Osc
             else return obj.ToString();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var contentValues = GetContents().Cast<object>().Select(obj => ToString(obj)).ToArray();

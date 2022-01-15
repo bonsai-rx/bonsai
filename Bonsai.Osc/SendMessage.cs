@@ -10,22 +10,30 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Osc
 {
+    /// <summary>
+    /// Represents an operator that writes each element of the sequence into an
+    /// OSC communication channel.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [Description("Writes input data to an Open Sound Control communication channel.")]
+    [Description("Writes each element of the sequence into an OSC communication channel.")]
     public class SendMessage : SingleArgumentExpressionBuilder
     {
-        public SendMessage()
-        {
-            Address = MessageBuilder.AddressSeparator;
-        }
-
+        /// <summary>
+        /// Gets or sets the name of the communication channel to reserve
+        /// for the OSC protocol.
+        /// </summary>
         [TypeConverter(typeof(ConnectionNameConverter))]
-        [Description("The communication channel to use for the OSC protocol.")]
+        [Description("The name of the communication channel to reserve for the OSC protocol.")]
         public string Connection { get; set; }
 
-        [Description("The OSC address on which to broadcast the input data.")]
-        public string Address { get; set; }
+        /// <summary>
+        /// Gets or sets the OSC address pattern specifying which method to invoke
+        /// using the formatted data.
+        /// </summary>
+        [Description("The OSC address pattern specifying which method to invoke using the formatted data.")]
+        public string Address { get; set; } = MessageBuilder.AddressSeparator;
 
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var address = Address;

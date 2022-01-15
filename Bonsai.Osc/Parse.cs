@@ -11,14 +11,25 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Osc
 {
-    [Description("Decodes data contents from an OSC message stream.")]
+    /// <summary>
+    /// Represents an operator that decodes the data contents from each OSC message in the sequence.
+    /// </summary>
+    [Description("Decodes the data contents from each OSC message in the sequence.")]
     public class Parse : SingleArgumentExpressionBuilder
     {
-        [Description("The OSC address space on which the received data is being broadcast.")]
+        /// <summary>
+        /// Gets or sets the name of the OSC method that should be matched
+        /// against the address pattern in the OSC message.
+        /// </summary>
+        [Description("The name of the OSC method that should be matched against the address pattern in the OSC message.")]
         public string Address { get; set; }
 
+        /// <summary>
+        /// Gets or sets the OSC type tag specifying the type of the OSC
+        /// arguments in the message.
+        /// </summary>
         [TypeConverter(typeof(TypeTagConverter))]
-        [Description("The OSC type tag specifying the contents of the message.")]
+        [Description("The OSC type tag specifying the type of the OSC arguments in the message.")]
         public string TypeTag { get; set; }
 
         public override Expression Build(IEnumerable<Expression> arguments)
