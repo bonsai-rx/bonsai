@@ -367,7 +367,7 @@ namespace Bonsai
                             genericTypeCache.Add(typeName, typeCode);
                             attributes.XmlType.TypeName = typeName;
                         }
-                        else attributes.XmlType.Namespace = GetXmlNamespace(type);
+                        attributes.XmlType.Namespace = GetXmlNamespace(type);
                         overrides.Add(type, attributes);
                     }
 
