@@ -317,6 +317,33 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        public void CreateGraphNode(string name, string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
+        {
+            CreateGraphNode(name, typeName, elementCategory, nodeType, branch, group, null);
+        }
+
+        public void CreateGraphNode(
+            string name,
+            string typeName,
+            ElementCategory elementCategory,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool group,
+            string arguments)
+        {
+            try { Editor.InsertGraphNode(typeName, elementCategory, nodeType, branch, group, arguments); }
+            catch (TargetInvocationException e)
+            {
+                var message = string.Format(Resources.CreateTypeNode_Error, name, e.InnerException.Message);
+                uiService.ShowError(message);
+            }
+            catch (SystemException e)
+            {
+                var message = string.Format(Resources.CreateTypeNode_Error, name, e.Message);
+                uiService.ShowError(message);
+            }
+        }
+
         public void SelectFirstGraphNode()
         {
             var layerCount = graphView.Nodes.Count();
@@ -945,7 +972,7 @@ namespace Bonsai.Editor.GraphView
                     {
                         var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
                         var elementCategory = GetToolboxElementCategory(typeNode);
-                        Editor.InsertGraphNode(typeNode.Name, elementCategory, nodeType, branch, group);
+                        CreateGraphNode(typeNode.Text, typeNode.Name, elementCategory, nodeType, branch, group);
                     }
                 }
 
@@ -1447,7 +1474,8 @@ namespace Bonsai.Editor.GraphView
                     {
                         ToolStripMenuItem menuItem = null;
                         var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
-                        menuItem = new ToolStripMenuItem(name, null, (sender, e) => Editor.InsertGraphNode(
+                        menuItem = new ToolStripMenuItem(name, null, (sender, e) => CreateGraphNode(
+                            element.Name,
                             element.FullyQualifiedName,
                             ~ElementCategory.Combinator,
                             CreateGraphNodeType.Successor,
