@@ -9,39 +9,27 @@ namespace Bonsai.Vision
     [Description("Converts an image from one color space to another.")]
     public class ConvertColor : Transform<IplImage, IplImage>
     {
-        int numChannels;
-        bool conversionChanged;
-        ColorConversion conversion;
-
-        public ConvertColor()
-        {
-            Conversion = ColorConversion.Bgr2Hsv;
-        }
-
         [Description("The color conversion to apply to individual image elements.")]
-        public ColorConversion Conversion
-        {
-            get { return conversion; }
-            set
-            {
-                conversion = value;
-                conversionChanged = true;
-            }
-        }
+        public ColorConversion Conversion { get; set; } = ColorConversion.Bgr2Hsv;
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return source.Select(input =>
+            return Observable.Defer(() =>
             {
-                if (conversionChanged)
+                var conversion = Conversion;
+                var numChannels = conversion.GetConversionNumChannels();
+                return source.Select(input =>
                 {
-                    numChannels = Conversion.GetConversionNumChannels();
-                    conversionChanged = false;
-                }
+                    if (conversion != Conversion)
+                    {
+                        conversion = Conversion;
+                        numChannels = conversion.GetConversionNumChannels();
+                    }
 
-                var output = new IplImage(input.Size, input.Depth, numChannels);
-                CV.CvtColor(input, output, conversion);
-                return output;
+                    var output = new IplImage(input.Size, input.Depth, numChannels);
+                    CV.CvtColor(input, output, conversion);
+                    return output;
+                });
             });
         }
     }
