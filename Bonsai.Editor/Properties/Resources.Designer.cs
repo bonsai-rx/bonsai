@@ -174,7 +174,8 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to create {0}:\n{1}.
+        ///   Looks up a localized string similar to Failed to create {0}:
+        ///{1}.
         /// </summary>
         internal static string CreateTypeNode_Error {
             get {
@@ -183,16 +184,7 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type Error.
-        /// </summary>
-        internal static string CreateTypeNode_Error_Caption {
-            get {
-                return ResourceManager.GetString("CreateTypeNode_Error_Caption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Interface Error.
+        ///   Looks up a localized string similar to Editor Error.
         /// </summary>
         internal static string Editor_Error_Caption {
             get {

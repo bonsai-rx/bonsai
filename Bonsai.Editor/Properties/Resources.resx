@@ -186,7 +186,7 @@ Copyright (c) .NET Foundation and Contributors</value>
 {0}</value>
   </data>
   <data name="Editor_Error_Caption" xml:space="preserve">
-    <value>Interface Error</value>
+    <value>Editor Error</value>
   </data>
   <data name="OpenWorkflow_Error" xml:space="preserve">
     <value>There was an error opening the workflow {0}:
@@ -284,10 +284,8 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
     <value>Build Error</value>
   </data>
   <data name="CreateTypeNode_Error" xml:space="preserve">
-    <value>Failed to create {0}:\n{1}</value>
-  </data>
-  <data name="CreateTypeNode_Error_Caption" xml:space="preserve">
-    <value>Type Error</value>
+    <value>Failed to create {0}:
+{1}</value>
   </data>
   <data name="EnsureSavedWorkflow_Question" xml:space="preserve">
     <value>The workflow needs to be saved before proceeding. Do you want to save the workflow?</value>
