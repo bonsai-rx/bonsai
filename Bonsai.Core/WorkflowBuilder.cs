@@ -787,8 +787,13 @@ namespace Bonsai
                                         var genericSeparatorIndex = type.Name.LastIndexOf('`');
                                         if (value.Length != genericSeparatorIndex)
                                         {
-                                            // fast comparison for clipping internal type suffixes only
-                                            typeRef.BaseType = type.Namespace + "." + value + type.Name.Substring(genericSeparatorIndex);
+                                            // fast comparison for clipping internal type suffixes only, e.g. `1
+                                            // if present, also include element namespace prefix
+                                            var typeNameIndex = value.IndexOf(':') + 1;
+                                            var prefix = value.Substring(0, typeNameIndex);
+                                            value = value.Substring(typeNameIndex);
+                                            var typeSuffix = type.Name.Substring(genericSeparatorIndex);
+                                            typeRef.BaseType = prefix + type.Namespace + "." + value + typeSuffix;
                                         }
 
                                         var typeName = codeProvider.GetTypeOutput(typeRef);
@@ -1205,20 +1210,20 @@ namespace Bonsai
 
                 if (writer.WriteState == WriteState.Attribute && xsiTypeAttribute)
                 {
+                    var name = Split(text, ':', out string typePrefix);
                     if (Fragment)
                     {
-                        var name = Split(text, ':', out string typePrefix);
                         if (fragmentPrefixMap.TryGetValue(typePrefix, out typePrefix))
                         {
                             text = typePrefix + ":" + name;
                         }
                     }
-                    else if (text == IncludeWorkflowTypeName)
+                    else if (name == IncludeWorkflowTypeName)
                     {
                         Fragment = true;
                     }
 
-                    var typeName = XmlConvert.DecodeName(text);
+                    var typeName = XmlConvert.DecodeName(name);
                     if (genericTypes.TryGetValue(typeName, out GenericTypeCode type))
                     {
                         text = EncodeGenericType(type);
