@@ -1777,17 +1777,7 @@ namespace Bonsai.Editor
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
             var arguments = GetToolboxArguments(searchTextBox);
             var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
-            try { model.Editor.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
-            catch (TargetInvocationException e)
-            {
-                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.InnerException.Message);
-                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
-            }
-            catch (SystemException e)
-            {
-                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.Message);
-                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
-            }
+            model.CreateGraphNode(typeNode.Text, typeNode.Name, elementCategory, predecessor, branch, group, arguments);
         }
 
         void UpdateDescriptionTextBox(string name, string description, RichTextBox descriptionTextBox)
