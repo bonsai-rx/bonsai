@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Linq;
 using OpenCV.Net;
@@ -114,10 +114,9 @@ namespace Bonsai.Vision
 
         static void MinMaxLoc(IplImage image, IplImage mask, out Scalar min, out Scalar max)
         {
-            Point minLoc, maxLoc;
             if (image.Channels == 1)
             {
-                CV.MinMaxLoc(image, out min.Val0, out max.Val0, out minLoc, out maxLoc, mask);
+                CV.MinMaxLoc(image, out min.Val0, out max.Val0, out _, out _, mask);
                 min.Val1 = max.Val1 = min.Val2 = max.Val2 = min.Val3 = max.Val3 = 0;
             }
             else
@@ -125,17 +124,17 @@ namespace Bonsai.Vision
                 using (var coi = image.GetSubRect(new Rect(0, 0, image.Width, image.Height)))
                 {
                     coi.ChannelOfInterest = 1;
-                    CV.MinMaxLoc(coi, out min.Val0, out max.Val0, out minLoc, out maxLoc, mask);
+                    CV.MinMaxLoc(coi, out min.Val0, out max.Val0, out _, out _, mask);
                     coi.ChannelOfInterest = 2;
-                    CV.MinMaxLoc(coi, out min.Val1, out max.Val1, out minLoc, out maxLoc, mask);
+                    CV.MinMaxLoc(coi, out min.Val1, out max.Val1, out _, out _, mask);
                     if (image.Channels > 2)
                     {
                         coi.ChannelOfInterest = 3;
-                        CV.MinMaxLoc(coi, out min.Val2, out max.Val2, out minLoc, out maxLoc, mask);
+                        CV.MinMaxLoc(coi, out min.Val2, out max.Val2, out _, out _, mask);
                         if (image.Channels > 3)
                         {
                             coi.ChannelOfInterest = 4;
-                            CV.MinMaxLoc(coi, out min.Val3, out max.Val3, out minLoc, out maxLoc, mask);
+                            CV.MinMaxLoc(coi, out min.Val3, out max.Val3, out _, out _, mask);
                         }
                         else min.Val3 = max.Val3 = 0;
                     }
