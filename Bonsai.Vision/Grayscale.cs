@@ -6,9 +6,22 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Converts a BGR color image to grayscale.")]
+    /// <summary>
+    /// Represents an operator that converts each BGR color image in the
+    /// sequence to grayscale.
+    /// </summary>
+    [Description("Converts each BGR color image in the sequence to grayscale.")]
     public class Grayscale : Transform<IplImage, IplImage>
     {
+        /// <summary>
+        /// Converts each BGR color image in an observable sequence to grayscale.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of color images in the blue-green-red (BGR) color space.
+        /// </param>
+        /// <returns>
+        /// A sequence of grayscale single-channel images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

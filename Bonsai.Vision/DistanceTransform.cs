@@ -6,18 +6,32 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Calculates the distance to the closest zero pixel for all non-zero pixels of the input image.")]
+    /// <summary>
+    /// Represents an operator that calculates the distance to the closest zero pixel
+    /// for all non-zero pixels of each image in the sequence.
+    /// </summary>
+    [Description("Calculates the distance to the closest zero pixel for all non-zero pixels of each image in the sequence.")]
     public class DistanceTransform : Transform<IplImage, IplImage>
     {
-        public DistanceTransform()
-        {
-            DistanceType = OpenCV.Net.DistanceType.L2;
-        }
-
+        /// <summary>
+        /// Gets or sets a value specifying the type of distance function to use.
+        /// </summary>
         [TypeConverter(typeof(DistanceTypeConverter))]
-        [Description("The type of distance function to use.")]
-        public DistanceType DistanceType { get; set; }
+        [Description("Specifies the type of distance function to use.")]
+        public DistanceType DistanceType { get; set; } = DistanceType.L2;
 
+        /// <summary>
+        /// Calculates the distance to the closest zero pixel for all non-zero pixels
+        /// of each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to compute the distance transform.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects where each pixel contains
+        /// the calculated distance from the original image element to the closest
+        /// zero pixel.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

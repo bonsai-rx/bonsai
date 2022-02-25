@@ -4,14 +4,40 @@ using System.Globalization;
 
 namespace Bonsai.Vision
 {
+    /// <summary>
+    /// Represents parameters that describe the camera intrinsic properties
+    /// such as the focal length or lens distortion.
+    /// </summary>
     public struct Intrinsics : IEquatable<Intrinsics>
     {
+        /// <summary>
+        /// The image size of the camera, in pixels.
+        /// </summary>
         public Size? ImageSize;
+
+        /// <summary>
+        /// The focal length of the camera.
+        /// </summary>
         public Point2d FocalLength;
+
+        /// <summary>
+        /// The principal point of the camera.
+        /// </summary>
         public Point2d PrincipalPoint;
+
+        /// <summary>
+        /// The radial distortion coefficients of the camera.
+        /// </summary>
         public Point3d RadialDistortion;
+
+        /// <summary>
+        /// The tangential distortion coefficients of the camera.
+        /// </summary>
         public Point2d TangentialDistortion;
 
+        /// <summary>
+        /// Gets the vertical field of view of the camera.
+        /// </summary>
         public double? FovY
         {
             get
@@ -25,13 +51,46 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Returns an <see cref="Intrinsics"/> structure representing the camera
+        /// intrinsic parameters extracted from a camera matrix, lens distortion
+        /// and optional image size.
+        /// </summary>
+        /// <param name="cameraMatrix">
+        /// A 2x3 matrix specifying the focal lengths and principal point offset.
+        /// </param>
+        /// <param name="distortionCoefficients">
+        /// A 1x5 or 5x1 vector specifying the coefficients for the lens distortion
+        /// model.
+        /// </param>
+        /// <param name="imageSize">The image size of the camera, in pixels.</param>
+        /// <returns>
+        /// An <see cref="Intrinsics"/> object representing the extracted camera
+        /// intrinsic parameters.
+        /// </returns>
         public static Intrinsics FromCameraMatrix(Mat cameraMatrix, Mat distortionCoefficients, Size? imageSize)
         {
-            Intrinsics intrinsics;
-            FromCameraMatrix(cameraMatrix, distortionCoefficients, imageSize, out intrinsics);
+            FromCameraMatrix(cameraMatrix, distortionCoefficients, imageSize, out Intrinsics intrinsics);
             return intrinsics;
         }
 
+        /// <summary>
+        /// Initializes an <see cref="Intrinsics"/> structure representing the camera
+        /// intrinsic parameters extracted from a camera matrix, lens distortion
+        /// and optional image size.
+        /// </summary>
+        /// <param name="cameraMatrix">
+        /// A 2x3 matrix specifying the focal lengths and principal point offset.
+        /// </param>
+        /// <param name="distortionCoefficients">
+        /// A 1x5 or 5x1 vector specifying the coefficients for the lens distortion
+        /// model.
+        /// </param>
+        /// <param name="imageSize">The image size of the camera, in pixels.</param>
+        /// <param name="intrinsics">
+        /// When this method returns, contains an <see cref="Intrinsics"/> object
+        /// representing the extracted camera intrinsic parameters.
+        /// </param>
         public static void FromCameraMatrix(Mat cameraMatrix, Mat distortionCoefficients, Size? imageSize, out Intrinsics intrinsics)
         {
             intrinsics.ImageSize = imageSize;
@@ -67,6 +126,18 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Returns a value indicating whether this instance is equal to the
+        /// specified <see cref="Intrinsics"/> structure.
+        /// </summary>
+        /// <param name="other">
+        /// The <see cref="Intrinsics"/> object to compare with this instance.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="other"/> represents
+        /// the same parameter values as this instance; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
         public bool Equals(Intrinsics other)
         {
             return ImageSize == other.ImageSize &&
@@ -76,16 +147,33 @@ namespace Bonsai.Vision
                    TangentialDistortion == other.TangentialDistortion;
         }
 
+        /// <summary>
+        /// Returns a value indicating whether the specified object is an <see cref="Intrinsics"/>
+        /// structure with the same parameter values as this <see cref="Intrinsics"/> structure.
+        /// </summary>
+        /// <param name="obj">The object to compare with this instance.</param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="obj"/> is an <see cref="Intrinsics"/>
+        /// structure and has the same parameter values as this structure; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is Intrinsics)
+            if (obj is Intrinsics intrinsics)
             {
-                return Equals((Intrinsics)obj);
+                return Equals(intrinsics);
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Returns a hash code for this <see cref="Intrinsics"/> structure.
+        /// </summary>
+        /// <returns>
+        /// An integer value that specifies a hash value for this
+        /// <see cref="Intrinsics"/> structure.
+        /// </returns>
         public override int GetHashCode()
         {
             return ImageSize.GetHashCode() ^
@@ -95,6 +183,14 @@ namespace Bonsai.Vision
                    TangentialDistortion.GetHashCode();
         }
 
+        /// <summary>
+        /// Creates a <see cref="string"/> representation of this
+        /// <see cref="Intrinsics"/> structure.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string"/> containing all the parameter values of this
+        /// <see cref="Intrinsics"/> structure.
+        /// </returns>
         public override string ToString()
         {
             return string.Format(
@@ -103,11 +199,42 @@ namespace Bonsai.Vision
                 ImageSize, FovY, FocalLength, PrincipalPoint, RadialDistortion, TangentialDistortion);
         }
 
+        /// <summary>
+        /// Indicates whether two <see cref="Intrinsics"/> structures are equal.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="Intrinsics"/> structure on the left-hand side of the
+        /// equality operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="Intrinsics"/> structure on the right-hand side of the
+        /// equality operator.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/>
+        /// have equal parameter values; otherwise, <see langword="false"/>.
+        /// </returns>
         public static bool operator ==(Intrinsics left, Intrinsics right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Indicates whether two <see cref="Intrinsics"/> structures are different.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="Intrinsics"/> structure on the left-hand side of the
+        /// inequality operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="Intrinsics"/> structure on the right-hand side of the
+        /// inequality operator.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/>
+        /// differ in any of their parameter values; <see langword="false"/> if
+        /// <paramref name="left"/> and <paramref name="right"/> are equal.
+        /// </returns>
         public static bool operator !=(Intrinsics left, Intrinsics right)
         {
             return !left.Equals(right);

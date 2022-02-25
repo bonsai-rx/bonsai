@@ -6,13 +6,30 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision.Drawing
 {
-    [Description("Crops the active drawing subregion of the input canvas.")]
+    /// <summary>
+    /// Represents an operator that crops the active drawing subregion of each
+    /// canvas in the sequence.
+    /// </summary>
+    [Description("Crops the active drawing subregion of each canvas in the sequence.")]
     public class CropCanvas : Transform<Canvas, Canvas>
     {
-        [Description("The region of interest inside the input canvas.")]
+        /// <summary>
+        /// Gets or sets a rectangle specifying the region of interest inside the canvas.
+        /// </summary>
+        [Description("Specifies the region of interest inside the canvas.")]
         [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
+        /// <summary>
+        /// Crops the active drawing subregion of each canvas in an observable
+        /// sequence.
+        /// </summary>
+        /// <param name="source">A sequence of canvas objects.</param>
+        /// <returns>
+        /// A sequence of <see cref="Canvas"/> objects where each new canvas
+        /// will use the specified subregion of the original image for all its
+        /// drawing operations.
+        /// </returns>
         public override IObservable<Canvas> Process(IObservable<Canvas> source)
         {
             return Observable.Create<Canvas>(observer =>

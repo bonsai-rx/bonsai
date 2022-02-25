@@ -6,9 +6,26 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Performs forward or inverse log-polar image transform. This transform \"emulates\" human foveal vision.")]
+    /// <summary>
+    /// Represents an operator that applies a forward or inverse log-polar transform
+    /// to each image in the sequence.
+    /// </summary>
+    /// <remarks>
+    /// The transform emulates human foveal image processing.
+    /// </remarks>
+    [Description("Applies a forward or inverse log-polar transform to each image in the sequence.")]
     public class LogPolar : PolarTransform
     {
+        /// <summary>
+        /// Applies a forward or inverse log-polar transform to each image in an
+        /// observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to apply the log-polar transform.
+        /// </param>
+        /// <returns>
+        /// The sequence of polar transformed images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

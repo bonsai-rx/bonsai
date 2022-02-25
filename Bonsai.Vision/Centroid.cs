@@ -7,11 +7,25 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes the centroid for a set of points, image moments, or binary contour shape.")]
+    /// <summary>
+    /// Represents an operator that computes the centroid of each set of points,
+    /// image moments, or polygonal contour in the sequence.
+    /// </summary>
+    [Description("Computes the centroid of each set of points, image moments, or polygonal contour in the sequence.")]
     public class Centroid : Transform<Point[], Point2f>
     {
         static readonly Point2f InvalidCentroid = new Point2f(float.NaN, float.NaN);
 
+        /// <summary>
+        /// Computes the centroid of each array of points in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="Point"/> arrays for which to compute the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each of
+        /// the array of points in the sequence.
+        /// </returns>
         public override IObservable<Point2f> Process(IObservable<Point[]> source)
         {
             return source.Select(input =>
@@ -28,6 +42,16 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Computes the centroid of each collection of points in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="Point"/> collections for which to compute the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each collection of
+        /// points in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<IEnumerable<Point>> source)
         {
             return source.Select(input =>
@@ -46,6 +70,16 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Computes the centroid of each array of points in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="Point2f"/> arrays for which to compute the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each of
+        /// the array of points in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Point2f[]> source)
         {
             return source.Select(input =>
@@ -62,6 +96,16 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Computes the centroid of each collection of points in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="Point2f"/> collections for which to compute the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each collection of
+        /// points in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<IEnumerable<Point2f>> source)
         {
             return source.Select(input =>
@@ -91,6 +135,17 @@ namespace Bonsai.Vision
             else return InvalidCentroid;
         }
 
+        /// <summary>
+        /// Computes the centroid of each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to compute the centroid, where each
+        /// pixel is weighed according to its intensity value.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each image
+        /// in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>
@@ -100,6 +155,16 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Computes the centroid of each polygonal contour in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="Contour"/> objects for which to compute the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each polygonal
+        /// contour in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Contour> source)
         {
             return source.Select(input =>
@@ -109,6 +174,17 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Extracts the centroid of each connected component in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="ConnectedComponent"/> objects for which to
+        /// extract the centroid.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Point2f"/> value representing the centroid of each connected
+        /// component in the sequence.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<ConnectedComponent> source)
         {
             return source.Select(input => input.Centroid);

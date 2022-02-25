@@ -2,8 +2,29 @@
 
 namespace Bonsai.Vision
 {
+    /// <summary>
+    /// Provides helper functions to create and manipulate the format of cached
+    /// image buffers.
+    /// </summary>
     public static class IplImageHelper
     {
+        /// <summary>
+        /// Ensures the cached image buffer is allocated and has the specified
+        /// size and format parameters.
+        /// </summary>
+        /// <param name="output">
+        /// The current cached image buffer. If the value is <see langword="null"/>,
+        /// or if the cached image parameters do not match the specified size
+        /// and format, a new image buffer will be allocated.
+        /// </param>
+        /// <param name="size">The pixel-accurate size of the image.</param>
+        /// <param name="depth">The bit depth format for each pixel in the image.</param>
+        /// <param name="channels">The number of channels in the image.</param>
+        /// <returns>
+        /// An <see cref="IplImage"/> object matching the specified size and
+        /// format parameters. If <paramref name="output"/> matches all the
+        /// parameters, the same reference is returned without modification.
+        /// </returns>
         public static IplImage EnsureImageFormat(IplImage output, Size size, IplDepth depth, int channels)
         {
             if (output == null || output.Size != size || output.Depth != depth || output.Channels != channels)
@@ -15,6 +36,24 @@ namespace Bonsai.Vision
             return output;
         }
 
+        /// <summary>
+        /// Copies the original image pixels into a cached image buffer, with optional
+        /// color conversion in the case where the original image is grayscale.
+        /// </summary>
+        /// <param name="output">
+        /// The current cached image buffer. If the value is <see langword="null"/>,
+        /// or if the cached image parameters do not match the size of the source image,
+        /// a new image buffer will be allocated.
+        /// </param>
+        /// <param name="image">
+        /// The image storing the original pixel values.
+        /// </param>
+        /// <returns>
+        /// An <see cref="IplImage"/> object matching the size and bit depth of
+        /// <paramref name="image"/> pixels, and where the number of channels is always
+        /// three. Pixel values from <paramref name="image"/> will be either copied
+        /// or converted from grayscale to BGR, depending on the number of channels.
+        /// </returns>
         public static IplImage EnsureColorCopy(IplImage output, IplImage image)
         {
             output = EnsureImageFormat(output, image.Size, image.Depth, 3);

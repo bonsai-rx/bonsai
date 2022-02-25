@@ -5,47 +5,72 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Vision.Drawing
 {
-    [Description("Draws a line chart by plotting each row of a matrix as a data series.")]
+    /// <summary>
+    /// Represents an operator that specifies drawing a line chart by plotting
+    /// each row of a matrix as a polyline element.
+    /// </summary>
+    [Description("Draws a line chart by plotting each row of a matrix as a polyline element.")]
     public class LineChart : CanvasElement
     {
+        const string SeriesCategory = "Series";
         static readonly Action<IplImage> EmptyRenderer = image => { };
 
-        public LineChart()
-        {
-            Thickness = 1;
-            Color = Scalar.All(255);
-            LineType = LineFlags.Connected8;
-        }
-
+        /// <summary>
+        /// Gets or sets the matrix specifying the data content of the line chart.
+        /// </summary>
         [XmlIgnore]
-        [Category("Series")]
+        [Category(SeriesCategory)]
         [Description("The matrix specifying the data content of the line chart.")]
         public Mat Data { get; set; }
 
-        [Category("Series")]
-        [Description("The minimum value of the data range.")]
+        /// <summary>
+        /// Gets or sets the lower bound of the data range.
+        /// </summary>
+        [Category(SeriesCategory)]
+        [Description("The lower bound of the data range.")]
         public double Min { get; set; }
 
-        [Category("Series")]
-        [Description("The maximum value of the data range.")]
+        /// <summary>
+        /// Gets or sets the upper bound of the data range.
+        /// </summary>
+        [Category(SeriesCategory)]
+        [Description("The upper bound of the data range.")]
         public double Max { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional region in which to draw the chart.
+        /// By default the chart will cover the entire image.
+        /// </summary>
         [Description("The optional region in which to draw the chart. By default the chart will cover the entire image.")]
         public Rect Destination { get; set; }
 
+        /// <summary>
+        /// Gets or sets the color of the chart lines.
+        /// </summary>
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
         [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color of the chart lines.")]
-        public Scalar Color { get; set; }
+        public Scalar Color { get; set; } = Scalar.All(255);
 
+        /// <summary>
+        /// Gets or sets the thickness of the chart lines.
+        /// </summary>
         [Description("The thickness of the chart lines.")]
-        public int Thickness { get; set; }
+        public int Thickness { get; set; } = 1;
 
-        [Description("The algorithm used to draw the chart lines.")]
-        public LineFlags LineType { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the line drawing algorithm used to
+        /// draw the chart lines.
+        /// </summary>
+        [Description("Specifies the line drawing algorithm used to draw the chart lines.")]
+        public LineFlags LineType { get; set; } = LineFlags.Connected8;
 
+        /// <summary>
+        /// Returns the line chart drawing operation.
+        /// </summary>
+        /// <inheritdoc/>
         protected override Action<IplImage> GetRenderer()
         {
             var data = Data;

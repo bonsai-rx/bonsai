@@ -6,9 +6,24 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Draws the set of connected components into the input image.")]
+    /// <summary>
+    /// Represents an operator that renders each set of connected components
+    /// in the sequence as an image.
+    /// </summary>
+    [Description("Renders each set of connected components in the sequence as an image.")]
     public class DrawConnectedComponents : Transform<ConnectedComponentCollection, IplImage>
     {
+        /// <summary>
+        /// Renders each set of connected components in an observable sequence
+        /// as a new image.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of <see cref="ConnectedComponentCollection"/> objects to draw.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing the result of
+        /// rendering each set of connected components as an image.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<ConnectedComponentCollection> source)
         {
             return source.Select(input =>

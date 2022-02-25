@@ -10,7 +10,7 @@ namespace Bonsai.Vision
             var kernelSize = (int)base.ConvertFrom(context, culture, value);
             if (kernelSize % 2 == 0)
             {
-                throw new ArgumentOutOfRangeException("value", "The size of the filter kernel must be an odd number.");
+                throw new ArgumentOutOfRangeException(nameof(value), "The size of the filter kernel must be an odd number.");
             }
 
             return kernelSize;

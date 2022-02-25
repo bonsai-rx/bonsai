@@ -5,24 +5,35 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Vision.Drawing
 {
-    [Description("Renders the specified image to the canvas.")]
+    /// <summary>
+    /// Represents an operator that specifies drawing the specified image to the canvas.
+    /// </summary>
+    [Description("Draws the specified image to the canvas.")]
     public class AddImage : CanvasElement
     {
-        public AddImage()
-        {
-            Interpolation = SubPixelInterpolation.Linear;
-        }
-
+        /// <summary>
+        /// Gets or sets the image to draw.
+        /// </summary>
         [XmlIgnore]
         [Description("The image to draw.")]
         public IplImage Image { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional region in which to draw the image.
+        /// </summary>
         [Description("The optional region in which to draw the image.")]
         public Rect Destination { get; set; }
 
-        [Description("The interpolation method used to resize the input image, if necessary.")]
-        public SubPixelInterpolation Interpolation { get; set; }
+        /// <summary>
+        /// Gets or sets the interpolation method used to resize the input image, if required.
+        /// </summary>
+        [Description("The interpolation method used to resize the input image, if required.")]
+        public SubPixelInterpolation Interpolation { get; set; } = SubPixelInterpolation.Linear;
 
+        /// <summary>
+        /// Returns the image drawing operation.
+        /// </summary>
+        /// <inheritdoc/>
         protected override Action<IplImage> GetRenderer()
         {
             var input = Image;

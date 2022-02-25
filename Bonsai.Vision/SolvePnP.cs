@@ -6,7 +6,11 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes the camera extrinsics from a set of 3D-2D point correspondences.")]
+    /// <summary>
+    /// Represents an operator that computes a sequence of camera extrinsics from
+    /// sets of 3D-2D point correspondences and the specified camera intrinsics.
+    /// </summary>
+    [Description("Computes a sequence of camera extrinsics from sets of 3D-2D point correspondences and the specified camera intrinsics.")]
     public class SolvePnP : IntrinsicsTransform
     {
         Extrinsics FindExtrinsics(
@@ -36,6 +40,21 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Computes an observable sequence of camera extrinsics from sets of 3D-2D
+        /// point correspondences and the specified camera intrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 3D-2D point correspondences used to compute the camera
+        /// extrinsics. For each 3D point in the first array, the corresponding 2D
+        /// point in the second array represents the matching projection of that 3D
+        /// point in the camera image.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Extrinsics"/> objects representing the camera
+        /// extrinsics, such as position and rotation, computed from each set of
+        /// 3D-2D point correspondences.
+        /// </returns>
         public IObservable<Extrinsics> Process(IObservable<Tuple<Point3d[], Point2d[]>> source)
         {
             return Observable.Defer(() =>
@@ -57,6 +76,22 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Computes an observable sequence of camera extrinsics from sets of 3D-2D
+        /// point correspondences, the specified camera intrinsics and an initial
+        /// estimate of the camera extrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of triplets containing the 3D-2D point correspondences and a
+        /// prior estimate used to compute the camera extrinsics. For each 3D point
+        /// in the first array, the corresponding 2D point in the second array
+        /// represents the matching projection of that 3D point in the camera image.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Extrinsics"/> objects representing the camera
+        /// extrinsics, such as position and rotation, computed from each set of
+        /// 3D-2D point correspondences and an initial estimate of the extrinsics.
+        /// </returns>
         public IObservable<Extrinsics> Process(IObservable<Tuple<Point3d[], Point2d[], Extrinsics>> source)
         {
             return Observable.Defer(() =>

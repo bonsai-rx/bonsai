@@ -6,10 +6,16 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("FileName")]
+    /// <summary>
+    /// Represents an operator that loads a set of camera extrinsics from a YML file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
     [Description("Loads a set of camera extrinsics from a YML file.")]
     public class LoadExtrinsics : Source<Extrinsics>
     {
+        /// <summary>
+        /// Gets or sets the name of the camera extrinsics file.
+        /// </summary>
         [Description("The name of the camera extrinsics file.")]
         [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
@@ -57,11 +63,36 @@ namespace Bonsai.Vision
             return extrinsics;
         }
 
+        /// <summary>
+        /// Generates an observable sequence that contains the camera extrinsics
+        /// loaded from the specified YML file.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="Extrinsics"/> object representing
+        /// the camera extrinsics loaded from the specified YML file.
+        /// </returns>
         public override IObservable<Extrinsics> Generate()
         {
             return Observable.Defer(() => Observable.Return(CreateExtrinsics()));
         }
 
+        /// <summary>
+        /// Generates an observable sequence of camera extrinsics loaded from the
+        /// specified YML file, and where each <see cref="Extrinsics"/> object
+        /// is loaded only when an observable sequence raises a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for loading new camera
+        /// extrinsics.
+        /// </param>
+        /// <returns>
+        /// The sequence of <see cref="Extrinsics"/> objects loaded from the specified
+        /// YML file. The most current file name is used to load the parameters after
+        /// each notification in the <paramref name="source"/> sequence.
+        /// </returns>
         public IObservable<Extrinsics> Generate<TSource>(IObservable<TSource> source)
         {
             return source.Select(x => CreateExtrinsics());

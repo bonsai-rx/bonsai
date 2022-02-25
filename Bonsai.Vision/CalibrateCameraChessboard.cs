@@ -6,25 +6,57 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
+    /// <summary>
+    /// Represents an operator that finds the camera intrinsic parameters from
+    /// several views of a chessboard calibration pattern.
+    /// </summary>
     [Description("Finds the camera intrinsic parameters from several views of a chessboard calibration pattern.")]
     public class CalibrateCameraChessboard : Transform<KeyPointCollection[], CameraCalibration>
     {
-        public CalibrateCameraChessboard()
-        {
-            CalibrationFlags = CameraCalibrationFlags.FixPrincipalPoint;
-        }
-
+        /// <summary>
+        /// Gets or sets the number of inner corners per chessboard row and column.
+        /// </summary>
         [Description("The number of inner corners per chessboard row and column.")]
         public Size PatternSize { get; set; }
 
-        [Description("The available operation flags for calibrating camera intrinsics.")]
-        public CameraCalibrationFlags CalibrationFlags { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the operation flags used for calibrating
+        /// camera intrinsics.
+        /// </summary>
+        [Description("Specifies the operation flags used for calibrating camera intrinsics.")]
+        public CameraCalibrationFlags CalibrationFlags { get; set; } = CameraCalibrationFlags.FixPrincipalPoint;
 
+        /// <summary>
+        /// Finds the camera intrinsic parameters from an observable sequence of
+        /// views of a chessboard calibration pattern.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of image features extracted from different views of a
+        /// chessboard calibration pattern.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="CameraCalibration"/> objects containing the camera
+        /// intrinsic parameters and current re-projection error after processing
+        /// each view of the chessboard pattern.
+        /// </returns>
         public IObservable<CameraCalibration> Process(IObservable<KeyPointCollection> source)
         {
             return Process(source.Select(input => new[] { input }));
         }
 
+        /// <summary>
+        /// Finds the camera intrinsic parameters from an observable sequence of
+        /// batches of views of a chessboard calibration pattern.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of image features extracted from different views of a
+        /// chessboard calibration pattern.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="CameraCalibration"/> objects containing the camera
+        /// intrinsic parameters and current re-projection error after processing
+        /// each batch of views of the chessboard pattern.
+        /// </returns>
         public override IObservable<CameraCalibration> Process(IObservable<KeyPointCollection[]> source)
         {
             return Observable.Defer(() =>

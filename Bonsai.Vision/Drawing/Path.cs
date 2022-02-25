@@ -6,34 +6,46 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Vision.Drawing
 {
+    /// <summary>
+    /// Represents an operator that specifies drawing a path from an array of vertices.
+    /// </summary>
     [Description("Draws a path from an array of vertices.")]
     public class Path : CanvasElement
     {
-        public Path()
-        {
-            Thickness = 1;
-            Color = Scalar.All(255);
-            LineType = LineFlags.Connected8;
-            Shift = 0;
-        }
-
+        /// <summary>
+        /// Gets or sets the array of vertices specifying the path.
+        /// NaN values will not be connected or drawn.
+        /// </summary>
         [XmlIgnore]
         [Description("The array of vertices specifying the path. NaN values will not be connected or drawn.")]
         public Point2f[] Points { get; set; }
 
+        /// <summary>
+        /// Gets or sets the color of the polylines connecting the path.
+        /// </summary>
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
         [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color of the polylines connecting the path.")]
-        public Scalar Color { get; set; }
+        public Scalar Color { get; set; } = Scalar.All(255);
 
+        /// <summary>
+        /// Gets or sets the thickness of the polyline edges.
+        /// </summary>
         [Description("The thickness of the polyline edges.")]
-        public int Thickness { get; set; }
+        public int Thickness { get; set; } = 1;
 
-        [Description("The algorithm used to draw the polylines.")]
-        public LineFlags LineType { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the line drawing algorithm used to
+        /// draw the polylines.
+        /// </summary>
+        [Description("Specifies the line drawing algorithm used to draw the polylines.")]
+        public LineFlags LineType { get; set; } = LineFlags.Connected8;
 
+        /// <summary>
+        /// Gets or sets the number of fractional bits in the vertex coordinates.
+        /// </summary>
         [Description("The number of fractional bits in the vertex coordinates.")]
         public int Shift { get; set; }
 
@@ -68,6 +80,10 @@ namespace Bonsai.Vision.Drawing
             return polyLine.ToArray();
         }
 
+        /// <summary>
+        /// Returns the path drawing operation.
+        /// </summary>
+        /// <inheritdoc/>
         protected override Action<IplImage> GetRenderer()
         {
             var color = Color;

@@ -6,6 +6,10 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
+    /// <summary>
+    /// Represents an operator that creates an affine transformation matrix specified
+    /// by a translation, rotation and scale.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Source)]
     [Description("Creates an affine transformation matrix specified by a translation, rotation and scale.")]
     public class AffineTransform : Combinator<Mat>
@@ -17,11 +21,17 @@ namespace Bonsai.Vision
         Point2f scale;
         event Action<Mat> PropertyChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AffineTransform"/> class.
+        /// </summary>
         public AffineTransform()
         {
             Scale = new Point2f(1, 1);
         }
 
+        /// <summary>
+        /// Gets or sets the pivot around which to scale or rotate the image.
+        /// </summary>
         [Description("The pivot around which to scale or rotate the image.")]
         public Point2f Pivot
         {
@@ -34,6 +44,9 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Gets or sets the translation vector to apply to the image.
+        /// </summary>
         [Description("The translation vector to apply to the image.")]
         public Point2f Translation
         {
@@ -46,6 +59,9 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Gets or sets the rotation angle around the pivot, in radians.
+        /// </summary>
         [Range(-Math.PI, Math.PI)]
         [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The rotation angle around the pivot, in radians.")]
@@ -60,6 +76,9 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Gets or sets the scale factor to apply to individual image dimensions.
+        /// </summary>
         [Description("The scale factor to apply to individual image dimensions.")]
         public Point2f Scale
         {
@@ -74,11 +93,7 @@ namespace Bonsai.Vision
 
         void OnPropertyChanged(Mat value)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            PropertyChanged?.Invoke(value);
         }
 
         static Mat CreateTransform(Point2f translation, double rotation, Point2f scale, Point2f pivot)
@@ -94,6 +109,14 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Generates an observable sequence that contains an affine transformation
+        /// matrix specified by a translation, rotation and scale.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single instance of the <see cref="Mat"/>
+        /// class representing an affine transformation matrix.
+        /// </returns>
         public IObservable<Mat> Process()
         {
             return Observable
@@ -103,6 +126,22 @@ namespace Bonsai.Vision
                     handler => PropertyChanged -= handler));
         }
 
+        /// <summary>
+        /// Generates an observable sequence of affine transformation matrices using
+        /// the specified translation, rotation and scale, and where each matrix is
+        /// emitted only when an observable sequence raises a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting new affine
+        /// transformation matrices.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects where each element
+        /// represents an affine transformation matrix.
+        /// </returns>
         public override IObservable<Mat> Process<TSource>(IObservable<TSource> source)
         {
             return source.Select(input => transform);

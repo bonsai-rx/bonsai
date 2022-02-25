@@ -6,20 +6,31 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Applies an independent scale to every color channel of the input image.")]
+    /// <summary>
+    /// Represents an operator that applies an independent scale to the color channels
+    /// of every image in the sequence.
+    /// </summary>
+    [Description("Applies an independent scale to the color channels of every image in the sequence.")]
     public class ColorBalance : Transform<IplImage, IplImage>
     {
-        public ColorBalance()
-        {
-            Scale = Scalar.All(1);
-        }
-
+        /// <summary>
+        /// Gets or sets the scale factor applied to every color channel of the image.
+        /// </summary>
         [Precision(2, .01)]
         [Range(0, int.MaxValue)]
         [TypeConverter(typeof(BgraScalarConverter))]
         [Description("The scale factor applied to every color channel of the input image.")]
-        public Scalar Scale { get; set; }
+        public Scalar Scale { get; set; } = Scalar.All(1);
 
+        /// <summary>
+        /// Applies an independent scale to the color channels of every image in an
+        /// observable sequence.
+        /// </summary>
+        /// <param name="source">A sequence of multi-channel images.</param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects where every channel has
+        /// been multiplied by the corresponding scale factor.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>

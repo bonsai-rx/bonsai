@@ -7,11 +7,18 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
-    [Description("Crops a non-rectangular region of interest bounded by a set of polygonal contours.")]
+    /// <summary>
+    /// Represents an operator that crops a polygonal region of interest for each
+    /// image in the sequence.
+    /// </summary>
+    [Description("Crops a polygonal region of interest for each image in the sequence.")]
     public class CropPolygon : Transform<IplImage, IplImage>
     {
-        bool cropOutput = true;
+        readonly bool cropOutput = true;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CropPolygon"/> class.
+        /// </summary>
         public CropPolygon()
             : this(true)
         {
@@ -23,15 +30,26 @@ namespace Bonsai.Vision
             MaskType = ThresholdTypes.ToZero;
         }
 
-        [Description("The polygonal contours bounding the region of interest.")]
+        /// <summary>
+        /// Gets or sets the array of vertices specifying each polygonal region of interest.
+        /// </summary>
+        [Description("The array of vertices specifying each polygonal region of interest.")]
         [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point[][] Regions { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the type of mask operation to apply
+        /// on the region of interest.
+        /// </summary>
         [TypeConverter(typeof(ThresholdTypeConverter))]
-        [Description("The type of mask operation to apply on the region of interest.")]
+        [Description("Specifies the type of mask operation to apply on the region of interest.")]
         public ThresholdTypes MaskType { get; set; }
 
-        [Description("The value to which all pixels that are not in the selected region will be set to.")]
+        /// <summary>
+        /// Gets or sets a <see cref="Scalar"/> specifying the value to which all
+        /// pixels that are not in the selected region will be set to.
+        /// </summary>
+        [Description("Specifies the value to which all pixels that are not in the selected region will be set to.")]
         public Scalar FillValue { get; set; }
 
         static Rect ClipRectangle(Rect rect, Size clipSize)
@@ -48,6 +66,18 @@ namespace Bonsai.Vision
             return rect;
         }
 
+        /// <summary>
+        /// Extracts a polygonal region of interest for each image in an observable
+        /// sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to extract the polygonal region of
+        /// interest.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects where each new image
+        /// contains the extracted subregion of the original image.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>

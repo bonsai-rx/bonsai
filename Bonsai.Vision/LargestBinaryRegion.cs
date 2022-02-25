@@ -6,9 +6,23 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Returns the largest binary region from the input collection of connected components.")]
+    /// <summary>
+    /// Represents an operator that finds the largest binary region from each
+    /// collection of connected components in the sequence.
+    /// </summary>
+    [Description("Finds the largest binary region from each collection of connected components in the sequence.")]
     public class LargestBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
+        /// <summary>
+        /// Finds the largest binary region from each collection of connected
+        /// components in an observable sequence.
+        /// </summary>
+        /// <param name="source">A sequence of <see cref="ConnectedComponentCollection"/> objects.</param>
+        /// <returns>
+        /// A <see cref="ConnectedComponent"/> representing the largest binary region
+        /// from each collection of connected components in the <paramref name="source"/>
+        /// sequence.
+        /// </returns>
         public override IObservable<ConnectedComponent> Process(IObservable<ConnectedComponentCollection> source)
         {
             return source.Select(input =>

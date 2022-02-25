@@ -8,21 +8,27 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Vision
 {
-    [Description("Applies an affine transformation to the input image.")]
+    /// <summary>
+    /// Represents an operator that applies an affine transformation to each image
+    /// in the sequence.
+    /// </summary>
+    [Description("Applies an affine transformation to each image in the sequence.")]
     public class WarpAffine : Transform<IplImage, IplImage>
     {
-        public WarpAffine()
-        {
-            Flags = WarpFlags.Linear;
-        }
-
+        /// <summary>
+        /// Gets or sets the 2x3 affine transformation matrix.
+        /// </summary>
         [XmlIgnore]
         [Description("The 2x3 affine transformation matrix.")]
         [TypeConverter("Bonsai.Dsp.MatConverter, Bonsai.Dsp")]
         public Mat Transform { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the affine transformation matrix
+        /// for serialization.
+        /// </summary>
         [Browsable(false)]
-        [XmlElement("Transform")]
+        [XmlElement(nameof(Transform))]
         public string TransformXml
         {
             get
@@ -45,12 +51,28 @@ namespace Bonsai.Vision
             }
         }
 
-        [Description("Specifies interpolation and operation flags for the image warp.")]
-        public WarpFlags Flags { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the interpolation and operation flags
+        /// for the image warp.
+        /// </summary>
+        [Description("Specifies the interpolation and operation flags for the image warp.")]
+        public WarpFlags Flags { get; set; } = WarpFlags.Linear;
 
+        /// <summary>
+        /// Gets or sets the value to which all outlier pixels will be set to.
+        /// </summary>
         [Description("The value to which all outlier pixels will be set to.")]
         public Scalar FillValue { get; set; }
 
+        /// <summary>
+        /// Applies an affine transformation to each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to warp.
+        /// </param>
+        /// <returns>
+        /// The sequence of warped images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

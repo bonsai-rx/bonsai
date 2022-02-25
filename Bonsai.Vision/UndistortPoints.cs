@@ -6,14 +6,42 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Undistorts the observed point coordinates using the specified intrinsic camera matrix.")]
+    /// <summary>
+    /// Represents an operator that undistorts each point coordinate in the sequence
+    /// using the specified camera intrinsics.
+    /// </summary>
+    [Description("Undistorts each point coordinate in the sequence using the specified camera intrinsics.")]
     public class UndistortPoints : IntrinsicsTransform
     {
+        /// <summary>
+        /// Undistorts each point coordinate in an observable sequence using the
+        /// specified camera intrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of points to undistort using the camera intrinsics.
+        /// </param>
+        /// <returns>
+        /// A sequence of points where each value represents the point corresponding
+        /// to the original sequence, if it were projected in the undistorted image
+        /// obtained by the specified camera intrinsics.
+        /// </returns>
         public IObservable<Point2f> Process(IObservable<Point2f> source)
         {
             return Process(source.Select(x => new[] { x })).Select(xs => xs[0]);
         }
 
+        /// <summary>
+        /// Undistorts each array of points in an observable sequence using the
+        /// specified camera intrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of arrays of points to undistort using the camera intrinsics.
+        /// </param>
+        /// <returns>
+        /// A sequence of arrays of points where each value represents the point
+        /// corresponding in the original array, if it were projected in the
+        /// undistorted image obtained by the specified camera intrinsics.
+        /// </returns>
         public IObservable<Point2f[]> Process(IObservable<Point2f[]> source)
         {
             return Observable.Defer(() =>
@@ -39,6 +67,20 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Undistorts each matrix of points in an observable sequence using the
+        /// specified camera intrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> values representing a row or column
+        /// vector of points to undistort using the camera intrinsics.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Mat"/> objects where each value represents a
+        /// row or column vector of points which correspond to the original matrix,
+        /// if each point was projected in the undistorted image obtained by the
+        /// specified camera intrinsics.
+        /// </returns>
         public IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>

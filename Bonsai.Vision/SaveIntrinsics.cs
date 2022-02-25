@@ -6,23 +6,57 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("FileName")]
-    [Description("Saves a set of camera intrinsics to a YML file.")]
+    /// <summary>
+    /// Represents an operator that writes a sequence of camera intrinsics to a YML file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
+    [Description("Writes a sequence of camera intrinsics to a YML file.")]
     public class SaveIntrinsics : Sink<Intrinsics>
     {
+        /// <summary>
+        /// Gets or sets the name of the file on which to write the camera intrinsics.
+        /// </summary>
         [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The name of the output camera intrinsics file.")]
+        [Description("The name of the file on which to write the camera intrinsics.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional suffix used to generate file names.
+        /// </summary>
         [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
+        /// <summary>
+        /// Writes an observable sequence of camera intrinsic properties to the
+        /// specified YML file.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of camera intrinsic properties to write.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of writing the
+        /// camera intrinsics to the specified YML file.
+        /// </returns>
         public override IObservable<Intrinsics> Process(IObservable<Intrinsics> source)
         {
             return source.Do(WriteIntrinsics);
         }
 
+        /// <summary>
+        /// Writes an observable sequence of camera intrinsic properties extracted from
+        /// a camera calibration procedure to the specified YML file.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="CameraCalibration"/> objects containing the camera
+        /// intrinsic properties to write.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of writing the
+        /// calibrated camera intrinsics to the specified YML file.
+        /// </returns>
         public IObservable<CameraCalibration> Process(IObservable<CameraCalibration> source)
         {
             return source.Do(calibration => WriteIntrinsics(calibration.Intrinsics, calibration.ReprojectionError));

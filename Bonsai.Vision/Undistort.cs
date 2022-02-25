@@ -6,9 +6,23 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Undistorts the input image using the specified intrinsic camera matrix.")]
+    /// <summary>
+    /// Represents an operator that undistorts each image in the sequence using
+    /// the specified camera intrinsics.
+    /// </summary>
+    [Description("Undistorts each image in the sequence using the specified camera intrinsics.")]
     public class Undistort : IntrinsicsTransform
     {
+        /// <summary>
+        /// Undistorts each image in an observable sequence using the specified
+        /// camera intrinsics.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to undistort.
+        /// </param>
+        /// <returns>
+        /// The sequence of undistorted images.
+        /// </returns>
         public IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>

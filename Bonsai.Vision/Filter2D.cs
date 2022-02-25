@@ -9,24 +9,32 @@ using System.Globalization;
 
 namespace Bonsai.Vision
 {
-    [Description("Convolves an image with the specified kernel.")]
+    /// <summary>
+    /// Represents an operator that convolves each image in the sequence with
+    /// the specified kernel.
+    /// </summary>
+    [Description("Convolves each image in the sequence with the specified kernel.")]
     public class Filter2D : Transform<IplImage, IplImage>
     {
-        public Filter2D()
-        {
-            Anchor = new Point(-1, -1);
-        }
-
+        /// <summary>
+        /// Gets or sets the anchor of the kernel that indicates the relative position of filtered points.
+        /// </summary>
         [Description("The anchor of the kernel that indicates the relative position of filtered points.")]
-        public Point Anchor { get; set; }
+        public Point Anchor { get; set; } = new Point(-1, -1);
 
+        /// <summary>
+        /// Gets or sets a 2D array specifying the image convolution kernel.
+        /// </summary>
         [XmlIgnore]
-        [Description("The image convolution kernel.")]
+        [Description("A 2D array specifying the image convolution kernel.")]
         [TypeConverter(typeof(MultidimensionalArrayConverter))]
         public float[,] Kernel { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the image convolution kernel.
+        /// </summary>
         [Browsable(false)]
-        [XmlElement("Kernel")]
+        [XmlElement(nameof(Kernel))]
         public string KernelXml
         {
             get { return ArrayConvert.ToString(Kernel, CultureInfo.InvariantCulture); }
@@ -40,6 +48,16 @@ namespace Bonsai.Vision
             return output;
         }
 
+        /// <summary>
+        /// Convolves each image in an observable sequence with the specified kernel.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to convolve with the specified kernel.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing the result
+        /// of filtering each image with the specified convolution kernel.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>
@@ -74,11 +92,35 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Convolves each image in an observable sequence with its paired convolution
+        /// kernel.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs containing the image and the convolution kernel,
+        /// respectively, where the kernel is specified as a <see cref="Mat"/> object.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing the result
+        /// of filtering each image with the corresponding convolution kernel.
+        /// </returns>
         public IObservable<IplImage> Process(IObservable<Tuple<IplImage, Mat>> source)
         {
             return source.Select(input => Filter(input.Item1, input.Item2));
         }
 
+        /// <summary>
+        /// Convolves each image in an observable sequence with its paired convolution
+        /// kernel.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs containing the image and the convolution kernel,
+        /// respectively, where the kernel is specified as an <see cref="IplImage"/> object.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing the result
+        /// of filtering each image with the corresponding convolution kernel.
+        /// </returns>
         public IObservable<IplImage> Process(IObservable<Tuple<IplImage, IplImage>> source)
         {
             return source.Select(input => Filter(input.Item1, input.Item2.GetMat()));

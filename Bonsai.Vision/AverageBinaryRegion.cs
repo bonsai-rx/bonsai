@@ -6,9 +6,23 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes the average binary region from the input collection of connected components.")]
+    /// <summary>
+    /// Represents an operator that computes the average binary region from
+    /// each collection of connected components in the sequence.
+    /// </summary>
+    [Description("Computes the average binary region from each collection of connected components in the sequence.")]
     public class AverageBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
+        /// <summary>
+        /// Computes the average binary region from each collection of connected
+        /// components in an observable sequence.
+        /// </summary>
+        /// <param name="source">A sequence of <see cref="ConnectedComponentCollection"/> objects.</param>
+        /// <returns>
+        /// A <see cref="ConnectedComponent"/> representing the average binary region
+        /// from each collection of connected components in the <paramref name="source"/>
+        /// sequence.
+        /// </returns>
         public override IObservable<ConnectedComponent> Process(IObservable<ConnectedComponentCollection> source)
         {
             return source.Select(input =>
@@ -29,8 +43,8 @@ namespace Bonsai.Vision
 
                 if (input.Count > 0)
                 {
-                    centroid.X = centroid.X / input.Count;
-                    centroid.Y = centroid.Y / input.Count;
+                    centroid.X /= input.Count;
+                    centroid.Y /= input.Count;
                     result.Centroid = centroid;
                     result.Orientation = angle / input.Count;
                     result.Area = area;

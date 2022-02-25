@@ -6,33 +6,51 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Performs image segmentation using an online estimation of the background.")]
+    /// <summary>
+    /// Represents an operator that performs image segmentation of every frame in
+    /// the sequence using an online estimation of the background.
+    /// </summary>
+    [Description("Performs image segmentation of every frame in the sequence using an online estimation of the background.")]
     public class BackgroundSubtraction : Transform<IplImage, IplImage>
     {
-        public BackgroundSubtraction()
-        {
-            BackgroundFrames = 1;
-        }
-
+        /// <summary>
+        /// Gets or sets the number of frames to use for initial background estimation.
+        /// </summary>
         [Description("The number of frames to use for initial background estimation.")]
-        public int BackgroundFrames { get; set; }
+        public int BackgroundFrames { get; set; } = 1;
 
+        /// <summary>
+        /// Gets or sets a value determining how fast the online estimation of the
+        /// background is adapted.
+        /// </summary>
         [Range(0, 1)]
         [Precision(2, .01)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("Determines how fast the online estimation of the background is adapted.")]
         public double AdaptationRate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the threshold value used to test whether individual pixels
+        /// are foreground or background.
+        /// </summary>
         [Range(0, 255)]
         [Precision(0, 1)]
         [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The threshold value used to test whether individual pixels are foreground or background.")]
         public double ThresholdValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the type of threshold to apply to
+        /// individual pixels.
+        /// </summary>
         [TypeConverter(typeof(ThresholdTypeConverter))]
-        [Description("The type of threshold to apply to individual pixels.")]
+        [Description("Specifies the type of threshold to apply to individual pixels.")]
         public ThresholdTypes ThresholdType { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the subtraction method used to isolate
+        /// foreground pixels.
+        /// </summary>
         [Description("Specifies the subtraction method used to isolate foreground pixels.")]
         public SubtractionMethod SubtractionMethod { get; set; }
 
@@ -43,7 +61,7 @@ namespace Bonsai.Vision
             {
             }
 
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
             {
                 return new StandardValuesCollection(
                     base.GetStandardValues(context)
@@ -53,6 +71,17 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Performs image segmentation of every frame in an observable sequence
+        /// using an online estimation of the background.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of frames on which to perform image segmentation.
+        /// </param>
+        /// <returns>
+        /// The sequence of images which have been segmented into foreground and
+        /// background pixels.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>
@@ -114,10 +143,30 @@ namespace Bonsai.Vision
         }
     }
 
+    /// <summary>
+    /// Specifies the subtraction method used to isolate foreground pixels.
+    /// </summary>
     public enum SubtractionMethod
     {
+        /// <summary>
+        /// Take the absolute difference between the online estimation of the background
+        /// and the current frame so that any pixels which are different from the
+        /// the background can be considered foreground.
+        /// </summary>
         Absolute,
+
+        /// <summary>
+        /// Subtract the online estimation of the background from the current image so
+        /// that only pixels which are brighter than the background can be classified
+        /// as foreground.
+        /// </summary>
         Bright,
+
+        /// <summary>
+        /// Subtract the current image from the online estimation of the background so
+        /// that only pixels which are darker than the background can be classified
+        /// as foreground.
+        /// </summary>
         Dark
     }
 }

@@ -6,11 +6,19 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes the extremities of individual connected components.")]
+    /// <summary>
+    /// Represents an operator that computes the extremities, or endpoints, of each
+    /// connected component in the sequence.
+    /// </summary>
+    [Description("Computes the extremities, or endpoints, of each connected component in the sequence.")]
     [TypeVisualizer("Bonsai.Vision.Design.BinaryRegionExtremesVisualizer, Bonsai.Vision.Design")]
     public class BinaryRegionExtremes : Transform<ConnectedComponent, Tuple<Point2f, Point2f>>
     {
-        [Description("The method used to compute the extremities of each connected component.")]
+        /// <summary>
+        /// Gets or sets a value specifying the method used to compute the extremities
+        /// of each connected component.
+        /// </summary>
+        [Description("Specifies the method used to compute the extremities of each connected component.")]
         public FindExtremesMethod Method { get; set; }
 
         static double Norm(Point2f vector)
@@ -41,6 +49,18 @@ namespace Bonsai.Vision
             return extremePoint;
         }
 
+        /// <summary>
+        /// Computes the extremities, or endpoints, of each connected component in
+        /// an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of connected components for which to compute the extremities.
+        /// </param>
+        /// <returns>
+        /// A pair of vertices specifying the two extremities, or endpoints, of each
+        /// connected component in the sequence. If the connected component has no
+        /// vertices, the endpoint coordinates will be set to <see cref="float.NaN"/>.
+        /// </returns>
         public override IObservable<Tuple<Point2f, Point2f>> Process(IObservable<ConnectedComponent> source)
         {
             return source.Select(input =>
@@ -98,12 +118,43 @@ namespace Bonsai.Vision
         }
     }
 
+    /// <summary>
+    /// Specifies the method used to compute extremities of connected components.
+    /// </summary>
     public enum FindExtremesMethod
     {
+        /// <summary>
+        /// The first extremity will be the vertex furthest to the right, and the
+        /// second extremity the vertex furthest to the left, in image coordinates. 
+        /// </summary>
         Horizontal,
+
+        /// <summary>
+        /// The first extremity will be the vertex nearest to the bottom of the image,
+        /// and the second extremity the vertex nearest to the top of the image. 
+        /// </summary>
         Vertical,
+
+        /// <summary>
+        /// The first extremity will be the vertex furthest along the major axis of the
+        /// ellipse fit to the connected component, moving clockwise, and the second
+        /// extremity will be the vertex furthest along the major axis of the ellipse,
+        /// moving anti-clockwise.
+        /// </summary>
         MajorAxis,
+
+        /// <summary>
+        /// The first extremity will be the first clockwise vertex of the ellipse fit
+        /// to the connected component and the second extremity the first anti-clockwise
+        /// vertex of the ellipse.
+        /// </summary>
         MajorAxisVertex,
+
+        /// <summary>
+        /// The first extremity will be the vertex furthest away from the centroid of
+        /// the connected component, and the second extremity will be the vertex
+        /// furthest away from the first extremity.
+        /// </summary>
         Radial
     }
 }

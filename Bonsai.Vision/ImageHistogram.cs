@@ -6,7 +6,11 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes the color histogram for each channel of the input image.")]
+    /// <summary>
+    /// Represents an operator that computes the per-channel color histograms
+    /// for each image in the sequence.
+    /// </summary>
+    [Description("Computes the per-channel color histograms for each image in the sequence.")]
     public class ImageHistogram : Transform<IplImage, ScalarHistogram>
     {
         static Histogram ComputeChannelHistogram(IplImage channel)
@@ -18,6 +22,18 @@ namespace Bonsai.Vision
             return histogram;
         }
 
+        /// <summary>
+        /// Computes the per-channel color histograms for each image in an
+        /// observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to compute the per-channel color
+        /// histograms.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="ScalarHistogram"/> objects representing
+        /// the per-channel color histograms for each image.
+        /// </returns>
         public override IObservable<ScalarHistogram> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

@@ -1,9 +1,17 @@
-using OpenCV.Net;
+﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 
 namespace Bonsai.Vision.Drawing
 {
+    /// <summary>
+    /// Provides support for lazy initialization and rendering of dynamic bitmaps.
+    /// </summary>
+    /// <remarks>
+    /// Each canvas stores a generator function, used to allocate the bitmap memory,
+    /// and an immutable sequence of drawing operations to be applied to the bitmap
+    /// in order to produce the final image.
+    /// </remarks>
     public class Canvas
     {
         readonly Func<IplImage> generator;
@@ -26,6 +34,15 @@ namespace Bonsai.Vision.Drawing
             drawing = SubCanvas.MergeCommands(source.drawing, other.drawing);
         }
 
+        /// <summary>
+        /// Allocates the bitmap memory and applies the sequence of operations
+        /// to create a new drawing.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IplImage"/> object representing the result of the
+        /// cumulative application of all the drawing operations to the canvas
+        /// bitmap.
+        /// </returns>
         public IplImage Draw()
         {
             var image = generator();
@@ -44,11 +61,42 @@ namespace Bonsai.Vision.Drawing
             return image;
         }
 
+        /// <summary>
+        /// Concatenates the drawing operations of two specified canvas.
+        /// </summary>
+        /// <param name="left">The first canvas to concatenate.</param>
+        /// <param name="right">The second canvas to concatenate.</param>
+        /// <returns>
+        /// A new <see cref="Canvas"/> object representing the application
+        /// of the operations of the <paramref name="left"/> canvas,
+        /// followed by the operations of the <paramref name="right"/> canvas.
+        /// </returns>
         public static Canvas operator +(Canvas left, Canvas right)
         {
             return Merge(left, right);
         }
 
+        /// <summary>
+        /// Combines the drawing operations of two specified canvas.
+        /// </summary>
+        /// <param name="source">The first canvas object to merge.</param>
+        /// <param name="other">
+        /// The second canvas object to merge. The bitmap allocators for both
+        /// canvas objects must be identical for drawing operations to be
+        /// composable.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="Canvas"/> object representing the application
+        /// of the operations of the <paramref name="source"/> canvas,
+        /// followed by the operations of the <paramref name="other"/> canvas.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="source"/> or <paramref name="other"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The bitmap allocator of the <paramref name="other"/> canvas is not
+        /// the same as the allocator for the <paramref name="source"/> canvas.
+        /// </exception>
         public static Canvas Merge(Canvas source, Canvas other)
         {
             if (source == null)

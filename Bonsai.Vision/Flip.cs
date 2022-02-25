@@ -6,12 +6,25 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Flips the input image around vertical, horizontal or both axes.")]
+    /// <summary>
+    /// Represents an operator that flips each image in the sequence around the
+    /// vertical, horizontal or both axes.
+    /// </summary>
+    [Description("Flips each image in the sequence around the vertical, horizontal or both axes.")]
     public class Flip : Transform<IplImage, IplImage>
     {
+        /// <summary>
+        /// Gets or sets a value specifying how to flip the image.
+        /// </summary>
         [Description("Specifies how to flip the image.")]
         public FlipMode Mode { get; set; }
 
+        /// <summary>
+        /// Flips each image in an observable sequence around the vertical, horizontal
+        /// or both axes.
+        /// </summary>
+        /// <param name="source">The sequence of images to flip.</param>
+        /// <returns>The sequence of flipped images.</returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

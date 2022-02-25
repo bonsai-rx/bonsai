@@ -6,29 +6,44 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [Description("Finds the sub-pixel accurate location of corners or radial saddle points.")]
+    /// <summary>
+    /// Represents an operator that finds the sub-pixel accurate locations of
+    /// each corner or radial saddle point in the sequence.
+    /// </summary>
+    [Description("Finds the sub-pixel accurate locations of each corner or radial saddle point in the sequence.")]
     public class FindCornerSubPix : Transform<KeyPointCollection, KeyPointCollection>
     {
-        public FindCornerSubPix()
-        {
-            WindowSize = new Size(15, 15);
-            ZeroZone = new Size(-1, -1);
-            MaxIterations = 20;
-            Epsilon = 0.01;
-        }
+        /// <summary>
+        /// Gets or sets the half-length of the side of the corner search window.
+        /// </summary>
+        [Description("The half-length of the side of the corner search window.")]
+        public Size WindowSize { get; set; } = new Size(15, 15);
 
-        [Description("Half of the side length of the corner search window.")]
-        public Size WindowSize { get; set; }
+        /// <summary>
+        /// Gets or sets the half-length of the side of the middle search window
+        /// that will be ignored during refinement.
+        /// </summary>
+        [Description("The half-length of the side of the middle search window that will be ignored during refinement.")]
+        public Size ZeroZone { get; set; } = new Size(-1, -1);
 
-        [Description("Half of the side length of the middle search window that will be ignored during refinement.")]
-        public Size ZeroZone { get; set; }
-
+        /// <summary>
+        /// Gets or sets the maximum number of iterations.
+        /// </summary>
         [Description("The maximum number of iterations.")]
-        public int MaxIterations { get; set; }
+        public int MaxIterations { get; set; } = 20;
 
+        /// <summary>
+        /// Gets or sets the minimum required accuracy for convergence.
+        /// </summary>
         [Description("The minimum required accuracy for convergence.")]
-        public double Epsilon { get; set; }
+        public double Epsilon { get; set; } = 0.01;
 
+        /// <summary>
+        /// Finds the sub-pixel accurate locations of each corner or radial saddle
+        /// point in an observable sequence.
+        /// </summary>
+        /// <param name="source">The sequence of corner positions to refine.</param>
+        /// <returns>The sequence of refined corner positions.</returns>
         public override IObservable<KeyPointCollection> Process(IObservable<KeyPointCollection> source)
         {
             return source.Select(input =>

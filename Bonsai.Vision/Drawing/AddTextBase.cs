@@ -9,8 +9,14 @@ using Font = System.Drawing.Font;
 
 namespace Bonsai.Vision.Drawing
 {
+    /// <summary>
+    /// Provides an abstract base class for operators that specify drawing text strokes
+    /// with a specified font and color.
+    /// </summary>
     public abstract class AddTextBase : CanvasElement
     {
+        private const string TextStyleCategory = "Text Style";
+
         internal AddTextBase()
         {
             TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
@@ -18,26 +24,44 @@ namespace Bonsai.Vision.Drawing
             Color = Scalar.All(255);
         }
 
+        /// <summary>
+        /// Gets or sets the text to draw.
+        /// </summary>
         [Description("The text to draw.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Text { get; set; }
 
+        /// <summary>
+        /// Gets or sets the font style used to render the text strokes.
+        /// </summary>
         [XmlIgnore]
         [Description("The font style used to render the text strokes.")]
         public Font Font { get; set; }
 
-        [Category("Text Style")]
+        /// <summary>
+        /// Gets or sets the horizontal alignment of the text.
+        /// </summary>
+        [Category(TextStyleCategory)]
         [Description("The horizontal alignment of the text.")]
         public StringAlignment Alignment { get; set; }
 
-        [Category("Text Style")]
+        /// <summary>
+        /// Gets or sets the vertical alignment of the text.
+        /// </summary>
+        [Category(TextStyleCategory)]
         [Description("The vertical alignment of the text.")]
         public StringAlignment LineAlignment { get; set; }
 
-        [Category("Text Style")]
+        /// <summary>
+        /// Gets or sets the rendering mode used for the text strokes.
+        /// </summary>
+        [Category(TextStyleCategory)]
         [Description("The rendering mode used for the text strokes.")]
         public TextRenderingHint TextRenderingHint { get; set; }
 
+        /// <summary>
+        /// Gets or sets the color of the text.
+        /// </summary>
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
@@ -45,8 +69,11 @@ namespace Bonsai.Vision.Drawing
         [Description("The color of the text.")]
         public Scalar Color { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the font for serialization.
+        /// </summary>
         [Browsable(false)]
-        [XmlElement("Font")]
+        [XmlElement(nameof(Font))]
         public string FontXml
         {
             get

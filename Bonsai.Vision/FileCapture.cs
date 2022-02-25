@@ -9,48 +9,79 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("FileName")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of images from the
+    /// specified movie file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
     [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
-    [Description("Produces a sequence of images from the specified movie file.")]
+    [Description("Generates a sequence of images from the specified movie file.")]
     public class FileCapture : Source<IplImage>
     {
         int? targetPosition;
         Capture captureCache;
         double captureFps;
 
-        public FileCapture()
-        {
-            Playing = true;
-            PositionUnits = CapturePosition.Frames;
-        }
-
+        /// <summary>
+        /// Gets the last active video capture stream. This property is reserved
+        /// to be used only by the file capture visualizer.
+        /// </summary>
         [Browsable(false)]
         public Capture Capture
         {
             get { return captureCache; }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the movie file.
+        /// </summary>
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the movie file.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the rate at which to read images from the file. A value
+        /// of zero means the recorded video frame rate will be used.
+        /// </summary>
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        [Description("The rate at which to read images from the file. A value of 0 means the native video frame rate will be used.")]
+        [Description("The rate at which to read images from the file. A value of zero means the recorded video frame rate will be used.")]
         public double PlaybackRate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the position at which to start playback of the file.
+        /// </summary>
         [Description("The position at which to start playback of the file.")]
         public double StartPosition { get; set; }
 
-        [Description("The units in which the start position is specified.")]
-        public CapturePosition PositionUnits { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the units of the start position.
+        /// </summary>
+        [Description("Specifies the units of the start position.")]
+        public CapturePosition PositionUnits { get; set; } = CapturePosition.Frames;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the video sequence should
+        /// loop when the end of the file is reached.
+        /// </summary>
         [Description("Indicates whether the video sequence should loop when the end of the file is reached.")]
         public bool Loop { get; set; }
 
-        [Description("Allows the video sequence to be paused or resumed.")]
-        public bool Playing { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying whether the video sequence is playing.
+        /// If the video is paused, the current frame will be repeated at the specified
+        /// playback rate.
+        /// </summary>
+        [Description("Specifies whether the video sequence is playing. If the video is paused, the current frame will be repeated at the specified playback rate.")]
+        public bool Playing { get; set; } = true;
 
+        /// <summary>
+        /// Moves the current video player to the specified frame. This method
+        /// is reserved to be called by the file capture visualizer.
+        /// </summary>
+        /// <param name="frameNumber">
+        /// The zero-based index of the frame the player should move to.
+        /// </param>
         public void Seek(int frameNumber)
         {
             targetPosition = frameNumber;
@@ -80,8 +111,7 @@ namespace Bonsai.Vision
 
             var image = default(IplImage);
             var capture = Capture.CreateFileCapture(fileName);
-            if (capture == null) throw new InvalidOperationException("Failed to open the video at the specified path.");
-            captureCache = capture;
+            captureCache = capture ?? throw new InvalidOperationException("Failed to open the video at the specified path.");
 
             try
             {
@@ -169,6 +199,13 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Generates an observable sequence of images from the specified movie file.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing each of
+        /// the frames in the specified movie file.
+        /// </returns>
         public override IObservable<IplImage> Generate()
         {
             return Observable.Create<IplImage>((observer, cancellationToken) =>
@@ -203,16 +240,46 @@ namespace Bonsai.Vision
             });
         }
 
+        /// <summary>
+        /// Generates a sequence of images from the specified movie file, where each
+        /// new image is emitted only when an observable sequence raises a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for reading new images from the
+        /// movie file.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing each of
+        /// the frames in the specified movie file.
+        /// </returns>
         public IObservable<IplImage> Generate<TSource>(IObservable<TSource> source)
         {
             return source.Zip(CreateCapture(), (x, image) => image);
         }
     }
 
+    /// <summary>
+    /// Specifies the units of the file capture start position.
+    /// </summary>
     public enum CapturePosition
     {
+        /// <summary>
+        /// A value in milliseconds representing time from the start of the video.
+        /// </summary>
         Milliseconds,
+
+        /// <summary>
+        /// The zero-based index of a video frame.
+        /// </summary>
         Frames,
+
+        /// <summary>
+        /// A relative position in the file, where zero is the start of the
+        /// video and one is the end of the video.
+        /// </summary>
         AviRatio
     }
 }

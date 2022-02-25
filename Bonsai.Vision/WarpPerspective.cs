@@ -6,26 +6,40 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("Source")]
-    [Description("Applies a perspective transformation to the input image.")]
+    /// <summary>
+    /// Represents an operator that applies a perspective transformation to each
+    /// image in the sequence.
+    /// </summary>
+    [DefaultProperty(nameof(Source))]
+    [Description("Applies a perspective transformation to each image in the sequence.")]
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
-        public WarpPerspective()
-        {
-            Flags = WarpFlags.Linear;
-        }
-
-        [Description("Coordinates of the four source quadrangle vertices in the input image.")]
+        /// <summary>
+        /// Gets or sets the coordinates of the four source quadrangle vertices
+        /// in the input image.
+        /// </summary>
+        [Description("The coordinates of the four source quadrangle vertices in the input image.")]
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Source { get; set; }
 
-        [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
+        /// <summary>
+        /// Gets or sets the coordinates of the four corresponding quadrangle
+        /// vertices in the output image.
+        /// </summary>
+        [Description("The coordinates of the four corresponding quadrangle vertices in the output image.")]
         [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Destination { get; set; }
 
-        [Description("Specifies interpolation and operation flags for the image warp.")]
-        public WarpFlags Flags { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the interpolation and operation flags
+        /// for the image warp.
+        /// </summary>
+        [Description("Specifies the interpolation and operation flags for the image warp.")]
+        public WarpFlags Flags { get; set; } = WarpFlags.Linear;
 
+        /// <summary>
+        /// Gets or sets the value to which all outlier pixels will be set to.
+        /// </summary>
         [Description("The value to which all outlier pixels will be set to.")]
         public Scalar FillValue { get; set; }
 
@@ -40,6 +54,15 @@ namespace Bonsai.Vision
             };
         }
 
+        /// <summary>
+        /// Applies a perspective transformation to each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to warp.
+        /// </param>
+        /// <returns>
+        /// The sequence of warped images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>

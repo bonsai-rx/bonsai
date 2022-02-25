@@ -6,7 +6,11 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Applies advanced morphological operators to the input image.")]
+    /// <summary>
+    /// Represents an operator that applies a morphological transformation kernel to
+    /// each image in the sequence.
+    /// </summary>
+    [Description("Applies a morphological transformation kernel to each image in the sequence.")]
     public class MorphologicalOperator : Transform<IplImage, IplImage>
     {
         Size size;
@@ -14,6 +18,9 @@ namespace Bonsai.Vision
         StructuringElementShape shape;
         event EventHandler PropertyChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MorphologicalOperator"/> class.
+        /// </summary>
         public MorphologicalOperator()
         {
             Size = new Size(3, 3);
@@ -21,6 +28,9 @@ namespace Bonsai.Vision
             Iterations = 1;
         }
 
+        /// <summary>
+        /// Gets or sets the size of the structuring element.
+        /// </summary>
         [Description("The size of the structuring element.")]
         public Size Size
         {
@@ -32,6 +42,9 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Gets or sets the anchor of the structuring element.
+        /// </summary>
         [Description("The anchor of the structuring element.")]
         public Point Anchor
         {
@@ -43,6 +56,9 @@ namespace Bonsai.Vision
             }
         }
 
+        /// <summary>
+        /// Gets or sets the shape of the structuring element.
+        /// </summary>
         [TypeConverter(typeof(ShapeConverter))]
         [Description("The shape of the structuring element.")]
         public StructuringElementShape Shape
@@ -57,21 +73,34 @@ namespace Bonsai.Vision
 
         void OnPropertyChanged(EventArgs e)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            PropertyChanged?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Gets or sets the number of times to apply the morphological operator.
+        /// </summary>
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The number of times to apply the morphological operator.")]
         public int Iterations { get; set; }
 
-        [Description("The type of morphological operation to be applied.")]
-        public OpenCV.Net.MorphologicalOperation Operation { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the type of morphological operation
+        /// to be applied.
+        /// </summary>
+        [Description("Specifies the type of morphological operation to be applied.")]
+        public MorphologicalOperation Operation { get; set; }
 
+        /// <summary>
+        /// Applies a morphological transformation kernel to each image in an
+        /// observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to apply the morphological operator.
+        /// </param>
+        /// <returns>
+        /// The sequence of transformed images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             var propertyChanged = Observable.FromEventPattern<EventArgs>(
@@ -115,7 +144,7 @@ namespace Bonsai.Vision
             {
             }
 
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
             {
                 return new StandardValuesCollection(new[]
                 {

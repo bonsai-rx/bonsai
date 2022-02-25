@@ -6,22 +6,40 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Segments the input image using an HSV color range.")]
+    /// <summary>
+    /// Represents an operator that segments each HSV image in the sequence using
+    /// the specified color range.
+    /// </summary>
+    [Description("Segments each HSV image in the sequence using the specified color range.")]
     public class HsvThreshold : Transform<IplImage, IplImage>
     {
-        public HsvThreshold()
-        {
-            Upper = new Scalar(179, 255, 255, 255);
-        }
-
+        /// <summary>
+        /// Gets or sets the lower bound of the HSV color range.
+        /// </summary>
         [TypeConverter(typeof(HsvScalarConverter))]
         [Description("The lower bound of the HSV color range.")]
         public Scalar Lower { get; set; }
 
+        /// <summary>
+        /// Gets or sets the upper bound of the HSV color range. If the upper value
+        /// for Hue is smaller than its lower value, the range will wrap around zero.
+        /// </summary>
         [TypeConverter(typeof(HsvScalarConverter))]
-        [Description("The upper bound of the HSV color range.")]
-        public Scalar Upper { get; set; }
+        [Description("The upper bound of the HSV color range. If the upper value for Hue is smaller than its lower value, the range will wrap around zero.")]
+        public Scalar Upper { get; set; } = new Scalar(179, 255, 255, 255);
 
+        /// <summary>
+        /// Segments each HSV image in an observable sequence using the specified
+        /// color range.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of color images in the hue-saturation-value (HSV) color space.
+        /// </param>
+        /// <returns>
+        /// A sequence of binary images where each pixel is non-zero only if the
+        /// corresponding HSV pixel in the color image lies between the specified
+        /// lower and upper bounds of the range.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

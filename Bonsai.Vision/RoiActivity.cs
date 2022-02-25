@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
 using OpenCV.Net;
@@ -7,22 +7,41 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("Regions")]
-    [Description("Calculates activation intensity inside specified regions of interest.")]
+    /// <summary>
+    /// Represents an operator that calculates activation intensity inside specified
+    /// regions of interest for each image in the sequence.
+    /// </summary>
+    [DefaultProperty(nameof(Regions))]
+    [Description("Calculates activation intensity inside specified regions of interest for each image in the sequence.")]
     public class RoiActivity : Transform<IplImage, RegionActivityCollection>
     {
-        public RoiActivity()
-        {
-            Operation = ReduceOperation.Sum;
-        }
-
+        /// <summary>
+        /// Gets or sets the polygonal regions of interest for which to calculate
+        /// activation intensity.
+        /// </summary>
         [Description("The regions of interest for which to calculate activation intensity.")]
         [Editor("Bonsai.Vision.Design.IplImageInputLabeledRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point[][] Regions { get; set; }
 
-        [Description("The reduction operation used to calculate activation intensity.")]
-        public ReduceOperation Operation { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the reduction operation used to calculate
+        /// activation intensity.
+        /// </summary>
+        [Description("Specifies the reduction operation used to calculate activation intensity.")]
+        public ReduceOperation Operation { get; set; } = ReduceOperation.Sum;
 
+        /// <summary>
+        /// Calculates activation intensity inside specified regions of interest for
+        /// each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to calculate region of interest activation.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="RegionActivityCollection"/> containing the
+        /// activation intensity inside the specified regions of interest for each
+        /// image in the <paramref name="source"/> sequence.
+        /// </returns>
         public override IObservable<RegionActivityCollection> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>

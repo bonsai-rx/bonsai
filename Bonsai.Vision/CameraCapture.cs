@@ -6,15 +6,22 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("Index")]
+    /// <summary>
+    /// Represents an operator that generates a sequence of images acquired from
+    /// the specified camera.
+    /// </summary>
+    [DefaultProperty(nameof(Index))]
     [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
-    [Description("Produces a sequence of images acquired from the specified camera index.")]
+    [Description("Generates a sequence of images acquired from the specified camera.")]
     public class CameraCapture : Source<IplImage>
     {
-        IObservable<IplImage> source;
+        readonly IObservable<IplImage> source;
         readonly object captureLock = new object();
         readonly CapturePropertyCollection captureProperties = new CapturePropertyCollection();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CameraCapture"/> class.
+        /// </summary>
         public CameraCapture()
         {
             source = Observable.Create<IplImage>((observer, cancellationToken) =>
@@ -55,15 +62,29 @@ namespace Bonsai.Vision
             .RefCount();
         }
 
+        /// <summary>
+        /// Gets or sets the index of the camera from which to acquire images.
+        /// </summary>
         [Description("The index of the camera from which to acquire images.")]
         public int Index { get; set; }
 
-        [Description("Specifies the set of capture properties assigned to the camera.")]
+        /// <summary>
+        /// Gets the set of capture properties assigned to the camera.
+        /// </summary>
+        [Description("The set of capture properties assigned to the camera.")]
         public CapturePropertyCollection CaptureProperties
         {
             get { return captureProperties; }
         }
 
+        /// <summary>
+        /// Generates an observable sequence of images acquired from
+        /// the camera with the specified index.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="IplImage"/> objects representing each frame
+        /// acquired from the camera.
+        /// </returns>
         public override IObservable<IplImage> Generate()
         {
             return source;

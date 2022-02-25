@@ -6,22 +6,39 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Tests which image elements lie within the specified range.")]
+    /// <summary>
+    /// Represents an operator that tests which pixels lie within the specified
+    /// range for each image in the sequence.
+    /// </summary>
+    [Description("Tests which pixels lie within the specified range for each image in the sequence.")]
     public class RangeThreshold : Transform<IplImage, IplImage>
     {
-        public RangeThreshold()
-        {
-            Upper = new Scalar(255, 255, 255, 255);
-        }
-
+        /// <summary>
+        /// Gets or sets the inclusive lower boundary of the range.
+        /// </summary>
         [TypeConverter(typeof(RangeScalarConverter))]
-        [Description("The lower bound of the specified range.")]
+        [Description("The inclusive lower boundary of the range.")]
         public Scalar Lower { get; set; }
 
+        /// <summary>
+        /// Gets or sets the exclusive upper boundary of the range.
+        /// </summary>
         [TypeConverter(typeof(RangeScalarConverter))]
-        [Description("The upper bound of the specified range.")]
-        public Scalar Upper { get; set; }
+        [Description("The exclusive upper boundary of the range.")]
+        public Scalar Upper { get; set; } = new Scalar(255, 255, 255, 255);
 
+        /// <summary>
+        /// Tests which pixels lie within the specified range for each image in
+        /// an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to threshold. Each channel in a color image
+        /// is tested independently according to the specified scalar range.
+        /// </param>
+        /// <returns>
+        /// A sequence of binary images where each pixel is non-zero if the
+        /// corresponding value in the original image is within the allowable range.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>

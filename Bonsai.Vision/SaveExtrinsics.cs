@@ -6,18 +6,39 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
-    [DefaultProperty("FileName")]
-    [Description("Saves a set of camera extrinsics to a YML file.")]
+    /// <summary>
+    /// Represents an operator that writes a sequence of camera extrinsics to a YML file.
+    /// </summary>
+    [DefaultProperty(nameof(FileName))]
+    [Description("Writes a sequence of camera extrinsics to a YML file.")]
     public class SaveExtrinsics : Sink<Extrinsics>
     {
+        /// <summary>
+        /// Gets or sets the name of the file on which to write the camera extrinsics.
+        /// </summary>
         [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The name of the output camera extrinsics file.")]
+        [Description("The name of the file on which to write the camera extrinsics.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional suffix used to generate file names.
+        /// </summary>
         [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
+        /// <summary>
+        /// Writes an observable sequence of camera extrinsic properties to the
+        /// specified YML file.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of camera extrinsic properties to write.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of writing the
+        /// camera extrinsics to the specified YML file.
+        /// </returns>
         public override IObservable<Extrinsics> Process(IObservable<Extrinsics> source)
         {
             return source.Do(extrinsics =>

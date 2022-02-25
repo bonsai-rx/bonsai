@@ -6,25 +6,32 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Smooths the input image.")]
+    /// <summary>
+    /// Represents an operator that applies a smoothing operator to each image
+    /// in the sequence. 
+    /// </summary>
+    [Description("Applies a smoothing operator to each image in the sequence.")]
     public class Smooth : Transform<IplImage, IplImage>
     {
-        public Smooth()
-        {
-            Size1 = 3;
-            SmoothType = SmoothMethod.Gaussian;
-        }
+        /// <summary>
+        /// Gets or sets a value specifying the smoothing method to be applied.
+        /// </summary>
+        [Description("Specifies the smoothing method to be applied.")]
+        public SmoothMethod SmoothType { get; set; } = SmoothMethod.Gaussian;
 
-        [Description("The smoothing method to be applied.")]
-        public SmoothMethod SmoothType { get; set; }
-
+        /// <summary>
+        /// Gets or sets the aperture width of the smoothing kernel.
+        /// </summary>
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
         [TypeConverter(typeof(SmoothKernelSizeConverter))]
         [Description("The aperture width of the smoothing kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        public int Size1 { get; set; }
+        public int Size1 { get; set; } = 3;
 
+        /// <summary>
+        /// Gets or sets the aperture height of the smoothing kernel.
+        /// </summary>
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
         [TypeConverter(typeof(SmoothKernelSizeConverter))]
@@ -32,18 +39,35 @@ namespace Bonsai.Vision
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         public int Size2 { get; set; }
 
+        /// <summary>
+        /// Gets or sets the standard deviation for the first dimension in the case of
+        /// Gaussian smoothing.
+        /// </summary>
         [Precision(2, 0.1)]
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        [Description("The standard deviation for the first dimension in case of Gaussian smoothing.")]
+        [Description("The standard deviation for the first dimension in the case of Gaussian smoothing.")]
         public double Sigma1 { get; set; }
 
+        /// <summary>
+        /// Gets or sets the standard deviation for the second dimension in the case of
+        /// Gaussian smoothing.
+        /// </summary>
         [Precision(2, 0.1)]
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
-        [Description("The standard deviation for the second dimension in case of Gaussian smoothing.")]
+        [Description("The standard deviation for the second dimension in the case of Gaussian smoothing.")]
         public double Sigma2 { get; set; }
 
+        /// <summary>
+        /// Applies a smoothing operator to each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to smooth.
+        /// </param>
+        /// <returns>
+        /// The sequence of smoothed images.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>
@@ -68,7 +92,7 @@ namespace Bonsai.Vision
                     {
                         if (kernelSize % 2 == 0)
                         {
-                            throw new ArgumentOutOfRangeException("value", "The size of the filter kernel must be an odd number.");
+                            throw new ArgumentOutOfRangeException(nameof(value), "The size of the filter kernel must be an odd number.");
                         }
                     }
                 }

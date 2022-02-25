@@ -6,33 +6,70 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Determines strong corner features in the input image.")]
+    /// <summary>
+    /// Represents an operator that finds strong corner features for each image
+    /// in the sequence.
+    /// </summary>
+    [Description("Finds strong corner features for each image in the sequence.")]
     public class GoodFeaturesToTrack : Transform<IplImage, KeyPointCollection>
     {
-        public GoodFeaturesToTrack()
-        {
-            MaxFeatures = 100;
-            QualityLevel = 0.01;
-        }
-
+        /// <summary>
+        /// Gets or sets the maximum number of corners to find.
+        /// </summary>
         [Description("The maximum number of corners to find.")]
-        public int MaxFeatures { get; set; }
+        public int MaxFeatures { get; set; } = 100;
 
-        [Description("The minimal accepted quality of image corners.")]
-        public double QualityLevel { get; set; }
+        /// <summary>
+        /// Gets or sets the minimal accepted quality for image corners.
+        /// </summary>
+        [Description("The minimal accepted quality for image corners.")]
+        public double QualityLevel { get; set; } = 0.01;
 
+        /// <summary>
+        /// Gets or sets the minimum accepted distance between detected corners.
+        /// </summary>
         [Description("The minimum accepted distance between detected corners.")]
         public double MinDistance { get; set; }
 
-        [Description("The optional region of interest used to find image corners.")]
+        /// <summary>
+        /// Gets or sets the region of interest used to find image corners.
+        /// If the rectangle is empty, the whole image is used.
+        /// </summary>
+        [Description("The region of interest used to find image corners.")]
         [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
+        /// <summary>
+        /// Finds strong corner features for each image in an observable sequence.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images for which to find strong corner features.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="KeyPointCollection"/> objects representing the
+        /// set of strong corner features extracted from each image in the
+        /// <paramref name="source"/> sequence.
+        /// </returns>
         public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)
         {
             return Process(source.Select(input => Tuple.Create(input, default(IplImage))));
         }
 
+        /// <summary>
+        /// Finds strong corner features for each image in an observable sequence,
+        /// where each image is paired with a mask where zero pixels are used to indicate
+        /// areas in the original image from which features should be rejected.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of image pairs, where the first image is used to find corner
+        /// features, and the second image specifies the operation mask, where zero pixels
+        /// represent pixels from the original image that should be ignored.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="KeyPointCollection"/> objects representing the
+        /// set of strong corner features extracted from each image in the
+        /// <paramref name="source"/> sequence.
+        /// </returns>
         public IObservable<KeyPointCollection> Process(IObservable<Tuple<IplImage, IplImage>> source)
         {
             return Observable.Defer(() =>
