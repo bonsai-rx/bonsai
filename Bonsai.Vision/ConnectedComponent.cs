@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenCV.Net;
 using System.Xml.Serialization;
 
@@ -51,17 +51,18 @@ namespace Bonsai.Vision
                 var y = moments.M01 / moments.M00;
                 component.Centroid = new Point2f((float)x, (float)y);
 
-                // Compute second-order central moments
-                var miu20 = moments.M20 / moments.M00 - x * x;
-                var miu02 = moments.M02 / moments.M00 - y * y;
-                var miu11 = moments.M11 / moments.M00 - x * y;
+                // Compute covariance matrix of image intensity
+                var miu20 = moments.Mu20 / moments.M00;
+                var miu02 = moments.Mu02 / moments.M00;
+                var miu11 = moments.Mu11 / moments.M00;
 
                 // Compute orientation and major/minor axis length
                 var b = 2 * miu11;
-                component.Orientation = 0.5 * Math.Atan2(b, miu20 - miu02);
-                var deviation = Math.Sqrt(b * b + Math.Pow(miu20 - miu02, 2));
-                component.MajorAxisLength = Math.Sqrt(6 * (miu20 + miu02 + deviation));
-                component.MinorAxisLength = Math.Sqrt(6 * (miu20 + miu02 - deviation));
+                var a = miu20 - miu02;
+                var deviation = Math.Sqrt(b * b + a * a);
+                component.Orientation = 0.5 * Math.Atan2(b, a);
+                component.MajorAxisLength = 2.75 * Math.Sqrt(miu20 + miu02 + deviation);
+                component.MinorAxisLength = 2.75 * Math.Sqrt(miu20 + miu02 - deviation);
             }
             else
             {
