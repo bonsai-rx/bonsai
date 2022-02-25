@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 
@@ -22,11 +22,6 @@ namespace Bonsai.Vision.Drawing
 
         internal Canvas(Canvas source, Canvas other)
         {
-            if (source.generator != other.generator)
-            {
-                throw new InvalidOperationException("Unable to merge drawing operators targeting different image sources.");
-            }
-
             generator = source.generator;
             drawing = SubCanvas.MergeCommands(source.drawing, other.drawing);
         }
@@ -58,12 +53,19 @@ namespace Bonsai.Vision.Drawing
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (other == null)
             {
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            if (source.generator != other.generator)
+            {
+                throw new ArgumentException(
+                    "Unable to merge drawing operations targeting different image sources.",
+                    nameof(other));
             }
 
             return new Canvas(source, other);
@@ -145,14 +147,12 @@ namespace Bonsai.Vision.Drawing
 
                 for (int i = 0; i < other.Length; i++)
                 {
-                    int index;
-                    if (hashSet.TryGetValue(other[i].Action, out index))
+                    if (hashSet.TryGetValue(other[i].Action, out int index))
                     {
                         var sourceDraw = source[index];
-                        if (object.ReferenceEquals(sourceDraw.Action, other[i].Action)) continue;
+                        if (ReferenceEquals(sourceDraw.Action, other[i].Action)) continue;
 
-                        var subCanvas = other[i].Action.Target as SubCanvas;
-                        if (subCanvas != null)
+                        if (other[i].Action.Target is SubCanvas subCanvas)
                         {
                             if (!excludeSource && i == 0 && index == hashSet.Count - 1)
                             {
@@ -185,12 +185,12 @@ namespace Bonsai.Vision.Drawing
 
             public bool Equals(Action<IplImage> x, Action<IplImage> y)
             {
-                if (object.ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, y)) return true;
                 else if (x != null && y != null)
                 {
-                    var subCanvas1 = x.Target as SubCanvas;
-                    var subCanvas2 = y.Target as SubCanvas;
-                    if (subCanvas1 != null && subCanvas2 != null && subCanvas1.generator == subCanvas2.generator)
+                    if (x.Target is SubCanvas subCanvas1 &&
+                        y.Target is SubCanvas subCanvas2 &&
+                        subCanvas1.generator == subCanvas2.generator)
                     {
                         return true;
                     }
