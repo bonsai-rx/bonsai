@@ -5,7 +5,8 @@ using System.Windows.Forms;
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
-    /// Provides a type visualizer for 
+    /// Provides a type visualizer to display the duration of specific states
+    /// as a bar graph.
     /// </summary>
     public class StateTimeVisualizer : DialogTypeVisualizer
     {

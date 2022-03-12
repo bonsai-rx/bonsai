@@ -6,7 +6,7 @@ using ZedGraph;
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
-    /// Provides a type visualizer for displaying an object as a line graph.
+    /// Provides a type visualizer to display an object as a line graph.
     /// </summary>
     public class LineGraphVisualizer : DialogTypeVisualizer
     {

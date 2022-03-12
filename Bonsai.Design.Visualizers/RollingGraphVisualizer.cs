@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using System;
 using System.Windows.Forms;
 using ZedGraph;
@@ -6,7 +6,7 @@ using ZedGraph;
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
-    /// Provides a type visualizer for displaying an object as a rolling graph.
+    /// Provides a type visualizer to display an object as a rolling graph.
     /// </summary>
     public class RollingGraphVisualizer : DialogTypeVisualizer
     {

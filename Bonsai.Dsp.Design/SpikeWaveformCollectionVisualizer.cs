@@ -8,16 +8,15 @@ using OpenCV.Net;
 namespace Bonsai.Dsp.Design
 {
     /// <summary>
-    /// Provides a type visualizer for displaying a collection of spike waveforms
-    /// by overlaying the specified number of past spike waveforms for each
-    /// independent channel.
+    /// Provides a type visualizer that displays a collection of spike waveforms and
+    /// overlays a specified number of past spike waveforms for each independent channel.
     /// </summary>
     public class SpikeWaveformCollectionVisualizer : SpikeWaveformCollectionVisualizer<WaveformView>
     {
     }
 
     /// <summary>
-    /// Provides a base class for displaying a collection of spike waveforms.
+    /// Provides a base class to display a collection of spike waveforms.
     /// </summary>
     /// <typeparam name="TWaveformView">
     /// A type derived from <see cref="WaveformView"/> which will control how data is displayed.
