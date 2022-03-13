@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using Bonsai.Dag;
 using System;
 using System.Drawing.Design;
@@ -96,8 +96,7 @@ namespace Bonsai.Design
 
             if (TargetType != null && dataSource.ObservableType != TargetType)
             {
-                var workflowBuilder = ExpressionBuilder.GetWorkflowElement(node.Value) as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (ExpressionBuilder.GetWorkflowElement(node.Value) is IWorkflowExpressionBuilder workflowBuilder)
                 {
                     return GetDataSource(workflowBuilder.Workflow, mappingName);
                 }
@@ -127,8 +126,10 @@ namespace Bonsai.Design
             }
 
             var mappingName = context.PropertyDescriptor.Name;
-            var nestedWorkflow = context.Instance as ExpressionBuilderGraph;
-            if (nestedWorkflow != null) return GetDataSource(nestedWorkflow, mappingName);
+            if (context.Instance is ExpressionBuilderGraph nestedWorkflow)
+            {
+                return GetDataSource(nestedWorkflow, mappingName);
+            }
 
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
             var workflowNode = (from node in workflow
