@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using Bonsai.Dag;
 using System;
 using System.Drawing.Design;
@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Design
 {
     /// <summary>
-    /// Provides an abstract base class for visual property editors that require inspecting
+    /// Provides an abstract base class for property editors that require inspecting
     /// the runtime notifications of an operator to provide their functionality.
     /// </summary>
     public abstract class DataSourceTypeEditor : UITypeEditor
@@ -19,7 +19,7 @@ namespace Bonsai.Design
         /// using the specified data source.
         /// </summary>
         /// <param name="source">
-        /// Specifies the source of runtime notifications to the visual property editor.
+        /// Specifies the source of runtime notifications to the property editor.
         /// </param>
         protected DataSourceTypeEditor(DataSource source)
             : this(source, null)
@@ -31,7 +31,7 @@ namespace Bonsai.Design
         /// using the specified data source and target data type.
         /// </summary>
         /// <param name="source">
-        /// Specifies the source of runtime notifications to the visual property editor.
+        /// Specifies the source of runtime notifications to the property editor.
         /// </param>
         /// <param name="targetType">
         /// The type of values emitted by the data source.
@@ -47,7 +47,7 @@ namespace Bonsai.Design
         private Type TargetType { get; set; }
 
         /// <summary>
-        /// Specifies the source of runtime notifications to the visual property editor.
+        /// Specifies the source of runtime notifications to the property editor.
         /// </summary>
         protected enum DataSource
         {
