@@ -23,7 +23,7 @@ namespace Bonsai.Vision.Design
             {
                 var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
                 var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);
-                CV.PolyLine(image, points, true, color, DefaultThickness);
+                CV.PolyLine(image, points, true, color, thickness);
             }
         }
 
