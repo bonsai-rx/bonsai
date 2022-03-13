@@ -8,11 +8,16 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that overlays a grayscale mask over an existing
+    /// image visualizer.
+    /// </summary>
     public class IplImageMashupVisualizer : MashupTypeVisualizer
     {
         IplImage color;
         ImageMashupVisualizer visualizer;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var image = (IplImage)value;
@@ -36,11 +41,13 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
         }

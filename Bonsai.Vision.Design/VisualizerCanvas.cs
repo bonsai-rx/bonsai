@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
@@ -7,22 +7,40 @@ using OpenTK.Graphics;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a control with a graphics context and a simple render
+    /// loop for scheduling accelerated rendering operations.
+    /// </summary>
     public partial class VisualizerCanvas : UserControl
     {
         bool loaded;
         bool disposed;
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisualizerCanvas"/> class.
+        /// </summary>
         public VisualizerCanvas()
         {
             GraphicsContext.ShareContexts = false;
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Occurs when it is time to render a frame.
+        /// </summary>
         public event EventHandler RenderFrame;
 
+        /// <summary>
+        /// Occurs immediately after the front and back buffers are swapped,
+        /// and the rendered scene is presented to the screen.
+        /// </summary>
         public event EventHandler SwapBuffers;
 
+        /// <summary>
+        /// Gets the control containing the graphics context on which to call
+        /// render operations.
+        /// </summary>
         public GLControl Canvas
         {
             get { return canvas; }
@@ -67,16 +85,31 @@ namespace Bonsai.Vision.Design
             OnSwapBuffers(e);
         }
 
+        /// <summary>
+        /// Raises the <see cref="RenderFrame"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// A <see cref="EventArgs"/> that contains the event data.
+        /// </param>
         protected virtual void OnRenderFrame(EventArgs e)
         {
             RenderFrame?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Raises the <see cref="SwapBuffers"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// A <see cref="EventArgs"/> that contains the event data.
+        /// </param>
         protected virtual void OnSwapBuffers(EventArgs e)
         {
             SwapBuffers?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Makes the canvas context current in the calling thread.
+        /// </summary>
         public void MakeCurrent()
         {
             if (GraphicsContext.CurrentContext != canvas.Context)
@@ -85,10 +118,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        /// <summary> 
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (!disposed)

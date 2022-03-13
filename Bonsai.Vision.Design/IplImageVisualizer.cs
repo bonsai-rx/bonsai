@@ -12,6 +12,10 @@ using Size = System.Drawing.Size;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays the images in a sequence as
+    /// fast as the active display is refreshed.
+    /// </summary>
     public class IplImageVisualizer : ImageMashupVisualizer
     {
         UserControl imagePanel;
@@ -20,18 +24,30 @@ namespace Bonsai.Vision.Design
         VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the status bar should be shown
+        /// when right-clicking the image visualizer.
+        /// </summary>
         protected bool StatusStripEnabled { get; set; }
 
+        /// <summary>
+        /// Gets the status bar control used to display additional information for
+        /// the image visualizer.
+        /// </summary>
         protected StatusStrip StatusStrip
         {
             get { return statusStrip; }
         }
 
+        /// <summary>
+        /// Gets the graphics canvas used to render the final visualizer output.
+        /// </summary>
         public override VisualizerCanvas VisualizerCanvas
         {
             get { return visualizerCanvas; }
         }
 
+        /// <inheritdoc/>
         protected override void ShowMashup(IList<object> values)
         {
             base.ShowMashup(values);
@@ -43,12 +59,17 @@ namespace Bonsai.Vision.Design
             visualizerCanvas.Canvas.Invalidate();
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             base.Show(value);
             UpdateStatus();
         }
 
+        /// <summary>
+        /// Renders all graphics to the visualizer canvas. Override this method
+        /// to overlay additional graphics elements on top of the image texture.
+        /// </summary>
         protected virtual void RenderFrame()
         {
             imageTexture.Draw();
@@ -70,6 +91,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             StatusStripEnabled = true;
@@ -114,6 +136,7 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             base.Unload();

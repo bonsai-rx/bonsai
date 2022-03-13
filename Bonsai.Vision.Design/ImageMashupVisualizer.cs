@@ -10,6 +10,10 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides an abstract base class for type visualizers that overlay multiple
+    /// values into a single image display.
+    /// </summary>
     public abstract class ImageMashupVisualizer : DialogMashupVisualizer
     {
         const int TargetInterval = 16;
@@ -19,11 +23,19 @@ namespace Bonsai.Vision.Design
         IplImage visualizerCache;
         Timer updateTimer;
 
+        /// <summary>
+        /// Gets the image buffer used to construct the displayed visualizer background.
+        /// </summary>
         [XmlIgnore]
         public IplImage VisualizerImage { get; private set; }
 
+        /// <summary>
+        /// When overridden in a derived class, gets the graphics canvas used to
+        /// render the final visualizer output.
+        /// </summary>
         public abstract VisualizerCanvas VisualizerCanvas { get; }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             updateTimer = new Timer();
@@ -33,6 +45,7 @@ namespace Bonsai.Vision.Design
             updateTimer.Start();
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var inputImage = (IplImage)value;
@@ -45,6 +58,12 @@ namespace Bonsai.Vision.Design
             else VisualizerImage = inputImage;
         }
 
+        /// <summary>
+        /// Combines the specified collection of values into a single image mashup.
+        /// </summary>
+        /// <param name="values">
+        /// The collection of values to be displayed by the mashup visualizer.
+        /// </param>
         protected virtual void ShowMashup(IList<object> values)
         {
             shownValues = values;
@@ -67,6 +86,13 @@ namespace Bonsai.Vision.Design
             shownValues = null;
         }
 
+        /// <summary>
+        /// Updates the type visualizer state in preparation for displaying the
+        /// specified collection of values.
+        /// </summary>
+        /// <param name="values">
+        /// The collection of values to be displayed by the mashup visualizer.
+        /// </param>
         protected virtual void UpdateValues(IList<object> values)
         {
         }
@@ -91,6 +117,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             IObservable<IList<object>> dataSource;
@@ -122,6 +149,7 @@ namespace Bonsai.Vision.Design
             });
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             updateTimer.Stop();

@@ -7,8 +7,13 @@ using Bonsai.Vision;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays the properties of a collection
+    /// of connected components.
+    /// </summary>
     public class ConnectedComponentCollectionVisualizer : IplImageVisualizer
     {
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var connectedComponents = (ConnectedComponentCollection)value;

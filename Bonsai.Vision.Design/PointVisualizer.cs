@@ -9,6 +9,9 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for 2D points.
+    /// </summary>
     public class PointVisualizer : ObjectTextVisualizer
     {
     }

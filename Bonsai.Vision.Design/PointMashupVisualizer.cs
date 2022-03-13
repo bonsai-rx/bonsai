@@ -1,4 +1,4 @@
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -11,6 +11,10 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that overlays a sequence of points over an
+    /// existing image visualizer.
+    /// </summary>
     public class PointMashupVisualizer : MashupTypeVisualizer
     {
         TrackingMode tracking;
@@ -18,6 +22,7 @@ namespace Bonsai.Vision.Design
         ImageMashupVisualizer visualizer;
         IDisposable subscription;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             Point? point;
@@ -76,6 +81,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             points = new Queue<Point?>(1);
@@ -95,6 +101,7 @@ namespace Bonsai.Vision.Design
             subscription = Disposable.Create(() => visualizer.VisualizerCanvas.Canvas.MouseClick -= mouseHandler);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             if (subscription != null)

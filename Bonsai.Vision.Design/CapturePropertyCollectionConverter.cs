@@ -5,13 +5,19 @@ using System.Linq;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type converter that converts collections of video capture properties
+    /// to and from various other representations, and allows real-time value updates.
+    /// </summary>
     public class CapturePropertyCollectionConverter : CollectionConverter
     {
+        /// <inheritdoc/>
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
         {
             return true;
         }
 
+        /// <inheritdoc/>
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
             var propertyCollection = (CapturePropertyCollection)value;

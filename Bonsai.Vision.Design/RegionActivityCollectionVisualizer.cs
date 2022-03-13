@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Bonsai.Vision.Design;
 using Bonsai;
 using OpenCV.Net;
@@ -14,6 +14,10 @@ using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays a collection of polygonal regions
+    /// of interest and their activity measurements.
+    /// </summary>
     public class RegionActivityCollectionVisualizer : IplImageVisualizer
     {
         const int RoiThickness = 1;
@@ -27,6 +31,7 @@ namespace Bonsai.Vision.Design
         IDisposable inputHandle;
         RegionActivityCollection regions;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             regions = (RegionActivityCollection)value;
@@ -49,6 +54,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         protected override void RenderFrame()
         {
             GL.Color3(Color.White);
@@ -73,6 +79,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var imageInput = VisualizerHelper.ImageInput(provider);
@@ -90,6 +97,7 @@ namespace Bonsai.Vision.Design
             };
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             if (canvas != null)

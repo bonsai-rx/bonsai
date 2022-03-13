@@ -15,6 +15,10 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for circle parameters. If the input is a sequence
+    /// of images, the visualizer will overlay each circle on top of the original image.
+    /// </summary>
     public class CircleVisualizer : IplImageVisualizer
     {
         const float DefaultHeight = 480;
@@ -46,6 +50,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             if (textVisualizer != null) textVisualizer.Show(value);
@@ -60,6 +65,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var inputInspector = default(InspectBuilder);
@@ -86,12 +92,14 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             if (textVisualizer != null) return textVisualizer.Visualize(source, provider);
             else return base.Visualize(source, provider);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             if (canvas != null)

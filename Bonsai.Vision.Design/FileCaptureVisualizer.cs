@@ -12,6 +12,10 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays a seek bar, playback control,
+    /// and current index for each movie frame.
+    /// </summary>
     public class FileCaptureVisualizer : ImageMashupVisualizer
     {
         FileCapture capture;
@@ -19,11 +23,15 @@ namespace Bonsai.Vision.Design
         Capture captureCache;
         double frameRate;
 
+        /// <summary>
+        /// Gets the graphics canvas used to render the final visualizer output.
+        /// </summary>
         public override VisualizerCanvas VisualizerCanvas
         {
             get { return videoPlayer?.Canvas; }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -44,6 +52,7 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var input = (Tuple<IplImage, int>)value;
@@ -51,6 +60,7 @@ namespace Bonsai.Vision.Design
             base.Show(image);
         }
 
+        /// <inheritdoc/>
         protected override void ShowMashup(IList<object> values)
         {
             if (captureCache != capture.Capture)
@@ -69,6 +79,7 @@ namespace Bonsai.Vision.Design
             videoPlayer.Update(VisualizerImage, frameNumber - 1);
         }
 
+        /// <inheritdoc/>
         protected override void UpdateValues(IList<object> values)
         {
             var image = (IplImage)values[0];
@@ -76,6 +87,7 @@ namespace Bonsai.Vision.Design
             values[0] = Tuple.Create(image, frameNumber);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             base.Unload();

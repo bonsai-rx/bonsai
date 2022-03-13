@@ -12,6 +12,7 @@ namespace Bonsai.Vision.Design
 {
     class PolarTransformEditor : WorkflowComponentEditor
     {
+        /// <inheritdoc/>
         public override bool EditComponent(ITypeDescriptorContext context, object component, IServiceProvider provider, IWin32Window owner)
         {
             if (provider != null)

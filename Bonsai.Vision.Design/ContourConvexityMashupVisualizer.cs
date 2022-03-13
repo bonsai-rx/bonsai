@@ -8,10 +8,15 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that overlays the results of contour convexity
+    /// analysis over an existing image visualizer.
+    /// </summary>
     public class ContourConvexityMashupVisualizer : MashupTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var image = visualizer.VisualizerImage;
@@ -25,11 +30,13 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
         }

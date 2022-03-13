@@ -7,8 +7,13 @@ using Bonsai.Vision;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays the properties of a cluster of
+    /// connected pixels.
+    /// </summary>
     public class ConnectedComponentVisualizer : IplImageVisualizer
     {
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             Rect boundingBox;

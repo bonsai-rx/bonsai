@@ -5,14 +5,20 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type converter to convert scalar values to and from various
+    /// other representations.
+    /// </summary>
     [Obsolete]
     public class ScalarConverter : TypeConverter
     {
+        /// <inheritdoc/>
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
         {
             return true;
         }
 
+        /// <inheritdoc/>
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
             var propertyDescriptor = context.PropertyDescriptor;

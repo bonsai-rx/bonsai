@@ -1,10 +1,13 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using OpenCV.Net;
 using System.Globalization;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Represents a graphics accelerated video player control.
+    /// </summary>
     public partial class VideoPlayer : UserControl
     {
         bool playing;
@@ -16,6 +19,9 @@ namespace Bonsai.Vision.Design
         readonly ToolStripStatusLabel frameNumberLabel;
         readonly ToolStripTextBox frameNumberTextBox;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VideoPlayer"/> class.
+        /// </summary>
         public VideoPlayer()
         {
             InitializeComponent();
@@ -116,11 +122,17 @@ namespace Bonsai.Vision.Design
             frameNumberTextBox.Focus();
         }
 
+        /// <summary>
+        /// Gets the graphics canvas used to render video frames.
+        /// </summary>
         public VisualizerCanvas Canvas
         {
             get { return imageControl; }
         }
 
+        /// <summary>
+        /// Gets or sets the number of frames in the video.
+        /// </summary>
         public int FrameCount
         {
             get { return frameCount; }
@@ -131,6 +143,10 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <summary>
+        /// Gets or sets the speed, in frames per second, at which to play
+        /// images from the video.
+        /// </summary>
         public double PlaybackRate
         {
             get { return playbackRate; }
@@ -141,12 +157,19 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the video should loop
+        /// when the end of the file is reached.
+        /// </summary>
         public bool Loop
         {
             get { return loopButton.CheckState == CheckState.Checked; }
             set { loopButton.CheckState = value ? CheckState.Checked : CheckState.Unchecked; }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying whether the video is playing.
+        /// </summary>
         public bool Playing
         {
             get { return playing; }
@@ -157,39 +180,80 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <summary>
+        /// Occurs when the user moves the video seek bar.
+        /// </summary>
         public event EventHandler<SeekEventArgs> Seek;
 
+        /// <summary>
+        /// Occurs when the <see cref="PlaybackRate"/> property value changes.
+        /// </summary>
         public event EventHandler PlaybackRateChanged;
 
+        /// <summary>
+        /// Occurs when the <see cref="Playing"/> property value changes.
+        /// </summary>
         public event EventHandler PlayingChanged;
 
+        /// <summary>
+        /// Occurs when the <see cref="Loop"/> property value changes.
+        /// </summary>
         public event EventHandler LoopChanged
         {
             add { loopButton.CheckStateChanged += value; }
             remove { loopButton.CheckStateChanged -= value; }
         }
 
+        /// <inheritdoc/>
         protected override void OnLoad(EventArgs e)
         {
             if (DesignMode) return;
             base.OnLoad(e);
         }
 
+        /// <summary>
+        /// Raises the <see cref="Seek"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// A <see cref="SeekEventArgs"/> that contains the event data.
+        /// </param>
         protected virtual void OnSeek(SeekEventArgs e)
         {
             Seek?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Raises the <see cref="PlayingChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// A <see cref="EventArgs"/> that contains the event data.
+        /// </param>
         protected virtual void OnPlayingChanged(EventArgs e)
         {
             PlayingChanged?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Raises the <see cref="PlaybackRateChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// A <see cref="EventArgs"/> that contains the event data.
+        /// </param>
         protected virtual void OnPlaybackRateChanged(EventArgs e)
         {
             PlaybackRateChanged?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Updates the video player control with the specified frame.
+        /// </summary>
+        /// <param name="frame">
+        /// An <see cref="IplImage"/> object containing the pixel data of the
+        /// current video frame.
+        /// </param>
+        /// <param name="frameNumber">
+        /// The zero-based index of the current video frame.
+        /// </param>
         public void Update(IplImage frame, int frameNumber)
         {
             imageControl.Image = frame;
@@ -198,6 +262,7 @@ namespace Bonsai.Vision.Design
             frameNumberLabel.Text = frameNumber.ToString(CultureInfo.CurrentCulture);
         }
 
+        /// <inheritdoc/>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (!frameNumberTextBox.Focused)

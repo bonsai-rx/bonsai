@@ -10,11 +10,16 @@ using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that draws a visual representation of the
+    /// extremities of a binary connected component.
+    /// </summary>
     public class BinaryRegionExtremesVisualizer : IplImageVisualizer
     {
         ConnectedComponent connectedComponent;
         IDisposable inputHandle;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var tuple = (Tuple<Point2f, Point2f>)value;
@@ -45,6 +50,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
@@ -64,6 +70,7 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             if (inputHandle != null)

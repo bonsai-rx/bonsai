@@ -3,6 +3,9 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Represents a graphics accelerated control for displaying an image.
+    /// </summary>
     public partial class ImageBox : VisualizerCanvas
     {
         bool disposed;
@@ -11,13 +14,14 @@ namespace Bonsai.Vision.Design
         bool canvasInvalidated;
         IplImageTexture texture;
 
-        public ImageBox()
-        {
-            ImageScale = 1.0;
-        }
+        /// <summary>
+        /// Gets or sets the brightness scale factor applied when rendering the image.
+        /// </summary>
+        public double ImageScale { get; set; } = 1.0;
 
-        public double ImageScale { get; set; }
-
+        /// <summary>
+        /// Gets or sets the image to display.
+        /// </summary>
         public IplImage Image
         {
             get { return image; }
@@ -40,6 +44,10 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <summary>
+        /// Updates the image to display in the control.
+        /// </summary>
+        /// <param name="image">The image to display.</param>
         protected virtual void SetImage(IplImage image)
         {
             MakeCurrent();
@@ -48,6 +56,7 @@ namespace Bonsai.Vision.Design
             canvasInvalidated = true;
         }
 
+        /// <inheritdoc/>
         protected override void OnLoad(EventArgs e)
         {
             if (DesignMode) return;
@@ -57,6 +66,7 @@ namespace Bonsai.Vision.Design
             base.OnLoad(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnRenderFrame(EventArgs e)
         {
             if (image != null)
@@ -67,6 +77,7 @@ namespace Bonsai.Vision.Design
             base.OnRenderFrame(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnSwapBuffers(EventArgs e)
         {
             if (canvasInvalidated)
@@ -77,10 +88,7 @@ namespace Bonsai.Vision.Design
             base.OnSwapBuffers(e);
         }
 
-        /// <summary> 
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (!disposed)

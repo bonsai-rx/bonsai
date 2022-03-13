@@ -8,6 +8,10 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays the sparse optical flow between
+    /// key points, or features, extracted from an image frame.
+    /// </summary>
     public class KeyPointOpticalFlowVisualizer : IplImageVisualizer
     {
         const float DefaultHeight = 480;
@@ -30,6 +34,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var tracking = (KeyPointOpticalFlow)value;

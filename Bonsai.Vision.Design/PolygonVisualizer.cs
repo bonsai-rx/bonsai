@@ -1,4 +1,4 @@
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -8,6 +8,11 @@ using System;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for a collection of polygonal regions. If the input
+    /// is a sequence of images, the visualizer will overlay each rectangle on top of
+    /// the original image.
+    /// </summary>
     public class PolygonVisualizer : IplImageVisualizer
     {
         const float DefaultHeight = 480;
@@ -27,6 +32,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             if (textVisualizer != null) textVisualizer.Show(value);
@@ -41,6 +47,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             var imageInput = VisualizerHelper.ImageInput(provider);
@@ -56,12 +63,14 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             if (textVisualizer != null) return textVisualizer.Visualize(source, provider);
             else return base.Visualize(source, provider);
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             if (canvas != null)

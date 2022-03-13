@@ -10,23 +10,43 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides an abstract base class for user interface editors that allow
+    /// visually editing a quadrangular region on top of the active image source.
+    /// </summary>
     public abstract class IplImageQuadrangleEditor : DataSourceTypeEditor
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageQuadrangleEditor"/> class
+        /// using the specified image data source.
+        /// </summary>
+        /// <param name="source">
+        /// Specifies the source of image notifications to the property editor.
+        /// </param>
         protected IplImageQuadrangleEditor(DataSource source)
             : base(source, typeof(IplImage))
         {
         }
 
+        /// <summary>
+        /// Gets the sequence of images arriving to or from the operator.
+        /// </summary>
+        /// <param name="source">
+        /// An observable sequence that multicasts notifications from all the active
+        /// subscriptions to the workflow operator.
+        /// </param>
         protected virtual IObservable<IplImage> GetImageSource(IObservable<IObservable<object>> source)
         {
             return source.Merge().Select(image => image as IplImage);
         }
 
+        /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
         }
 
+        /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));

@@ -9,10 +9,15 @@ using Point = OpenCV.Net.Point;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that overlays the extremities of a binary
+    /// connected component over an existing image visualizer.
+    /// </summary>
     public class BinaryRegionExtremesMashupVisualizer : MashupTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var image = visualizer.VisualizerImage;
@@ -21,11 +26,13 @@ namespace Bonsai.Vision.Design
             CV.Circle(image, new Point(extremes.Item2), 3, Scalar.Rgb(0, 255, 0), -1);
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
         }

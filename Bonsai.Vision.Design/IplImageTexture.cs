@@ -1,10 +1,14 @@
-using System;
+﻿using System;
 using System.Linq;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Represents a texture buffer which can be updated with <see cref="IplImage"/>
+    /// data and rendered onto the current viewport as a full-screen quad.
+    /// </summary>
     public class IplImageTexture : IDisposable
     {
         bool disposed;
@@ -16,6 +20,9 @@ namespace Bonsai.Vision.Design
         IplImage normalizedImage;
         Size textureSize;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageTexture"/> class.
+        /// </summary>
         public IplImageTexture()
         {
             var extensions = GL.GetString(StringName.Extensions).Split(' ');
@@ -59,6 +66,13 @@ namespace Bonsai.Vision.Design
             return n;
         }
 
+        /// <summary>
+        /// Updates the texture buffer with the specified image data.
+        /// </summary>
+        /// <param name="image">
+        /// An <see cref="IplImage"/> object containing the pixel data to copy
+        /// into the texture buffer.
+        /// </param>
         public void Update(IplImage image)
         {
             Update(image, 1.0);
@@ -118,6 +132,9 @@ namespace Bonsai.Vision.Design
             else GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, image.Width, image.Height, pixelFormat, PixelType.UnsignedByte, image.ImageData); 
         }
 
+        /// <summary>
+        /// Binds and draws the texture buffer object as a full-screen quad.
+        /// </summary>
         public void Draw()
         {
             GL.Enable(EnableCap.Texture2D);
@@ -155,6 +172,9 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="IplImageTexture"/> class.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

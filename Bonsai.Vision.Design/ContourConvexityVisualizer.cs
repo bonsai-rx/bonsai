@@ -9,8 +9,13 @@ using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer that displays the results of convexity analysis
+    /// of a polygonal contour.
+    /// </summary>
     public class ContourConvexityVisualizer : IplImageVisualizer
     {
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var contourConvexity = (ContourConvexity)value;

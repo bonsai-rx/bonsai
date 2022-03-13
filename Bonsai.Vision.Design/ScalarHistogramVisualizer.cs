@@ -13,6 +13,9 @@ using ZedGraph;
 
 namespace Bonsai.Vision.Design
 {
+    /// <summary>
+    /// Provides a type visualizer for per-channel color histograms.
+    /// </summary>
     public class ScalarHistogramVisualizer : DialogTypeVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
@@ -92,6 +95,7 @@ namespace Bonsai.Vision.Design
             UpdateCurveItem(value.Val3, Color.Magenta, ref val3);
         }
 
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             var time = DateTimeOffset.Now;
@@ -104,6 +108,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
             graph = new GraphControl();
@@ -120,6 +125,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        /// <inheritdoc/>
         public override void Unload()
         {
             graph.Dispose();
