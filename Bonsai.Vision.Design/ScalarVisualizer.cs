@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenCV.Net;
 using Bonsai;
 using Bonsai.Vision.Design;
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     public class ScalarVisualizer : TimeSeriesVisualizer
     {
         public ScalarVisualizer()
-            : base(4)
+            : base(numSeries: 4)
         {
         }
 

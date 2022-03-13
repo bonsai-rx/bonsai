@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using OpenCV.Net;
 using System.Globalization;
@@ -10,11 +10,11 @@ namespace Bonsai.Vision.Design
         bool playing;
         int frameCount;
         double playbackRate;
-        ToolStripButton loopButton;
-        ToolStripStatusLabel statusLabel;
-        ToolStripStatusLabel frameNumberHeaderLabel;
-        ToolStripStatusLabel frameNumberLabel;
-        ToolStripTextBox frameNumberTextBox;
+        readonly ToolStripButton loopButton;
+        readonly ToolStripStatusLabel statusLabel;
+        readonly ToolStripStatusLabel frameNumberHeaderLabel;
+        readonly ToolStripStatusLabel frameNumberLabel;
+        readonly ToolStripTextBox frameNumberTextBox;
 
         public VideoPlayer()
         {
@@ -177,29 +177,17 @@ namespace Bonsai.Vision.Design
 
         protected virtual void OnSeek(SeekEventArgs e)
         {
-            var handler = Seek;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            Seek?.Invoke(this, e);
         }
 
         protected virtual void OnPlayingChanged(EventArgs e)
         {
-            var handler = PlayingChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            PlayingChanged?.Invoke(this, e);
         }
 
         protected virtual void OnPlaybackRateChanged(EventArgs e)
         {
-            var handler = PlaybackRateChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            PlaybackRateChanged?.Invoke(this, e);
         }
 
         public void Update(IplImage frame, int frameNumber)

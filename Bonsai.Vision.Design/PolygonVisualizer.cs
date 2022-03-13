@@ -1,4 +1,4 @@
-﻿using Bonsai;
+using Bonsai;
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -19,8 +19,7 @@ namespace Bonsai.Vision.Design
 
         internal static void Draw(IplImage image, object value)
         {
-            var points = value as Point[][];
-            if (image != null && points != null)
+            if (image != null && value is Point[][] points)
             {
                 var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
                 var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);

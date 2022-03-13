@@ -12,18 +12,18 @@ namespace Bonsai.Vision.Design
 {
     class ImageQuadranglePicker : ImageBox
     {
-        CommandExecutor commandExecutor = new CommandExecutor();
-        Point2f[] quadrangle = new Point2f[4];
+        readonly CommandExecutor commandExecutor = new CommandExecutor();
+        readonly Point2f[] quadrangle = new Point2f[4];
         const double ScaleIncrement = 0.1;
         const float LineWidth = 2;
 
         public ImageQuadranglePicker()
         {
             Canvas.KeyDown += Canvas_KeyDown;
-            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, "LostFocus").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
+            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, nameof(LostFocus)).Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseUp)).Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDown)).Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseMove)).Select(e => e.EventArgs);
             var mouseLeftButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Left);
             var mouseLeftButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Left);
             var mouseRightButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Right &&
@@ -85,11 +85,7 @@ namespace Bonsai.Vision.Design
 
         protected virtual void OnQuadrangleChanged(EventArgs e)
         {
-            var handler = QuadrangleChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            QuadrangleChanged?.Invoke(this, e);
         }
 
         void InitializeQuadrangle(Point2f point0, Point2f point1, Point2f point2, Point2f point3)

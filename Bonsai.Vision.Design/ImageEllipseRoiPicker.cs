@@ -23,7 +23,7 @@ namespace Bonsai.Vision.Design
         const int FillOpacity = 85;
         const float LabelFontScale = 0.1f;
         const double ScaleIncrement = 0.1;
-        ObservableCollection<RotatedRect> regions = new ObservableCollection<RotatedRect>();
+        readonly ObservableCollection<RotatedRect> regions = new ObservableCollection<RotatedRect>();
         CommandExecutor commandExecutor = new CommandExecutor();
         IplImage labelImage;
         IplImageTexture labelTexture;
@@ -36,10 +36,10 @@ namespace Bonsai.Vision.Design
             Canvas.KeyDown += Canvas_KeyDown;
             commandExecutor.StatusChanged += commandExecutor_StatusChanged;
             regions.CollectionChanged += regions_CollectionChanged;
-            var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
+            var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDoubleClick)).Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseMove)).Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDown)).Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseUp)).Select(e => e.EventArgs);
             mouseDown = mouseDown.Do(x => dragging = true);
             mouseUp = mouseUp.Do(x => dragging = false);
 

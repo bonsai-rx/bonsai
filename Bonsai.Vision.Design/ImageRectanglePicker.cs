@@ -16,15 +16,15 @@ namespace Bonsai.Vision.Design
         Rect rectangle;
         const float LineWidth = 2;
         const double ScaleIncrement = 0.1;
-        CommandExecutor commandExecutor = new CommandExecutor();
+        readonly CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRectanglePicker()
         {
             Canvas.KeyDown += Canvas_KeyDown;
-            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, "LostFocus").Select(e => e.EventArgs);
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
+            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, nameof(LostFocus)).Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseMove)).Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDown)).Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseUp)).Select(e => e.EventArgs);
             var mouseLeftButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Left);
             var mouseRightButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Right &&
                                                           !MouseButtons.HasFlag(MouseButtons.Left));
@@ -156,11 +156,7 @@ namespace Bonsai.Vision.Design
 
         protected virtual void OnRectangleChanged(EventArgs e)
         {
-            var handler = RectangleChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            RectangleChanged?.Invoke(this, e);
         }
 
         protected override void OnLoad(EventArgs e)

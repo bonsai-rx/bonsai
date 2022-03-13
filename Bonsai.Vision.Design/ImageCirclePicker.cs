@@ -15,10 +15,10 @@ namespace Bonsai.Vision.Design
 
         public ImageCirclePicker()
         {
-            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, "LostFocus").Select(e => e.EventArgs);
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
+            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, nameof(LostFocus)).Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseMove)).Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDown)).Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseUp)).Select(e => e.EventArgs);
             var mouseLeftButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Left);
             var mousePick = (from downEvt in mouseDown.Where(evt => Image != null && evt.Button == MouseButtons.Left)
                              let center = NormalizedCenter(new Point2f(downEvt.X, downEvt.Y))
@@ -45,11 +45,7 @@ namespace Bonsai.Vision.Design
 
         protected virtual void OnCircleChanged(EventArgs e)
         {
-            var handler = CircleChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            CircleChanged?.Invoke(this, e);
         }
 
         Point2f NormalizedCenter(Point2f center)

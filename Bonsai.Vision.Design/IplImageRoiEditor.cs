@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Drawing.Design;
 using System.ComponentModel;
@@ -38,14 +38,14 @@ namespace Bonsai.Vision.Design
                 {
                     var imageControl = new ImageRoiPicker();
                     imageControl.LabelRegions = LabelRegions;
-                    var regions = default(OpenCV.Net.Point[][]);
+                    var regions = default(Point[][]);
                     var propertyDescriptor = context.PropertyDescriptor;
-                    if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
+                    if (propertyDescriptor.PropertyType == typeof(Point[]))
                     {
-                        if (value != null) regions = new[] { (OpenCV.Net.Point[])value };
+                        if (value != null) regions = new[] { (Point[])value };
                         imageControl.MaxRegions = 1;
                     }
-                    else regions = (OpenCV.Net.Point[][])value;
+                    else regions = (Point[][])value;
 
                     imageControl.Dock = DockStyle.Fill;
                     visualizerDialog.Text = propertyDescriptor.Name;
@@ -75,7 +75,7 @@ namespace Bonsai.Vision.Design
 
                     var result = imageControl.Regions.ToArray();
                     if (result.Length == 0) return null;
-                    else if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
+                    else if (propertyDescriptor.PropertyType == typeof(Point[]))
                     {
                         return result[0];
                     }

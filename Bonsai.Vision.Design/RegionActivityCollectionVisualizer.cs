@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Bonsai.Vision.Design;
 using Bonsai;
 using OpenCV.Net;
@@ -38,11 +38,9 @@ namespace Bonsai.Vision.Design
                     var rectangle = regions[i].Rect;
                     var color = regions[i].Activity.Val0 > 0 ? ActiveRoi : InactiveRoi;
 
-                    int baseline;
-                    Size labelSize;
                     var label = i.ToString();
                     var activity = regions[i].Activity.Val0.ToString("0.##");
-                    CV.GetTextSize(label, font, out labelSize, out baseline);
+                    CV.GetTextSize(label, font, out Size labelSize, out _);
                     CV.PutText(canvas, label, new Point(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
                     CV.PutText(canvas, activity, new Point(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
                 }

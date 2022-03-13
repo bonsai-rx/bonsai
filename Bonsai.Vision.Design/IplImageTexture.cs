@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL;
@@ -10,8 +10,8 @@ namespace Bonsai.Vision.Design
         bool disposed;
         uint vbo;
         int texture;
-        int maxTextureSize;
-        bool nonPowerOfTwo;
+        readonly int maxTextureSize;
+        readonly bool nonPowerOfTwo;
         IplImage textureImage;
         IplImage normalizedImage;
         Size textureSize;
@@ -67,14 +67,13 @@ namespace Bonsai.Vision.Design
         internal void Update(IplImage image, double scale)
         {
             var shift = 0.0;
-            if (image == null) throw new ArgumentNullException("image");
+            if (image == null) throw new ArgumentNullException(nameof(image));
             if (image.Depth != IplDepth.U8)
             {
                 double min, max;
-                Point minLoc, maxLoc;
                 using (var buffer = image.Reshape(1, 0))
                 {
-                    CV.MinMaxLoc(buffer, out min, out max, out minLoc, out maxLoc);
+                    CV.MinMaxLoc(buffer, out min, out max, out _, out _);
                 }
 
                 var range = scale * (max - min);
@@ -98,14 +97,14 @@ namespace Bonsai.Vision.Design
                 image = textureImage;
             }
 
-            OpenTK.Graphics.OpenGL.PixelFormat pixelFormat;
+            PixelFormat pixelFormat;
             switch (image.Channels)
             {
-                case 1: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance; break;
-                case 2: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Rg; break;
-                case 3: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr; break;
-                case 4: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra; break;
-                default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
+                case 1: pixelFormat = PixelFormat.Luminance; break;
+                case 2: pixelFormat = PixelFormat.Rg; break;
+                case 3: pixelFormat = PixelFormat.Bgr; break;
+                case 4: pixelFormat = PixelFormat.Bgra; break;
+                default: throw new ArgumentException("Image has an unsupported number of channels.", nameof(image));
             }
 
             GL.BindTexture(TextureTarget.Texture2D, texture);
@@ -129,11 +128,6 @@ namespace Bonsai.Vision.Design
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        }
-
-        ~IplImageTexture()
-        {
-            Dispose(false);
         }
 
         private void Dispose(bool disposing)

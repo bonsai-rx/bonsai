@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
@@ -69,20 +69,12 @@ namespace Bonsai.Vision.Design
 
         protected virtual void OnRenderFrame(EventArgs e)
         {
-            var handler = RenderFrame;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            RenderFrame?.Invoke(this, e);
         }
 
         protected virtual void OnSwapBuffers(EventArgs e)
         {
-            var handler = SwapBuffers;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            SwapBuffers?.Invoke(this, e);
         }
 
         public void MakeCurrent()

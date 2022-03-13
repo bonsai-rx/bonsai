@@ -1,4 +1,4 @@
-﻿using Bonsai;
+using Bonsai;
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -29,8 +29,7 @@ namespace Bonsai.Vision.Design
         {
             if (image != null)
             {
-                var array = value as Rect[];
-                if (array != null)
+                if (value is Rect[] array)
                 {
                     for (int i = 0; i < array.Length; i++)
                     {
