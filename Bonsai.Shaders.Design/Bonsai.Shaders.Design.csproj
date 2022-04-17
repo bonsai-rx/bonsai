@@ -42,8 +42,5 @@
     <EmbeddedResource Update="Configuration\ShaderCollectionEditorControl.resx">
       <LogicalName>Bonsai.Shaders.Configuration.Design.ShaderCollectionEditorControl.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Update="Configuration\ShaderConfigurationEditorDialog.resx">
-      <LogicalName>Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditorDialog.resources</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>
