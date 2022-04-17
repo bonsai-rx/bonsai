@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Shaders.Design
 {
-    public partial class GlslScriptEditorDialog : Form
+    internal partial class GlslScriptEditorDialog : Form
     {
         const string DefaultTabName = "script";
         const string DefaultScript = @"#version 400
@@ -69,7 +69,7 @@ void main()
 
         static int GetFileFilterIndex(ShaderType? shaderType)
         {
-            switch (shaderType.GetValueOrDefault((ShaderType)0))
+            switch (shaderType.GetValueOrDefault(0))
             {
                 case ShaderType.ComputeShader: return 1;
                 case ShaderType.FragmentShader: return 2;
@@ -116,8 +116,7 @@ void main()
 
         private void StartBrowser(string url)
         {
-            Uri uriResult;
-            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out uriResult) &&
+            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult) &&
                 (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
             if (!validUrl)
             {
@@ -218,9 +217,8 @@ void main()
                 var tabState = (TabPageController)tabPage.Tag;
                 if (!string.IsNullOrEmpty(tabState.FileName)) continue;
 
-                int index;
                 var tabName = Path.GetFileNameWithoutExtension(tabState.Text);
-                if (!int.TryParse(tabName.Substring(DefaultTabName.Length), out index)) continue;
+                if (!int.TryParse(tabName.Substring(DefaultTabName.Length), out int index)) continue;
                 indices.Add(index - 1);
             }
 
@@ -243,7 +241,7 @@ void main()
 
         void NewScript(string script)
         {
-            if (!string.ReferenceEquals(script, DefaultScript))
+            if (!ReferenceEquals(script, DefaultScript))
             {
                 RemoveDefaultTabPage();
             }
@@ -525,23 +523,13 @@ void main()
             bool modified;
             string fileName;
             string displayText;
-            Scintilla editor;
             int maxLineNumberLength;
+            readonly Scintilla editor;
 
             public TabPageController(TabPage tabPage, Scintilla scintilla)
             {
-                if (tabPage == null)
-                {
-                    throw new ArgumentNullException("tabPage");
-                }
-
-                if (scintilla == null)
-                {
-                    throw new ArgumentNullException("scintilla");
-                }
-
-                TabPage = tabPage;
-                editor = scintilla;
+                TabPage = tabPage ?? throw new ArgumentNullException(nameof(tabPage));
+                editor = scintilla ?? throw new ArgumentNullException(nameof(scintilla));
                 modified = editor.Modified;
             }
 
@@ -687,14 +675,13 @@ void main()
                     return;
                 }
 
-                int status;
                 int shader = 0;
                 try
                 {
                     shader = GL.CreateShader(shaderType.Value);
                     GL.ShaderSource(shader, editor.Text);
                     GL.CompileShader(shader);
-                    GL.GetShader(shader, ShaderParameter.CompileStatus, out status);
+                    GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
                     if (status == 0)
                     {
                         var message = string.Format(

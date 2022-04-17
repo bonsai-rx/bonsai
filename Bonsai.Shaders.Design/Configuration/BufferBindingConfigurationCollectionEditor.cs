@@ -1,12 +1,10 @@
-﻿using Bonsai.Resources.Design;
+using Bonsai.Resources.Design;
 using System;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
     public class BufferBindingConfigurationCollectionEditor : CollectionEditor
     {
-        const string BaseText = "Bind";
-
         public BufferBindingConfigurationCollectionEditor(Type type)
             : base(type)
         {

@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources.Design;
+using Bonsai.Resources.Design;
 using System;
 
 namespace Bonsai.Shaders.Configuration.Design
@@ -19,9 +19,9 @@ namespace Bonsai.Shaders.Configuration.Design
             var textureName = configuration.TextureName;
             if (string.IsNullOrEmpty(textureName))
             {
-                return string.Format("{0}({1})", BaseText, attachment);
+                return $"{BaseText}({attachment})";
             }
-            else return string.Format("{0}({1} : {2})", BaseText, attachment, textureName);
+            else return $"{BaseText}({attachment} : {textureName})";
         }
     }
 }
