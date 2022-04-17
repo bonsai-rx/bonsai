@@ -1,4 +1,4 @@
-using OpenCV.Net;
+﻿using OpenCV.Net;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -8,28 +8,42 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [Description("Draws the specified mesh geometry using input instance data.")]
+    /// <summary>
+    /// Represents an operator that draws the specified mesh geometry using instanced
+    /// rendering, where each array in the sequence stores the per-instance attributes.
+    /// </summary>
+    [Description("Draws the specified mesh geometry using instanced rendering, where each array in the sequence stores the per-instance attributes.")]
     public class DrawMeshInstanced : Sink<Mat>
     {
         readonly InstanceAttributeMappingCollection instanceAttributes = new InstanceAttributeMappingCollection();
 
-        public DrawMeshInstanced()
-        {
-            Usage = BufferUsageHint.DynamicDraw;
-        }
-
+        /// <summary>
+        /// Gets or sets the name of the material shader program used in the
+        /// drawing operation.
+        /// </summary>
         [TypeConverter(typeof(MaterialNameConverter))]
         [Description("The name of the material shader program.")]
         public string ShaderName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the mesh geometry to draw.
+        /// </summary>
         [TypeConverter(typeof(MeshNameConverter))]
         [Description("The name of the mesh geometry to draw.")]
         public string MeshName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the expected usage pattern of the
+        /// instance buffer data.
+        /// </summary>
         [Description("Specifies the expected usage pattern of the instance buffer data.")]
-        public BufferUsageHint Usage { get; set; }
+        public BufferUsageHint Usage { get; set; } = BufferUsageHint.DynamicDraw;
 
-        [Description("Specifies the attributes used to interpret the instance buffer data.")]
+        /// <summary>
+        /// Gets a collection of instance attributes specifying how to map instance
+        /// buffer data into per-instance input values in the vertex shader.
+        /// </summary>
+        [Description("Specifies how to map instance buffer data into per-instance input values in the vertex shader.")]
         public InstanceAttributeMappingCollection InstanceAttributes
         {
             get { return instanceAttributes; }
@@ -111,6 +125,22 @@ namespace Bonsai.Shaders
             return instance;
         }
 
+        /// <summary>
+        /// Draws the specified mesh geometry using instanced rendering, where
+        /// each array in an observable sequence stores the per-instance attributes.
+        /// </summary>
+        /// <typeparam name="TVertex">
+        /// The type of the array elements used to store the per-instance attributes.
+        /// </typeparam>
+        /// <param name="source">
+        /// A sequence of per-instance attribute data used to render each instance.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of scheduling
+        /// an instanced rendering operation where instance attribute data is drawn
+        /// from each of the arrays in the sequence.
+        /// </returns>
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
             return Observable.Create<TVertex[]>(observer =>
@@ -155,6 +185,21 @@ namespace Bonsai.Shaders
             });
         }
 
+        /// <summary>
+        /// Draws the specified mesh geometry using instanced rendering, where
+        /// each of the matrix data in an observable sequence stores the
+        /// per-instance attributes.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of <see cref="Mat"/> objects representing the per-instance
+        /// attribute data used to render each instance.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of scheduling
+        /// an instanced rendering operation where instance attribute data is drawn
+        /// from each of the matrices in the sequence.
+        /// </returns>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>

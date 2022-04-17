@@ -1,4 +1,4 @@
-using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.ComponentModel;
@@ -8,11 +8,18 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Represents an operator that renders all currently stored draw commands
+    /// to a texture.
+    /// </summary>
     [Description("Renders all currently stored draw commands to a texture.")]
     public class RenderTexture : Combinator<Texture>
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderTexture"/> class.
+        /// </summary>
         public RenderTexture()
         {
             ClearColor = Color.Black;
@@ -24,19 +31,29 @@ namespace Bonsai.Shaders
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
+        /// <summary>
+        /// Gets the collection of configuration objects specifying the render
+        /// states to be set when rendering the texture.
+        /// </summary>
         [Category("Render Settings")]
-        [Description("Specifies any render states that are required to render the framebuffer.")]
+        [Description("Specifies the set of render states to be set when rendering the texture.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
         }
 
+        /// <summary>
+        /// Gets or sets the color used to clear the framebuffer before rendering.
+        /// </summary>
         [XmlIgnore]
         [Category("Render Settings")]
         [Description("The color used to clear the framebuffer before rendering.")]
         public Color ClearColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the clear color for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(ClearColor))]
         public string ClearColorHtml
@@ -45,34 +62,63 @@ namespace Bonsai.Shaders
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying which buffers to clear before rendering.
+        /// </summary>
         [Category("Render Settings")]
         [Description("Specifies which buffers to clear before rendering.")]
         public ClearBufferMask ClearMask { get; set; }
 
+        /// <summary>
+        /// Gets or sets the width of the texture. If no value is specified, the
+        /// texture buffer will be initialized to the width of the shader window.
+        /// </summary>
         [Category("TextureSize")]
-        [Description("The optional width of the texture.")]
+        [Description("The width of the texture. If no value is specified, the texture buffer will be initialized to the size of the shader window.")]
         public int? Width { get; set; }
 
+        /// <summary>
+        /// Gets or sets the height of the texture. If no value is specified, the
+        /// texture buffer will be initialized to the height of the shader window.
+        /// </summary>
         [Category("TextureSize")]
-        [Description("The optional height of the texture.")]
+        [Description("The height of the texture. If no value is specified, the texture buffer will be initialized to the height of the shader window.")]
         public int? Height { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the internal storage format of the
+        /// render texture.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The internal storage format of the texture target.")]
+        [Description("Specifies the internal storage format of the texture target.")]
         public PixelInternalFormat InternalFormat { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the column
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
         public TextureWrapMode WrapS { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the row
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the row coordinates of the texture sampler.")]
         public TextureWrapMode WrapT { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture minification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture minification filter.")]
         public TextureMinFilter MinFilter { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture magnification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
         public TextureMagFilter MagFilter { get; set; }
@@ -95,6 +141,20 @@ namespace Bonsai.Shaders
             return texture;
         }
 
+        /// <summary>
+        /// Renders all currently stored draw commands to a texture whenever an
+        /// observable sequence emits a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of notifications used to start the render to texture.
+        /// </param>
+        /// <returns>
+        /// A sequence returning the <see cref="Texture"/> object representing the
+        /// render target, whenever the render to texture operation completes.
+        /// </returns>
         public override IObservable<Texture> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Defer(() =>

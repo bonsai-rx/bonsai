@@ -1,4 +1,4 @@
-using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics;
 using System;
 using System.IO;
@@ -10,6 +10,10 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides functionality for accessing shader window resources and
+    /// scheduling actions on the main render loop.
+    /// </summary>
     public static class ShaderManager
     {
         internal const string DefaultConfigurationFile = "Shaders.config";
@@ -74,6 +78,9 @@ namespace Bonsai.Shaders
             .RefCount();
         }
 
+        /// <summary>
+        /// Gets an observable sequence containing the active shader window.
+        /// </summary>
         public static IObservable<ShaderWindow> WindowSource
         {
             get { return windowSource; }
@@ -84,6 +91,17 @@ namespace Bonsai.Shaders
             return WindowSource.SelectMany(window => window.UpdateFrameAsync).Take(1).Select(evt => (ShaderWindow)evt.Sender);
         }
 
+        /// <summary>
+        /// Invokes an action on the next update of the active shader window and
+        /// returns the window instance through an observable sequence.
+        /// </summary>
+        /// <param name="update">
+        /// The action to invoke on the next update of the active shader window.
+        /// </param>
+        /// <returns>
+        /// An observable sequence returning the active <see cref="ShaderWindow"/>
+        /// instance immediately after the action has been invoked.
+        /// </returns>
         public static IObservable<ShaderWindow> WindowUpdate(Action<ShaderWindow> update)
         {
             return WindowSource.SelectMany(window => window.UpdateFrameAsync.Take(1)).Select(evt =>
@@ -94,6 +112,18 @@ namespace Bonsai.Shaders
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence that retrieves the shader with the
+        /// specified name.
+        /// </summary>
+        /// <param name="shaderName">
+        /// The name of the shader program to retrieve.
+        /// </param>
+        /// <returns>
+        /// A sequence containing a single instance of the <see cref="Shader"/>
+        /// class matching the specified name; or an exception, if no such
+        /// shader exists.
+        /// </returns>
         public static IObservable<Shader> ReserveShader(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))
@@ -112,6 +142,18 @@ namespace Bonsai.Shaders
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence that retrieves the material shader with
+        /// the specified name.
+        /// </summary>
+        /// <param name="shaderName">
+        /// The name of the shader program to retrieve.
+        /// </param>
+        /// <returns>
+        /// A sequence containing a single instance of the <see cref="Material"/>
+        /// class matching the specified shader name; or an exception, if no such
+        /// shader exists.
+        /// </returns>
         public static IObservable<Material> ReserveMaterial(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))
@@ -131,6 +173,18 @@ namespace Bonsai.Shaders
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence that retrieves the compute shader with
+        /// the specified name.
+        /// </summary>
+        /// <param name="shaderName">
+        /// The name of the shader program to retrieve.
+        /// </param>
+        /// <returns>
+        /// A sequence containing a single instance of the <see cref="ComputeProgram"/>
+        /// class matching the specified shader name; or an exception, if no such
+        /// shader exists.
+        /// </returns>
         public static IObservable<ComputeProgram> ReserveComputeProgram(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))

@@ -6,32 +6,48 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for cubemap texture resources.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class Cubemap : TextureConfiguration
     {
-        public Cubemap()
-        {
-            MinFilter = TextureMinFilter.Linear;
-            MagFilter = TextureMagFilter.Linear;
-            InternalFormat = PixelInternalFormat.Rgb;
-        }
-
+        /// <summary>
+        /// Gets or sets the texture size for each of the cubemap faces.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The optional texture size for each of the cubemap faces.")]
+        [Description("The texture size for each of the cubemap faces.")]
         public int? FaceSize { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the internal pixel format of the cubemap.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The internal pixel format of the cubemap.")]
-        public PixelInternalFormat InternalFormat { get; set; }
+        [Description("Specifies the internal pixel format of the cubemap.")]
+        public PixelInternalFormat InternalFormat { get; set; } = PixelInternalFormat.Rgb;
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture minification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture minification filter.")]
-        public TextureMinFilter MinFilter { get; set; }
+        public TextureMinFilter MinFilter { get; set; } = TextureMinFilter.Linear;
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture magnification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
-        public TextureMagFilter MagFilter { get; set; }
+        public TextureMagFilter MagFilter { get; set; } = TextureMagFilter.Linear;
 
+        /// <summary>
+        /// Creates a new cubemap texture resource.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the cubemap texture.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var texture = new Texture();

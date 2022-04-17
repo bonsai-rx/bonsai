@@ -3,10 +3,17 @@ using System;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Represents a texture object containing one or more images with the
+    /// same image format.
+    /// </summary>
     public class Texture : IDisposable
     {
         int id;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Texture"/> class.
+        /// </summary>
         public Texture()
         {
             GL.GenTextures(1, out id);
@@ -17,6 +24,9 @@ namespace Bonsai.Shaders
             id = value;
         }
 
+        /// <summary>
+        /// Gets the handle to the texture object.
+        /// </summary>
         public int Id
         {
             get { return id; }
@@ -32,6 +42,9 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="Texture"/> class.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

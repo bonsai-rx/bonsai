@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -7,15 +7,26 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
-    [Description("Delays the subscription of the observable sequence in the render loop by the specified relative time duration.")]
+    /// <summary>
+    /// Represents an operator that delays subscription to the observable sequence
+    /// by the specified time interval, using the render loop scheduler.
+    /// </summary>
+    [Description("Delays subscription to the observable sequence by the specified time interval, using the render loop scheduler.")]
     public class DelaySubscription : Combinator
     {
         static readonly UpdateFrame updateFrame = new UpdateFrame();
 
+        /// <summary>
+        /// Gets or sets the time interval by which to delay subscription to the
+        /// sequence.
+        /// </summary>
         [XmlIgnore]
-        [Description("The time interval by which to delay the subscription to the sequence.")]
+        [Description("The time interval by which to delay subscription to the sequence.")]
         public TimeSpan DueTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the due time for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
         public string DueTimeXml
@@ -24,6 +35,20 @@ namespace Bonsai.Shaders
             set { DueTime = XmlConvert.ToTimeSpan(value); }
         }
 
+        /// <summary>
+        /// Delays subscription to an observable sequence by the specified time
+        /// interval, using the render loop scheduler.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The source sequence to delay subscription for.
+        /// </param>
+        /// <returns>
+        /// The time-shifted sequence, where subscription is delayed by the
+        /// specified time interval, using the render loop scheduler.
+        /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             var dueTime = DueTime.TotalSeconds;

@@ -1,4 +1,4 @@
-using Bonsai.Resources;
+﻿using Bonsai.Resources;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.ComponentModel;
@@ -6,13 +6,29 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for initializing streaming
+    /// texture sequences from a movie file.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class VideoTexture : ImageSequence
     {
+        /// <summary>
+        /// Gets or sets the size of the pre-loading buffer for video frames.
+        /// </summary>
         [Category("TextureData")]
-        [Description("The optional size of the pre-loading buffer for video frames.")]
+        [Description("The size of the pre-loading buffer for video frames.")]
         public int? BufferLength { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Texture"/> class providing
+        /// support for streaming texture data from a movie file.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the video texture.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var frames = GetFrames(FileName, clone: true, out bool video, out PixelInternalFormat? internalFormat);
@@ -32,6 +48,7 @@ namespace Bonsai.Shaders.Configuration
             return sequence;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;

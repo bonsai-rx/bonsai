@@ -1,10 +1,14 @@
-using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides an abstract base class for common functionality used in render
+    /// effects specifying a vertex, geometry or fragment shader.
+    /// </summary>
     public abstract class Effect : Shader
     {
         readonly string vertexSource;
@@ -29,6 +33,10 @@ namespace Bonsai.Shaders
             CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
+        /// <summary>
+        /// Compiles the effect shader and returns the program object handle.
+        /// </summary>
+        /// <inheritdoc/>
         protected override int CreateShader()
         {
             int vertexShader = 0;

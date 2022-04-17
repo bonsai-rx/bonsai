@@ -6,45 +6,65 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for two-dimensional
+    /// texture resources.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class Texture2D : TextureConfiguration
     {
-        public Texture2D()
-        {
-            WrapS = TextureWrapMode.Repeat;
-            WrapT = TextureWrapMode.Repeat;
-            MinFilter = TextureMinFilter.Linear;
-            MagFilter = TextureMagFilter.Linear;
-            InternalFormat = PixelInternalFormat.Rgba;
-        }
-
+        /// <summary>
+        /// Gets or sets the width of the texture. If no value is specified, the
+        /// texture buffer will not be initialized.
+        /// </summary>
         [Category("TextureSize")]
-        [Description("The optional width of the texture.")]
+        [Description("The width of the texture. If no value is specified, the texture buffer will not be initialized.")]
         public int? Width { get; set; }
 
+        /// <summary>
+        /// Gets or sets the height of the texture. If no value is specified, the
+        /// texture buffer will not be initialized.
+        /// </summary>
         [Category("TextureSize")]
-        [Description("The optional height of the texture.")]
+        [Description("The height of the texture. If no value is specified, the texture buffer will not be initialized.")]
         public int? Height { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the internal pixel format of the texture.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The internal pixel format of the texture.")]
-        public PixelInternalFormat InternalFormat { get; set; }
+        [Description("Specifies the internal pixel format of the texture.")]
+        public PixelInternalFormat InternalFormat { get; set; } = PixelInternalFormat.Rgba;
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the column
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
-        public TextureWrapMode WrapS { get; set; }
+        public TextureWrapMode WrapS { get; set; } = TextureWrapMode.Repeat;
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the row
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the row coordinates of the texture sampler.")]
-        public TextureWrapMode WrapT { get; set; }
+        public TextureWrapMode WrapT { get; set; } = TextureWrapMode.Repeat;
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture minification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture minification filter.")]
-        public TextureMinFilter MinFilter { get; set; }
+        public TextureMinFilter MinFilter { get; set; } = TextureMinFilter.Linear;
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture magnification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
-        public TextureMagFilter MagFilter { get; set; }
+        public TextureMagFilter MagFilter { get; set; } = TextureMagFilter.Linear;
 
         internal void ConfigureTexture(Texture texture, int width, int height)
         {
@@ -59,6 +79,15 @@ namespace Bonsai.Shaders.Configuration
             }
         }
 
+        /// <summary>
+        /// Creates a new empty two-dimensional texture resource, typically used
+        /// for uploading dynamic texture data.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the 2D texture.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var texture = new Texture();

@@ -1,10 +1,14 @@
-using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides functionality for executing and updating the state of a compute
+    /// shader program.
+    /// </summary>
     public class ComputeProgram : Shader
     {
         readonly string computeSource;
@@ -25,8 +29,18 @@ namespace Bonsai.Shaders
             CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying the number of workgroups to be
+        /// launched when dispatching the compute shader.
+        /// </summary>
         public DispatchParameters WorkGroups { get; set; }
 
+        /// <summary>
+        /// Compiles the compute shader and returns the program object handle.
+        /// </summary>
+        /// <returns>
+        /// A handle to the compute shader program object.
+        /// </returns>
         protected override int CreateShader()
         {
             var computeShader = GL.CreateShader(ShaderType.ComputeShader);
@@ -62,6 +76,7 @@ namespace Bonsai.Shaders
             finally { GL.DeleteShader(computeShader); }
         }
 
+        /// <inheritdoc/>
         protected override Action OnDispatch()
         {
             var workGroups = WorkGroups;

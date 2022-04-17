@@ -7,19 +7,29 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [Description("Writes the input image sequence to a texture array.")]
+    /// <summary>
+    /// Represents an operator that writes a sequence of images to a texture array.
+    /// </summary>
+    [Description("Writes a sequence of images to a texture array.")]
     public class StoreImageSequence : Combinator<IplImage[], Texture>
     {
         readonly Texture2D configuration = new Texture2D();
 
+        /// <summary>
+        /// Gets or sets a value specifying the internal pixel format of the texture.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The internal pixel format of the texture.")]
+        [Description("Specifies the internal pixel format of the texture.")]
         public PixelInternalFormat InternalFormat
         {
             get { return configuration.InternalFormat; }
             set { configuration.InternalFormat = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the column
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
         public TextureWrapMode WrapS
@@ -28,6 +38,10 @@ namespace Bonsai.Shaders
             set { configuration.WrapS = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying wrapping parameters for the row
+        /// coordinates of the texture sampler.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the row coordinates of the texture sampler.")]
         public TextureWrapMode WrapT
@@ -36,6 +50,9 @@ namespace Bonsai.Shaders
             set { configuration.WrapT = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture minification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture minification filter.")]
         public TextureMinFilter MinFilter
@@ -44,6 +61,9 @@ namespace Bonsai.Shaders
             set { configuration.MinFilter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture magnification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
         public TextureMagFilter MagFilter
@@ -52,11 +72,28 @@ namespace Bonsai.Shaders
             set { configuration.MagFilter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the default rate at which to playback the stored
+        /// image sequence.
+        /// </summary>
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The default rate at which to playback the stored image sequence.")]
         public double PlaybackRate { get; set; }
 
+        /// <summary>
+        /// Writes each array of images in an observable sequence into a new
+        /// texture array.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of arrays of <see cref="IplImage"/> objects used to
+        /// initialize the texture array.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="Texture"/> objects where each texture
+        /// stores the corresponding array of images in the <paramref name="source"/>
+        /// sequence.
+        /// </returns>
         public override IObservable<Texture> Process(IObservable<IplImage[]> source)
         {
             return source.SelectMany(input => ShaderManager.WindowUpdate().Select(window =>
@@ -75,6 +112,18 @@ namespace Bonsai.Shaders
             }));
         }
 
+        /// <summary>
+        /// Writes an observable sequence of images to a texture array.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images to be stored in the texture array.
+        /// </param>
+        /// <returns>
+        /// An observable sequence containing the <see cref="Texture"/> object
+        /// used to store all the images in the <paramref name="source"/> sequence.
+        /// The initialized texture array is returned only when the image sequence
+        /// is completed.
+        /// </returns>
         public IObservable<Texture> Process(IObservable<IplImage> source)
         {
             return source.SelectMany(input => ShaderManager.WindowUpdate().Select(window =>

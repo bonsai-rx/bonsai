@@ -1,4 +1,4 @@
-using Bonsai.Resources;
+﻿using Bonsai.Resources;
 using Bonsai.Shaders.Configuration;
 using OpenTK;
 using OpenTK.Graphics;
@@ -12,6 +12,10 @@ using System.Threading;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Creates and renders a window using the specified resources and a programmable
+    /// shader pipeline.
+    /// </summary>
     public class ShaderWindow : GameWindow
     {
         RectangleF viewport;
@@ -28,6 +32,13 @@ namespace Bonsai.Shaders
         readonly bool swapSync;
         event Action update;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShaderWindow"/> class using
+        /// the specified window configuration settings.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration settings used to initialize the shader window.
+        /// </param>
         public ShaderWindow(ShaderWindowSettings configuration)
             : this(configuration, DisplayDevice.GetDisplay(configuration.DisplayDevice) ?? DisplayDevice.Default)
         {
@@ -71,8 +82,14 @@ namespace Bonsai.Shaders
             get { return renderFrame; }
         }
 
+        /// <summary>
+        /// Gets or sets the color used to clear the framebuffer before rendering.
+        /// </summary>
         public Color ClearColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the active viewport for rendering, in normalized coordinates.
+        /// </summary>
         public RectangleF Viewport
         {
             get { return viewport; }
@@ -83,6 +100,10 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <summary>
+        /// Gets or sets the active scissor box, in normalized coordinates. Any fragments
+        /// falling outside the scissor box will be discarded.
+        /// </summary>
         public RectangleF Scissor
         {
             get { return scissor; }
@@ -93,16 +114,27 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <summary>
+        /// Gets the collection of shaders specifying the active render pipeline.
+        /// </summary>
         public IEnumerable<Shader> Shaders
         {
             get { return shaders; }
         }
 
+        /// <summary>
+        /// Gets the resource manager used to load and release sets of render
+        /// resources to the shader window.
+        /// </summary>
         public ResourceManager ResourceManager
         {
             get { return resourceManager; }
         }
 
+        /// <summary>
+        /// Gets or sets the size of the OpenGL surface in window coordinates.
+        /// The coordinates are specified in device-dependent pixels.
+        /// </summary>
         public new Size ClientSize
         {
             get { return WindowBorder == WindowBorder.Hidden ? Size : base.ClientSize; }
@@ -116,6 +148,10 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <summary>
+        /// Gets or sets the width of the OpenGL surface in window coordinates.
+        /// The coordinates are specified in device-dependent pixels.
+        /// </summary>
         public new int Width
         {
             get { return WindowBorder == WindowBorder.Hidden ? Size.Width : base.Width; }
@@ -129,6 +165,10 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <summary>
+        /// Gets or sets the height of the OpenGL surface in window coordinates.
+        /// The coordinates are specified in device-dependent pixels.
+        /// </summary>
         public new int Height
         {
             get { return WindowBorder == WindowBorder.Hidden ? Size.Height : base.Height; }
@@ -177,11 +217,18 @@ namespace Bonsai.Shaders
                 (int)(scissor.Height * height));
         }
 
+        /// <summary>
+        /// Queues a render command or state update.
+        /// </summary>
+        /// <param name="action">
+        /// The action that will execute when the next frame is rendered.
+        /// </param>
         public void Update(Action action)
         {
             update += action;
         }
 
+        /// <inheritdoc/>
         protected override void OnLoad(EventArgs e)
         {
             var windowManager = new WindowManagerConfiguration(this);
@@ -200,6 +247,7 @@ namespace Bonsai.Shaders
             base.OnLoad(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             if (e.Key == Key.F11)
@@ -214,6 +262,7 @@ namespace Bonsai.Shaders
             base.OnKeyDown(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnResize(EventArgs e)
         {
             UpdateViewport();
@@ -221,12 +270,14 @@ namespace Bonsai.Shaders
             base.OnResize(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             OnFrameEvent(updateFrame, TargetUpdatePeriod, e);
             base.OnUpdateFrame(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             if (clearMask != ClearBufferMask.None)
@@ -269,6 +320,7 @@ namespace Bonsai.Shaders
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnClosed(EventArgs e)
         {
             updateFrame.OnCompleted();
@@ -276,6 +328,7 @@ namespace Bonsai.Shaders
             base.OnClosed(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnUnload(EventArgs e)
         {
             shaders.Clear();

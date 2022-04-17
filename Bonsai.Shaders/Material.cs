@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides functionality for rendering geometry using a shaded material
+    /// pass using the specified vertex, geometry or fragment shader.
+    /// </summary>
     public class Material : Effect
     {
         Mesh materialMesh;
@@ -30,12 +34,16 @@ namespace Bonsai.Shaders
         {
         }
 
+        /// <summary>
+        /// Gets the geometry to draw when running the material pass.
+        /// </summary>
         public Mesh Mesh
         {
             get { return materialMesh; }
             internal set { materialMesh = value; }
         }
 
+        /// <inheritdoc/>
         protected override Action OnDispatch()
         {
             var mesh = materialMesh;
