@@ -7,10 +7,14 @@ using System.Windows.Forms;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
+    /// <summary>
+    /// Provides a custom user interface for editing and validating GLSL shader scripts.
+    /// </summary>
     public class ShaderScriptComponentEditor : WorkflowComponentEditor
     {
         static GlslScriptEditorDialog editorDialog;
 
+        /// <inheritdoc/>
         public override bool EditComponent(ITypeDescriptorContext context, object component, IServiceProvider provider, IWin32Window owner)
         {
             if (editorDialog == null)
@@ -45,6 +49,12 @@ namespace Bonsai.Shaders.Configuration.Design
             return false;
         }
 
+        /// <summary>
+        /// Gets the GLSL example scripts that can be created from this editor.
+        /// </summary>
+        /// <returns>
+        /// An array of GLSL examples that this editor can create.
+        /// </returns>
         protected virtual GlslScriptExample[] GetShaderExamples()
         {
             return new[]
