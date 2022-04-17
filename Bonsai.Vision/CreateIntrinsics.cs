@@ -71,7 +71,7 @@ namespace Bonsai.Vision
         /// <summary>
         /// Generates an observable sequence of camera intrinsics using the specified
         /// focal length and distortion parameters, and where each <see cref="Intrinsics"/>
-        /// object is emitted only when an observable sequence raises a notification.
+        /// object is emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

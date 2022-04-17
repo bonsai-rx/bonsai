@@ -85,7 +85,7 @@ namespace Bonsai.Vision.Drawing
         /// <summary>
         /// Generates an observable sequence of canvas objects using the
         /// specified size and pixel format, and where each canvas is
-        /// emitted only when an observable sequence raises a notification.
+        /// emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

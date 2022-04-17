@@ -76,7 +76,7 @@ namespace Bonsai.Vision
         /// <summary>
         /// Generates an observable sequence of camera intrinsics loaded from the
         /// specified YML file, and where each <see cref="Intrinsics"/> object
-        /// is loaded only when an observable sequence raises a notification.
+        /// is loaded only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

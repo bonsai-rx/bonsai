@@ -225,7 +225,7 @@ namespace Bonsai.Dsp
         /// <summary>
         /// Generates an observable sequence of signal sample buffers from
         /// the specified raw binary input stream, where each new buffer is
-        /// emitted only when an observable sequence raises a notification.
+        /// emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

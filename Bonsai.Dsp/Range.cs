@@ -62,7 +62,7 @@ namespace Bonsai.Dsp
         /// <summary>
         /// Generates an observable sequence of buffers filled with a specified
         /// range of numbers, and where each new buffer is emitted only when an
-        /// observable sequence raises a notification.
+        /// observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.
