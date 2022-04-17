@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 
 namespace Bonsai.Shaders
 {
@@ -41,7 +41,7 @@ namespace Bonsai.Shaders
 
         public override string ToString()
         {
-            return string.Format("(Center:{0}, Extents:{1})", center, extents);
+            return $"(Center:{center}, Extents:{extents})";
         }
     }
 }

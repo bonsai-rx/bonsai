@@ -20,7 +20,7 @@ namespace Bonsai.Shaders
         public override void Bind()
         {
             GL.BindImageTexture(
-                (int)(textureUnit - TextureUnit.Texture0),
+                textureUnit - TextureUnit.Texture0,
                 texture.Id,
                 0, false, 0,
                 bindingAccess,
@@ -30,7 +30,7 @@ namespace Bonsai.Shaders
         public override void Unbind()
         {
             GL.BindImageTexture(
-                (int)(textureUnit - TextureUnit.Texture0),
+                textureUnit - TextureUnit.Texture0,
                 0,
                 0, false, 0,
                 bindingAccess,

@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -17,8 +17,7 @@ namespace Bonsai.Shaders
         {
             return source.Select(input =>
             {
-                Matrix4 result;
-                CreateTransform(out result);
+                CreateTransform(out Matrix4 result);
                 if (Order == MatrixOrder.Append) Matrix4.Mult(ref input, ref result, out result);
                 else Matrix4.Mult(ref result, ref input, out result);
                 return result;

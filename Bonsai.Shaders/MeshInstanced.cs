@@ -7,7 +7,7 @@ namespace Bonsai.Shaders
     {
         int vbo;
         int vao;
-        Mesh instanceMesh;
+        readonly Mesh instanceMesh;
 
         internal MeshInstanced(Mesh mesh)
         {

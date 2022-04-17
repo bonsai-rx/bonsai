@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -24,9 +24,9 @@ namespace Bonsai.Shaders.Configuration
             }
             else if (string.IsNullOrEmpty(referenceName))
             {
-                return string.Format("{0}({1})", baseText, name);
+                return $"{baseText}({name})";
             }
-            else return string.Format("{0}({1} : {2})", baseText, name, referenceName);
+            else return $"{baseText}({name} : {referenceName})";
         }
     }
 }

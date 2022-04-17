@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -24,9 +24,9 @@ namespace Bonsai.Shaders
 
         public override bool Equals(object obj)
         {
-            if (obj is TimeStep)
+            if (obj is TimeStep step)
             {
-                return Equals((TimeStep)obj);
+                return Equals(step);
             }
 
             return false;
@@ -62,15 +62,13 @@ namespace Bonsai.Shaders
 
         public static TimeStep Add(TimeStep left, TimeStep right)
         {
-            TimeStep result;
-            Add(ref left, ref right, out result);
+            Add(ref left, ref right, out TimeStep result);
             return result;
         }
 
         public static TimeStep Subtract(TimeStep left, TimeStep right)
         {
-            TimeStep result;
-            Subtract(ref left, ref right, out result);
+            Subtract(ref left, ref right, out TimeStep result);
             return result;
         }
 

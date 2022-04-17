@@ -25,8 +25,7 @@ namespace Bonsai.Shaders
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            var text = value as string;
-            if (text != null)
+            if (value is string text)
             {
                 value = TextureTarget.TextureCubeMap.ToString() + text;
             }
@@ -34,7 +33,7 @@ namespace Bonsai.Shaders
             return base.ConvertFrom(context, culture, value);
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             return new StandardValuesCollection(new[]
             {

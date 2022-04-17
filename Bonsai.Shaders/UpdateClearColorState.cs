@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Xml.Serialization;
@@ -18,7 +18,7 @@ namespace Bonsai.Shaders
         public Color ClearColor { get; set; }
 
         [Browsable(false)]
-        [XmlElement("ClearColor")]
+        [XmlElement(nameof(ClearColor))]
         public string ClearColorHtml
         {
             get { return ColorTranslator.ToHtml(ClearColor); }

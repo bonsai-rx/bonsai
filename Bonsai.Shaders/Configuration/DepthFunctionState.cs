@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -22,7 +22,7 @@ namespace Bonsai.Shaders.Configuration
 
         public override string ToString()
         {
-            return string.Format("DepthFunc({0})", Function);
+            return $"DepthFunc({Function})";
         }
     }
 }

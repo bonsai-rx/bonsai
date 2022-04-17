@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -69,7 +69,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return $"{name} [{fileName}]";
         }
     }
 }

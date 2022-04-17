@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Bonsai.Shaders
             {
                 if (meshNames.Count == 0)
                 {
-                    throw new InvalidOperationException("A mesh name must be specified.");
+                    throw new InvalidOperationException("At least one mesh name must be specified.");
                 }
 
                 MeshAggregate mesh = null;

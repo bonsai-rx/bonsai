@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -53,7 +53,7 @@ namespace Bonsai.Shaders.Configuration
             finally { frames.Dispose(); }
             GL.BindTexture(TextureTarget.Texture2D, 0);
             sequence.PlaybackRate = frames.PlaybackRate;
-            return (Texture)sequence;
+            return sequence;
         }
 
         internal VideoEnumerator GetFrames(string fileName, bool clone, out bool video, out PixelInternalFormat? internalFormat)
@@ -166,7 +166,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [Sequence: {1}]", name, fileName);
+            else return $"{name} [Sequence: {fileName}]";
         }
     }
 }

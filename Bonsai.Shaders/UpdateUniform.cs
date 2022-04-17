@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.ComponentModel;
@@ -44,13 +44,10 @@ namespace Bonsai.Shaders
                                 return;
                             }
 
-                            int uniformIndex;
-                            GL.GetUniformIndices(shader.Program, 1, new[] { name }, out uniformIndex);
+                            GL.GetUniformIndices(shader.Program, 1, new[] { name }, out int uniformIndex);
                             if (uniformIndex >= 0)
                             {
-                                int uniformSize;
-                                ActiveUniformType uniformType;
-                                GL.GetActiveUniform(shader.Program, uniformIndex, out uniformSize, out uniformType);
+                                GL.GetActiveUniform(shader.Program, uniformIndex, out int uniformSize, out ActiveUniformType uniformType);
                                 if (uniformType != type)
                                 {
                                     observer.OnError(new InvalidOperationException(string.Format(
@@ -74,7 +71,7 @@ namespace Bonsai.Shaders
 
         public IObservable<TextureUnit> Process(IObservable<TextureUnit> source)
         {
-            return Process(source, (location, input) => GL.Uniform1(location, (int)(input - TextureUnit.Texture0)),
+            return Process(source, (location, input) => GL.Uniform1(location, input - TextureUnit.Texture0),
                            ActiveUniformType.Sampler2D);
         }
 

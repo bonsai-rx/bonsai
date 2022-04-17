@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using System.ComponentModel;
 using System.IO;
 using System.Xml.Serialization;
@@ -11,7 +11,7 @@ namespace Bonsai.Shaders.Configuration
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("OBJ Files (*.obj)|*.obj")]
-        [Description("The name of the model file.")]
+        [Description("The name of the model OBJ file.")]
         public string FileName { get; set; }
 
         public override Mesh CreateResource(ResourceManager resourceManager)
@@ -32,7 +32,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return $"{name} [{fileName}]";
         }
     }
 }

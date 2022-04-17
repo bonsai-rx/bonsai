@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -45,9 +45,8 @@ namespace Bonsai.Shaders
 
         Matrix4 GetTransform()
         {
-            Matrix4 result, temp;
-            Matrix4.CreateScale(ref scale, out result);
-            Matrix4.CreateFromQuaternion(ref rotation, out temp);
+            Matrix4.CreateScale(ref scale, out Matrix4 result);
+            Matrix4.CreateFromQuaternion(ref rotation, out Matrix4 temp);
             Matrix4.Mult(ref result, ref temp, out result);
             Matrix4.CreateTranslation(ref position, out temp);
             Matrix4.Mult(ref result, ref temp, out result);
@@ -56,7 +55,7 @@ namespace Bonsai.Shaders
 
         public override IObservable<Matrix4> Generate()
         {
-            return Observable.Defer((() => Observable.Return(GetTransform())));
+            return Observable.Defer(() => Observable.Return(GetTransform()));
         }
 
         public IObservable<Matrix4> Generate<TSource>(IObservable<TSource> source)

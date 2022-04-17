@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -83,7 +83,7 @@ namespace Bonsai.Shaders
         }
 
         [Browsable(false)]
-        [XmlElement("ClearColor")]
+        [XmlElement(nameof(ClearColor))]
         public string ClearColorHtml
         {
             get { return configuration.ClearColorHtml; }

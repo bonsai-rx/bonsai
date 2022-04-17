@@ -49,9 +49,8 @@ namespace Bonsai.Shaders
                 var values = face.Split('/');
                 for (int i = 0; i < values.Length; i++)
                 {
-                    int value;
                     if (string.IsNullOrEmpty(values[i])) continue;
-                    if (!int.TryParse(values[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+                    if (!int.TryParse(values[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
                     {
                         throw new InvalidOperationException(string.Format(
                             "Invalid face specification: {0}.",
@@ -81,8 +80,7 @@ namespace Bonsai.Shaders
 
             for (int i = 1; i < values.Length; i++)
             {
-                float value;
-                if (!float.TryParse(values[i], NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+                if (!float.TryParse(values[i], NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
                 {
                     throw new InvalidOperationException(string.Format(
                         "Invalid vertex specification: {0}.",
@@ -133,7 +131,7 @@ namespace Bonsai.Shaders
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             GL.EnableVertexAttribArray(index);
@@ -181,9 +179,8 @@ namespace Bonsai.Shaders
 
                         for (int i = 1; i < values.Length; i++)
                         {
-                            uint index;
                             var face = Index.Create(values[i]);
-                            if (!indexMap.TryGetValue(face, out index))
+                            if (!indexMap.TryGetValue(face, out uint index))
                             {
                                 AddVertexAttribute(position, face.V, vertices);
                                 UpdateVertexBounds(position, face.V, bounds);

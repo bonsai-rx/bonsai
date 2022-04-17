@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -17,7 +17,7 @@ namespace Bonsai.Shaders.Configuration
 
         public override string ToString()
         {
-            return string.Format("LineWidth({0})", Width);
+            return $"LineWidth({Width})";
         }
     }
 }

@@ -37,10 +37,8 @@ namespace Bonsai.Shaders
 
             public SubjectDisposable(ISubject<ShaderWindow> subject, IDisposable disposable)
             {
-                if (subject == null) throw new ArgumentNullException("subject");
-                if (disposable == null) throw new ArgumentNullException("disposable");
-                Subject = subject;
-                resource = disposable;
+                Subject = subject ?? throw new ArgumentNullException(nameof(subject));
+                resource = disposable ?? throw new ArgumentNullException(nameof(disposable));
             }
 
             public ISubject<ShaderWindow> Subject { get; private set; }

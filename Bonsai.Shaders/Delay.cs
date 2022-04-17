@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -17,7 +17,7 @@ namespace Bonsai.Shaders
         public TimeSpan DueTime { get; set; }
 
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }

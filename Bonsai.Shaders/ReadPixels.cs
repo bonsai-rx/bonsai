@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.ComponentModel;
@@ -30,20 +30,17 @@ namespace Bonsai.Shaders
                     ShaderManager.WindowSource,
                     (input, window) =>
                     {
-                        IplImage temp;
-                        PixelType pixelType;
-                        PixelFormat pixelFormat;
                         var rect = RegionOfInterest.GetValueOrDefault(new Rect(0, 0, window.Width, window.Height));
                         var result = new IplImage(new Size(rect.Width, rect.Height), IplDepth.U8, 3);
                         rect.Y = window.Height - (rect.Y + rect.Height);
-                        TextureHelper.PackPixelStore(result, out pixelFormat, out pixelType);
+                        TextureHelper.PackPixelStore(result, out PixelFormat pixelFormat, out PixelType pixelType);
                         GL.ReadPixels(rect.X, rect.Y, rect.Width, rect.Height, pixelFormat, pixelType, result.ImageData);
                         if (flipBuffer == null || flipBuffer.Size != result.Size)
                         {
                             flipBuffer = new IplImage(result.Size, result.Depth, result.Channels);
                         }
                         CV.Flip(result, flipBuffer, FlipMode.Vertical);
-                        temp = result;
+                        var temp = result;
                         result = flipBuffer;
                         flipBuffer = temp;
                         return result;

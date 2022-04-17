@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using System;
 using System.Collections.Generic;
 
@@ -39,12 +39,7 @@ void main()
                    bufferBindings,
                    framebuffer)
         {
-            if (texturedQuad == null)
-            {
-                throw new ArgumentNullException("texturedQuad");
-            }
-
-            mesh = texturedQuad;
+            mesh = texturedQuad ?? throw new ArgumentNullException(nameof(texturedQuad));
         }
 
         protected override Action OnDispatch()

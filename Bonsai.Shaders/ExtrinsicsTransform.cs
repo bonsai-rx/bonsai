@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using OpenTK;
 using System;
 using System.ComponentModel;
@@ -47,11 +47,9 @@ namespace Bonsai.Shaders
         {
             return source.Select(input =>
             {
-                float angle;
-                Vector3 axis;
                 var scale = Scale.GetValueOrDefault(Vector3.One);
                 var translation = new Point3d(input.M41 * scale.X, input.M42 * scale.Y, input.M43 * scale.Z);
-                input.ExtractRotation().ToAxisAngle(out axis, out angle);
+                input.ExtractRotation().ToAxisAngle(out Vector3 axis, out float angle);
                 Vector3.Multiply(ref axis, angle, out axis);
                 var rotation = new Point3d(axis.X * scale.X, axis.Y * scale.Y, axis.Z * scale.Z);
                 return Tuple.Create(rotation, translation);

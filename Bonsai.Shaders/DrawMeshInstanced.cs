@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -43,16 +43,14 @@ namespace Bonsai.Shaders
             GL.BindVertexArray(mesh.VertexArray);
             for (int i = 0; ; i++)
             {
-                int enabled;
-                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayEnabled, out enabled);
+                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayEnabled, out int enabled);
                 if (enabled == 0) break;
 
-                int size, type, normalized, vstride;
                 var attribute = new VertexAttributeMapping();
-                GL.GetVertexAttrib(i, VertexAttribParameter.ArraySize, out size);
-                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayType, out type);
-                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayNormalized, out normalized);
-                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayStride, out vstride);
+                GL.GetVertexAttrib(i, VertexAttribParameter.ArraySize, out int size);
+                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayType, out int type);
+                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayNormalized, out int normalized);
+                GL.GetVertexAttrib(i, VertexAttribParameter.ArrayStride, out int vstride);
                 if (vertexStride == 0) vertexStride = vstride;
                 else if (vstride != vertexStride)
                 {
@@ -61,7 +59,7 @@ namespace Bonsai.Shaders
 
                 attribute.Size = size;
                 attribute.Type = (VertexAttribPointerType)type;
-                attribute.Normalized = normalized != 0 ? true : false;
+                attribute.Normalized = normalized != 0;
                 vertexAttributes.Add(attribute);
             }
 

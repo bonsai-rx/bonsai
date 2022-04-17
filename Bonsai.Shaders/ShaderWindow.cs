@@ -187,9 +187,11 @@ namespace Bonsai.Shaders
             var windowManager = new WindowManagerConfiguration(this);
             var resources = new List<IResourceConfiguration>();
             resources.Add(windowManager);
+#pragma warning disable CS0612 // Type or member is obsolete
             resources.AddRange(settings.Textures);
             resources.AddRange(settings.Meshes);
             resources.AddRange(settings.Shaders);
+#pragma warning restore CS0612 // Type or member is obsolete
             resourceManager.Load(resources);
             foreach (var state in settings.RenderState)
             {

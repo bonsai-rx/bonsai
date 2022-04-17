@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace Bonsai.Shaders
 {
     public class ComputeProgram : Shader
     {
-        string computeSource;
+        readonly string computeSource;
 
         internal ComputeProgram(
             string name,
@@ -19,12 +19,9 @@ namespace Bonsai.Shaders
             FramebufferConfiguration framebuffer)
             : base(name, window)
         {
-            if (computeShader == null)
-            {
-                throw new ArgumentNullException("computeShader", "No compute shader was specified for compute program " + name + ".");
-            }
-
-            computeSource = computeShader;
+            computeSource = computeShader ?? throw new ArgumentNullException(
+                nameof(computeShader),
+                "No compute shader was specified for compute program " + name + ".");
             CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
@@ -32,13 +29,12 @@ namespace Bonsai.Shaders
 
         protected override int CreateShader()
         {
-            int status;
             var computeShader = GL.CreateShader(ShaderType.ComputeShader);
             try
             {
                 GL.ShaderSource(computeShader, computeSource);
                 GL.CompileShader(computeShader);
-                GL.GetShader(computeShader, ShaderParameter.CompileStatus, out status);
+                GL.GetShader(computeShader, ShaderParameter.CompileStatus, out int status);
                 if (status == 0)
                 {
                     var message = string.Format(

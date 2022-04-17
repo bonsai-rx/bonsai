@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -15,17 +15,9 @@ namespace Bonsai.Shaders
 
         internal Shader(string name, ShaderWindow window)
         {
-            if (window == null)
-            {
-                throw new ArgumentNullException("window");
-            }
-
             Name = name;
-            shaderWindow = window;
+            shaderWindow = window ?? throw new ArgumentNullException(nameof(window));
         }
-
-        [Obsolete]
-        public bool Enabled { get; set; }
 
         public string Name { get; private set; }
 
@@ -92,8 +84,8 @@ namespace Bonsai.Shaders
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

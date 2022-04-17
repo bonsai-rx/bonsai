@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
@@ -28,8 +28,7 @@ namespace Bonsai.Shaders
 
         public override bool Equals(object obj)
         {
-            if (obj is DispatchParameters) return Equals((DispatchParameters)obj);
-            else return false;
+            return obj is DispatchParameters && Equals((DispatchParameters)obj);
         }
 
         public override int GetHashCode()
@@ -43,7 +42,7 @@ namespace Bonsai.Shaders
 
         public override string ToString()
         {
-            return "NumGroups(" + NumGroupsX + "," + NumGroupsY + "," + NumGroupsZ + ")";
+            return $"NumGroups({NumGroupsX}, {NumGroupsY}, {NumGroupsZ})";
         }
 
         public static bool operator ==(DispatchParameters left, DispatchParameters right)

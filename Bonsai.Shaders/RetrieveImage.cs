@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.ComponentModel;
@@ -32,14 +32,11 @@ namespace Bonsai.Shaders
                 var flipBuffer = default(IplImage);
                 return source.Select(texture =>
                 {
-                    int width, height;
-                    PixelType pixelType;
-                    PixelFormat pixelFormat;
                     GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-                    GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out width);
-                    GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out height);
+                    GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
+                    GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
                     var result = new IplImage(new Size(width, height), Depth, Channels);
-                    TextureHelper.PackPixelStore(result, out pixelFormat, out pixelType);
+                    TextureHelper.PackPixelStore(result, out PixelFormat pixelFormat, out PixelType pixelType);
                     GL.GetTexImage(TextureTarget.Texture2D, 0, pixelFormat, pixelType, result.ImageData);
 
                     var flipMode = FlipMode;

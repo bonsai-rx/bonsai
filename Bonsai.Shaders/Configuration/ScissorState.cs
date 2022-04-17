@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Xml.Serialization;
 
@@ -32,7 +32,7 @@ namespace Bonsai.Shaders.Configuration
 
         public override string ToString()
         {
-            return string.Format("Scissor({0}, {1}, {2}, {3})", X, Y, Width, Height);
+            return $"Scissor({X}, {Y}, {Width}, {Height})";
         }
     }
 }

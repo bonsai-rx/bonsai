@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using System.ComponentModel;
 
 namespace Bonsai.Shaders
@@ -42,9 +42,8 @@ namespace Bonsai.Shaders
 
         protected override void CreateTransform(out Matrix4 result)
         {
-            Matrix4 temp;
             Matrix4.CreateScale(ref scale, out result);
-            Matrix4.CreateFromQuaternion(ref rotation, out temp);
+            Matrix4.CreateFromQuaternion(ref rotation, out Matrix4 temp);
             Matrix4.Mult(ref result, ref temp, out result);
             Matrix4.CreateTranslation(ref position, out temp);
             Matrix4.Mult(ref result, ref temp, out result);

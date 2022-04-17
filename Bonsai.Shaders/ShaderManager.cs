@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics;
 using System;
 using System.IO;
@@ -12,7 +12,7 @@ namespace Bonsai.Shaders
 {
     public static class ShaderManager
     {
-        public const string DefaultConfigurationFile = "Shaders.config";
+        internal const string DefaultConfigurationFile = "Shaders.config";
         static readonly IObservable<ShaderWindow> windowSource = CreateWindow();
 
         internal static IObservable<ShaderWindow> CreateWindow(ShaderWindowSettings configuration)
@@ -57,11 +57,13 @@ namespace Bonsai.Shaders
         {
             return Observable.Defer(() =>
             {
+#pragma warning disable CS0612 // Type or member is obsolete
                 if (File.Exists(DefaultConfigurationFile))
                 {
                     var configuration = LoadConfiguration();
                     return CreateWindow(configuration);
                 }
+#pragma warning restore CS0612 // Type or member is obsolete
                 else
                 {
                     var disposable = SubjectManager.ReserveSubject();
@@ -96,7 +98,7 @@ namespace Bonsai.Shaders
         {
             if (string.IsNullOrEmpty(shaderName))
             {
-                throw new ArgumentException("A shader name must be specified.", "shaderName");
+                throw new ArgumentException("A shader name must be specified.", nameof(shaderName));
             }
 
             return windowSource.Select(window =>
@@ -104,7 +106,7 @@ namespace Bonsai.Shaders
                 var shader = window.Shaders.FirstOrDefault(s => s.Name == shaderName);
                 if (shader == null)
                 {
-                    throw new ArgumentException("No matching shader configuration was found.", "shaderName");
+                    throw new ArgumentException("No matching shader configuration was found.", nameof(shaderName));
                 }
                 return shader;
             });
@@ -114,7 +116,7 @@ namespace Bonsai.Shaders
         {
             if (string.IsNullOrEmpty(shaderName))
             {
-                throw new ArgumentException("A material name must be specified.", "shaderName");
+                throw new ArgumentException("A material name must be specified.", nameof(shaderName));
             }
 
             return windowSource.Select(window =>
@@ -123,7 +125,7 @@ namespace Bonsai.Shaders
                                              .FirstOrDefault(m => m != null && m.Name == shaderName);
                 if (material == null)
                 {
-                    throw new ArgumentException("No matching material configuration was found.", "shaderName");
+                    throw new ArgumentException("No matching material configuration was found.", nameof(shaderName));
                 }
                 return material;
             });
@@ -133,7 +135,7 @@ namespace Bonsai.Shaders
         {
             if (string.IsNullOrEmpty(shaderName))
             {
-                throw new ArgumentException("A compute shader name must be specified.", "shaderName");
+                throw new ArgumentException("A compute shader name must be specified.", nameof(shaderName));
             }
 
             return windowSource.Select(window =>
@@ -142,13 +144,14 @@ namespace Bonsai.Shaders
                                                    .FirstOrDefault(m => m != null && m.Name == shaderName);
                 if (computeProgram == null)
                 {
-                    throw new ArgumentException("No matching compute program configuration was found.", "shaderName");
+                    throw new ArgumentException("No matching compute program configuration was found.", nameof(shaderName));
                 }
                 return computeProgram;
             });
         }
 
-        public static ShaderWindowSettings LoadConfiguration()
+        [Obsolete]
+        internal static ShaderWindowSettings LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
             {
@@ -167,7 +170,8 @@ namespace Bonsai.Shaders
             }
         }
 
-        public static void SaveConfiguration(ShaderWindowSettings configuration)
+        [Obsolete]
+        internal static void SaveConfiguration(ShaderWindowSettings configuration)
         {
             var serializer = new XmlSerializer(typeof(ShaderWindowSettings));
             using (var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true }))

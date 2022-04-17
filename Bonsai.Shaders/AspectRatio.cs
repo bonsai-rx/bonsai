@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -15,7 +15,7 @@ namespace Bonsai.Shaders
         {
             if (window == null)
             {
-                throw new ArgumentNullException("window");
+                throw new ArgumentNullException(nameof(window));
             }
 
             var viewport = window.Viewport;

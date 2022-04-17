@@ -1,4 +1,4 @@
-﻿using OpenCV.Net;
+using OpenCV.Net;
 using OpenTK;
 using System;
 using System.ComponentModel;
@@ -38,8 +38,8 @@ namespace Bonsai.Shaders
                 var perspectiveTransform = new float[3 * 3];
                 return source.Select(input =>
                 {
-                    currentSource = currentSource ?? InitializeQuadrangle();
-                    Destination = Destination ?? InitializeQuadrangle();
+                    currentSource ??= InitializeQuadrangle();
+                    Destination ??= InitializeQuadrangle();
 
                     if (Destination != currentDestination)
                     {

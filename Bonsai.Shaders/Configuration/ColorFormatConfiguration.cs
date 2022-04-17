@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Reflection;
@@ -16,7 +16,6 @@ namespace Bonsai.Shaders.Configuration
         }
 
         public ColorFormatConfiguration(int red, int green, int blue, int alpha)
-            : this()
         {
             Red = red;
             Green = green;
@@ -46,33 +45,32 @@ namespace Bonsai.Shaders.Configuration
 
         public override string ToString()
         {
-            return string.Format("{0} ({1}{2}{3}{4})", BitsPerPixel, Red, Green, Blue, Alpha);
+            return $"{BitsPerPixel} ({Red}{Green}{Blue}{Alpha})";
         }
 
         class ColorFormatConfigurationConverter : ExpandableObjectConverter
         {
-            const string BitsPerPixelProperty = "BitsPerPixel";
             PropertyInfo[] propertyCache;
             int bppCache;
 
             PropertyInfo[] GetProperties(ITypeDescriptorContext context)
             {
-                return propertyCache ?? (propertyCache = context.PropertyDescriptor.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public));
+                return propertyCache ??= context.PropertyDescriptor.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             }
 
             public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
             {
                 var properties = GetProperties(context);
-                var bppChanged = !propertyValues[BitsPerPixelProperty].Equals(bppCache);
+                var bppChanged = !propertyValues[nameof(BitsPerPixel)].Equals(bppCache);
                 var instance = Activator.CreateInstance(context.PropertyDescriptor.PropertyType);
                 foreach (var property in properties)
                 {
-                    if (property.Name == BitsPerPixelProperty && !bppChanged) continue;
+                    if (property.Name == nameof(BitsPerPixel) && !bppChanged) continue;
                     var value = Convert.ChangeType(propertyValues[property.Name], property.PropertyType);
                     property.SetValue(instance, value);
                 }
 
-                bppCache = (int)propertyValues[BitsPerPixelProperty];
+                bppCache = (int)propertyValues[nameof(BitsPerPixel)];
                 return instance;
             }
 
@@ -89,8 +87,8 @@ namespace Bonsai.Shaders.Configuration
             public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
             {
                 var properties = base.GetProperties(context, value, attributes);
-                bppCache = (int)properties[BitsPerPixelProperty].GetValue(value);
-                return properties.Sort(new[] { "Red", "Green", "Blue", "Alpha", BitsPerPixelProperty });
+                bppCache = (int)properties[nameof(BitsPerPixel)].GetValue(value);
+                return properties.Sort(new[] { nameof(Red), nameof(Green), nameof(Blue), nameof(Alpha), nameof(BitsPerPixel) });
             }
         }
     }

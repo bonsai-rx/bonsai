@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -40,7 +40,7 @@ namespace Bonsai.Shaders.Configuration
         {
             var name = Name;
             if (string.IsNullOrEmpty(name)) return XmlTypeName;
-            else return string.Format("{0} [{1}]", name, XmlTypeName);
+            else return $"{name} [{XmlTypeName}]";
         }
     }
 }

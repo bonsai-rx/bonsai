@@ -1,4 +1,4 @@
-﻿using Bonsai.Shaders.Configuration;
+using Bonsai.Shaders.Configuration;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -7,9 +7,9 @@ namespace Bonsai.Shaders
 {
     public abstract class Effect : Shader
     {
-        string vertexSource;
-        string geometrySource;
-        string fragmentSource;
+        readonly string vertexSource;
+        readonly string geometrySource;
+        readonly string fragmentSource;
 
         internal Effect(
             string name,
@@ -23,25 +23,14 @@ namespace Bonsai.Shaders
             FramebufferConfiguration framebuffer)
             : base(name, window)
         {
-            if (vertexShader == null)
-            {
-                throw new ArgumentNullException("vertexShader", "No vertex shader was specified for material " + name + ".");
-            }
-
-            if (fragmentShader == null)
-            {
-                throw new ArgumentNullException("fragmentShader", "No fragment shader was specified for material " + name + ".");
-            }
-
-            vertexSource = vertexShader;
+            vertexSource = vertexShader ?? throw new ArgumentNullException(nameof(vertexShader), "No vertex shader was specified for material " + name + ".");
             geometrySource = geometryShader;
-            fragmentSource = fragmentShader;
+            fragmentSource = fragmentShader ?? throw new ArgumentNullException(nameof(fragmentShader), "No fragment shader was specified for material " + name + ".");
             CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
         protected override int CreateShader()
         {
-            int status;
             int vertexShader = 0;
             int geometryShader = 0;
             int fragmentShader = 0;
@@ -50,7 +39,7 @@ namespace Bonsai.Shaders
                 vertexShader = GL.CreateShader(ShaderType.VertexShader);
                 GL.ShaderSource(vertexShader, vertexSource);
                 GL.CompileShader(vertexShader);
-                GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out status);
+                GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
                 if (status == 0)
                 {
                     var message = string.Format(
