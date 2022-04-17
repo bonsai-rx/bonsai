@@ -1,4 +1,4 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using Bonsai.Shaders.Configuration;
 using OpenTK;
 using OpenTK.Graphics;
@@ -14,14 +14,12 @@ namespace Bonsai.Shaders
 {
     public class ShaderWindow : GameWindow
     {
-        ClearBufferMask clearMask;
         RectangleF viewport;
         RectangleF scissor;
-        List<Shader> shaders;
-        IDictionary<string, Texture> textures;
-        IDictionary<string, Mesh> meshes;
-        ResourceManager resourceManager;
-        ShaderWindowSettings settings;
+        readonly List<Shader> shaders;
+        readonly ClearBufferMask clearMask;
+        readonly ResourceManager resourceManager;
+        readonly ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly RectangleF DefaultViewport = new RectangleF(0, 0, 1, 1);
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
@@ -98,34 +96,6 @@ namespace Bonsai.Shaders
         public IEnumerable<Shader> Shaders
         {
             get { return shaders; }
-        }
-
-        [Obsolete]
-        public IDictionary<string, Texture> Textures
-        {
-            get
-            {
-                if (textures == null)
-                {
-                    textures = new ResourceDictionary<Texture>(resourceManager);
-                }
-
-                return textures;
-            }
-        }
-
-        [Obsolete]
-        public IDictionary<string, Mesh> Meshes
-        {
-            get
-            {
-                if (meshes == null)
-                {
-                    meshes = new ResourceDictionary<Mesh>(resourceManager);
-                }
-
-                return meshes;
-            }
         }
 
         public ResourceManager ResourceManager
