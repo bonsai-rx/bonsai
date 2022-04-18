@@ -14,7 +14,7 @@ namespace Bonsai.Dag
         readonly IComparer<TNodeValue> valueComparer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> class.
+        /// Initializes a new instance of the <see cref="DirectedGraph{T, U}"/> class.
         /// </summary>
         public DirectedGraph()
             : this(null)
@@ -22,7 +22,7 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> class
+        /// Initializes a new instance of the <see cref="DirectedGraph{T, U}"/> class
         /// that uses a specified comparer.
         /// </summary>
         /// <param name="comparer">The optional comparer to use for ordering node values.</param>
@@ -42,7 +42,7 @@ namespace Bonsai.Dag
 
         /// <summary>
         /// Gets the optional <see cref="IComparer{TNodeValue}"/> object used to determine
-        /// the order of the values in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// the order of the values in the directed graph.
         /// </summary>
         public IComparer<TNodeValue> Comparer
         {
@@ -65,7 +65,7 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Gets the number of nodes in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Gets the number of nodes in the directed graph.
         /// </summary>
         public int Count
         {
@@ -73,11 +73,11 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Creates and adds a new node with the specified <paramref name="value"/> to the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Creates and adds a new node with the specified value to the
+        /// directed graph.
         /// </summary>
         /// <param name="value">The value of the node label.</param>
-        /// <returns>A newly created <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance.</returns>
+        /// <returns>The created node.</returns>
         public Node<TNodeValue, TEdgeLabel> Add(TNodeValue value)
         {
             var node = new Node<TNodeValue, TEdgeLabel>(value);
@@ -86,11 +86,9 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Adds a node to the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Adds a node to the directed graph.
         /// </summary>
-        /// <param name="node">
-        /// The node to be added to the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
-        /// </param>
+        /// <param name="node">The node to be added to the directed graph.</param>
         public void Add(Node<TNodeValue, TEdgeLabel> node)
         {
             if (node == null)
@@ -108,12 +106,12 @@ namespace Bonsai.Dag
 
         /// <summary>
         /// Creates and adds a new labeled edge linking the specified nodes in the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// directed graph.
         /// </summary>
         /// <param name="from">The node that is the source of the edge.</param>
         /// <param name="to">The node that is the target of the edge.</param>
         /// <param name="label">The value of the edge label.</param>
-        /// <returns>A newly created <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.</returns>
+        /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> AddEdge(Node<TNodeValue, TEdgeLabel> from, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
             if (from == null)
@@ -143,11 +141,11 @@ namespace Bonsai.Dag
 
         /// <summary>
         /// Adds a labeled outgoing edge from the specified node in the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// directed graph.
         /// </summary>
         /// <param name="from">The node that is the source of the edge.</param>
         /// <param name="edge">
-        /// The labeled outgoing edge to be added to the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// The labeled outgoing edge to be added to the directed graph.
         /// </param>
         public void AddEdge(Node<TNodeValue, TEdgeLabel> from, Edge<TNodeValue, TEdgeLabel> edge)
         {
@@ -184,7 +182,7 @@ namespace Bonsai.Dag
         /// </param>
         /// <param name="to">The node that is the target of the edge.</param>
         /// <param name="label">The value of the edge label.</param>
-        /// <returns>A newly created <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.</returns>
+        /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> InsertEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
             if (from == null)
@@ -269,7 +267,7 @@ namespace Bonsai.Dag
         /// </param>
         /// <param name="to">The node that is the target of the edge.</param>
         /// <param name="label">The value of the edge label.</param>
-        /// <returns>A newly created <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.</returns>
+        /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> SetEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
             if (from == null)
@@ -345,12 +343,12 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Determines whether a node is in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Determines whether a node is in the directed graph.
         /// </summary>
-        /// <param name="node">The node to locate in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.</param>
+        /// <param name="node">The node to locate in the directed graph.</param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="node"/> is found in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>;
-        /// otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if <paramref name="node"/> is found in the
+        /// directed graph; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Contains(Node<TNodeValue, TEdgeLabel> node)
         {
@@ -358,13 +356,13 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Removes the specified node from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Removes the specified node from the directed graph.
         /// </summary>
-        /// <param name="node">The node to remove from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.</param>
+        /// <param name="node">The node to remove from the directed graph.</param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="node"/> is successfully removed; otherwise, <see langword="false"/>.
-        /// This method also returns <see langword="false"/> if <paramref name="node"/> was not found in the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// <see langword="true"/> if <paramref name="node"/> is successfully removed;
+        /// otherwise, <see langword="false"/>. This method also returns <see langword="false"/>
+        /// if <paramref name="node"/> was not found in the directed graph.
         /// </returns>
         public bool Remove(Node<TNodeValue, TEdgeLabel> node)
         {
@@ -389,16 +387,16 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Removes the specified edge from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Removes the specified edge from the directed graph.
         /// </summary>
         /// <param name="from">The node that is the source of the edge.</param>
         /// <param name="edge">
-        /// The outgoing edge to remove from the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// The outgoing edge to remove from the directed graph.
         /// </param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="edge"/> is successfully removed; otherwise, <see langword="false"/>.
-        /// This method also returns <see langword="false"/> if <paramref name="edge"/> was not found in the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// <see langword="true"/> if <paramref name="edge"/> is successfully removed;
+        /// otherwise, <see langword="false"/>. This method also returns <see langword="false"/>
+        /// if <paramref name="edge"/> was not found in the directed graph.
         /// </returns>
         public bool RemoveEdge(Node<TNodeValue, TEdgeLabel> from, Edge<TNodeValue, TEdgeLabel> edge)
         {
@@ -426,8 +424,7 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Removes all nodes and corresponding edges from the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Removes all nodes and corresponding edges from the directed graph.
         /// </summary>
         public void Clear()
         {
@@ -436,11 +433,11 @@ namespace Bonsai.Dag
 
         /// <summary>
         /// Returns an enumerator that iterates through the nodes in the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// directed graph.
         /// </summary>
         /// <returns>
-        /// An <see cref="T:System.Collections.Generic.IEnumerator`1{T}"/> of
-        /// <see cref="T:Bonsai.Dag.Node`2{T,U}"/> for the directed graph.
+        /// An enumerator that can be used to iterate through the nodes in the
+        /// directed graph.
         /// </returns>
         public IEnumerator<Node<TNodeValue, TEdgeLabel>> GetEnumerator()
         {

@@ -16,10 +16,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph to search for predecessors.</param>
         /// <param name="node">The node for which to obtain the sequence of predecessors.</param>
-        /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains all the predecessors
-        /// to the specified node.
-        /// </returns>
+        /// <returns>A sequence containing all the predecessors to the specified node.</returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> Predecessors<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, Node<TNodeValue, TEdgeLabel> node)
         {
             if (source == null)
@@ -93,10 +90,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph to search for successors.</param>
         /// <param name="node">The node for which to obtain the sequence of successors.</param>
-        /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains all the successors
-        /// to the specified node.
-        /// </returns>
+        /// <returns>A sequence containing all the successors to the specified node.</returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> Successors<TNodeValue, TEdgeLabel>(
             this DirectedGraph<TNodeValue, TEdgeLabel> source,
             Node<TNodeValue, TEdgeLabel> node)
@@ -118,14 +112,14 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Returns the sequence of all the nodes in the directed graph that have zero incoming edges.
+        /// Returns the sequence of all the nodes in the directed graph with no incoming edges.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The directed graph to search for sources.</param>
         /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains all the nodes in the
-        /// directed graph that have zero incoming edges.
+        /// A sequence containing all the nodes in the directed graph with no
+        /// incoming edges.
         /// </returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> Sources<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
@@ -144,14 +138,14 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Returns the sequence of all the nodes in the directed graph that have zero outgoing edges.
+        /// Returns the sequence of all the nodes in the directed graph with no outgoing edges.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The directed graph to search for sinks.</param>
         /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains all the nodes in the
-        /// directed graph that have zero outgoing edges.
+        /// A sequence containing all the nodes in the directed graph with no
+        /// outgoing edges.
         /// </returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> Sinks<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
@@ -198,8 +192,8 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="node">The node from which to start the search.</param>
         /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains the set of all nodes
-        /// reachable from <paramref name="node"/> in depth-first order.
+        /// A sequence containing the set of all nodes reachable from
+        /// <paramref name="node"/> in depth-first order.
         /// </returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(this Node<TNodeValue, TEdgeLabel> node)
         {
@@ -220,8 +214,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph that will be traversed.</param>
         /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains the set of all
-        /// graph nodes in depth-first order.
+        /// A sequence containing the set of all graph nodes in depth-first order.
         /// </returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
@@ -245,8 +238,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph that will be traversed.</param>
         /// <returns>
-        /// A sequence of <see cref="T:Bonsai.Dag.Node`2{T,U}"/> that contains the set of all
-        /// graph nodes in topological sort order.
+        /// A sequence containing the set of all graph nodes in topological sort order.
         /// </returns>
         public static IEnumerable<Node<TNodeValue, TEdgeLabel>> TopologicalSort<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
@@ -269,7 +261,8 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">The source directed graph to test.</param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="source"/> has no cycles; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if <paramref name="source"/> has no cycles;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool Acyclic<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
@@ -282,11 +275,11 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Creates a serializable descriptor from a <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Creates a serializable descriptor from a directed graph.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
-        /// <param name="source">A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> to create a descriptor from.</param>
+        /// <param name="source">The directed graph to create a descriptor from.</param>
         /// <returns>A serializable descriptor that contains all the node and edge label values.</returns>
         [Obsolete]
         public static DirectedGraphDescriptor<TNodeValue, TEdgeLabel> ToDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
@@ -302,11 +295,11 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Adds nodes to a serializable descriptor from a <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Adds nodes from a directed graph to a serializable descriptor.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
-        /// <param name="source">A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> to create descriptors from.</param>
+        /// <param name="source">The directed graph to create descriptors from.</param>
         /// <param name="descriptor">The serializable descriptor to add node descriptors to.</param>
         [Obsolete]
         public static void ToDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, DirectedGraphDescriptor<TNodeValue, TEdgeLabel> descriptor)
@@ -342,7 +335,8 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Adds the contents of the specified graph descriptor to the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// Adds the contents of the specified graph descriptor to the specified
+        /// directed graph.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
@@ -350,8 +344,8 @@ namespace Bonsai.Dag
         /// The directed graph on which to add the contents of <paramref name="descriptor"/>.
         /// </param>
         /// <param name="descriptor">
-        /// The serializable descriptor whose contents should be added to the
-        /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// The serializable descriptor whose contents should be added to the specified
+        /// directed graph.
         /// </param>
         [Obsolete]
         public static void AddDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, DirectedGraphDescriptor<TNodeValue, TEdgeLabel> descriptor)
@@ -374,16 +368,16 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Creates a directed graph from a <see cref="T:Bonsai.Dag.DirectedGraphDescriptor`2{T,U}"/>.
+        /// Creates a directed graph from a serializable descriptor.
         /// </summary>
         /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">
-        /// A <see cref="T:Bonsai.Dag.DirectedGraphDescriptor`2{T,U}"/> to create a directed graph from.
+        /// The serializable descriptor to create a directed graph from.
         /// </param>
         /// <returns>
-        /// A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> that contains all the node
-        /// and edge label values specified in the descriptor.
+        /// A directed graph containing all the node and edge label values specified
+        /// in the descriptor.
         /// </returns>
         [Obsolete]
         public static DirectedGraph<TNodeValue, TEdgeLabel> ToDirectedGraph<TNodeValue, TEdgeLabel>(this DirectedGraphDescriptor<TNodeValue, TEdgeLabel> source)

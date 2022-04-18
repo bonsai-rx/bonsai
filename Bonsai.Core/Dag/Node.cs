@@ -10,7 +10,7 @@
         readonly EdgeCollection<TNodeValue, TEdgeLabel> successors = new EdgeCollection<TNodeValue, TEdgeLabel>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.Node`2{T,U}"/> class with
+        /// Initializes a new instance of the <see cref="Node{T, U}"/> class with
         /// the specified <paramref name="value"/>.
         /// </summary>
         /// <param name="value">The value of the node label.</param>
@@ -20,7 +20,7 @@
         }
 
         /// <summary>
-        /// Gets the value of the <see cref="T:Bonsai.Dag.Node`2{T,U}"/> label.
+        /// Gets the value of the node label.
         /// </summary>
         public TNodeValue Value { get; private set; }
 
@@ -32,12 +32,7 @@
             get { return successors; }
         }
 
-        /// <summary>
-        /// Returns a string that represents the value of this <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance.
-        /// </summary>
-        /// <returns>
-        /// The string representation of this <see cref="T:Bonsai.Dag.Node`2{T,U}"/> object.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{Value = {Value}}}";

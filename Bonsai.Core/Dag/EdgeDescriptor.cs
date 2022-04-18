@@ -7,14 +7,14 @@
     public class EdgeDescriptor<TEdgeLabel>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.EdgeDescriptor`1{T}"/> class.
+        /// Initializes a new instance of the <see cref="EdgeDescriptor{TEdgeLabel}"/> class.
         /// </summary>
         public EdgeDescriptor()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.EdgeDescriptor`1{T}"/> class
+        /// Initializes a new instance of the <see cref="EdgeDescriptor{TEdgeLabel}"/> class
         /// with the specified indices for source and target nodes and a label value.
         /// </summary>
         /// <param name="from">The zero-based index of the node that is the source of the edge.</param>
