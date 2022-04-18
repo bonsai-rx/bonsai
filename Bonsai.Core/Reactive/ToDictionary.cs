@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -46,7 +46,7 @@ namespace Bonsai.Reactive
             var combinator = Expression.Constant(this);
             if (!string.IsNullOrEmpty(elementSelector))
             {
-                var elementSelectorBody = MemberSelector(parameter, ElementSelector);
+                var elementSelectorBody = MemberSelector(parameter, elementSelector);
                 var elementSelectorLambda = Expression.Lambda(elementSelectorBody, parameter);
                 return Expression.Call(
                     combinator,
