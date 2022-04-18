@@ -7,13 +7,12 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that samples the observable sequence at each interval. Upon each
-    /// sampling tick, the latest element (if any) in the source sequence during the last sampling
-    /// interval is sent to the resulting sequence.
+    /// Represents an operator that samples the latest element from the sequence
+    /// whenever the specified time interval elapses.
     /// </summary>
     [DefaultProperty(nameof(Interval))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Samples the latest element of the sequence each time the specified interval elapses.")]
+    [Description("Samples the latest element of the sequence whenever the specified time interval elapses.")]
     public class SampleInterval : Combinator
     {
         /// <summary>
@@ -25,7 +24,7 @@ namespace Bonsai.Reactive
         public TimeSpan Interval { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the interval.
+        /// Gets or sets an XML representation of the interval for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Interval))]
@@ -36,11 +35,17 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Samples the observable sequence at each interval.  Upon each sampling tick,
-        /// the latest element (if any) in the source sequence during the last sampling
-        /// interval is sent to the resulting sequence.
+        /// Samples the latest element from an observable sequence whenever the
+        /// specified time interval elapses.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <remarks>
+        /// Upon each sampling tick, the latest element (if any) emitted by the
+        /// <paramref name="source"/> sequence during the last sampling interval
+        /// is sent to the resulting sequence.
+        /// </remarks>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to sample.</param>
         /// <returns>The sampled observable sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

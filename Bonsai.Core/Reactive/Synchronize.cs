@@ -6,18 +6,20 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that synchronizes the observable sequence
-    /// such that observer notifications cannot be delivered concurrently.
+    /// Represents an operator that synchronizes the observable sequence
+    /// to ensure that observer notifications cannot be delivered concurrently.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Synchronizes the observable sequence such that observer notifications cannot be delivered concurrently.")]
+    [Description("Synchronizes the observable sequence to ensure that observer notifications cannot be delivered concurrently.")]
     public class Synchronize : Combinator
     {
         /// <summary>
-        /// Synchronizes the observable sequence such that observer notifications
+        /// Synchronizes the observable sequence to ensure that observer notifications
         /// cannot be delivered concurrently.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The observable sequence to synchronize.</param>
         /// <returns>
         /// The source sequence whose outgoing calls to observers are synchronized.

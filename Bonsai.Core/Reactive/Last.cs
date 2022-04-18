@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns the last element of an observable sequence.
+    /// Represents an operator that returns the last element of an observable sequence.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the last element of an observable sequence.")]
@@ -15,11 +15,13 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Returns the last element of an observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The sequence to take the last element from.</param>
         /// <returns>
-        /// An observable sequence with a single element that contains the last element
-        /// of the observable sequence.
+        /// An observable sequence containing the last element of the
+        /// <paramref name="source"/> sequence.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

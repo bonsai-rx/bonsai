@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that dematerializes the explicit notification values of an observable
+    /// Represents an operator that dematerializes the explicit notification values of an observable
     /// sequence as implicit notifications.
     /// </summary>
     [Combinator]
@@ -27,8 +27,8 @@ namespace Bonsai.Reactive
         /// to be turned into implicit notifications.
         /// </param>
         /// <returns>
-        /// An observable sequence exhibiting the behavior corresponding to the source
-        /// sequence's notification values.
+        /// An observable sequence exhibiting the behavior corresponding to the notification
+        /// values of the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<Notification<TSource>> source)
         {

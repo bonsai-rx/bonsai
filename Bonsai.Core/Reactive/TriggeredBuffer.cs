@@ -9,31 +9,39 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that projects each element of an observable sequence into zero
-    /// or more buffers aligned on an external trigger.
+    /// Represents an operator that projects each element of an observable sequence into zero
+    /// or more buffers created when the second sequence emits a notification.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Projects the sequence into zero or more buffers aligned on when the second sequence produces an element.")]
+    [Description("Projects each element of the sequence into zero or more buffers created when the second sequence emits a notification.")]
     public class TriggeredBuffer
     {
         /// <summary>
-        /// Gets or sets the time length of each buffer. If it is not specified, the buffer will have
-        /// its length set by either a maximum number of elements or an external trigger boundary.
+        /// Gets or sets the time length of each buffer.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the buffer will have its length specified by either a
+        /// maximum number of elements, or the boundary indicated by a notification
+        /// from the second sequence.
+        /// </remarks>
         [XmlIgnore]
-        [Description("The optional time length of each buffer.")]
+        [Description("The time length of each buffer.")]
         public TimeSpan? TimeSpan { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum number of elements in each buffer. If it is not specified, the
-        /// buffer will have its length set by the optional time span or by an external trigger boundary.
+        /// Gets or sets the maximum number of elements in each buffer.
         /// </summary>
-        [Description("The optional maximum number of elements in each buffer.")]
+        /// <remarks>
+        /// If no value is specified, the buffer will have its length specified by either a
+        /// maximum time span, or the boundary indicated by a notification from the second
+        /// sequence.
+        /// </remarks>
+        [Description("The maximum number of elements in each buffer.")]
         public int? Count { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of buffer time span.
+        /// Gets or sets an XML representation of the buffer time span for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeSpan))]
@@ -53,16 +61,20 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Projects each element of an observable sequence into zero or more buffers.
+        /// Projects each element of an observable sequence into zero or more buffers
+        /// created when a second sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <typeparam name="TBufferOpening">
-        /// The type of the elements in the sequence indicating buffer opening events.
+        /// The type of the elements in the <paramref name="bufferOpenings"/> sequence.
         /// </typeparam>
         /// <param name="source">The source sequence to produce buffers over.</param>
         /// <param name="bufferOpenings">
-        /// The sequence of buffer opening events. If no maximum length is specified, the current
-        /// buffer is closed and a new buffer is opened upon receiving a buffer opening event.
+        /// The sequence of buffer openings. If no maximum length is specified, the current
+        /// buffer is closed and a new buffer is opened upon receiving a notification from
+        /// this sequence.
         /// </param>
         /// <returns>An observable sequence of buffers.</returns>
         public IObservable<IList<TSource>> Process<TSource, TBufferOpening>(IObservable<TSource> source, IObservable<TBufferOpening> bufferOpenings)

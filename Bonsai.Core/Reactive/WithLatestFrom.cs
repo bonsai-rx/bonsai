@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that combines the latest values from the source sequences only
+    /// Represents an operator that combines the latest values from the source sequences only
     /// when the first sequence produces an element.
     /// </summary>
     [Combinator]
@@ -15,17 +15,21 @@ namespace Bonsai.Reactive
     public class WithLatestFrom
     {
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
+        /// Merges the specified sources into one observable sequence by emitting a pair with
         /// the latest source elements only when the first observable sequence produces an
         /// element.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the first source sequence.</typeparam>
-        /// <typeparam name="TOther">The type of the elements in the other source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <typeparam name="TOther">
+        /// The type of the elements in the <paramref name="other"/> sequence.
+        /// </typeparam>
         /// <param name="source">The first observable sequence.</param>
         /// <param name="other">The other observable sequence.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples only when the first sequence produces an element.
+        /// sources into pairs only when the first sequence produces an element.
         /// </returns>
         public IObservable<Tuple<TSource, TOther>> Process<TSource, TOther>(
             IObservable<TSource> source,

@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that computes the cumulative sum of an observable sequence
+    /// Represents an operator that computes the cumulative sum of an observable sequence
     /// and returns each intermediate result.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -22,14 +22,7 @@ namespace Bonsai.Reactive
                                                                   .Single(m => m.Name == "Scan" &&
                                                                           m.GetParameters().Length == 2);
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.Single();

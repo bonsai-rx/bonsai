@@ -7,7 +7,7 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that ignores elements from an observable sequence which
+    /// Represents an operator that ignores elements from an observable sequence which
     /// are followed by another element before the specified duration elapses.
     /// </summary>
     [DefaultProperty(nameof(DueTime))]
@@ -23,7 +23,7 @@ namespace Bonsai.Reactive
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the throttling duration.
+        /// Gets or sets an XML representation of the due time for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
@@ -37,7 +37,9 @@ namespace Bonsai.Reactive
         /// Ignores elements from an observable sequence which are followed by another element
         /// before the specified duration elapses.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to throttle.</param>
         /// <returns>The throttled sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

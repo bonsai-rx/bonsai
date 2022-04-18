@@ -14,8 +14,7 @@ using System.Threading;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Provides the base class from which the classes that generate expression tree nodes
-    /// are derived. This is an abstract class.
+    /// Provides the abstract base class for all expression tree node builders.
     /// </summary>
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
@@ -46,43 +45,43 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// When overridden in a derived class, gets the range of input arguments
-        /// that this expression builder accepts.
+        /// Gets the range of input arguments that this expression builder accepts.
         /// </summary>
         [Browsable(false)]
         public abstract Range<int> ArgumentRange { get; }
 
         /// <summary>
-        /// When overridden in a derived class, generates an <see cref="Expression"/> node
-        /// from a collection of input arguments. The result can be chained with other
-        /// builders in a workflow.
+        /// Constructs an <see cref="Expression"/> node from a collection of input
+        /// arguments. The result can be chained with other builders in a workflow.
         /// </summary>
         /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// A collection of <see cref="Expression"/> nodes representing the input
+        /// arguments.
         /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <returns>The constructed <see cref="Expression"/> node.</returns>
         public abstract Expression Build(IEnumerable<Expression> arguments);
 
         /// <summary>
-        /// Returns a string that represents the display name of this <see cref="ExpressionBuilder"/> instance.
+        /// Returns a string that represents the display name of this
+        /// <see cref="ExpressionBuilder"/> instance.
         /// </summary>
         /// <returns>
         /// The string representation of this <see cref="ExpressionBuilder"/> object.
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{{{0}}}", GetElementDisplayName(this));
+            return $"{{{GetElementDisplayName(this)}}}";
         }
 
         /// <summary>
         /// Removes all decorators from a specified <see cref="ExpressionBuilder"/> instance
-        /// and returns the first non-decorated (i.e. primitive) builder to be retrieved.
+        /// and returns the first non-decorated (i.e. primitive) builder.
         /// </summary>
         /// <param name="builder">
         /// An <see cref="ExpressionBuilder"/> instance from which to remove decorators.
         /// </param>
         /// <returns>
-        /// The first non-decorated <see cref="ExpressionBuilder"/> instance that is retrieved.
+        /// The non-decorated <see cref="ExpressionBuilder"/> instance.
         /// </returns>
         public static ExpressionBuilder Unwrap(ExpressionBuilder builder)
         {

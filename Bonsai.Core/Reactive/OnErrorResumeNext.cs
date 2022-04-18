@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that concatenates any number of observable sequences even if any of
+    /// Represents an operator that concatenates any number of observable sequences even if any of
     /// the sequences terminates exceptionally.
     /// </summary>
     [Combinator]
@@ -18,7 +18,7 @@ namespace Bonsai.Reactive
         /// Concatenates the second observable sequence to the first observable sequence upon
         /// successful or exceptional termination of the first.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the first sequence.</typeparam>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
         /// <param name="first">The first observable sequence.</param>
         /// <param name="second">The second observable sequence.</param>
         /// <returns>

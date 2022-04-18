@@ -7,7 +7,7 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that projects each element of an observable sequence into zero
+    /// Represents an operator that projects each element of an observable sequence into zero
     /// or more windows based on timing information.
     /// </summary>
     [DefaultProperty(nameof(TimeSpan))]
@@ -25,12 +25,16 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Gets or sets the interval between creation of consecutive windows.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the operator will generate consecutive
+        /// non-overlapping windows.
+        /// </remarks>
         [XmlIgnore]
-        [Description("The optional interval between creation of consecutive windows.")]
+        [Description("The interval between creation of consecutive windows.")]
         public TimeSpan? TimeShift { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of window time span.
+        /// Gets or sets an XML representation of the window time span for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeSpan))]
@@ -41,7 +45,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of window interval.
+        /// Gets or sets an XML representation of the window time shift for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeShift))]
@@ -64,7 +68,9 @@ namespace Bonsai.Reactive
         /// Projects each element of an observable sequence into zero or more windows
         /// based on timing information.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to produce windows over.</param>
         /// <returns>An observable sequence of windows.</returns>
         public override IObservable<IObservable<TSource>> Process<TSource>(IObservable<TSource> source)

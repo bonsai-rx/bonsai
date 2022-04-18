@@ -7,8 +7,9 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents an observable sequence that periodically produces a value after the
-    /// specified initial relative due time has elapsed.
+    /// Represents an operator that generates an observable sequence that
+    /// periodically produces a value after the specified initial relative
+    /// due time has elapsed.
     /// </summary>
     [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -33,7 +34,7 @@ namespace Bonsai.Reactive
         public TimeSpan Period { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the due time.
+        /// Gets or sets an XML representation of the due time for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
@@ -44,7 +45,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the period.
+        /// Gets or sets an XML representation of the period for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Period))]
@@ -55,12 +56,12 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns an observable sequence that periodically produces a value after the
-        /// specified initial relative due time has elapsed.
+        /// Generates an observable sequence that periodically produces a value
+        /// after the specified initial relative due time has elapsed.
         /// </summary>
         /// <returns>
-        /// An observable sequence that produces a value after due time has elapsed and
-        /// then after each period.
+        /// An observable sequence of integer values counting how many times the
+        /// timer has fired.
         /// </returns>
         public override IObservable<long> Generate()
         {

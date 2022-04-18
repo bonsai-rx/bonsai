@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that continues an observable sequence that is terminated
+    /// Represents an operator that continues an observable sequence that is terminated
     /// by an exception with the next observable sequence.
     /// </summary>
     [Combinator]
@@ -25,7 +25,7 @@ namespace Bonsai.Reactive
         /// terminates exceptionally.
         /// </param>
         /// <returns>
-        /// An observable sequence containing the first sequence's elements, followed
+        /// An observable sequence containing the elements of the first sequence, followed
         /// by the elements of the second sequence in case an exception occurred.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<TSource> first, IObservable<TSource> second)
@@ -37,7 +37,7 @@ namespace Bonsai.Reactive
         /// Continues an observable sequence that is terminated by an exception with
         /// the next observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source and handler sequences.</typeparam>
+        /// <typeparam name="TSource">The type of the elements in all the source sequences.</typeparam>
         /// <param name="sources">The observable sequences to catch exceptions for.</param>
         /// <returns>
         /// An observable sequence containing elements from consecutive source sequences

@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that computes the sum of an observable sequence.
+    /// Represents an operator that computes the sum of an observable sequence.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -21,8 +21,8 @@ namespace Bonsai.Reactive
         /// A sequence of nullable <see cref="decimal"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<decimal?> Process(IObservable<decimal?> source)
         {
@@ -36,8 +36,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="decimal"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<decimal> Process(IObservable<decimal> source)
         {
@@ -51,8 +51,8 @@ namespace Bonsai.Reactive
         /// A sequence of nullable <see cref="double"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<double?> Process(IObservable<double?> source)
         {
@@ -66,8 +66,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="double"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
@@ -81,8 +81,8 @@ namespace Bonsai.Reactive
         /// A sequence of nullable <see cref="float"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<float?> Process(IObservable<float?> source)
         {
@@ -96,8 +96,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="float"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<float> Process(IObservable<float> source)
         {
@@ -111,8 +111,8 @@ namespace Bonsai.Reactive
         /// A sequence of nullable <see cref="int"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<int?> Process(IObservable<int?> source)
         {
@@ -126,8 +126,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="int"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<int> Process(IObservable<int> source)
         {
@@ -141,8 +141,8 @@ namespace Bonsai.Reactive
         /// A sequence of nullable <see cref="long"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<long?> Process(IObservable<long?> source)
         {
@@ -156,8 +156,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="long"/> values to calculate the sum of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the sum of the values
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the sum
+        /// of the values in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<long> Process(IObservable<long> source)
         {

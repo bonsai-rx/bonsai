@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator which propagates the observable sequence that reacts first.
+    /// Represents an operator that propagates the observable sequence that reacts first.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]

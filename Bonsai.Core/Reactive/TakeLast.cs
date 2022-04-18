@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns a specified number of contiguous elements
+    /// Represents an operator that returns a specified number of contiguous elements
     /// from the end of an observable sequence.
     /// </summary>
     [DefaultProperty(nameof(Count))]
@@ -15,23 +15,18 @@ namespace Bonsai.Reactive
     public class TakeLast : Combinator
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TakeLast"/> class.
-        /// </summary>
-        public TakeLast()
-        {
-            Count = 1;
-        }
-
-        /// <summary>
         /// Gets or sets the number of elements to take from the end of the sequence.
         /// </summary>
         [Description("The number of elements to take from the end of the sequence.")]
-        public int Count { get; set; }
+        public int Count { get; set; } = 1;
 
         /// <summary>
-        /// Returns a specified number of contiguous elements from the end of an observable sequence.
+        /// Returns a specified number of contiguous elements from the end of an
+        /// observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The sequence to take elements from.</param>
         /// <returns>
         /// An observable sequence containing the specified number of elements from the

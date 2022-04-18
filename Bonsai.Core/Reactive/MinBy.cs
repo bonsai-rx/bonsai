@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns the elements in the observable
+    /// Represents an operator that returns the elements in the observable
     /// sequence with the minimum key value.
     /// </summary>
     [DefaultProperty(nameof(KeySelector))]
@@ -24,20 +24,14 @@ namespace Bonsai.Reactive
                                                                           m.GetParameters().Length == 2);
 
         /// <summary>
-        /// Gets or sets a string used to specify a key for each element of the observable sequence.
+        /// Gets or sets a value specifying the inner properties used as key for
+        /// each element in the sequence.
         /// </summary>
-        [Description("The inner properties that will be used as key for each element of the sequence.")]
+        [Description("Specifies the inner properties used as key for each element of the sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();

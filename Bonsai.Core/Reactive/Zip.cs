@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that combines values from the source sequences whenever
+    /// Represents an operator that combines values from the source sequences whenever
     /// all of the sequences have produced an element.
     /// </summary>
     [Combinator]
@@ -17,7 +17,7 @@ namespace Bonsai.Reactive
     public class Zip
     {
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a pair with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -26,7 +26,8 @@ namespace Bonsai.Reactive
         /// <param name="source1">The first observable source.</param>
         /// <param name="source2">The second observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into pairs.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2>> Process<TSource1, TSource2>(
             IObservable<TSource1> source1,
@@ -36,7 +37,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a triple with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -47,7 +48,8 @@ namespace Bonsai.Reactive
         /// <param name="source2">The second observable source.</param>
         /// <param name="source3">The third observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into triples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3>> Process<TSource1, TSource2, TSource3>(
             IObservable<TSource1> source1,
@@ -58,7 +60,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a quadruple with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -71,7 +73,8 @@ namespace Bonsai.Reactive
         /// <param name="source3">The third observable source.</param>
         /// <param name="source4">The fourth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into quadruples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4>> Process<TSource1, TSource2, TSource3, TSource4>(
             IObservable<TSource1> source1,
@@ -83,7 +86,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a quintuple with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -98,7 +101,8 @@ namespace Bonsai.Reactive
         /// <param name="source4">The fourth observable source.</param>
         /// <param name="source5">The fifth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into quintuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5>(
@@ -113,7 +117,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a sextuple with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -130,7 +134,8 @@ namespace Bonsai.Reactive
         /// <param name="source5">The fifth observable source.</param>
         /// <param name="source6">The sixth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into sextuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>> Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>(
             IObservable<TSource1> source1,
@@ -145,7 +150,7 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a list with
+        /// Merges the specified sources into one observable sequence by emitting a septuple with
         /// the elements of the observable sequences whenever all of the sequences have produced
         /// a new element.
         /// </summary>
@@ -164,7 +169,8 @@ namespace Bonsai.Reactive
         /// <param name="source6">The sixth observable source.</param>
         /// <param name="source7">The seventh observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining elements of the sources into tuples.
+        /// An observable sequence containing the result of combining the elements of the sources
+        /// into septuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(

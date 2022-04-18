@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that computes the maximum element in an observable sequence.
+    /// Represents an operator that computes the maximum element in an observable sequence.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -23,8 +23,8 @@ namespace Bonsai.Reactive
         /// maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<decimal?> Process(IObservable<decimal?> source)
         {
@@ -39,8 +39,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="decimal"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<decimal> Process(IObservable<decimal> source)
         {
@@ -56,8 +56,8 @@ namespace Bonsai.Reactive
         /// maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<double?> Process(IObservable<double?> source)
         {
@@ -72,8 +72,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="double"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
@@ -89,8 +89,8 @@ namespace Bonsai.Reactive
         /// maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<float?> Process(IObservable<float?> source)
         {
@@ -105,8 +105,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="float"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<float> Process(IObservable<float> source)
         {
@@ -122,8 +122,8 @@ namespace Bonsai.Reactive
         /// maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<int?> Process(IObservable<int?> source)
         {
@@ -138,8 +138,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="int"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<int> Process(IObservable<int> source)
         {
@@ -155,8 +155,8 @@ namespace Bonsai.Reactive
         /// maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<long?> Process(IObservable<long?> source)
         {
@@ -171,8 +171,8 @@ namespace Bonsai.Reactive
         /// A sequence of <see cref="long"/> values to determine the maximum value of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<long> Process(IObservable<long> source)
         {
@@ -182,13 +182,15 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Returns the maximum element in an observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">
         /// An observable sequence to determine the maximum element of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the maximum value
-        /// in the source sequence.
+        /// An observable sequence containing a single element representing the
+        /// maximum value in the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

@@ -8,22 +8,20 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that converts element-timestamp tuples of an observable
+    /// Represents an operator that converts element-timestamp pairs of an observable
     /// sequence into proper timestamped elements.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Converts a tuple of element and timestamp into a proper timestamped type.")]
+    [Description("Converts a pair of element and timestamp into a proper timestamped type.")]
     public class CombineTimestamp
     {
         /// <summary>
-        /// Converts element-timestamp tuples of an observable sequence into proper
+        /// Converts element-timestamp pairs of an observable sequence into proper
         /// timestamped elements.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of values in the tuple elements of the source sequence.
-        /// </typeparam>
-        /// <param name="source">The sequence of element-timestamp tuples.</param>
+        /// <typeparam name="TSource">The type of the value being timestamped.</typeparam>
+        /// <param name="source">The sequence of element-timestamp pairs.</param>
         /// <returns>An observable sequence of timestamped values.</returns>
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<Tuple<TSource, DateTimeOffset>> source)
         {

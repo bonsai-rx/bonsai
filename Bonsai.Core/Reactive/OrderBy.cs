@@ -10,29 +10,23 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that sorts the elements of the input enumerable
-    /// sequences according to the specified key.
+    /// Represents an operator that sorts the elements of all the collections
+    /// in an observable sequence in ascending order according to the specified key.
     /// </summary>
     [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Sorts the elements of the input enumerable sequences in ascending order according to the specified key.")]
+    [Description("Sorts the elements of all the collections in the sequence in ascending order according to the specified key.")]
     public class OrderBy : SingleArgumentExpressionBuilder
     {
         /// <summary>
-        /// Gets or sets a string used to specify a key for each element of the input enumerable sequences.
+        /// Gets or sets a value specifying the inner properties used as a key for
+        /// sorting the elements in the collection.
         /// </summary>
-        [Description("The inner properties that will be used as a key for sorting the elements of the enumerable sequences.")]
+        [Description("Specifies the inner properties used as a key for sorting the elements in the collection.")]
         [Editor("Bonsai.Design.EnumerableMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
@@ -40,7 +34,7 @@ namespace Bonsai.Reactive
             var enumerableType = GetParameterBindings(typeof(IEnumerable<>), parameterType).FirstOrDefault();
             if (enumerableType == null)
             {
-                throw new InvalidOperationException("The elements of the input observable sequence must be an enumerable type.");
+                throw new InvalidOperationException("The elements of the input observable sequence must be of an enumerable type.");
             }
 
             var parameter = Expression.Parameter(enumerableType.Item1);

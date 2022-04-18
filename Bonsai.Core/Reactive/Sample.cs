@@ -6,23 +6,30 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that samples an observable sequence using a second sequence
-    /// producing sampling ticks.
+    /// Represents an operator that samples elements from an observable sequence
+    /// whenever the second sequence emits a notification.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Samples elements of the first sequence only when the second sequence produces a sampling tick.")]
+    [Description("Samples elements from the first sequence whenever the second sequence emits a notification.")]
     public class Sample : BinaryCombinator
     {
         /// <summary>
-        /// Samples the source observable sequence using a sampler observable sequence
-        /// producing sampling ticks. Upon each sampling tick, the latest element (if any)
-        /// in the source sequence during the last sampling interval is sent to the
-        /// resulting sequence.
+        /// Samples elements from the first sequence whenever the second sequence
+        /// emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <typeparam name="TOther">The type of the elements in the sampling sequence.</typeparam>
+        /// <remarks>
+        /// Upon each sampling notification, the latest element (if any) emitted by
+        /// the <paramref name="source"/> sequence during the last sampling interval
+        /// is sent to the resulting sequence.
+        /// </remarks>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <typeparam name="TOther">
+        /// The type of the elements in the <paramref name="other"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to sample.</param>
-        /// <param name="other">The sampling tick sequence.</param>
+        /// <param name="other">The sequence of sampling notifications.</param>
         /// <returns>The sampled observable sequence.</returns>
         public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {

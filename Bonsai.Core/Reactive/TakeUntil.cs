@@ -6,29 +6,32 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns elements from an observable sequence only until
-    /// the second sequence produces an element.
+    /// Represents an operator that returns elements from the first sequence only until
+    /// the second sequence emits a notification.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Returns elements from the first sequence only until the second sequence produces a value.")]
+    [Description("Returns elements from the first sequence only until the second sequence emits a notification.")]
     public class TakeUntil : BinaryCombinator
     {
         /// <summary>
         /// Returns elements from an observable sequence only until the second sequence
-        /// produces an element.
+        /// emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <typeparam name="TOther">
-        /// The type of the elements in the other sequence that indicates the end of
-        /// take behavior.
+        /// The type of the elements in the <paramref name="other"/> sequence.
         /// </typeparam>
         /// <param name="source">The sequence to take elements from.</param>
         /// <param name="other">
-        /// The observable sequence that terminates propagation of elements of the source sequence.
+        /// The observable sequence indicating the time at which to stop taking elements
+        /// from the <paramref name="source"/> sequence.
         /// </param>
         /// <returns>
-        /// An observable sequence containing the elements of the source sequence up
-        /// to the point the other sequence interrupted further propagation.
+        /// An observable sequence containing the elements of the <paramref name="source"/>
+        /// sequence emitted until the <paramref name="other"/> sequence emits
+        /// a notification.
         /// </returns>
         public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {

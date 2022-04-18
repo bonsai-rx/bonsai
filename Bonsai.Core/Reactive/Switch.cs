@@ -6,22 +6,23 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that transforms a sequence of windows into a sequence of values
-    /// produced only from the most recent window.
+    /// Represents an operator that transforms a sequence of observable sequences into a
+    /// sequence of values produced only from the most recent observable sequence.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Combines higher-order observables into a single sequence of values produced only from the most recent observable.")]
+    [Description("Transforms a sequence of observable sequences into a sequence of values produced only from the most recent observable sequence.")]
     public class Switch
     {
         /// <summary>
-        /// Transforms a sequence of higher-order observables into a sequence of values produced only from
-        /// the most recent observable.
+        /// Transforms a sequence of observable sequences into a sequence of values
+        /// produced only from the most recent observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The source sequence of higher-order observables to switch over.</param>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="source">A sequence of observable sequences.</param>
         /// <returns>
-        /// An observable sequence of values produced only from the most recent observable.
+        /// An observable sequence that at any point produces values only from the
+        /// most recent observable sequence that has been received.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
         {

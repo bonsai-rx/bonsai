@@ -7,7 +7,7 @@ using System.Reactive;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that records the timestamp for each element produced by
+    /// Represents an operator that records the timestamp for each element produced by
     /// an observable sequence.
     /// </summary>
     [Combinator]
@@ -16,10 +16,11 @@ namespace Bonsai.Reactive
     public class Timestamp
     {
         /// <summary>
-        /// Records the timestamp for each element produced by an observable sequence
-        /// using a high resolution timer, if available.
+        /// Records the timestamp for each element produced by an observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to timestamp elements for.</param>
         /// <returns>An observable sequence with timestamp information on elements.</returns>
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<TSource> source)

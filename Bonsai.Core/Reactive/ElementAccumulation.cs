@@ -15,7 +15,7 @@ namespace Bonsai.Reactive
         readonly TElement value;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ElementAccumulation{A,T}"/> class
+        /// Initializes a new instance of the <see cref="ElementAccumulation{A, T}"/> class
         /// with the specified accumulator state and current element information.
         /// </summary>
         /// <param name="accumulation">The current state of the accumulator.</param>
@@ -43,8 +43,8 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns a value that indicates whether the current <see cref="ElementAccumulation{A,T}"/>
-        /// object is equal to a specified object.
+        /// Returns a value that indicates whether the current instance is equal
+        /// to the specified object.
         /// </summary>
         /// <param name="obj">The object to compare with this instance.</param>
         /// <returns>
@@ -74,9 +74,11 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Returns the hash code for the current <see cref="ElementAccumulation{A,T}"/> object.
+        /// Returns a hash code for the current instance.
         /// </summary>
-        /// <returns>A 32-bit signed integer hash code.</returns>
+        /// <returns>
+        /// The hash code for the current instance.
+        /// </returns>
         public override int GetHashCode()
         {
             return ((IStructuralEquatable)this).GetHashCode(EqualityComparer<object>.Default);
@@ -104,7 +106,7 @@ namespace Bonsai.Reactive
 
             if (!(other is ElementAccumulation<TAccumulation, TElement> accumulator))
             {
-                throw new ArgumentException(string.Format("Argument must be of type {0}.", GetType()), nameof(other));
+                throw new ArgumentException($"Argument must be of type {GetType()}.", nameof(other));
             }
 
             var result = comparer.Compare(accumulation, accumulator.accumulation);
@@ -112,13 +114,7 @@ namespace Bonsai.Reactive
             return comparer.Compare(value, accumulator.value);
         }
 
-        /// <summary>
-        /// Returns a string that represents the current <see cref="ElementAccumulation{A,T}"/>
-        /// instance.
-        /// </summary>
-        /// <returns>
-        /// The string representation of this <see cref="ElementAccumulation{A,T}"/> object.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"(A:{accumulation}, V:{value})";

@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that merges any number of observable sequences into a
+    /// Represents an operator that merges any number of observable sequences into a
     /// single observable sequence.
     /// </summary>
     [Combinator]
@@ -19,7 +19,7 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Merges elements from two observable sequences into a single observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the first sequence.</typeparam>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
         /// <param name="first">The first observable sequence.</param>
         /// <param name="second">The second observable sequence.</param>
         /// <returns>The observable sequence that merges the elements of the two sequences.</returns>

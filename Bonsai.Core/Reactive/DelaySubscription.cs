@@ -7,12 +7,12 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that time-shifts the observable sequence by delaying the
-    /// subscription with the specified relative time duration.
+    /// Represents an operator that time-shifts the observable sequence by delaying the
+    /// subscription by the specified time interval.
     /// </summary>
     [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Time-shifts the observable sequence by delaying the subscription with the specified relative time duration.")]
+    [Description("Time-shifts the observable sequence by delaying the subscription by the specified time interval.")]
     public class DelaySubscription : Combinator
     {
         /// <summary>
@@ -23,10 +23,10 @@ namespace Bonsai.Reactive
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of due time.
+        /// Gets or sets an XML representation of the due time for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }
@@ -34,8 +34,8 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Time-shifts the observable sequence by delaying the subscription with the specified
-        /// relative time duration.
+        /// Time-shifts the observable sequence by delaying the subscription by the specified
+        /// time interval.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
         /// <param name="source">The source sequence to delay subscription for.</param>
