@@ -10,9 +10,10 @@ namespace Bonsai.Reactive
     /// Represents an operator that subscribes to the first sequence only after the second
     /// sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Subscribes to the first sequence only after the second sequence emits a notification.")]
-    public class SubscribeWhen : BinaryCombinator
+    public class SubscribeWhen
     {
         /// <summary>
         /// Subscribes to an observable sequence only after the second sequence
@@ -34,7 +35,7 @@ namespace Bonsai.Reactive
         /// sequence but where subscription is delayed until the <paramref name="other"/>
         /// sequence emits a notification.
         /// </returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return other.Take(1).SelectMany(x => source);
         }

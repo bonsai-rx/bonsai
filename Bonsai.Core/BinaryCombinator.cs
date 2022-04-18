@@ -3,9 +3,11 @@
 namespace Bonsai
 {
     /// <summary>
-    /// Represents a generic operation on two observable sequences where the elements of the first
-    /// sequence are propagated based on notifications from the second sequence.
+    /// Provides an abstract base class for operators accepting two observable
+    /// sequences where the elements of the first sequence are filtered based on
+    /// notifications from the second sequence.
     /// </summary>
+    [Obsolete]
     [Combinator]
     public abstract class BinaryCombinator
     {
@@ -17,7 +19,7 @@ namespace Bonsai
         /// <typeparam name="TOther">The type of the elements in the other sequence.</typeparam>
         /// <param name="source">The source sequence to process.</param>
         /// <param name="other">
-        /// Observable sequence which controls propagation of the <paramref name="source"/> sequence.
+        /// Observable sequence which filters notifications of the <paramref name="source"/> sequence.
         /// </param>
         /// <returns>
         /// An observable sequence of the same data type as <paramref name="source"/>.

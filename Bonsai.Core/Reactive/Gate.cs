@@ -8,9 +8,10 @@ namespace Bonsai.Reactive
     /// Represents an operator that takes the next element from the first sequence
     /// whenever the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Takes the next element from the first sequence whenever the second sequence emits a notification.")]
-    public class Gate : BinaryCombinator
+    public class Gate
     {
         /// <summary>
         /// Takes the next element from the first observable sequence whenever
@@ -28,7 +29,7 @@ namespace Bonsai.Reactive
         /// the next element from the <paramref name="source"/> sequence is taken.
         /// </param>
         /// <returns>The gated observable sequence.</returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.Gate(other);
         }

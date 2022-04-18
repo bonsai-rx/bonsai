@@ -9,9 +9,10 @@ namespace Bonsai.Reactive
     /// Represents an operator that samples elements from an observable sequence
     /// whenever the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Samples elements from the first sequence whenever the second sequence emits a notification.")]
-    public class Sample : BinaryCombinator
+    public class Sample
     {
         /// <summary>
         /// Samples elements from the first sequence whenever the second sequence
@@ -31,7 +32,7 @@ namespace Bonsai.Reactive
         /// <param name="source">The source sequence to sample.</param>
         /// <param name="other">The sequence of sampling notifications.</param>
         /// <returns>The sampled observable sequence.</returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.Sample(other);
         }

@@ -9,9 +9,10 @@ namespace Bonsai.Reactive
     /// Represents an operator that returns elements from the first sequence only until
     /// the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns elements from the first sequence only until the second sequence emits a notification.")]
-    public class TakeUntil : BinaryCombinator
+    public class TakeUntil
     {
         /// <summary>
         /// Returns elements from an observable sequence only until the second sequence
@@ -33,7 +34,7 @@ namespace Bonsai.Reactive
         /// sequence emitted until the <paramref name="other"/> sequence emits
         /// a notification.
         /// </returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.TakeUntil(other);
         }

@@ -9,9 +9,10 @@ namespace Bonsai.Reactive
     /// Represents an operator that returns the elements from the first sequence
     /// only after the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns elements from the first sequence only after the second sequence emits a notification.")]
-    public class SkipUntil : BinaryCombinator
+    public class SkipUntil
     {
         /// <summary>
         /// Returns the elements from an observable sequence only after the second
@@ -33,7 +34,7 @@ namespace Bonsai.Reactive
         /// sequence emitted after the <paramref name="other"/> sequence emits
         /// a notification.
         /// </returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.SkipUntil(other);
         }

@@ -10,10 +10,11 @@ namespace Bonsai.Reactive
     /// element is produced within a specified time interval after the gate sequence
     /// emits a notification.
     /// </summary>
+    [Combinator]
     [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Takes the next element from the sequence if this element is produced within a specified interval after the gate sequence emits a notification.")]
-    public class TimedGate : BinaryCombinator
+    public class TimedGate
     {
         /// <summary>
         /// Gets or sets the maximum interval that can elapse after a gate notification
@@ -51,7 +52,7 @@ namespace Bonsai.Reactive
         /// before the maximum <see cref="TimeSpan"/> elapses.
         /// </param>
         /// <returns>The gated observable sequence.</returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.Gate(other, TimeSpan);
         }
