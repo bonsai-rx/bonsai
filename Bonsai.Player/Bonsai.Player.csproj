@@ -5,6 +5,7 @@
     <Title>Bonsai - Player</Title>
     <Description>A command line player for Bonsai workflows.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
     <Version>2.6.3</Version>
   </PropertyGroup>
