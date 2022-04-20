@@ -170,10 +170,12 @@ namespace Bonsai.Expressions
                 return builder;
             }
 
+#pragma warning disable CS0612 // Type or member is obsolete
             if (elementCategory == ElementCategory.Source)
             {
                 return new SourceBuilder { Generator = element };
             }
+#pragma warning restore CS0612 // Type or member is obsolete
 
             throw new InvalidOperationException("Invalid workflow element type.");
         }

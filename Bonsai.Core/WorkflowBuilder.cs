@@ -233,7 +233,9 @@ namespace Bonsai
         static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
+#pragma warning disable CS0612 // Type or member is obsolete
         static readonly Type[] SerializerLegacyTypes = new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) };
+#pragma warning restore CS0612 // Type or member is obsolete
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -322,8 +324,10 @@ namespace Bonsai
 
             var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
             overrides.Add(typeof(IndexBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute() { Namespace = Constants.XmlNamespace } });
+#pragma warning disable CS0612 // Type or member is obsolete
             overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
             overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
+#pragma warning restore CS0612 // Type or member is obsolete
             var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
             return new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
         }

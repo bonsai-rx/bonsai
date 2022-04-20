@@ -18,7 +18,9 @@ namespace Bonsai.Core.Tests
             var builder = new StringBuilder();
             workflow.Workflow.Add(new CombinatorBuilder() { Combinator = new MappingCombinator() });
             workflow.Workflow.Add(new AddBuilder { Operand = new WorkflowProperty<int>() });
+#pragma warning disable CS0612 // Type or member is obsolete
             workflow.Workflow.Add(new ExternalizedTimeSpan<int>());
+#pragma warning restore CS0612 // Type or member is obsolete
             workflow.Workflow.Add(new PropertySource<Bonsai.Reactive.ElementCountWindow, int>());
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<int, int>>() });
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<Tuple<int, int, int>>>() });

@@ -59,6 +59,7 @@ namespace Bonsai.Editor
             GetArgumentCount(workflow, argumentCount);
             return workflow.Convert(builder =>
             {
+#pragma warning disable CS0612 // Type or member is obsolete
                 if (builder is SourceBuilder sourceBuilder)
                 {
                     return new CombinatorBuilder
@@ -66,7 +67,9 @@ namespace Bonsai.Editor
                         Combinator = sourceBuilder.Generator
                     };
                 }
+#pragma warning restore CS0612 // Type or member is obsolete
 
+#pragma warning disable CS0612 // Type or member is obsolete
                 if (builder is WindowWorkflowBuilder windowWorkflowBuilder)
                 {
                     return new CreateObservableBuilder(windowWorkflowBuilder.Workflow)
@@ -75,6 +78,7 @@ namespace Bonsai.Editor
                         Description = windowWorkflowBuilder.Description
                     };
                 }
+#pragma warning restore CS0612 // Type or member is obsolete
 
                 if (builder is ExternalizedProperty property)
                 {
@@ -105,6 +109,7 @@ namespace Bonsai.Editor
                     };
                 }
 
+#pragma warning disable CS0612 // Type or member is obsolete
                 if (workflowElement is Reactive.Index index)
                 {
                     return new CombinatorBuilder
@@ -112,6 +117,7 @@ namespace Bonsai.Editor
                         Combinator = new Reactive.ElementIndex()
                     };
                 }
+#pragma warning restore CS0612 // Type or member is obsolete
 
                 if (workflowElement is ExpressionBuilder builderElement && version < RemoveMemberSelectorPrefixVersion)
                 {
@@ -189,7 +195,9 @@ namespace Bonsai.Editor
 
                 var successor = node.Successors.FirstOrDefault(edge => edge.Label.Index == 0 &&
                                                                        (edge.Target.Value is SelectManyBuilder ||
+#pragma warning disable CS0612 // Type or member is obsolete
                                                                         edge.Target.Value is WindowWorkflowBuilder));
+#pragma warning restore CS0612 // Type or member is obsolete
                 if (successor != null)
                 {
                     var inputDependency = new WorkflowInputDependency();
