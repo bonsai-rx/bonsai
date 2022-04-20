@@ -937,12 +937,6 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
-        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Defer" &&
-                                                                                m.GetParameters()[0].ParameterType
-                                                                                 .GetGenericArguments()[0]
-                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
-
         internal static Tuple<Expression, string> BuildArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
             if (string.IsNullOrEmpty(selector))
@@ -1106,11 +1100,17 @@ namespace Bonsai.Expressions
             return source.IgnoreElements().Select(xs => default(TResult));
         }
 
+        static IObservable<TResult> Lazy<TResult>(Func<IObservable<TResult>> observableFactory)
+        {
+            var source = new Lazy<IObservable<TResult>>(observableFactory);
+            return Observable.Defer(() => source.Value);
+        }
+
         internal static Expression MergeBuildDependencies(Expression output, IEnumerable<Expression> buildDependencies)
         {
             var observableFactory = Expression.Lambda(output);
             var outputType = output.Type.GetGenericArguments()[0];
-            var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
+            var source = Expression.Call(typeof(ExpressionBuilder), nameof(Lazy), new[] { outputType }, observableFactory);
             buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
             var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
             return Expression.Call(
