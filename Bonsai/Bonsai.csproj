@@ -18,6 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="OpenCV.Net" Version="3.4.0-preview3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
@@ -59,17 +60,9 @@
     <ItemGroup>
       <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
     </ItemGroup>
-    <ILRepack OutputType="$(OutputType)"
-              MainAssembly="$(AssemblyName).exe"
-              OutputAssembly="$(AssemblyName).exe"
-              InputAssemblies="@(InputAssemblies)"
-              InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)"
-              WorkingDirectory="$(WorkingDirectory)" />
+    <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).exe" OutputAssembly="$(AssemblyName).exe" InputAssemblies="@(InputAssemblies)" InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" WorkingDirectory="$(WorkingDirectory)" />
   </Target>
   <Target Name="NuGetConfig" AfterTargets="Build">
-    <WriteLinesToFile File="$(TargetDir)NuGet.config"
-                      Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(ProjectDir)..\bin\$(Configuration)'))"
-                      Overwrite="true"
-                      WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(TargetDir)NuGet.config" Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(ProjectDir)..\bin\$(Configuration)'))" Overwrite="true" WriteOnlyWhenDifferent="true" />
   </Target>
 </Project>
