@@ -141,6 +141,9 @@ namespace Bonsai.Vision.Design
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.EnableClientState(ArrayCap.TextureCoordArray);
 
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
