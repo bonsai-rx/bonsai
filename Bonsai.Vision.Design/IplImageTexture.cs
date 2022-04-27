@@ -19,6 +19,8 @@ namespace Bonsai.Vision.Design
         IplImage textureImage;
         IplImage normalizedImage;
         Size textureSize;
+        public TextureMinFilter minFilter { get; protected set; } = TextureMinFilter.Linear;
+        public TextureMagFilter magFilter { get; protected set; } = TextureMagFilter.Linear;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IplImageTexture"/> class.
@@ -47,8 +49,8 @@ namespace Bonsai.Vision.Design
             GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
 
         static int NearestPowerOfTwo(int num)
@@ -145,6 +147,24 @@ namespace Bonsai.Vision.Design
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        public void ToggleTextureFiltering()
+        {
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+
+            if (minFilter == TextureMinFilter.Linear)
+            {
+                minFilter = TextureMinFilter.Nearest;
+                magFilter = TextureMagFilter.Nearest;
+            } else
+            {
+                minFilter = TextureMinFilter.Linear;
+                magFilter = TextureMagFilter.Linear;
+            }
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
 
         private void Dispose(bool disposing)
