@@ -19,8 +19,8 @@ namespace Bonsai.Vision.Design
         IplImage textureImage;
         IplImage normalizedImage;
         Size textureSize;
-        public TextureMinFilter minFilter { get; protected set; } = TextureMinFilter.Linear;
-        public TextureMagFilter magFilter { get; protected set; } = TextureMagFilter.Linear;
+        public TextureMinFilter MinFilter { get; protected set; } = TextureMinFilter.Linear;
+        public TextureMagFilter MagFilter { get; protected set; } = TextureMagFilter.Linear;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IplImageTexture"/> class.
@@ -49,8 +49,8 @@ namespace Bonsai.Vision.Design
             GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
         }
 
         static int NearestPowerOfTwo(int num)
@@ -149,22 +149,30 @@ namespace Bonsai.Vision.Design
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
+        /// <summary>
+        /// Toggles texture filtering between linear and nearest
+        /// </summary>
         public void ToggleTextureFiltering()
         {
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-
-            if (minFilter == TextureMinFilter.Linear)
+            if (MinFilter == TextureMinFilter.Linear)
             {
-                minFilter = TextureMinFilter.Nearest;
-                magFilter = TextureMagFilter.Nearest;
+                SetTextureFiltering(TextureMagFilter.Nearest, TextureMinFilter.Nearest);
             } else
             {
-                minFilter = TextureMinFilter.Linear;
-                magFilter = TextureMagFilter.Linear;
+                SetTextureFiltering(TextureMagFilter.Linear, TextureMinFilter.Linear);
             }
+        }
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
+        /// <summary>
+        /// Sets the min and mag texture filter mode
+        /// </summary>
+        private void SetTextureFiltering(TextureMagFilter textureMagFilter, TextureMinFilter textureMinFilter)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            MagFilter = textureMagFilter;
+            MinFilter = textureMinFilter;
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
         }
 
         private void Dispose(bool disposing)

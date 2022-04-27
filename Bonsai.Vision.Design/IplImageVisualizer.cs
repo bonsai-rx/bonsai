@@ -132,7 +132,7 @@ namespace Bonsai.Vision.Design
             toggleButton.MouseDown += (sender, e) =>
             {
                 ToggleFrameTextureFiltering();
-                toggleButton.Text = imageTexture.minFilter.ToString();
+                toggleButton.Text = imageTexture.MinFilter.ToString();
             };
 
             imagePanel = new UserControl();
