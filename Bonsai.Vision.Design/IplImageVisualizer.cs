@@ -21,6 +21,7 @@ namespace Bonsai.Vision.Design
         UserControl imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
+        ToolStripButton toggleButton;
         VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
 
@@ -75,6 +76,14 @@ namespace Bonsai.Vision.Design
             imageTexture.Draw();
         }
 
+        /// <summary>
+        /// Switch texture filtering mode for the visualizer canvas.
+        /// </summary>
+        protected virtual void ToggleFrameTextureFiltering()
+        {
+            imageTexture.ToggleTextureFiltering();
+        }
+
         private void UpdateStatus()
         {
             var visualizerImage = VisualizerImage;
@@ -98,7 +107,10 @@ namespace Bonsai.Vision.Design
             visualizerCanvas = new VisualizerCanvas { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
             statusLabel = new ToolStripStatusLabel();
+            toggleButton = new ToolStripButton();
+            toggleButton.Text = "Texture Filtering";
             statusStrip.Items.Add(statusLabel);
+            statusStrip.Items.Add(toggleButton);
             visualizerCanvas.RenderFrame += (sender, e) => RenderFrame();
             visualizerCanvas.Load += (sender, e) => imageTexture = new IplImageTexture();
             visualizerCanvas.Canvas.MouseClick += (sender, e) => statusStrip.Visible =
@@ -115,6 +127,12 @@ namespace Bonsai.Vision.Design
                         imagePanel.Parent.ClientSize = new Size(VisualizerImage.Width, VisualizerImage.Height);
                     }
                 }
+            };
+
+            toggleButton.MouseDown += (sender, e) =>
+            {
+                ToggleFrameTextureFiltering();
+                toggleButton.Text = imageTexture.MinFilter.ToString();
             };
 
             imagePanel = new UserControl();

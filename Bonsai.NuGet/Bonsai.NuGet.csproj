@@ -7,6 +7,7 @@
     <Version>2.6.3</Version>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="OpenCV.Net" Version="3.4.0-preview3" />
     <PackageReference Include="Rx-Main" Version="2.2.5" />
     <PackageReference Include="NuGet.Protocol" Version="5.8.0" />
     <PackageReference Include="NuGet.Resolver" Version="5.8.0" />

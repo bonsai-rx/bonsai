@@ -19,6 +19,8 @@ namespace Bonsai.Vision.Design
         IplImage textureImage;
         IplImage normalizedImage;
         Size textureSize;
+        public TextureMinFilter MinFilter { get; protected set; } = TextureMinFilter.Linear;
+        public TextureMagFilter MagFilter { get; protected set; } = TextureMagFilter.Linear;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IplImageTexture"/> class.
@@ -47,8 +49,8 @@ namespace Bonsai.Vision.Design
             GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
         }
 
         static int NearestPowerOfTwo(int num)
@@ -145,6 +147,32 @@ namespace Bonsai.Vision.Design
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        /// <summary>
+        /// Toggles texture filtering between linear and nearest
+        /// </summary>
+        public void ToggleTextureFiltering()
+        {
+            if (MinFilter == TextureMinFilter.Linear)
+            {
+                SetTextureFiltering(TextureMagFilter.Nearest, TextureMinFilter.Nearest);
+            } else
+            {
+                SetTextureFiltering(TextureMagFilter.Linear, TextureMinFilter.Linear);
+            }
+        }
+
+        /// <summary>
+        /// Sets the min and mag texture filter mode
+        /// </summary>
+        private void SetTextureFiltering(TextureMagFilter textureMagFilter, TextureMinFilter textureMinFilter)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            MagFilter = textureMagFilter;
+            MinFilter = textureMinFilter;
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
         }
 
         private void Dispose(bool disposing)
