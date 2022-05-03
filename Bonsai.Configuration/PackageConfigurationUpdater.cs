@@ -22,7 +22,6 @@ namespace Bonsai.Configuration
         const string PackageTagFilter = "Bonsai";
         const string GalleryDirectory = "Gallery";
         const string ExtensionsDirectory = "Extensions";
-        const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
         const string BonsaiExtension = ".bonsai";
@@ -41,6 +40,7 @@ namespace Bonsai.Configuration
         static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly NuGetFramework NativeFramework = NuGetFramework.ParseFrameworkName("native,Version=v0.0", DefaultFrameworkNameProvider.Instance);
+        static readonly NuGetFramework WindowsFramework = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion);
 
         public PackageConfigurationUpdater(NuGetFramework projectFramework, PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
         {
@@ -57,7 +57,6 @@ namespace Bonsai.Configuration
             var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
             var galleryPackageSource = new PackageSource(galleryPath);
             galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
-            bootstrapperFramework = projectFramework;
         }
 
         string GetRelativePath(string path)
@@ -117,7 +116,7 @@ namespace Bonsai.Configuration
 
         static IEnumerable<string> GetAssemblyLocations(NuGetFramework projectFramework, PackageReaderBase package)
         {
-            var nearestFramework = package.GetItems(BuildDirectory).GetNearest(projectFramework);
+            var nearestFramework = package.GetItems(PackagingConstants.Folders.Build).GetNearest(projectFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
 
             return from file in nearestFramework.Items
@@ -128,7 +127,14 @@ namespace Bonsai.Configuration
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
         {
-            var nativeFramework = package.GetItems(BuildDirectory).FirstOrDefault(
+            var buildFolders = GetBuildLibraryFolders(package, installPath);
+            var runtimeFolders = GetRuntimeLibraryFolders(package, installPath);
+            return buildFolders.Concat(runtimeFolders);
+        }
+
+        static IEnumerable<LibraryFolder> GetBuildLibraryFolders(PackageReaderBase package, string installPath)
+        {
+            var nativeFramework = package.GetItems(PackagingConstants.Folders.Build).FirstOrDefault(
                 frameworkGroup => NuGetFramework.FrameworkNameComparer.Equals(frameworkGroup.TargetFramework, NativeFramework));
             if (nativeFramework == null) return Enumerable.Empty<LibraryFolder>();
 
@@ -137,6 +143,17 @@ namespace Bonsai.Configuration
                    let platform = ResolvePathPlatformName(folder.Key)
                    where !string.IsNullOrWhiteSpace(platform)
                    select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
+        }
+
+        static IEnumerable<LibraryFolder> GetRuntimeLibraryFolders(PackageReaderBase package, string installPath)
+        {
+            return from frameworkGroup in package.GetItems(PackagingConstants.Folders.Runtimes)
+                   where NuGetFramework.FrameworkNameComparer.Equals(frameworkGroup.TargetFramework, WindowsFramework)
+                   let platform = frameworkGroup.TargetFramework.Profile
+                   where !string.IsNullOrWhiteSpace(platform)
+                   from file in frameworkGroup.Items
+                   group file by new { platform, path = Path.GetDirectoryName(file) } into folder
+                   select new LibraryFolder(Path.Combine(installPath, folder.Key.path), folder.Key.platform);
         }
 
         static IEnumerable<string> GetCompatibleAssemblyReferences(NuGetFramework projectFramework, PackageReaderBase package)
@@ -304,7 +321,7 @@ namespace Bonsai.Configuration
             public override async Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var entryPoint = package.Id + BonsaiExtension;
-                var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(Owner.bootstrapperFramework);
+                var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
                 var executablePackage = nearestFrameworkGroup?.Items.Any(file => PathUtility.GetRelativePath(ContentFolder, file) == entryPoint);
                 if (executablePackage.GetValueOrDefault())
                 {
@@ -323,19 +340,17 @@ namespace Bonsai.Configuration
                 }
                 else
                 {
-                    var pivots = OverlayHelper.FindPivots(packageReader, installPath).ToArray();
+                    var pivots = OverlayHelper.FindPivots(package, packageReader).ToArray();
                     if (pivots.Length > 0)
                     {
                         PathUtility.EnsureParentDirectory(Path.Combine(installPath, package.Id));
-                        var overlayVersion = OverlayHelper.FindOverlayVersion(packageReader);
                         var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
                         overlayManager.Logger = Owner.packageManager.Logger;
                         try
                         {
                             foreach (var pivot in pivots)
                             {
-                                var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                                var pivotPackage = await overlayManager.InstallPackageAsync(pivotIdentity, projectFramework, ignoreDependencies: true, CancellationToken.None);
+                                var pivotPackage = await overlayManager.InstallPackageAsync(pivot, projectFramework, ignoreDependencies: true, CancellationToken.None);
                                 if (pivotPackage == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
                             }
                         }
@@ -343,8 +358,7 @@ namespace Bonsai.Configuration
                         {
                             foreach (var pivot in pivots)
                             {
-                                var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                                await overlayManager.UninstallPackageAsync(pivotIdentity, projectFramework, removeDependencies: false, CancellationToken.None);
+                                await overlayManager.UninstallPackageAsync(pivot, projectFramework, removeDependencies: false, CancellationToken.None);
                             }
                             throw;
                         }
@@ -368,20 +382,20 @@ namespace Bonsai.Configuration
                 Owner.AddContentFolders(installPath, ExtensionsDirectory);
                 Owner.RegisterLibraryFolders(packageReader, relativePath);
                 Owner.RegisterAssemblyLocations(packageReader, installPath, relativePath, false);
-                var pivots = OverlayHelper.FindPivots(packageReader, installPath).ToArray();
+                var pivots = OverlayHelper.FindPivots(package, packageReader).ToArray();
                 if (pivots.Length > 0)
                 {
                     var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
                     foreach (var pivot in pivots)
                     {
-                        var pivotPackage = overlayManager.LocalRepository.FindLocalPackage(pivot);
+                        var pivotPackage = overlayManager.LocalRepository.FindLocalPackage(pivot.Id);
                         using var pivotReader = pivotPackage.GetReader();
                         Owner.RegisterLibraryFolders(pivotReader, relativePath);
                         Owner.RegisterAssemblyLocations(pivotReader, installPath, relativePath, false);
                     }
                 }
 
-                var assemblyLocations = GetCompatibleAssemblyReferences(Owner.bootstrapperFramework, packageReader);
+                var assemblyLocations = GetCompatibleAssemblyReferences(projectFramework, packageReader);
                 Owner.RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, taggedPackage);
                 packageConfiguration.Save();
 
@@ -411,13 +425,13 @@ namespace Bonsai.Configuration
                 Owner.RemoveContentFolders(packageReader, installPath, ExtensionsDirectory);
                 Owner.RemoveLibraryFolders(packageReader, relativePath);
                 Owner.RemoveAssemblyLocations(packageReader, relativePath, false);
-                var pivots = OverlayHelper.FindPivots(packageReader, installPath).ToArray();
+                var pivots = OverlayHelper.FindPivots(package, packageReader).ToArray();
                 if (pivots.Length > 0)
                 {
                     var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
                     foreach (var pivot in pivots)
                     {
-                        var pivotPackage = overlayManager.LocalRepository.FindLocalPackage(pivot);
+                        var pivotPackage = overlayManager.LocalRepository.FindLocalPackage(pivot.Id);
                         if (pivotPackage != null)
                         {
                             using var pivotReader = pivotPackage.GetReader();
@@ -427,19 +441,17 @@ namespace Bonsai.Configuration
                     }
                 }
 
-                var assemblyLocations = GetCompatibleAssemblyReferences(Owner.bootstrapperFramework, packageReader);
+                var assemblyLocations = GetCompatibleAssemblyReferences(projectFramework, packageReader);
                 Owner.RemoveAssemblyLocations(assemblyLocations, relativePath, taggedPackage);
                 Owner.packageConfiguration.Save();
 
                 if (pivots.Length > 0)
                 {
-                    var overlayVersion = OverlayHelper.FindOverlayVersion(packageReader);
                     var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
                     overlayManager.Logger = Owner.packageManager.Logger;
                     foreach (var pivot in pivots)
                     {
-                        var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                        await overlayManager.UninstallPackageAsync(pivotIdentity, projectFramework, removeDependencies: false, CancellationToken.None);
+                        await overlayManager.UninstallPackageAsync(pivot, projectFramework, removeDependencies: false, CancellationToken.None);
                     }
                 }
             }
