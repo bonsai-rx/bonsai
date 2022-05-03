@@ -58,7 +58,8 @@
     <ItemGroup>
       <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
     </ItemGroup>
-    <ILRepack OutputType="$(OutputType)"
+    <ILRepack Condition="'$(Configuration)'=='Release'"
+              OutputType="$(OutputType)"
               MainAssembly="$(AssemblyName).exe"
               OutputAssembly="$(AssemblyName).exe"
               InputAssemblies="@(InputAssemblies)"
