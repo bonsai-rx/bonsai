@@ -129,7 +129,7 @@ namespace Bonsai.Vision
         /// <summary>
         /// Generates an observable sequence of affine transformation matrices using
         /// the specified translation, rotation and scale, and where each matrix is
-        /// emitted only when an observable sequence raises a notification.
+        /// emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

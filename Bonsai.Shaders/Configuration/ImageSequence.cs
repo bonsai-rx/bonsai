@@ -10,11 +10,18 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for initializing texture
+    /// sequences from a movie file or image sequence search pattern.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageSequence : Texture2D
     {
         static readonly string[] ImageExtensions = new[] { ".png", ".bmp", ".jpg", ".jpeg", ".tif" };
 
+        /// <summary>
+        /// Gets or sets the path to a movie file or image sequence search pattern.
+        /// </summary>
         [Category("TextureData")]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
@@ -22,18 +29,40 @@ namespace Bonsai.Shaders.Configuration
         [Description("The path to a movie file or image sequence search pattern.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the flip mode applied to individual frames.
+        /// </summary>
         [Category("TextureData")]
-        [Description("Specifies the optional flip mode applied to individual frames.")]
+        [Description("Specifies the flip mode applied to individual frames.")]
         public FlipMode? FlipMode { get; set; } = OpenCV.Net.FlipMode.Vertical;
 
+        /// <summary>
+        /// Gets or sets the maximum number of frames to include in the image sequence.
+        /// </summary>
+        /// <remarks>
+        /// If no value is specified, all frames in the video will be loaded in the
+        /// image sequence.
+        /// </remarks>
         [Category("TextureData")]
-        [Description("The optional maximum number of frames to include in the image sequence.")]
+        [Description("The maximum number of frames to include in the image sequence.")]
         public int? FrameCount { get; set; }
 
+        /// <summary>
+        /// Gets or sets the offset, in frames, at which the image sequence should start.
+        /// </summary>
         [Category("TextureData")]
         [Description("The offset, in frames, at which the image sequence should start.")]
         public int StartPosition { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Texture"/> class containing
+        /// all loaded texture resources in the image sequence.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the image texture sequence.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var frames = GetFrames(FileName, clone: false, out bool video, out PixelInternalFormat? internalFormat);
@@ -53,7 +82,7 @@ namespace Bonsai.Shaders.Configuration
             finally { frames.Dispose(); }
             GL.BindTexture(TextureTarget.Texture2D, 0);
             sequence.PlaybackRate = frames.PlaybackRate;
-            return (Texture)sequence;
+            return sequence;
         }
 
         internal VideoEnumerator GetFrames(string fileName, bool clone, out bool video, out PixelInternalFormat? internalFormat)
@@ -159,6 +188,7 @@ namespace Bonsai.Shaders.Configuration
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
@@ -166,7 +196,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [Sequence: {1}]", name, fileName);
+            else return $"{name} [Sequence: {fileName}]";
         }
     }
 }

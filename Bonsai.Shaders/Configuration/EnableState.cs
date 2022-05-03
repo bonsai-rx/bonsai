@@ -4,25 +4,29 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Represents a configuration object for enabling the specified render
+    /// state capability.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class EnableState : StateConfiguration
     {
-        public EnableState()
-        {
-            Capability = EnableCap.Blend;
-        }
+        /// <summary>
+        /// Gets or sets a value specifying the render state capability to enable.
+        /// </summary>
+        [Description("Specifies the render state capability to enable.")]
+        public EnableCap Capability { get; set; } = EnableCap.Blend;
 
-        [Description("The render state capability to enable.")]
-        public EnableCap Capability { get; set; }
-
+        /// <inheritdoc/>
         public override void Execute(ShaderWindow window)
         {
             GL.Enable(Capability);
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
-            return string.Format("Enable({0})", Capability);
+            return $"Enable({Capability})";
         }
     }
 }

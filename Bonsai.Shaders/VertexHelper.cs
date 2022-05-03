@@ -57,7 +57,7 @@ namespace Bonsai.Shaders
                     attribute.Type,
                     attribute.Normalized,
                     stride, offset);
-                offset += attribute.Size * VertexHelper.GetVertexAttributeSize(attribute.Type);
+                offset += attribute.Size * GetVertexAttributeSize(attribute.Type);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

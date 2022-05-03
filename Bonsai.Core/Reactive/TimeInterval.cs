@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that records the time interval between consecutive
+    /// Represents an operator that records the time interval between consecutive
     /// values produced by an observable sequence.
     /// </summary>
     [Combinator]
@@ -16,11 +16,15 @@ namespace Bonsai.Reactive
     {
         /// <summary>
         /// Records the time interval between consecutive values produced by an
-        /// observable sequence using a high resolution timer, if available.
+        /// observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to record time intervals for.</param>
-        /// <returns>An observable sequence with time interval information on elements.</returns>
+        /// <returns>
+        /// An observable sequence with time interval information for each element.
+        /// </returns>
         public IObservable<System.Reactive.TimeInterval<TSource>> Process<TSource>(IObservable<TSource> source)
         {
             return source.TimeInterval(HighResolutionScheduler.Default);

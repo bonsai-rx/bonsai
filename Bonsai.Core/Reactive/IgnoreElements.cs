@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that ignores all elements in an observable sequence
+    /// Represents an operator that ignores all elements in an observable sequence
     /// leaving only the termination messages.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -16,7 +16,9 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Ignores all elements in an observable sequence leaving only the termination messages.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence.</param>
         /// <returns>
         /// An empty observable sequence that signals termination, successful or exceptional,

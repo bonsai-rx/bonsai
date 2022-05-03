@@ -4,6 +4,7 @@
     <Title>Bonsai - Starter Pack</Title>
     <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>
     <PackageTags>Bonsai Rx Starter Pack</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFramework>net462</TargetFramework>
     <Version>2.6.3</Version>

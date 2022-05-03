@@ -14,18 +14,10 @@ namespace Bonsai.Audio
     public class AudioWriter : FileSink<Mat, RiffWriter>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AudioWriter"/> class.
-        /// </summary>
-        public AudioWriter()
-        {
-            SampleRate = 44100;
-        }
-
-        /// <summary>
         /// Gets or sets the sample rate of the input signal, in Hz.
         /// </summary>
         [Description("The sample rate of the input signal, in Hz.")]
-        public int SampleRate { get; set; }
+        public int SampleRate { get; set; } = 44100;
 
         /// <summary>
         /// Gets or sets the sample rate of the input signal, in Hz.

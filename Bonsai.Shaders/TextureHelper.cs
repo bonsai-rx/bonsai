@@ -14,7 +14,7 @@ namespace Bonsai.Shaders
                 case 2: pixelFormat = PixelFormat.Rg; break;
                 case 3: pixelFormat = PixelFormat.Bgr; break;
                 case 4: pixelFormat = PixelFormat.Bgra; break;
-                default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
+                default: throw new ArgumentException("Image has an unsupported number of channels.", nameof(image));
             }
 
             switch (image.Depth)
@@ -43,34 +43,30 @@ namespace Bonsai.Shaders
                     pixelSize = 4;
                     pixelType = PixelType.Float;
                     break;
-                default: throw new ArgumentException("Image has an unsupported pixel bit depth.", "image");
+                default: throw new ArgumentException("Image has an unsupported pixel bit depth.", nameof(image));
             }
         }
 
         public static void UnpackPixelStore(IplImage image, out PixelFormat pixelFormat, out PixelType pixelType)
         {
-            int pixelSize;
-            if (image == null) throw new ArgumentNullException("image");
-            GetPixelFormat(image, out pixelFormat, out pixelSize, out pixelType);
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            GetPixelFormat(image, out pixelFormat, out int pixelSize, out pixelType);
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / (pixelSize * image.Channels));
         }
 
         public static void PackPixelStore(IplImage image, out PixelFormat pixelFormat, out PixelType pixelType)
         {
-            int pixelSize;
-            if (image == null) throw new ArgumentNullException("image");
-            GetPixelFormat(image, out pixelFormat, out pixelSize, out pixelType);
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            GetPixelFormat(image, out pixelFormat, out int pixelSize, out pixelType);
             GL.PixelStore(PixelStoreParameter.PackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.PackRowLength, image.WidthStep / (pixelSize * image.Channels));
         }
 
         public static void UpdateTexture(TextureTarget target, PixelInternalFormat? internalFormat, IplImage image)
         {
-            PixelType pixelType;
-            PixelFormat pixelFormat;
-            if (image == null) throw new ArgumentNullException("image");
-            UnpackPixelStore(image, out pixelFormat, out pixelType);
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            UnpackPixelStore(image, out PixelFormat pixelFormat, out PixelType pixelType);
             if (internalFormat.HasValue)
             {
                 GL.TexImage2D(target, 0, internalFormat.Value, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);

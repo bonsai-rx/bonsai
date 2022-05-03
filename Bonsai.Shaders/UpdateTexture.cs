@@ -6,25 +6,45 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [Description("Updates the pixel store of the specified texture target.")]
+    /// <summary>
+    /// Represents an operator that updates the pixel store of the specified
+    /// texture target from a sequence of images.
+    /// </summary>
+    [Description("Updates the pixel store of the specified texture target from a sequence of images.")]
     public class UpdateTexture : Sink<IplImage>
     {
-        public UpdateTexture()
-        {
-            TextureTarget = TextureTarget.Texture2D;
-            InternalFormat = PixelInternalFormat.Rgba;
-        }
-
+        /// <summary>
+        /// Gets or sets the name of the texture to update.
+        /// </summary>
         [TypeConverter(typeof(TextureNameConverter))]
         [Description("The name of the texture to update.")]
         public string TextureName { get; set; }
 
-        [Description("The texture target to update.")]
-        public TextureTarget TextureTarget { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the texture target to update.
+        /// </summary>
+        [Description("Specifies the texture target to update.")]
+        public TextureTarget TextureTarget { get; set; } = TextureTarget.Texture2D;
 
-        [Description("The internal storage format of the texture target.")]
-        public PixelInternalFormat InternalFormat { get; set; }
+        /// <summary>
+        /// Gets or sets a value specifying the internal storage format of the
+        /// texture target.
+        /// </summary>
+        [Description("Specifies the internal storage format of the texture target.")]
+        public PixelInternalFormat InternalFormat { get; set; } = PixelInternalFormat.Rgba;
 
+        /// <summary>
+        /// Updates the pixel store of the specified texture target from an
+        /// observable sequence of images.
+        /// </summary>
+        /// <param name="source">
+        /// The sequence of images used to update the texture target.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of updating the
+        /// pixel store of the specified texture target.
+        /// </returns>
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Create<IplImage>(observer =>

@@ -129,6 +129,7 @@ namespace Bonsai.Expressions
         /// <returns>
         /// <see langword="true"/> if the specified argument object is equal to the current argument;
         /// otherwise, <see langword="false"/>.
+        /// </returns>
         public bool Equals(ExpressionBuilderArgument other)
         {
             if (other is null) return false;

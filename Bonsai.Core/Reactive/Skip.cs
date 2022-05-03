@@ -7,37 +7,31 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that bypasses the specified number of elements at the start
+    /// Represents an operator that bypasses the specified number of elements at the start
     /// of an observable sequence and returns the remaining elements.
     /// </summary>
     [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Bypasses the specified number of contiguous elements at the start of the sequence.")]
+    [Description("Bypasses the specified number of elements at the start of the sequence and returns the remaining elements.")]
     public class Skip : Combinator
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Skip"/> class.
-        /// </summary>
-        public Skip()
-        {
-            Count = 1;
-        }
-
         /// <summary>
         /// Gets or sets the number of elements to skip.
         /// </summary>
         [Description("The number of elements to skip.")]
-        public int Count { get; set; }
+        public int Count { get; set; } = 1;
 
         /// <summary>
-        /// Bypasses the specified number of elements at the start of an observable sequence
-        /// and returns the remaining elements.
+        /// Bypasses the specified number of elements at the start of an observable
+        /// sequence and returns the remaining elements.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The sequence to take elements from.</param>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">The sequence to skip elements from.</param>
         /// <returns>
-        /// An observable sequence that contains the elements that occur after the specified
-        /// index in the input sequence.
+        /// An observable sequence that contains the elements that occur after the
+        /// skipped elements in the <paramref name="source"/> sequence.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

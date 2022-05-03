@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that determines whether the observable
+    /// Represents an operator that determines whether the observable
     /// sequence is empty.
     /// </summary>
     [Combinator]
@@ -17,10 +17,12 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Determines whether the observable sequence is empty.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to check.</param>
         /// <returns>
-        /// An observable sequence containing a single element determining whether
+        /// An observable sequence containing a single element indicating whether
         /// the source sequence is empty.
         /// </returns>
         public IObservable<bool> Process<TSource>(IObservable<TSource> source)

@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that creates an array containing every element
+    /// Represents an operator that creates an array containing every element
     /// in the observable sequence.
     /// </summary>
     [Combinator]
@@ -18,7 +18,9 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Creates an array containing every element in the observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to get an array of elements for.</param>
         /// <returns>
         /// An observable sequence containing a single element with the array of all elements

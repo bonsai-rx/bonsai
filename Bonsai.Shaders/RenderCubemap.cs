@@ -9,11 +9,19 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
-    [Description("Renders all currently stored draw commands to a cubemap texture. Each pass renders one face of the cubemap in the order +X, -X, +Y, -Y, +Z, -Z.")]
+    /// <summary>
+    /// Represents an operator that renders all currently stored draw commands
+    /// to one of the cubemap textures. Each pass renders one face of the
+    /// cubemap in the order +X, -X, +Y, -Y, +Z, -Z.
+    /// </summary>
+    [Description("Renders all currently stored draw commands to one of the cubemap textures. Each pass renders one face of the cubemap in the order +X, -X, +Y, -Y, +Z, -Z.")]
     public class RenderCubemap : Combinator<Texture>
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderCubemap"/> class.
+        /// </summary>
         public RenderCubemap()
         {
             ClearColor = Color.Black;
@@ -23,44 +31,85 @@ namespace Bonsai.Shaders
             InternalFormat = PixelInternalFormat.Rgb;
         }
 
-        [Description("Specifies any render states that are required to render the framebuffer.")]
+        /// <summary>
+        /// Gets the collection of configuration objects specifying the render
+        /// states to be set when rendering the cubemap.
+        /// </summary>
+        [Description("Specifies the set of render states to be set when rendering the cubemap.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
         }
 
+        /// <summary>
+        /// Gets or sets the color used to clear the framebuffer before rendering.
+        /// </summary>
         [XmlIgnore]
         [Description("The color used to clear the framebuffer before rendering.")]
         public Color ClearColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the clear color for serialization.
+        /// </summary>
         [Browsable(false)]
-        [XmlElement("ClearColor")]
+        [XmlElement(nameof(ClearColor))]
         public string ClearColorHtml
         {
             get { return ColorTranslator.ToHtml(ClearColor); }
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying which buffers to clear before rendering.
+        /// </summary>
         [Description("Specifies which buffers to clear before rendering.")]
         public ClearBufferMask ClearMask { get; set; }
 
+        /// <summary>
+        /// Gets or sets the texture size for each of the cubemap faces. If no
+        /// value is specified, the size of the shader window in pixels is used.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The optional texture size for each of the cubemap faces.")]
+        [Description("The texture size for each of the cubemap faces. If no value is specified, the size of the shader window in pixels is used.")]
         public int? FaceSize { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the internal pixel format of the cubemap.
+        /// </summary>
         [Category("TextureParameter")]
-        [Description("The internal pixel format of the cubemap.")]
+        [Description("Specifies the internal pixel format of the cubemap.")]
         public PixelInternalFormat InternalFormat { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture minification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture minification filter.")]
         public TextureMinFilter MinFilter { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the texture magnification filter.
+        /// </summary>
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
         public TextureMagFilter MagFilter { get; set; }
 
+        /// <summary>
+        /// Renders all currently stored draw commands to one of the cubemap textures
+        /// whenever an observable sequence emits a notification. Each pass renders
+        /// one face of the cubemap in the order +X, -X, +Y, -Y, +Z, -Z.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of notifications used to render each of the cubemap faces.
+        /// </param>
+        /// <returns>
+        /// A sequence returning the <see cref="Texture"/> object representing the
+        /// cubemap texture, whenever all six faces of the cubemap have been updated.
+        /// </returns>
         public override IObservable<Texture> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Defer(() =>

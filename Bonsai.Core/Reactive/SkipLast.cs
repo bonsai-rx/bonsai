@@ -6,36 +6,31 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that bypasses the specified number of elements at the end
+    /// Represents an operator that bypasses the specified number of elements at the end
     /// of an observable sequence.
     /// </summary>
     [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Bypasses the specified number of contiguous elements at the end of the sequence.")]
+    [Description("Bypasses the specified number of elements at the end of the sequence.")]
     public class SkipLast : Combinator
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SkipLast"/> class.
-        /// </summary>
-        public SkipLast()
-        {
-            Count = 1;
-        }
-
         /// <summary>
         /// Gets or sets the number of elements to skip at the end of the sequence.
         /// </summary>
         [Description("The number of elements to skip at the end of the sequence.")]
-        public int Count { get; set; }
+        public int Count { get; set; } = 1;
 
         /// <summary>
-        /// Bypasses the specified number of elements at the end of an observable sequence.
+        /// Bypasses the specified number of elements at the end of an observable
+        /// sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The sequence to take elements from.</param>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">The sequence to skip elements from.</param>
         /// <returns>
-        /// An observable sequence containing the source sequence elements except for
-        /// the bypassed ones at the end.
+        /// An observable sequence containing the elements in the <paramref name="source"/>
+        /// sequence excluding the ones which are bypassed at the end.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

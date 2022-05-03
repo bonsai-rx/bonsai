@@ -8,12 +8,20 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Represents an operator that creates a warp perspective transform matrix
+    /// for planar projection mapping.
+    /// </summary>
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Creates a warp perspective transform matrix for planar projection mapping.")]
     public class WarpPerspective
     {
-        [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
+        /// <summary>
+        /// Gets or sets the coordinates of the four quadrangle vertices specifying
+        /// the perspective transform.
+        /// </summary>
+        [Description("The coordinates of the four quadrangle vertices specifying the perspective transform.")]
         [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Destination { get; set; }
 
@@ -28,6 +36,20 @@ namespace Bonsai.Shaders
             };
         }
 
+        /// <summary>
+        /// Creates a warp perspective transform matrix for planar projection
+        /// mapping whenever an observable sequence emits a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of notifications used to create the perspective transform.
+        /// </param>
+        /// <returns>
+        /// The sequence of created <see cref="Matrix4"/> objects representing
+        /// the perspective transform.
+        /// </returns>
         public IObservable<Matrix4> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Defer(() =>
@@ -38,8 +60,8 @@ namespace Bonsai.Shaders
                 var perspectiveTransform = new float[3 * 3];
                 return source.Select(input =>
                 {
-                    currentSource = currentSource ?? InitializeQuadrangle();
-                    Destination = Destination ?? InitializeQuadrangle();
+                    currentSource ??= InitializeQuadrangle();
+                    Destination ??= InitializeQuadrangle();
 
                     if (Destination != currentDestination)
                     {

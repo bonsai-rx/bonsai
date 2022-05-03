@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns the first element of an observable sequence,
+    /// Represents an operator that returns the first element of an observable sequence,
     /// or a default value if no such element exists.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -17,11 +17,14 @@ namespace Bonsai.Reactive
         /// Returns the first element of an observable sequence, or a default value
         /// if no such element exists.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The sequence to take the first element from.</param>
         /// <returns>
-        /// An observable sequence with a single element that contains the first element
-        /// of the observable sequence, or a default value if no such element exists.
+        /// An observable sequence containing the first element of the
+        /// <paramref name="source"/> sequence, or a default value if no
+        /// such element exists.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {

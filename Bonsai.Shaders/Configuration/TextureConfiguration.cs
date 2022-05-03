@@ -3,6 +3,9 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides the abstract base class for configuring and loading texture resources.
+    /// </summary>
     [XmlInclude(typeof(Cubemap))]
     [XmlInclude(typeof(Texture2D))]
     [XmlInclude(typeof(ImageTexture))]

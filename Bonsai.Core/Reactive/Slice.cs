@@ -7,21 +7,13 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that extracts a range of elements from an observable sequence.
+    /// Represents an operator that extracts a range of elements from an observable sequence.
     /// </summary>
     [DefaultProperty(nameof(Step))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Extracts a range of elements from an observable sequence.")]
     public class Slice : Combinator
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Slice"/> class.
-        /// </summary>
-        public Slice()
-        {
-            Step = 1;
-        }
-
         /// <summary>
         /// Gets or sets the element index at which the slice begins.
         /// </summary>
@@ -32,18 +24,21 @@ namespace Bonsai.Reactive
         /// Gets or sets the number of elements to skip between slice elements.
         /// </summary>
         [Description("The number of elements to skip between slice elements.")]
-        public int Step { get; set; }
+        public int Step { get; set; } = 1;
 
         /// <summary>
-        /// Gets or sets the optional element index at which the slice ends.
+        /// Gets or sets the element index at which the slice ends. If no value
+        /// is specified, elements will be taken until the end of the sequence.
         /// </summary>
-        [Description("The optional element index at which the slice ends.")]
+        [Description("The element index at which the slice ends. If no value is specified, elements will be taken until the end of the sequence.")]
         public int? Stop { get; set; }
 
         /// <summary>
         /// Extracts a range of elements from an observable sequence.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to slice.</param>
         /// <returns>The sliced sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

@@ -5,26 +5,31 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that takes the single next element from the sequence every
-    /// time the trigger produces an element.
+    /// Represents an operator that takes the next element from the first sequence
+    /// whenever the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Takes the single next element from the sequence every time the trigger produces an element.")]
-    public class Gate : BinaryCombinator
+    [Description("Takes the next element from the first sequence whenever the second sequence emits a notification.")]
+    public class Gate
     {
         /// <summary>
-        /// Takes the single next element from the sequence every time the trigger
-        /// produces an element.
+        /// Takes the next element from the first observable sequence whenever
+        /// the second sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <typeparam name="TOther">The type of the elements in the sequence of gate events.</typeparam>
-        /// <param name="source">The observable sequence to be gated.</param>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <typeparam name="TOther">
+        /// The type of the elements in the <paramref name="other"/> sequence.
+        /// </typeparam>
+        /// <param name="source">The observable sequence to take elements from.</param>
         /// <param name="other">
-        /// The sequence of gate events. Every time a new gate event is received, the single
-        /// next element from <paramref name="source"/> is allowed to propagate.
+        /// The sequence of gate events. Every time this sequence produces a notification,
+        /// the next element from the <paramref name="source"/> sequence is taken.
         /// </param>
         /// <returns>The gated observable sequence.</returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.Gate(other);
         }

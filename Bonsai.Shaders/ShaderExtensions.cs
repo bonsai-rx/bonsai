@@ -16,7 +16,7 @@ namespace Bonsai.Shaders
                     shader.Name));
             }
 
-            GL.Uniform1(samplerLocation, (int)(texture - TextureUnit.Texture0));
+            GL.Uniform1(samplerLocation, texture - TextureUnit.Texture0);
         }
     }
 }

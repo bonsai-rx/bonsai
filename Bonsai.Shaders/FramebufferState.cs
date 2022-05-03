@@ -10,26 +10,21 @@ namespace Bonsai.Shaders
     class FramebufferState : IDisposable
     {
         readonly List<FramebufferAttachment> framebufferAttachments;
-        ShaderWindow framebufferWindow;
+        readonly ShaderWindow framebufferWindow;
         int framebufferWidth;
         int framebufferHeight;
         int fbo;
 
         public FramebufferState(ShaderWindow window, FramebufferConfiguration framebufferConfiguration)
         {
-            if (window == null)
-            {
-                throw new ArgumentNullException("window");
-            }
-
             if (framebufferConfiguration == null)
             {
-                throw new ArgumentNullException("framebufferConfiguration");
+                throw new ArgumentNullException(nameof(framebufferConfiguration));
             }
 
             framebufferWidth = 0;
             framebufferHeight = 0;
-            framebufferWindow = window;
+            framebufferWindow = window ?? throw new ArgumentNullException(nameof(window));
             framebufferAttachments = framebufferConfiguration.FramebufferAttachments
                                                              .Select(configuration => new FramebufferAttachment(window, configuration))
                                                              .ToList();
@@ -92,8 +87,7 @@ namespace Bonsai.Shaders
 
         class FramebufferAttachment
         {
-            Texture texture;
-            readonly string textureName;
+            readonly Texture texture;
             readonly int textureWidth;
             readonly int textureHeight;
             readonly OpenTK.Graphics.OpenGL4.FramebufferAttachment attachment;
@@ -105,7 +99,6 @@ namespace Bonsai.Shaders
 
             public FramebufferAttachment(ShaderWindow window, FramebufferAttachmentConfiguration attachmentConfiguration)
             {
-                textureName = attachmentConfiguration.TextureName;
                 textureWidth = attachmentConfiguration.Width.GetValueOrDefault(window.Width);
                 textureHeight = attachmentConfiguration.Height.GetValueOrDefault(window.Height);
                 attachment = attachmentConfiguration.Attachment;

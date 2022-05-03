@@ -90,7 +90,7 @@ namespace Bonsai.Vision.Drawing
         /// <summary>
         /// Generates an observable sequence of font objects representing a particular
         /// format for text, including font face and size, and where each font is
-        /// emitted only when an observable sequence raises a notification.
+        /// emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

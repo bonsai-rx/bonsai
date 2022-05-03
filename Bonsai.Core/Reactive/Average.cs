@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that computes the numerical average of an observable sequence.
+    /// Represents an operator that computes the numerical average of an observable sequence.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
@@ -15,14 +15,15 @@ namespace Bonsai.Reactive
     public class Average
     {
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="decimal"/> values.
+        /// Computes the average of an observable sequence of nullable
+        /// <see cref="decimal"/> values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="decimal"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<decimal?> Process(IObservable<decimal?> source)
         {
@@ -30,14 +31,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="decimal"/> values.
+        /// Computes the average of an observable sequence of <see cref="decimal"/>
+        /// values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="decimal"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<decimal> Process(IObservable<decimal> source)
         {
@@ -45,14 +47,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="double"/> values.
+        /// Computes the average of an observable sequence of nullable
+        /// <see cref="double"/> values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="double"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double?> Process(IObservable<double?> source)
         {
@@ -60,14 +63,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="double"/> values.
+        /// Computes the average of an observable sequence of <see cref="double"/>
+        /// values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="double"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double> Process(IObservable<double> source)
         {
@@ -75,14 +79,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="float"/> values.
+        /// Computes the average of an observable sequence of nullable
+        /// <see cref="float"/> values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="float"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<float?> Process(IObservable<float?> source)
         {
@@ -90,14 +95,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="float"/> values.
+        /// Computes the average of an observable sequence of <see cref="float"/>
+        /// values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="float"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<float> Process(IObservable<float> source)
         {
@@ -105,14 +111,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="int"/> values.
+        /// Computes the average of an observable sequence of nullable
+        /// <see cref="int"/> values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="int"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double?> Process(IObservable<int?> source)
         {
@@ -120,14 +127,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="int"/> values.
+        /// Computes the average of an observable sequence of <see cref="int"/>
+        /// values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="int"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double> Process(IObservable<int> source)
         {
@@ -135,14 +143,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of nullable <see cref="long"/> values.
+        /// Computes the average of an observable sequence of nullable
+        /// <see cref="long"/> values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="long"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double?> Process(IObservable<long?> source)
         {
@@ -150,14 +159,15 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Computes the average of an observable sequence of <see cref="long"/> values.
+        /// Computes the average of an observable sequence of <see cref="long"/>
+        /// values.
         /// </summary>
         /// <param name="source">
         /// A sequence of <see cref="long"/> values to calculate the average of.
         /// </param>
         /// <returns>
-        /// An observable sequence containing a single element with the average of the
-        /// sequence of values.
+        /// An observable sequence containing a single element representing the
+        /// average of the sequence of values.
         /// </returns>
         public IObservable<double> Process(IObservable<long> source)
         {

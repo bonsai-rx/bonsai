@@ -6,23 +6,23 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that takes the single next element from the sequence every
-    /// time the specified interval elapses.
+    /// Represents an operator that takes the next element from the sequence
+    /// whenever the specified time interval elapses.
     /// </summary>
     [DefaultProperty(nameof(Interval))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Takes the single next element from the sequence every time the specified interval elapses.")]
+    [Description("Takes the next element from the sequence whenever the specified time interval elapses.")]
     public class GateInterval : Combinator
     {
         /// <summary>
-        /// Gets or sets the time interval after which a new element of the sequence is allowed to propagate.
+        /// Gets or sets the time interval after which a new element from the sequence is taken.
         /// </summary>
         [XmlIgnore]
-        [Description("The time interval after which a new value of the sequence is allowed to propagate.")]
+        [Description("The time interval after which a new element from the sequence is taken.")]
         public TimeSpan Interval { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the interval.
+        /// Gets or sets an XML representation of the interval for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Interval))]
@@ -33,10 +33,12 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Takes the single next element from the sequence every time the specified
-        /// interval elapses.
+        /// Takes the next element from an observable sequence whenever the specified
+        /// time interval elapses.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The observable sequence to be gated.</param>
         /// <returns>The gated observable sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

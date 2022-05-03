@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that groups the elements of an observable
+    /// Represents an operator that groups the elements of an observable
     /// sequence according to the specified key.
     /// </summary>
     [DefaultProperty(nameof(KeySelector))]
@@ -19,28 +19,22 @@ namespace Bonsai.Reactive
     public class GroupBy : SingleArgumentExpressionBuilder
     {
         /// <summary>
-        /// Gets or sets a string used to specify a key for each element of the observable sequence.
+        /// Gets or sets a value specifying the inner properties used as key for
+        /// each element in the sequence.
         /// </summary>
-        [Description("The inner properties that will be used as key for each element of the sequence.")]
+        [Description("Specifies the inner properties used as key for each element of the sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
         /// <summary>
-        /// Gets or sets a string used to specify the properties used as elements in each
-        /// grouped observable sequence.
+        /// Gets or sets a value specifying the inner properties used as elements
+        /// in each grouped sequence.
         /// </summary>
-        [Description("The inner properties that will be used as elements in each grouped sequence.")]
+        [Description("Specifies the inner properties used as elements in each grouped sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string ElementSelector { get; set; }
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();

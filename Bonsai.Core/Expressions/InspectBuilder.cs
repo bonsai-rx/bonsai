@@ -189,7 +189,9 @@ namespace Bonsai.Expressions
         {
             var subject = new ReplaySubject<IObservable<TSource>>(1);
             Output = subject.Select(ys => ys.Select(xs => (object)xs));
+#pragma warning disable CS0612 // Type or member is obsolete
             Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
+#pragma warning restore CS0612 // Type or member is obsolete
             ErrorEx = subject.SelectMany(xs => xs
                 .IgnoreElements()
                 .Select(x => default(Exception))

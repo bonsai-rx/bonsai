@@ -242,7 +242,7 @@ namespace Bonsai.Vision
 
         /// <summary>
         /// Generates a sequence of images from the specified movie file, where each
-        /// new image is emitted only when an observable sequence raises a notification.
+        /// new image is emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

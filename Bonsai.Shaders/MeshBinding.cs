@@ -5,14 +5,14 @@ namespace Bonsai.Shaders
 {
     class MeshBinding : BufferBinding
     {
-        int bindingIndex;
-        int vertexBuffer;
+        readonly int bindingIndex;
+        readonly int vertexBuffer;
 
         public MeshBinding(int index, Mesh mesh)
         {
             if (mesh == null)
             {
-                throw new ArgumentNullException("mesh");
+                throw new ArgumentNullException(nameof(mesh));
             }
 
             bindingIndex = index;

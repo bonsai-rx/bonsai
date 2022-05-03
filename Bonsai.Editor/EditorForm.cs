@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -37,6 +37,8 @@ namespace Bonsai.Editor
         const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
+        static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
+        static readonly AttributeCollection RuntimeAttributes = AttributeCollection.FromExisting(DesignTimeAttributes, DesignOnlyAttribute.No);
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly object WorkflowValidating = new object();
@@ -165,7 +167,7 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorControl.Dock = DockStyle.Fill;
             workflowSplitContainer.Panel1.Controls.Add(editorControl);
-            propertyGrid.BrowsableAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
+            propertyGrid.BrowsableAttributes = DesignTimeAttributes;
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
@@ -1174,6 +1176,7 @@ namespace Bonsai.Editor
             return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
+                propertyGrid.BrowsableAttributes = DesignTimeAttributes;
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
                 redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
                 toolboxTreeView.Enabled = true;
@@ -1222,6 +1225,7 @@ namespace Bonsai.Editor
                             {
                                 statusTextLabel.Text = Resources.RunningStatus;
                                 statusImageLabel.Image = statusRunningImage;
+                                propertyGrid.BrowsableAttributes = RuntimeAttributes;
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
                                 Activate();
                             }));
@@ -1773,17 +1777,7 @@ namespace Bonsai.Editor
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
             var arguments = GetToolboxArguments(searchTextBox);
             var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
-            try { model.Editor.InsertGraphNode(typeNode.Name, elementCategory, predecessor, branch, group, arguments); }
-            catch (TargetInvocationException e)
-            {
-                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.InnerException.Message);
-                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
-            }
-            catch (SystemException e)
-            {
-                var message = string.Format(Resources.CreateTypeNode_Error, typeNode.Text, e.Message);
-                editorSite.ShowError(message, Resources.CreateTypeNode_Error_Caption);
-            }
+            model.CreateGraphNode(typeNode.Text, typeNode.Name, elementCategory, predecessor, branch, group, arguments);
         }
 
         void UpdateDescriptionTextBox(string name, string description, RichTextBox descriptionTextBox)

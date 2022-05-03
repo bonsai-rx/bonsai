@@ -10,36 +10,31 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that creates a dictionary from an observable
-    /// sequence according to the specified key, and optional element selector function.
+    /// Represents an operator that creates a dictionary from an observable
+    /// sequence according to the specified key and element selector.
     /// </summary>
     [DefaultProperty(nameof(KeySelector))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Creats a dictionary from an observable sequence according to the specified key.")]
+    [Description("Creates a dictionary from an observable sequence according to the specified key and element selector.")]
     public class ToDictionary : SingleArgumentExpressionBuilder
     {
         /// <summary>
-        /// Gets or sets a string used to specify a key for each element of the observable sequence.
+        /// Gets or sets a value specifying the inner properties used as keys
+        /// in the dictionary.
         /// </summary>
-        [Description("The inner properties that will be used as key for each element of the sequence.")]
+        [Description("Specifies the inner properties used as keys in the dictionary.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
         /// <summary>
-        /// Gets or sets a string used to specify the properties used as elements of the dictionary.
+        /// Gets or sets a value specifying the inner properties used as elements
+        /// in the dictionary.
         /// </summary>
-        [Description("The inner properties that will be used as elements of the dictionary.")]
+        [Description("Specifies the inner properties used as elements in the dictionary.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string ElementSelector { get; set; }
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
@@ -51,7 +46,7 @@ namespace Bonsai.Reactive
             var combinator = Expression.Constant(this);
             if (!string.IsNullOrEmpty(elementSelector))
             {
-                var elementSelectorBody = MemberSelector(parameter, ElementSelector);
+                var elementSelectorBody = MemberSelector(parameter, elementSelector);
                 var elementSelectorLambda = Expression.Lambda(elementSelectorBody, parameter);
                 return Expression.Call(
                     combinator,

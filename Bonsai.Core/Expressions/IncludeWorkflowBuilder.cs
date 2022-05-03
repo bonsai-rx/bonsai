@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -128,6 +128,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the path of the workflow to include.
         /// </summary>
         [XmlAttribute]
+        [DesignOnly(true)]
         [Category("Design")]
         [Externalizable(false)]
         [FileNameFilter("Bonsai Files (*.bonsai)|*.bonsai")]

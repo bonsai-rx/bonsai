@@ -117,7 +117,7 @@ namespace Bonsai.Audio
 
         /// <summary>
         /// Generates a sequence of buffered audio samples from the specified WAV file, where
-        /// each new buffer is emitted only when an observable sequence raises a notification.
+        /// each new buffer is emitted only when an observable sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

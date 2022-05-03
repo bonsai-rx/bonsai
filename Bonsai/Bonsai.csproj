@@ -4,6 +4,7 @@
     <Title>Bonsai</Title>
     <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
     <Version>2.7.0</Version>

@@ -30,14 +30,11 @@ namespace Bonsai.Dag
     public class Edge<TNodeValue, TEdgeLabel>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> class with
-        /// the specified <paramref name="target"/> node and <paramref name="label"/>.
+        /// Initializes a new instance of the <see cref="Edge{T, U}"/> class with
+        /// the specified target node and label.
         /// </summary>
-        /// <param name="target">
-        /// The <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance that is the target
-        /// of the edge.
-        /// </param>
-        /// <param name="label">The value of the edge label.</param>
+        /// <param name="target">The target node of the edge.</param>
+        /// <param name="label">The label value of the edge.</param>
         public Edge(Node<TNodeValue, TEdgeLabel> target, TEdgeLabel label)
         {
             Label = label;
@@ -45,13 +42,12 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Gets the value of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> label.
+        /// Gets the value of the edge label.
         /// </summary>
         public TEdgeLabel Label { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance that is the
-        /// target of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/>.
+        /// Gets the node that is the target of the edge.
         /// </summary>
         public Node<TNodeValue, TEdgeLabel> Target { get; private set; }
 
@@ -60,8 +56,9 @@ namespace Bonsai.Dag
         /// </summary>
         /// <param name="obj">An object to compare with this instance.</param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="obj"/> is an instance of <see cref="Edge{TNodeValue, TEdgeLabel}"/>
-        /// and its index equals the index value of this instance; otherwise, false.
+        /// <see langword="true"/> if <paramref name="obj"/> is an instance of
+        /// <see cref="Edge{TNodeValue, TEdgeLabel}"/> and its label equals the
+        /// label value of this instance; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -78,12 +75,7 @@ namespace Bonsai.Dag
             return Target.GetHashCode() ^ EqualityComparer<TEdgeLabel>.Default.GetHashCode(Label);
         }
 
-        /// <summary>
-        /// Returns a string that represents this <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.
-        /// </summary>
-        /// <returns>
-        /// The string representation of this <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> object.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{Label = {Label}, Target = {Target}}}";

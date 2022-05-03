@@ -5,9 +5,13 @@ using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides functionality for executing and updating the state of a compute
+    /// shader program.
+    /// </summary>
     public class ComputeProgram : Shader
     {
-        string computeSource;
+        readonly string computeSource;
 
         internal ComputeProgram(
             string name,
@@ -19,26 +23,32 @@ namespace Bonsai.Shaders
             FramebufferConfiguration framebuffer)
             : base(name, window)
         {
-            if (computeShader == null)
-            {
-                throw new ArgumentNullException("computeShader", "No compute shader was specified for compute program " + name + ".");
-            }
-
-            computeSource = computeShader;
+            computeSource = computeShader ?? throw new ArgumentNullException(
+                nameof(computeShader),
+                "No compute shader was specified for compute program " + name + ".");
             CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying the number of workgroups to be
+        /// launched when dispatching the compute shader.
+        /// </summary>
         public DispatchParameters WorkGroups { get; set; }
 
+        /// <summary>
+        /// Compiles the compute shader and returns the program object handle.
+        /// </summary>
+        /// <returns>
+        /// A handle to the compute shader program object.
+        /// </returns>
         protected override int CreateShader()
         {
-            int status;
             var computeShader = GL.CreateShader(ShaderType.ComputeShader);
             try
             {
                 GL.ShaderSource(computeShader, computeSource);
                 GL.CompileShader(computeShader);
-                GL.GetShader(computeShader, ShaderParameter.CompileStatus, out status);
+                GL.GetShader(computeShader, ShaderParameter.CompileStatus, out int status);
                 if (status == 0)
                 {
                     var message = string.Format(
@@ -66,6 +76,7 @@ namespace Bonsai.Shaders
             finally { GL.DeleteShader(computeShader); }
         }
 
+        /// <inheritdoc/>
         protected override Action OnDispatch()
         {
             var workGroups = WorkGroups;

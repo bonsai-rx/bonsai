@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Provides functionality for rendering a fullscreen effect using a fragment
+    /// shader pass.
+    /// </summary>
     public class ViewportEffect : Effect
     {
         Mesh mesh;
@@ -39,19 +43,16 @@ void main()
                    bufferBindings,
                    framebuffer)
         {
-            if (texturedQuad == null)
-            {
-                throw new ArgumentNullException("texturedQuad");
-            }
-
-            mesh = texturedQuad;
+            mesh = texturedQuad ?? throw new ArgumentNullException(nameof(texturedQuad));
         }
 
+        /// <inheritdoc/>
         protected override Action OnDispatch()
         {
             return mesh.Draw;
         }
 
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (mesh != null)

@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that repeats an observable sequence the specified
+    /// Represents an operator that repeats an observable sequence the specified
     /// number of times or until it successfully terminates.
     /// </summary>
     [DefaultProperty(nameof(Count))]
@@ -24,7 +24,9 @@ namespace Bonsai.Reactive
         /// Repeats the observable sequence the specified number of times
         /// or until it successfully terminates.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The observable sequence to repeat until it successfully terminates.</param>
         /// <returns>
         /// The observable sequence producing the elements of the given sequence repeatedly

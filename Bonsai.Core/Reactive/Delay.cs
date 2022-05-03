@@ -7,12 +7,12 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that delays the notifications of an observable sequence by
-    /// the specified relative time duration.
+    /// Represents an operator that delays the notifications of an observable sequence by
+    /// the specified time interval.
     /// </summary>
     [DefaultProperty(nameof(DueTime))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Delays the notification of values by the specified time interval.")]
+    [Description("Delays the notifications of a sequence by the specified time interval.")]
     public class Delay : Combinator
     {
         /// <summary>
@@ -23,10 +23,10 @@ namespace Bonsai.Reactive
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of due time.
+        /// Gets or sets an XML representation of the due time for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("DueTime")]
+        [XmlElement(nameof(DueTime))]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }
@@ -35,9 +35,11 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Delays the notifications of an observable sequence by the specified
-        /// relative time duration.
+        /// time interval.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to delay values for.</param>
         /// <returns>The time-shifted sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

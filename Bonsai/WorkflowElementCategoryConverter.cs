@@ -9,7 +9,9 @@ namespace Bonsai
     {
         static bool MatchIgnoredTypes(Type type)
         {
+#pragma warning disable CS0612 // Type or member is obsolete
             return type == typeof(SourceBuilder) ||
+#pragma warning restore CS0612 // Type or member is obsolete
                    type == typeof(CombinatorBuilder) ||
                    type == typeof(InspectBuilder) ||
                    type == typeof(ExternalizedProperty) ||

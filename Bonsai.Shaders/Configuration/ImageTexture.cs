@@ -7,9 +7,16 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for initializing a
+    /// two-dimensional texture resource from the specified image file.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageTexture : Texture2D
     {
+        /// <summary>
+        /// Gets or sets the name of the image file.
+        /// </summary>
         [Category("TextureData")]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
@@ -17,14 +24,29 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying the color type of the loaded image.
+        /// </summary>
         [Category("TextureData")]
-        [Description("Specifies optional conversions applied to the loaded image.")]
+        [Description("Specifies the color type of the loaded image.")]
         public LoadImageFlags ColorType { get; set; } = LoadImageFlags.Unchanged;
 
+        /// <summary>
+        /// Gets or sets a value specifying the flip mode applied to the loaded image.
+        /// </summary>
         [Category("TextureData")]
-        [Description("Specifies the optional flip mode applied to the loaded image.")]
+        [Description("Specifies the flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; } = OpenCV.Net.FlipMode.Vertical;
 
+        /// <summary>
+        /// Creates a new two-dimensional texture resource from the specified
+        /// image file.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the 2D texture.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var fileName = FileName;
@@ -62,6 +84,7 @@ namespace Bonsai.Shaders.Configuration
             return texture;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
@@ -69,7 +92,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return $"{name} [{fileName}]";
         }
     }
 }

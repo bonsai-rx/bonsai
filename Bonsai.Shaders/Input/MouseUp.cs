@@ -8,15 +8,30 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    /// <summary>
+    /// Represents an operator that generates a sequence of events produced whenever
+    /// a mouse button is released over the shader window.
+    /// </summary>
     [DefaultProperty(nameof(Button))]
-    [Description("Produces a sequence of events whenever a mouse button is released over the shader window.")]
-    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    [Description("Generates a sequence of events produced whenever a mouse button is released over the shader window.")]
     public class MouseUp : Source<EventPattern<INativeWindow, MouseButtonEventArgs>>
     {
+        /// <summary>
+        /// Gets or sets a value specifying an optional mouse button to use as
+        /// a filter.
+        /// </summary>
         [TypeConverter(typeof(NullableEnumConverter))]
-        [Description("The optional mouse button to use as a filter.")]
+        [Description("Specifies an optional mouse button to use as a filter.")]
         public MouseButton? Button { get; set; }
 
+        /// <summary>
+        /// Generates an observable sequence that produces a value whenever a mouse
+        /// button is released over the shader window.
+        /// </summary>
+        /// <returns>
+        /// A sequence of events containing <see cref="MouseButtonEventArgs"/> event
+        /// data produced whenever a mouse button is released over the shader window.
+        /// </returns>
         public override IObservable<EventPattern<INativeWindow, MouseButtonEventArgs>> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<MouseButtonEventArgs>(

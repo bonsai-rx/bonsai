@@ -5,6 +5,7 @@
     <Description>The x86 bootstrapper for the Bonsai environment.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>

@@ -23,37 +23,32 @@ namespace Bonsai.Shaders
             IEnumerable<BufferBindingConfiguration> bufferBindingConfiguration,
             FramebufferConfiguration framebufferConfiguration)
         {
-            if (shaderTarget == null)
-            {
-                throw new ArgumentNullException("shaderTarget");
-            }
-
             if (resourceManager == null)
             {
-                throw new ArgumentNullException("resourceManager");
+                throw new ArgumentNullException(nameof(resourceManager));
             }
 
             if (renderStateConfiguration == null)
             {
-                throw new ArgumentNullException("renderStateConfiguration");
+                throw new ArgumentNullException(nameof(renderStateConfiguration));
             }
 
             if (shaderUniforms == null)
             {
-                throw new ArgumentNullException("shaderUniforms");
+                throw new ArgumentNullException(nameof(shaderUniforms));
             }
 
             if (bufferBindingConfiguration == null)
             {
-                throw new ArgumentNullException("bufferBindingConfiguration");
+                throw new ArgumentNullException(nameof(bufferBindingConfiguration));
             }
 
             if (framebufferConfiguration == null)
             {
-                throw new ArgumentNullException("framebufferConfiguration");
+                throw new ArgumentNullException(nameof(framebufferConfiguration));
             }
 
-            shader = shaderTarget;
+            shader = shaderTarget ?? throw new ArgumentNullException(nameof(shaderTarget));
             renderState = renderStateConfiguration.ToList();
             uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(shader, configuration)).ToList();
             bufferBindings = bufferBindingConfiguration.Select(configuration => configuration.CreateBufferBinding(shader, resourceManager)).ToList();
@@ -94,14 +89,14 @@ namespace Bonsai.Shaders
 
         class UniformBinding
         {
-            int location;
-            UniformConfiguration configuration;
+            readonly int location;
+            readonly UniformConfiguration configuration;
 
             public UniformBinding(Shader shader, UniformConfiguration uniformConfiguration)
             {
                 if (uniformConfiguration == null)
                 {
-                    throw new ArgumentNullException("uniformConfiguration");
+                    throw new ArgumentNullException(nameof(uniformConfiguration));
                 }
 
                 if (string.IsNullOrEmpty(uniformConfiguration.Name))

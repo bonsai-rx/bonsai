@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that materializes the implicit notifications of an observable
+    /// Represents an operator that materializes the implicit notifications of an observable
     /// sequence as explicit notification values.
     /// </summary>
     [Combinator]
@@ -19,11 +19,13 @@ namespace Bonsai.Reactive
         /// Materializes the implicit notifications of an observable sequence as explicit
         /// notification values.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">An observable sequence to get notification values for.</param>
         /// <returns>
         /// An observable sequence containing the materialized notification values from
-        /// the source sequence.
+        /// the <paramref name="source"/> sequence.
         /// </returns>
         public IObservable<Notification<TSource>> Process<TSource>(IObservable<TSource> source)
         {

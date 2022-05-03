@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that repeats an observable sequence indefinitely.
+    /// Represents an operator that repeats an observable sequence indefinitely.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Repeats the observable sequence indefinitely.")]
@@ -15,7 +15,9 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Repeats the observable sequence indefinitely.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The observable sequence to repeat.</param>
         /// <returns>
         /// The observable sequence producing the elements of the given sequence repeatedly

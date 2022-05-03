@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
     <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
-    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">false</GenerateDocumentationFile>
+    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <RepositoryUrl>https://github.com/bonsai-rx/bonsai.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <LangVersion>8.0</LangVersion>

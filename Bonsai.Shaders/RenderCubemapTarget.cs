@@ -8,11 +8,18 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
+    /// <summary>
+    /// Represents an operator that renders all currently stored draw commands
+    /// to a cubemap render target.
+    /// </summary>
     [Description("Renders all currently stored draw commands to a cubemap render target.")]
     public class RenderCubemapTarget : Sink
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderCubemapTarget"/> class.
+        /// </summary>
         public RenderCubemapTarget()
         {
             ClearColor = Color.Black;
@@ -20,36 +27,71 @@ namespace Bonsai.Shaders
             TextureTarget = TextureTarget.TextureCubeMapNegativeZ;
         }
 
-        [Description("Specifies any render states that are required to render the framebuffer.")]
+        /// <summary>
+        /// Gets the collection of configuration objects specifying the render
+        /// states to be set when rendering the cubemap.
+        /// </summary>
+        [Description("Specifies the set of render states to be set when rendering the cubemap.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
         }
 
+        /// <summary>
+        /// Gets or sets the color used to clear the framebuffer before rendering.
+        /// </summary>
         [XmlIgnore]
         [Description("The color used to clear the framebuffer before rendering.")]
         public Color ClearColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the clear color for serialization.
+        /// </summary>
         [Browsable(false)]
-        [XmlElement("ClearColor")]
+        [XmlElement(nameof(ClearColor))]
         public string ClearColorHtml
         {
             get { return ColorTranslator.ToHtml(ClearColor); }
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying which buffers to clear before rendering.
+        /// </summary>
         [Description("Specifies which buffers to clear before rendering.")]
         public ClearBufferMask ClearMask { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the cubemap texture to update.
+        /// </summary>
         [TypeConverter(typeof(TextureNameConverter))]
         [Description("The name of the cubemap texture to update.")]
         public string TextureName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying which cubemap texture target to update.
+        /// </summary>
         [TypeConverter(typeof(CubemapTargetConverter))]
-        [Description("The cubemap texture target to update.")]
+        [Description("Specifies which cubemap texture target to update.")]
         public TextureTarget TextureTarget { get; set; }
 
+        /// <summary>
+        /// Renders all currently stored draw commands to a cubemap render target
+        /// whenever an observable sequence emits a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of notifications used to start rendering to the cubemap
+        /// target.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/>
+        /// sequence but where there is an additional side effect of rendering the
+        /// specified cubemap target whenever the sequence emits a notification.
+        /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Defer(() =>

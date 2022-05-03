@@ -5,10 +5,21 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [Description("Produces a sequence of events whenever it is time to update a frame.")]
-    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    /// <summary>
+    /// Represents an operator that generates a sequence of events produced
+    /// whenever it is time to update the render state.
+    /// </summary>
+    [Description("Generates a sequence of events produced whenever it is time to update the render state.")]
     public class UpdateFrame : Source<FrameEvent>
     {
+        /// <summary>
+        /// Generates an observable sequence that emits a notification whenever
+        /// it is time to update the render state.
+        /// </summary>
+        /// <returns>
+        /// A sequence of <see cref="FrameEvent"/> objects produced whenever it
+        /// is time to update the render state.
+        /// </returns>
         public override IObservable<FrameEvent> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => window.UpdateFrameAsync);

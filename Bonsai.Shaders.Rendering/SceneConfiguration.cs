@@ -3,17 +3,27 @@ using System.ComponentModel;
 
 namespace Bonsai.Shaders.Rendering
 {
+    /// <summary>
+    /// Provides configuration information for scene resources.
+    /// </summary>
     public class SceneConfiguration
     {
-        [Description("The name of the resource.")]
+        /// <summary>
+        /// Gets or sets the name of the scene.
+        /// </summary>
+        [Description("The name of the scene.")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the file from which to load the scene.
+        /// </summary>
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor(DesignTypes.OpenFileNameEditor, DesignTypes.UITypeEditor)]
         [FileNameFilter("Blender Files (*.blend)|*.blend|OBJ Files (*.obj)|*.obj|All Files|*.*")]
-        [Description("The name of the scene file.")]
+        [Description("The name of the file from which to load the scene.")]
         public string FileName { get; set; }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
@@ -21,7 +31,7 @@ namespace Bonsai.Shaders.Rendering
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return $"{name} [{fileName}]";
         }
     }
 }

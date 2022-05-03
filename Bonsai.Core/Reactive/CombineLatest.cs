@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that combines values from the source sequences whenever
+    /// Represents an operator that combines values from the source sequences whenever
     /// any of the sequences produces an element.
     /// </summary>
     [Combinator]
@@ -17,9 +17,9 @@ namespace Bonsai.Reactive
     public class CombineLatest
     {
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a pair with
+        /// the latest source elements whenever any of the observable sequences produces a
+        /// notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -27,7 +27,7 @@ namespace Bonsai.Reactive
         /// <param name="source2">The second observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into pairs.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2>> Process<TSource1, TSource2>(
             IObservable<TSource1> source1,
@@ -37,9 +37,9 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a triple with
+        /// the latest source elements whenever any of the observable sequences produces a
+        /// notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -49,7 +49,7 @@ namespace Bonsai.Reactive
         /// <param name="source3">The third observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into triples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3>> Process<TSource1, TSource2, TSource3>(
             IObservable<TSource1> source1,
@@ -60,9 +60,9 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a quadruple
+        /// with the latest source elements whenever any of the observable sequences produces
+        /// a notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -74,7 +74,7 @@ namespace Bonsai.Reactive
         /// <param name="source4">The fourth observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into quadruples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4>> Process<TSource1, TSource2, TSource3, TSource4>(
             IObservable<TSource1> source1,
@@ -86,9 +86,9 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a quintuple
+        /// with the latest source elements whenever any of the observable sequences produces
+        /// a notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -102,7 +102,7 @@ namespace Bonsai.Reactive
         /// <param name="source5">The fifth observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into quintuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5>(
@@ -117,9 +117,9 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a sextuple
+        /// with the latest source elements whenever any of the observable sequences produces
+        /// a notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -135,7 +135,7 @@ namespace Bonsai.Reactive
         /// <param name="source6">The sixth observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into sextuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>> Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>(
             IObservable<TSource1> source1,
@@ -150,9 +150,9 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Merges the specified sources into one observable sequence by emitting a tuple with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// Merges the specified sources into one observable sequence by emitting a septuple
+        /// with the latest source elements whenever any of the observable sequences produces
+        /// a notification.
         /// </summary>
         /// <typeparam name="TSource1">The type of the elements in the first source sequence.</typeparam>
         /// <typeparam name="TSource2">The type of the elements in the second source sequence.</typeparam>
@@ -170,7 +170,7 @@ namespace Bonsai.Reactive
         /// <param name="source7">The seventh observable source.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// sources into septuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(
@@ -188,8 +188,8 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Merges the specified sources into one observable sequence by emitting a list with
-        /// the latest source elements whenever any of the observable sequences produces an
-        /// element.
+        /// the latest source elements whenever any of the observable sequences produces a
+        /// notification.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
         /// <param name="first">The first observable sequence.</param>
@@ -209,7 +209,7 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Merges elements from all inner observable sequences into one observable sequence by emitting
-        /// a list with the elements of each sequence whenever any of the sequences produces a new element.
+        /// a list with the elements of each sequence whenever any of the sequences produces a notification.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
         /// <param name="sources">The observable sequence of inner observable sequences.</param>

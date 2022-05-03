@@ -47,7 +47,7 @@ namespace Bonsai.Vision
         /// Generates an observable sequence of 3D points using the specified
         /// double-precision floating-point coordinates, and where each
         /// <see cref="Point3d"/> object is emitted only when an observable
-        /// sequence raises a notification.
+        /// sequence emits a notification.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.

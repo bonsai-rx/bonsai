@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returns an observable sequence containing only distinct elements.
+    /// Represents an operator that returns an observable sequence containing only distinct elements.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns a sequence that contains only distinct elements.")]

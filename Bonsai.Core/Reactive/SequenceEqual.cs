@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator which determines whether two sequences are equal by comparing
+    /// Represents an operator that determines whether two sequences are equal by comparing
     /// the elements pairwise.
     /// </summary>
     [Combinator]
@@ -22,7 +22,7 @@ namespace Bonsai.Reactive
         /// <param name="first">First observable sequence.</param>
         /// <param name="second">Second observable sequence.</param>
         /// <returns>
-        /// An observable sequence that contains a single element which indicates whether
+        /// An observable sequence that contains a single element indicating whether
         /// both sequences are of equal length and their corresponding elements are equal
         /// according to the default equality comparer for their type.
         /// </returns>

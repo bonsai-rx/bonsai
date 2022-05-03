@@ -7,11 +7,19 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for initializing cubemap
+    /// texture resources from the specified image files.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageCubemap : Cubemap
     {
         const string FileNameFilter = "Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif";
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the positive
+        /// X direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -19,6 +27,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the positive X direction.")]
         public string PositiveX { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the negative
+        /// X direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -26,6 +38,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the negative X direction.")]
         public string NegativeX { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the positive
+        /// Y direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -33,6 +49,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the positive Y direction.")]
         public string PositiveY { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the negative
+        /// Y direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -40,6 +60,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the negative Y direction.")]
         public string NegativeY { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the positive
+        /// Z direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -47,6 +71,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the positive Z direction.")]
         public string PositiveZ { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the image file to load for the negative
+        /// Z direction.
+        /// </summary>
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -54,10 +82,18 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the negative Z direction.")]
         public string NegativeZ { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying optional conversions applied to the
+        /// loaded image.
+        /// </summary>
         [Category("TextureData")]
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageFlags ColorType { get; set; } = LoadImageFlags.Unchanged;
 
+        /// <summary>
+        /// Gets or sets a value specifying the optional flip mode applied to the
+        /// loaded image.
+        /// </summary>
         [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; }
@@ -93,6 +129,14 @@ namespace Bonsai.Shaders.Configuration
             TextureHelper.UpdateTexture(target, internalFormat, image);
         }
 
+        /// <summary>
+        /// Creates a new cubemap texture resource from the specified image files.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Texture"/> class representing
+        /// the cubemap texture.
+        /// </returns>
+        /// <inheritdoc/>
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var texture = base.CreateResource(resourceManager);

@@ -6,30 +6,35 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that returnsthe elements from the source sequence only after the
-    /// other sequence produces an element.
+    /// Represents an operator that returns the elements from the first sequence
+    /// only after the second sequence emits a notification.
     /// </summary>
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Returns elements from the first sequence only after the second sequence produces an element.")]
-    public class SkipUntil : BinaryCombinator
+    [Description("Returns elements from the first sequence only after the second sequence emits a notification.")]
+    public class SkipUntil
     {
         /// <summary>
-        /// Returns the elements from the source observable sequence only after the other
-        /// observable sequence produces an element.
+        /// Returns the elements from an observable sequence only after the second
+        /// sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <typeparam name="TOther">
-        /// The type of the elements in the other sequence that indicates the end of the skip behavior.
+        /// The type of the elements in the <paramref name="other"/> sequence.
         /// </typeparam>
         /// <param name="source">The source sequence to propagate elements for.</param>
         /// <param name="other">
-        /// The observable sequence that triggers propagation of elements of the source sequence.
+        /// The observable sequence indicating the time at which to start taking
+        /// elements from the <paramref name="source"/> sequence.
         /// </param>
         /// <returns>
-        /// An observable sequence containing the elements of the source sequence starting
-        /// from the point the other sequence triggered propagation.
+        /// An observable sequence containing the elements of the <paramref name="source"/>
+        /// sequence emitted after the <paramref name="other"/> sequence emits
+        /// a notification.
         /// </returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.SkipUntil(other);
         }

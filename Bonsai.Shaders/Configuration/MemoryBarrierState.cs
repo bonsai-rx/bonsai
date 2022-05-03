@@ -4,25 +4,29 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Represents a configuration object for specifying barriers to order
+    /// memory operations.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class MemoryBarrierState : StateConfiguration
     {
-        public MemoryBarrierState()
-        {
-            Barriers = MemoryBarrierFlags.AllBarrierBits;
-        }
+        /// <summary>
+        /// Gets or sets a value specifying which memory barriers to insert.
+        /// </summary>
+        [Description("Specifies which memory barriers to insert.")]
+        public MemoryBarrierFlags Barriers { get; set; } = MemoryBarrierFlags.AllBarrierBits;
 
-        [Description("Specifies the memory barriers to insert.")]
-        public MemoryBarrierFlags Barriers { get; set; }
-
+        /// <inheritdoc/>
         public override void Execute(ShaderWindow window)
         {
             GL.MemoryBarrier(Barriers);
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
-            return string.Format("MemoryBarrier({0})", Barriers);
+            return $"MemoryBarrier({Barriers})";
         }
     }
 }

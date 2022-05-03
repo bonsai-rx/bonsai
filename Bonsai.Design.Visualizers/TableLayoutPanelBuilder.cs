@@ -19,7 +19,7 @@ namespace Bonsai.Design.Visualizers
     [DefaultProperty(nameof(CellSpans))]
     [TypeVisualizer(typeof(TableLayoutPanelVisualizer))]
     [Description("Specifies a mashup visualizer panel that can be used to arrange other visualizers in a grid.")]
-    public class TableLayoutPanelBuilder : VariableArgumentExpressionBuilder
+    public class TableLayoutPanelBuilder : VariableArgumentExpressionBuilder, INamedElement
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TableLayoutPanelBuilder"/> class.
@@ -30,7 +30,13 @@ namespace Bonsai.Design.Visualizers
             ColumnCount = 1;
             RowCount = 1;
         }
-        
+
+        /// <summary>
+        /// Gets or sets the name of the visualizer window.
+        /// </summary>
+        [Description("The name of the visualizer window.")]
+        public string Name { get; set; }
+
         /// <summary>
         /// Gets or sets the number of columns in the visualizer grid layout.
         /// </summary>

@@ -7,7 +7,7 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that raises an error if the next element is not received
+    /// Represents an operator that raises an error if the next element is not received
     /// within the specified timeout duration from the previous element.
     /// </summary>
     [DefaultProperty(nameof(DueTime))]
@@ -23,7 +23,7 @@ namespace Bonsai.Reactive
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the timeout duration.
+        /// Gets or sets an XML representation of the timeout for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
@@ -38,9 +38,15 @@ namespace Bonsai.Reactive
         /// next element is not received within the specified timeout duration from the previous
         /// element, a <see cref="TimeoutException"/> is propagated to the observer.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
         /// <param name="source">The source sequence to perform a timeout for.</param>
-        /// <returns>The sequence with a <see cref="TimeoutException"/> in case of a timeout.</returns>
+        /// <returns>
+        /// A sequence which is identical to the <paramref name="source"/> sequence, but
+        /// where a <see cref="TimeoutException"/> is raised if more than the specified
+        /// timout duration lapses between consecutive elements.
+        /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.Timeout(DueTime, HighResolutionScheduler.Default);

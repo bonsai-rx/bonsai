@@ -5,15 +5,30 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    /// <summary>
+    /// Provides configuration and loading functionality for textured mesh resources
+    /// specified as OBJ files.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class TexturedModel : MeshConfiguration
     {
+        /// <summary>
+        /// Gets or sets the name of the model OBJ file.
+        /// </summary>
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("OBJ Files (*.obj)|*.obj")]
-        [Description("The name of the model file.")]
+        [Description("The name of the model OBJ file.")]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Creates a new mesh resource using the geometry specified in the OBJ file.
+        /// </summary>
+        /// <returns>
+        /// A new instance of the <see cref="Mesh"/> class storing the geometry
+        /// specified in the OBJ file.
+        /// </returns>
+        /// <inheritdoc/>
         public override Mesh CreateResource(ResourceManager resourceManager)
         {
             var mesh = base.CreateResource(resourceManager);
@@ -25,6 +40,7 @@ namespace Bonsai.Shaders.Configuration
             return mesh;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var name = Name;
@@ -32,7 +48,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return $"{name} [{fileName}]";
         }
     }
 }

@@ -7,8 +7,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that records the zero-based index of elements produced
-    /// by an observable sequence.
+    /// This type is obsolete. Please use the <see cref="ElementIndex"/> operator instead.
     /// </summary>
     [Obsolete]
     [Combinator]

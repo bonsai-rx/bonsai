@@ -44,6 +44,7 @@ namespace Bonsai.Editor
 
             LayoutHelper.SetLayoutNotifications(layout);
             var services = new System.ComponentModel.Design.ServiceContainer();
+            services.AddService(typeof(WorkflowBuilder), workflowBuilder);
             var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
             var mapping = LayoutHelper.CreateVisualizerMapping(workflowBuilder.Workflow, layout, typeVisualizers, services);
 

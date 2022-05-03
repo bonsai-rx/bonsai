@@ -6,6 +6,10 @@ using System.Linq;
 
 namespace Bonsai.Shaders.Rendering
 {
+    /// <summary>
+    /// Represents an operator that creates a collection of scene resources to
+    /// be loaded into the resource manager.
+    /// </summary>
     [DefaultProperty(nameof(Scenes))]
     [Description("Creates a collection of scene resources to be loaded into the resource manager.")]
     public class SceneResources : ResourceLoader
@@ -13,12 +17,9 @@ namespace Bonsai.Shaders.Rendering
         const string PostProcessingCategory = "Post Processing";
         readonly SceneConfigurationCollection scenes = new SceneConfigurationCollection();
 
-        public SceneResources()
-        {
-            PostProcessSteps = PostProcessSteps.Triangulate;
-            Scale = 1;
-        }
-
+        /// <summary>
+        /// Gets the collection of scene resources to be loaded into the resource manager.
+        /// </summary>
         [Editor("Bonsai.Resources.Design.ResourceCollectionEditor, Bonsai.System.Design", DesignTypes.UITypeEditor)]
         [Description("The collection of scene resources to be loaded into the resource manager.")]
         public SceneConfigurationCollection Scenes
@@ -26,28 +27,50 @@ namespace Bonsai.Shaders.Rendering
             get { return scenes; }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the shader program used to render scene materials.
+        /// </summary>
         [TypeConverter(typeof(ShaderNameConverter))]
         [Description("The name of the shader program used to render scene materials.")]
         public string ShaderName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying post processing steps to run on the data
+        /// for generating or optimizing vertex data.
+        /// </summary>
         [Category(PostProcessingCategory)]
-        [Description("The optional post processing steps that can be run on the data to generate or optimize vertex data.")]
-        public PostProcessSteps PostProcessSteps { get; set; }
+        [Description("Specifies post processing steps to run on the data for generating or optimizing vertex data.")]
+        public PostProcessSteps PostProcessSteps { get; set; } = PostProcessSteps.Triangulate;
 
+        /// <summary>
+        /// Gets or sets the uniform scale factor to apply to the model transform nodes.
+        /// </summary>
         [Category(PostProcessingCategory)]
-        [Description("The optional uniform scale factor to apply to the model transform nodes.")]
-        public float Scale { get; set; }
+        [Description("The uniform scale factor to apply to the model transform nodes.")]
+        public float Scale { get; set; } = 1;
 
+        /// <summary>
+        /// Gets or sets the model rotation about the X-axis. This property is only used
+        /// during the loading stage.
+        /// </summary>
         [Category(PostProcessingCategory)]
-        [Description("The optional model rotation about the X-axis. This is used during the loading stage only.")]
+        [Description("The model rotation about the X-axis. This property is only used during the loading stage.")]
         public float RotationX { get; set; }
 
+        /// <summary>
+        /// Gets or sets the model rotation about the Y-axis. This property is only used
+        /// during the loading stage.
+        /// </summary>
         [Category(PostProcessingCategory)]
-        [Description("The optional model rotation about the Y-axis. This is used during the loading stage only.")]
+        [Description("The model rotation about the Y-axis. This property is only used during the loading stage.")]
         public float RotationY { get; set; }
 
+        /// <summary>
+        /// Gets or sets the model rotation about the Z-axis. This property is only used
+        /// during the loading stage.
+        /// </summary>
         [Category(PostProcessingCategory)]
-        [Description("The optional model rotation about the Z-axis. This is used during the loading stage only.")]
+        [Description("The model rotation about the Z-axis. This property is only used during the loading stage.")]
         public float RotationZ { get; set; }
 
         class SceneRendererConfiguration : ResourceConfiguration<ISceneRenderer>
@@ -71,6 +94,7 @@ namespace Bonsai.Shaders.Rendering
             }
         }
 
+        /// <inheritdoc/>
         protected override IEnumerable<IResourceConfiguration> GetResources()
         {
             return scenes.Select(scene => new SceneRendererConfiguration

@@ -6,24 +6,26 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that takes the single next element from the sequence if this
-    /// element is produced within a specified time interval after the gate produces an element.
+    /// Represents an operator that takes the next element from the sequence if this
+    /// element is produced within a specified time interval after the gate sequence
+    /// emits a notification.
     /// </summary>
+    [Combinator]
     [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Allows an element of the sequence to propagate if it is produced within a specified interval after the gate sequence produces an element.")]
-    public class TimedGate : BinaryCombinator
+    [Description("Takes the next element from the sequence if this element is produced within a specified interval after the gate sequence emits a notification.")]
+    public class TimedGate
     {
         /// <summary>
-        /// Gets or sets the maximum interval that can elapse after a gate event
-        /// for a source element to be propagated.
+        /// Gets or sets the maximum interval that can elapse after a gate notification
+        /// for a source element to be taken.
         /// </summary>
         [XmlIgnore]
-        [Description("The maximum interval that can elapse after a gate event for a source element to be propagated.")]
+        [Description("The maximum interval that can elapse after a gate notification for a source element to be taken.")]
         public TimeSpan TimeSpan { get; set; }
 
         /// <summary>
-        /// Gets or sets the XML serializable representation of the maximum gate time span.
+        /// Gets or sets an XML representation of the time span for serialization.
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeSpan))]
@@ -34,19 +36,23 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Takes the single next element from the sequence if this element is produced
-        /// within a specified time interval after the gate produces an element.
+        /// Takes the next element from the sequence if this element is produced within
+        /// a specified interval after the gate sequence emits a notification.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <typeparam name="TOther">The type of the elements in the sequence of gate events.</typeparam>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <typeparam name="TOther">
+        /// The type of the elements in the <paramref name="other"/> sequence.
+        /// </typeparam>
         /// <param name="source">The observable sequence to be gated.</param>
         /// <param name="other">
-        /// The sequence of gate events. Every time a new gate event is received, the single
-        /// next element from <paramref name="source"/> is allowed to propagate if it is
-        /// produced before the maximum <see cref="TimeSpan"/> elapses.
+        /// The sequence of gate events. Every time a new gate event is received, the
+        /// next element from <paramref name="source"/> is taken if it is produced
+        /// before the maximum <see cref="TimeSpan"/> elapses.
         /// </param>
         /// <returns>The gated observable sequence.</returns>
-        public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
+        public IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
             return source.Gate(other, TimeSpan);
         }
