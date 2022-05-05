@@ -84,6 +84,22 @@ namespace Bonsai.Configuration
             }
         }
 
+        static XDocument LoadProjectDocument(Stream stream)
+        {
+            using var reader = XmlReader.Create(stream, GetXmlReaderSettings());
+            return XDocument.Load(reader, LoadOptions.None);
+        }
+
+        static XmlReaderSettings GetXmlReaderSettings()
+        {
+            return new XmlReaderSettings
+            {
+                IgnoreWhitespace = true,
+                IgnoreProcessingInstructions = true,
+                DtdProcessing = DtdProcessing.Prohibit
+            };
+        }
+
         public IEnumerable<string> GetAssemblyReferences()
         {
             yield return "System.dll";
@@ -95,7 +111,7 @@ namespace Bonsai.Configuration
 
             if (!File.Exists(ProjectFileName)) yield break;
             using var stream = File.OpenRead(ProjectFileName);
-            var document = XmlUtility.LoadSafe(stream);
+            var document = LoadProjectDocument(stream);
             var useWindowsForms = document.Descendants(XName.Get(UseWindowsFormsElement)).FirstOrDefault();
             if (useWindowsForms != null && useWindowsForms.Value == "true")
             {
@@ -107,7 +123,7 @@ namespace Bonsai.Configuration
         {
             if (!File.Exists(ProjectFileName)) return Enumerable.Empty<string>();
             using var stream = File.OpenRead(ProjectFileName);
-            var document = XmlUtility.LoadSafe(stream);
+            var document = LoadProjectDocument(stream);
             return from element in document.Descendants(XName.Get(PackageReferenceElement))
                    let id = element.Attribute(PackageIncludeAttribute)
                    where id != null
