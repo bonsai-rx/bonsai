@@ -1,7 +1,6 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai", "Bonsai\Bonsai.csproj", "{F44C66DD-913A-4DF0-B617-F8C458533C50}"
 EndProject
@@ -59,6 +58,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System.Tests", "Bons
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4486E9B-95F2-482C-9190-59F76D2C859C}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		Bonsai.Tests.proj = Bonsai.Tests.proj
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
