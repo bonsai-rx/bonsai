@@ -7,7 +7,7 @@ namespace Bonsai
     /// Represents a range of values defined by an inclusive lower and upper bounds.
     /// </summary>
     /// <typeparam name="TValue">The type of values in the range.</typeparam>
-    public sealed class Range<TValue>
+    public sealed class Range<TValue> : IEquatable<Range<TValue>>
     {
         readonly IComparer<TValue> valueComparer;
 
@@ -61,8 +61,8 @@ namespace Bonsai
         /// </summary>
         /// <param name="value">The value to test.</param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="value"/> is between or equal to <see cref="LowerBound"/>
-        /// and <see cref="UpperBound"/>; <see langword="false"/> otherwise.
+        /// <see langword="true"/> if <paramref name="value"/> is between or equal to the
+        /// lower and upper bound values of this instance; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Contains(TValue value)
         {
@@ -71,15 +71,106 @@ namespace Bonsai
         }
 
         /// <summary>
+        /// Returns a value indicating whether this instance has the same lower and upper
+        /// bounds as a specified <see cref="Range{TValue}"/> object.
+        /// </summary>
+        /// <param name="other">The <see cref="Range{TValue}"/> object to compare to this instance.</param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="other"/> has the same lower and upper
+        /// bounds as this instance; otherwise, <see langword="false"/>.
+        /// </returns>
+        public bool Equals(Range<TValue> other)
+        {
+            return other != null &&
+                EqualityComparer<TValue>.Default.Equals(LowerBound, other.LowerBound) &&
+                EqualityComparer<TValue>.Default.Equals(UpperBound, other.UpperBound);
+        }
+
+        /// <summary>
+        /// Tests to see whether the specified object is a <see cref="Range{TValue}"/> object
+        /// with the same lower and upper bounds as this <see cref="Range{TValue}"/> instance.
+        /// </summary>
+        /// <param name="obj">The object to compare with this instance.</param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="obj"/> is a <see cref="Range{TValue}"/>
+        /// and has the same lower and upper bounds as this <see cref="Range{TValue}"/>;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is Range<TValue> range)
+            {
+                return Equals(range);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a hash code for the current instance.
+        /// </summary>
+        /// <returns>
+        /// The hash code for the current instance.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return EqualityComparer<TValue>.Default.GetHashCode(LowerBound) + 31 *
+                   EqualityComparer<TValue>.Default.GetHashCode(UpperBound);
+        }
+
+        /// <summary>
         /// Creates a <see cref="string"/> representation of this <see cref="Range{TValue}"/>.
         /// </summary>
         /// <returns>
-        /// A <see cref="string"/> containing the <see cref="LowerBound"/> and
-        /// <see cref="UpperBound"/> values of this <see cref="Range{TValue}"/>.
+        /// A <see cref="string"/> containing the lower and upper bound values of
+        /// this <see cref="Range{TValue}"/>.
         /// </returns>
         public override string ToString()
         {
             return $"[{LowerBound}, {UpperBound}]";
+        }
+
+        /// <summary>
+        /// Tests whether two <see cref="Range{TValue}"/> objects are equal.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="Range{TValue}"/> object on the left-hand side of the
+        /// equality operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="Range{TValue}"/> object on the right-hand side of the
+        /// equality operator.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/>
+        /// have equal lower and upper bounds; otherwise, <see langword="false"/>.
+        /// </returns>
+        public static bool operator ==(Range<TValue> left, Range<TValue> right)
+        {
+            if (left is object) return left.Equals(right);
+            else return right is null;
+        }
+
+        /// <summary>
+        /// Tests whether two <see cref="Range{TValue}"/> objects are different.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="Range{TValue}"/> object on the left-hand side of the
+        /// inequality operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="Range{TValue}"/> object on the right-hand side of the
+        /// inequality operator.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/>
+        /// differ either in their lower or upper bounds; <see langword="false"/> if
+        /// <paramref name="left"/> and <paramref name="right"/> are equal.
+        /// </returns>
+        public static bool operator !=(Range<TValue> left, Range<TValue> right)
+        {
+            if (left is object) return !left.Equals(right);
+            else return right is object;
         }
     }
 
