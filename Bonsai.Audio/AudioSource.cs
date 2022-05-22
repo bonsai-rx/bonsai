@@ -30,6 +30,43 @@ namespace Bonsai.Audio
         }
 
         /// <summary>
+        /// Gets or sets the volume amplification applied to the audio source.
+        /// </summary>
+        /// <remarks>
+        /// Each division by 2 equals an attenuation of -6 dB, and each multiplication
+        /// by 2 an amplification by +6 dB. A value of 1.0 means the source is unchanged,
+        /// and zero is interpreted as zero volume.
+        /// </remarks>
+        public float Gain
+        {
+            get
+            {
+                AL.GetSource(id, ALSourcef.Gain, out float value);
+                return value;
+            }
+            set
+            {
+                AL.Source(id, ALSourcef.Gain, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the pitch to be applied to the audio source.
+        /// </summary>
+        public float Pitch
+        {
+            get
+            {
+                AL.GetSource(id, ALSourcef.Pitch, out float value);
+                return value;
+            }
+            set
+            {
+                AL.Source(id, ALSourcef.Pitch, value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the audio source uses coordinates
         /// relative to the listener.
         /// </summary>

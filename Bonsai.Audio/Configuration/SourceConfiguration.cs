@@ -20,6 +20,26 @@ namespace Bonsai.Audio.Configuration
         public string BufferName { get; set; }
 
         /// <summary>
+        /// Gets or sets the volume amplification applied to the audio source.
+        /// </summary>
+        [Precision(2, 0.01)]
+        [Range(0, int.MaxValue)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The volume amplification applied to the audio source.")]
+        public float Gain { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets the pitch to be applied to the audio source.
+        /// </summary>
+        [Range(0.5f, 2.0f)]
+        [Precision(2, 0.01)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The pitch to be applied to the audio source.")]
+        public float Pitch { get; set; } = 1;
+
+        /// <summary>
         /// Gets or sets the direction vector of the audio source.
         /// </summary>
         [Category("Transform")]
@@ -75,6 +95,8 @@ namespace Bonsai.Audio.Configuration
         public override AudioSource CreateResource(ResourceManager resourceManager)
         {
             var source = new AudioSource();
+            source.Gain = Gain;
+            source.Pitch = Pitch;
             source.Direction = Direction;
             source.Position = Position;
             source.Velocity = Velocity;

@@ -26,6 +26,28 @@ namespace Bonsai.Audio
         public string SourceName { get; set; }
 
         /// <summary>
+        /// Gets or sets the volume amplification applied to the audio source. If this
+        /// property is not set, the gain of the audio source will not be updated.
+        /// </summary>
+        [Precision(2, 0.01)]
+        [Range(0, int.MaxValue)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The volume amplification applied to the audio source.")]
+        public float? Gain { get; set; }
+
+        /// <summary>
+        /// Gets or sets the pitch to be applied to the audio source. If this property
+        /// is not set, the pitch of the audio source will not be updated.
+        /// </summary>
+        [Range(0.5f, 2.0f)]
+        [Precision(2, 0.01)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The pitch to be applied to the audio source.")]
+        public float? Pitch { get; set; }
+
+        /// <summary>
         /// Gets or sets the current location of the audio source in three-dimensional space.
         /// If this property is not set, the location of the audio source will not be updated.
         /// </summary>
@@ -108,6 +130,16 @@ namespace Bonsai.Audio
 
         void Update(AudioSource source)
         {
+            if (TryGetValue(Gain, out float gain))
+            {
+                source.Gain = gain;
+            }
+
+            if (TryGetValue(Pitch, out float pitch))
+            {
+                source.Pitch = pitch;
+            }
+
             if (TryGetValue(Position, out Vector3 position))
             {
                 source.Position = position;

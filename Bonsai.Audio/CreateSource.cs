@@ -34,6 +34,34 @@ namespace Bonsai.Audio
         }
 
         /// <summary>
+        /// Gets or sets the volume amplification applied to the audio source.
+        /// </summary>
+        [Precision(2, 0.01)]
+        [Range(0, int.MaxValue)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The volume amplification applied to the audio source.")]
+        public float Gain
+        {
+            get { return configuration.Gain; }
+            set { configuration.Gain = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the pitch to be applied to the audio source.
+        /// </summary>
+        [Range(0.5f, 2.0f)]
+        [Precision(2, 0.01)]
+        [Category("Playback")]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
+        [Description("The pitch to be applied to the audio source.")]
+        public float Pitch
+        {
+            get { return configuration.Pitch; }
+            set { configuration.Pitch = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the direction vector of the audio source.
         /// </summary>
         [Category("Transform")]
