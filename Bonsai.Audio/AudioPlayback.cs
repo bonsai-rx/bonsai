@@ -4,6 +4,7 @@ using OpenTK.Audio.OpenAL;
 using System.ComponentModel;
 using OpenCV.Net;
 using System.Reactive.Linq;
+using Bonsai.Audio.Configuration;
 
 namespace Bonsai.Audio
 {
@@ -13,18 +14,12 @@ namespace Bonsai.Audio
     [Description("Plays the sequence of buffered samples to the specified audio device.")]
     public class AudioPlayback : Sink<Mat>
     {
-        readonly CreateSource createSource = new CreateSource();
-
         /// <summary>
         /// Gets or sets the name of the audio device used for playback.
         /// </summary>
         [Description("The name of the audio device used for playback.")]
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
-        public string DeviceName
-        {
-            get { return createSource.DeviceName; }
-            set { createSource.DeviceName = value; }
-        }
+        public string DeviceName { get; set; }
 
         /// <summary>
         /// Gets or sets the optional name of the source used to playback the audio buffers.
@@ -84,8 +79,23 @@ namespace Bonsai.Audio
         /// </remarks>
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            return createSource.Generate().SelectMany(audioSource =>
-                Process(source, Observable.Return(audioSource)).Finally(audioSource.Dispose));
+            return Observable.Using(
+                () => AudioManager.ReserveContext(DeviceName),
+                resource =>
+                {
+                    var sourceName = SourceName;
+                    if (!string.IsNullOrEmpty(sourceName))
+                    {
+                        var audioSource = resource.Context.ResourceManager.Load<AudioSource>(sourceName);
+                        return Process(source, Observable.Return(audioSource));
+                    }
+                    else
+                    {
+                        var configuration = new SourceConfiguration();
+                        var audioSource = configuration.CreateResource(resource.Context.ResourceManager);
+                        return Process(source, Observable.Return(audioSource)).Finally(audioSource.Dispose);
+                    }
+                });
         }
 
         /// <summary>
