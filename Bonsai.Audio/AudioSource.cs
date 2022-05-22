@@ -189,6 +189,27 @@ namespace Bonsai.Audio
             AL.SourceStop(id);
         }
 
+        internal void SetState(ALSourceState state)
+        {
+            switch (state)
+            {
+                case ALSourceState.Initial:
+                    AL.SourceRewind(id);
+                    break;
+                case ALSourceState.Playing:
+                    AL.SourcePlay(id);
+                    break;
+                case ALSourceState.Paused:
+                    AL.SourcePause(id);
+                    break;
+                case ALSourceState.Stopped:
+                    AL.SourceStop(id);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid source state.", nameof(state));
+            }
+        }
+
         internal void ClearBuffers(int input)
         {
             int[] freeBuffers;

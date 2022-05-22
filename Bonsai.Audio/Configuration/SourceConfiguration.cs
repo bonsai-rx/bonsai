@@ -110,20 +110,10 @@ namespace Bonsai.Audio.Configuration
                 AL.SourceQueueBuffer(source.Id, buffer.Id);
             }
 
-            switch (State)
+            var state = State;
+            if (state != ALSourceState.Initial)
             {
-                case ALSourceState.Paused:
-                    AL.SourcePause(source.Id);
-                    break;
-                case ALSourceState.Playing:
-                    AL.SourcePlay(source.Id);
-                    break;
-                case ALSourceState.Stopped:
-                    AL.SourceStop(source.Id);
-                    break;
-                case ALSourceState.Initial:
-                default:
-                    break;
+                source.SetState(state);
             }
 
             return source;

@@ -62,6 +62,13 @@ namespace Bonsai.Audio
         }
 
         /// <summary>
+        /// Gets or sets a value specifying the state to which the source should be set
+        /// when queueing audio buffers.
+        /// </summary>
+        [Description("Specifies the state to which the source should be set when queueing audio buffers.")]
+        public ALSourceState? State { get; set; } = ALSourceState.Playing;
+
+        /// <summary>
         /// Plays an observable sequence of buffered samples to the specified audio device.
         /// </summary>
         /// <param name="source">
@@ -120,18 +127,27 @@ namespace Bonsai.Audio
         /// </remarks>
         public IObservable<Mat> Process(IObservable<Mat> dataSource, IObservable<AudioSource> audioSource)
         {
+            var playbackState = State;
             return Observable.Using(
                 () => AudioManager.ReserveContext(DeviceName),
                 resource => audioSource.SelectMany(source => dataSource.Do(input =>
                 {
                     var buffer = AL.GenBuffer();
                     BufferHelper.UpdateBuffer(buffer, input, SampleRate);
-                    AL.SourceQueueBuffer(source.Id, buffer);
 
-                    source.ClearBuffers(0);
-                    if (AL.GetSourceState(source.Id) != ALSourceState.Playing)
+                    var sourceState = source.State;
+                    var targetState = playbackState.GetValueOrDefault(sourceState);
+                    if (targetState != ALSourceState.Playing && sourceState != targetState)
                     {
-                        AL.SourcePlay(source.Id);
+                        source.SetState(playbackState.Value);
+                    }
+
+                    AL.SourceQueueBuffer(source.Id, buffer);
+                    source.ClearBuffers(0);
+
+                    if (targetState == ALSourceState.Playing && sourceState != targetState)
+                    {
+                        source.Play();
                     }
                 })));
         }
