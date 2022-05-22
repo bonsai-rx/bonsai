@@ -155,6 +155,40 @@ namespace Bonsai.Audio
             get { return AL.GetSourceState(id); }
         }
 
+        /// <summary>
+        /// Stops the source and sets its state to <see cref="ALSourceState.Initial"/>.
+        /// </summary>
+        public void Rewind()
+        {
+            AL.SourceRewind(id);
+        }
+
+        /// <summary>
+        /// Plays, replays, or resumes the source and sets its state to
+        /// <see cref="ALSourceState.Playing"/>. If the source is already playing,
+        /// the source will restart at the beginning.
+        /// </summary>
+        public void Play()
+        {
+            AL.SourcePlay(id);
+        }
+
+        /// <summary>
+        /// Pauses the source and sets its state to <see cref="ALSourceState.Paused"/>.
+        /// </summary>
+        public void Pause()
+        {
+            AL.SourcePause(id);
+        }
+
+        /// <summary>
+        /// Stops the source and sets its state to <see cref="ALSourceState.Stopped"/>.
+        /// </summary>
+        public void Stop()
+        {
+            AL.SourceStop(id);
+        }
+
         internal void ClearBuffers(int input)
         {
             int[] freeBuffers;
