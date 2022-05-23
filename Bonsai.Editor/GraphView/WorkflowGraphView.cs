@@ -1037,16 +1037,6 @@ namespace Bonsai.Editor.GraphView
 
         private void graphView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5)
-            {
-                if (e.Shift)
-                {
-                    if (e.Control) editorService.RestartWorkflow();
-                    else editorService.StopWorkflow();
-                }
-                else editorService.StartWorkflow(!e.Control);
-            }
-
             if (e.KeyCode == goToDefinitionToolStripMenuItem.ShortcutKeys)
             {
                 LaunchDefinition(graphView.SelectedNode);

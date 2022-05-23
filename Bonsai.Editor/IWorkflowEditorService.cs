@@ -22,12 +22,6 @@ namespace Bonsai.Editor
 
         void SelectNextControl(bool forward);
 
-        void StartWorkflow(bool debugging);
-
-        void StopWorkflow();
-
-        void RestartWorkflow();
-
         bool ValidateWorkflow();
 
         void RefreshEditor();

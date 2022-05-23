@@ -326,7 +326,7 @@ namespace Bonsai.Editor
                     initialization = initialization.Do(xs => BeginInvoke((Action)(() =>
                     {
                         var debugging = loadAction == LoadAction.Start;
-                        editorSite.StartWorkflow(debugging);
+                        StartWorkflow(debugging);
                     })));
                 }
             }
@@ -1202,14 +1202,15 @@ namespace Bonsai.Editor
             }));
         }
 
-        void StartWorkflow()
+        void StartWorkflow(bool debug)
         {
             if (running == null)
             {
                 building = true;
+                debugging = debug;
                 ClearWorkflowError();
-                LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debugging);
-                if (!debugging && editorControl.VisualizerLayout != null)
+                LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debug);
+                if (!debug && editorControl.VisualizerLayout != null)
                 {
                     LayoutHelper.SetLayoutNotifications(editorControl.VisualizerLayout);
                 }
@@ -1275,7 +1276,7 @@ namespace Bonsai.Editor
             startWorkflow = delegate
             {
                 editorSite.WorkflowStopped -= startWorkflow;
-                BeginInvoke((Action)StartWorkflow);
+                BeginInvoke((Action<bool>)StartWorkflow, debugging);
             };
 
             editorSite.WorkflowStopped += startWorkflow;
@@ -1648,12 +1649,12 @@ namespace Bonsai.Editor
                 if (control) RestartWorkflow();
                 else StopWorkflow();
             }
-            else editorSite.StartWorkflow(!control);
+            else StartWorkflow(!control);
         }
 
         private void startWithoutDebuggingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorSite.StartWorkflow(false);
+            StartWorkflow(false);
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2261,6 +2262,10 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.saveAsWorkflowToolStripMenuItem, siteForm.saveAsWorkflowToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.copyAsImageToolStripMenuItem, siteForm.copyAsImageToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.startWithoutDebuggingToolStripMenuItem, siteForm.startWithoutDebuggingToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.startToolStripButtonMenuItem, siteForm.startToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.restartToolStripMenuItem, siteForm.restartToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.stopToolStripMenuItem, siteForm.stopToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
@@ -2345,22 +2350,6 @@ namespace Bonsai.Editor
                 if (forward) siteForm.SelectNextControl(siteForm.editorControl, true, true, true, true);
                 else siteForm.ActiveControl = siteForm.searchTextBox;
                 siteForm.Activate();
-            }
-
-            public void StartWorkflow(bool debugging)
-            {
-                siteForm.debugging = debugging;
-                siteForm.StartWorkflow();
-            }
-
-            public void StopWorkflow()
-            {
-                siteForm.StopWorkflow();
-            }
-
-            public void RestartWorkflow()
-            {
-                siteForm.RestartWorkflow();
             }
 
             public bool ValidateWorkflow()
