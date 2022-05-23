@@ -1405,13 +1405,13 @@ namespace Bonsai.Editor
 
         bool HandleSchedulerError(Exception e)
         {
+            using var shutdown = ShutdownSequence();
             HandleWorkflowError(e);
             return true;
         }
 
         void HandleWorkflowError(Exception e)
         {
-            var shutdown = ShutdownSequence();
             Action selectExceptionNode = () =>
             {
                 var workflowException = e as WorkflowException;
@@ -1425,7 +1425,6 @@ namespace Bonsai.Editor
 
             if (InvokeRequired) BeginInvoke(selectExceptionNode);
             else selectExceptionNode();
-            shutdown.Dispose();
         }
 
         void HandleWorkflowCompleted()
