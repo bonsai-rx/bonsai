@@ -12,6 +12,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that pushes a sequence of values
     /// into a shared subject.
     /// </summary>
+    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("MulticastSubject", Namespace = Constants.XmlNamespace)]
     [Description("Pushes a sequence of values into a shared subject.")]
