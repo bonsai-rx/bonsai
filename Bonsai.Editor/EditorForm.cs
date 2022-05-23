@@ -1019,12 +1019,29 @@ namespace Bonsai.Editor
 
         void ExportImage(WorkflowGraphView model, string fileName)
         {
-            var bounds = model.GraphView.GetLayoutSize();
+            if (model.GraphView.SelectedNodes.Count() > 0)
+            {
+                var selectedElements = model.GraphView.SelectedNodes.ToWorkflowBuilder();
+                var selectedLayout = selectedElements.Workflow.ConnectedComponentLayering().ToList();
+                using var graphView = new GraphViewControl
+                {
+                    IconRenderer = model.GraphView.IconRenderer,
+                    Font = model.GraphView.Font,
+                    Nodes = selectedLayout
+                };
+                ExportImage(graphView, fileName);
+            }
+            else ExportImage(model.GraphView, fileName);
+        }
+
+        void ExportImage(GraphViewControl graphView, string fileName)
+        {
+            var bounds = graphView.GetLayoutSize();
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
                 var graphics = new SvgNet.SvgGdi.SvgGraphics();
-                model.GraphView.DrawGraphics(graphics, true);
+                graphView.DrawGraphics(graphics, true);
                 var svg = graphics.WriteSVGString();
                 var attributes = string.Format(
                     "<svg width=\"{0}\" height=\"{1}\" ",
@@ -1038,7 +1055,7 @@ namespace Bonsai.Editor
                 using (var graphics = Graphics.FromImage(bitmap))
                 {
                     var gdi = new SvgNet.SvgGdi.GdiGraphics(graphics);
-                    model.GraphView.DrawGraphics(gdi, false);
+                    graphView.DrawGraphics(gdi, false);
                     if (string.IsNullOrEmpty(fileName))
                     {
                         Clipboard.SetImage(bitmap);
