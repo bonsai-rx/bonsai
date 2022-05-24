@@ -21,7 +21,7 @@ namespace Bonsai.Vision
         /// <returns>
         /// A <see cref="ConnectedComponent"/> representing the largest binary region
         /// from each collection of connected components in the <paramref name="source"/>
-        /// sequence.
+        /// sequence, or the empty region if the collection has no elements.
         /// </returns>
         public override IObservable<ConnectedComponent> Process(IObservable<ConnectedComponentCollection> source)
         {

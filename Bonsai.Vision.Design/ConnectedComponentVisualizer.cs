@@ -16,17 +16,8 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Show(object value)
         {
-            Rect boundingBox;
             var connectedComponent = (ConnectedComponent)value;
-            if (connectedComponent.Contour != null)
-            {
-                boundingBox = connectedComponent.Contour.Rect;
-            }
-            else if (connectedComponent.Patch != null)
-            {
-                boundingBox = new Rect(0, 0, connectedComponent.Patch.Width, connectedComponent.Patch.Height);
-            }
-            else boundingBox = new Rect(0, 0, 1, 1);
+            var boundingBox = DrawingHelper.GetBoundingBox(connectedComponent);
             var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
             output.SetZero();
 

@@ -103,5 +103,18 @@ namespace Bonsai.Vision.Design
                 (point.X * 2f / imageSize.Width) - 1,
                 -((point.Y * 2f / imageSize.Height) - 1));
         }
+
+        public static Rect GetBoundingBox(ConnectedComponent component)
+        {
+            if (component.Contour != null)
+            {
+                return component.Contour.Rect;
+            }
+            else if (component.Patch != null)
+            {
+                return new Rect(0, 0, component.Patch.Width, component.Patch.Height);
+            }
+            else return new Rect(0, 0, 1, 1);
+        }
     }
 }
