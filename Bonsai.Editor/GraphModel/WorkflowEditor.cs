@@ -160,6 +160,38 @@ namespace Bonsai.Editor.GraphModel
             else return workflow.FirstOrDefault(ns => ns.Value == nodeTag.Value);
         }
 
+        static IEnumerable<ExpressionBuilder> GetBuilderArguments(ExpressionBuilderGraph workflow, ExpressionBuilder builder)
+        {
+            if (workflow == null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
+            var activation = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            foreach (var node in workflow.TopologicalSort())
+            {
+                if (node.Value.IsBuildDependency()) continue;
+                if (!activation.Contains(node))
+                {
+                    if (ExpressionBuilder.Unwrap(node.Value) is DisableBuilder)
+                    {
+                        continue;
+                    }
+                    else activation.Add(node);
+                }
+
+                foreach (var successor in node.Successors)
+                {
+                    if (successor.Target.Value == builder)
+                    {
+                        yield return node.Value;
+                    }
+
+                    activation.Add(successor.Target);
+                }
+            }
+        }
+
         GraphCommand GetInsertGraphNodeCommands(
             Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
             Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
@@ -261,9 +293,7 @@ namespace Bonsai.Editor.GraphModel
             var isExternalizedMapping = targetElement is ExternalizedMappingBuilder;
             var maxConnectionCount = isExternalizedMapping ? 1 : target.Value.ArgumentRange.UpperBound;
             var sources = graphViewSources.Select(sourceNode => GetGraphNodeTag(Workflow, sourceNode, false));
-            var connectionCount = Workflow.Contains(target)
-                ? Workflow.Predecessors(target).Count(node => !node.Value.IsBuildDependency())
-                : 0;
+            var connectionCount = Workflow.Contains(target) ? GetBuilderArguments(Workflow, target.Value).Count() : 0;
             foreach (var source in sources)
             {
                 if (source == null || target == source || source.Successors.Any(edge => edge.Target == target) ||
