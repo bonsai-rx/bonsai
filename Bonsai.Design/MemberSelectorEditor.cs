@@ -14,7 +14,7 @@ namespace Bonsai.Design
     /// Provides a user interface editor that displays a dialog for selecting
     /// members of a workflow expression type.
     /// </summary>
-    public class MemberSelectorEditor : UITypeEditor
+    public class MemberSelectorEditor : DataSourceTypeEditor
     {
         readonly bool isMultiMemberSelector;
         readonly Func<Expression, Type> getType;
@@ -51,6 +51,7 @@ namespace Bonsai.Design
         /// Indicates whether the interface allows selecting multiple members.
         /// </param>
         public MemberSelectorEditor(Func<Expression, Type> typeSelector, bool allowMultiSelection)
+            : base(DataSource.Input, typeof(void))
         {
             getType = typeSelector ?? throw new ArgumentNullException(nameof(typeSelector));
             isMultiMemberSelector = allowMultiSelection;
@@ -78,6 +79,19 @@ namespace Bonsai.Design
             }
 
             return mapping;
+        }
+
+        static ExpressionBuilder GetPropertyMappingBuilder(PropertyMapping mapping, IServiceProvider provider)
+        {
+            var nodeBuilderGraph = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
+            if (nodeBuilderGraph == null) return null;
+
+            var builderNode = GetPropertyMappingBuilderNode(mapping, nodeBuilderGraph, out nodeBuilderGraph);
+            if (builderNode == null) return null;
+
+            return nodeBuilderGraph.Predecessors(builderNode)
+                                   .Where(node => !node.Value.IsBuildDependency())
+                                   .SingleOrDefault()?.Value;
         }
 
         static Node<ExpressionBuilder, ExpressionBuilderArgument> GetPropertyMappingBuilderNode(
@@ -110,36 +124,19 @@ namespace Bonsai.Design
         /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            var selector = value as string ?? string.Empty;
+            var workflowBuilder = (WorkflowBuilder)provider.GetService(typeof(WorkflowBuilder));
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
-            if (context != null && editorService != null)
+            if (context != null && workflowBuilder != null && editorService != null)
             {
-                var workflowBuilder = (WorkflowBuilder)provider.GetService(typeof(WorkflowBuilder));
-                if (workflowBuilder == null) return base.EditValue(context, provider, value);
-
-                var nodeBuilderGraph = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-                if (nodeBuilderGraph == null) return base.EditValue(context, provider, value);
-
-                var workflow = workflowBuilder.Workflow;
-                Node<ExpressionBuilder, ExpressionBuilderArgument> builderNode;
                 var mapping = GetPropertyMapping(context);
-                if (mapping != null)
-                {
-                    builderNode = GetPropertyMappingBuilderNode(mapping, nodeBuilderGraph, out nodeBuilderGraph);
-                }
-                else builderNode = (from node in nodeBuilderGraph
-                                    let builder = node.Value
-                                    where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
-                                    select node).SingleOrDefault();
+                var source = mapping != null
+                    ? GetPropertyMappingBuilder(mapping, provider)
+                    : GetDataSource(context, provider);
 
-                if (builderNode == null) return base.EditValue(context, provider, value);
-                var predecessor = nodeBuilderGraph.Predecessors(builderNode)
-                                                  .Where(node => !node.Value.IsBuildDependency())
-                                                  .SingleOrDefault();
-
-                if (predecessor != null)
+                if (source != null)
                 {
-                    var expression = workflow.Build(predecessor.Value);
+                    var selector = value as string ?? string.Empty;
+                    var expression = workflowBuilder.Workflow.Build(source);
                     var expressionType = getType(expression);
                     if (expressionType == null) return base.EditValue(context, provider, value);
                     using (var editorDialog = isMultiMemberSelector ?
