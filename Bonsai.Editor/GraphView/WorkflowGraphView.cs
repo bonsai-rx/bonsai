@@ -1420,14 +1420,14 @@ namespace Bonsai.Editor.GraphView
 
         private ToolStripMenuItem CreateOutputMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
         {
-            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            var menuItem = new ToolStripMenuItem(memberName, null, CanEdit ? delegate
             {
                 var builder = new MemberSelectorBuilder { Selector = memberSelector };
                 var successor = selectedNode.Successors.Select(edge => WorkflowEditor.GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
                 var branch = Control.ModifierKeys.HasFlag(Keys.Alt) || successor != null && successor is MemberSelectorBuilder;
                 Editor.CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
-            });
+            } : (EventHandler)null);
 
             InitializeOutputMenuItem(menuItem, memberSelector, memberType);
             return menuItem;
@@ -1742,12 +1742,9 @@ namespace Bonsai.Editor.GraphView
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
-                    outputToolStripMenuItem.Enabled = CanEdit;
+                    outputToolStripMenuItem.Enabled = true;
                     InitializeOutputMenuItem(outputToolStripMenuItem, string.Empty, inspectBuilder.ObservableType);
-                    if (outputToolStripMenuItem.Enabled)
-                    {
-                        outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
-                    }
+                    outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
                 }
 
                 var builder = WorkflowEditor.GetGraphNodeBuilder(selectedNode);
