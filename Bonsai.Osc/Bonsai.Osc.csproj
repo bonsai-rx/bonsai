@@ -8,6 +8,10 @@
     <Version>2.7.0</Version>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.7.1" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Bonsai.Osc": {
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)Bonsai\\$(OutDir)Bonsai.exe",
+      "commandLineArgs": "--lib:\"$(TargetDir).\""
+    }
+  }
+}
