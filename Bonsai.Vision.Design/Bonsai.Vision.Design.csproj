@@ -15,4 +15,7 @@
     <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj" />
     <ProjectReference Include="..\Bonsai.Vision\Bonsai.Vision.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Design" />
+  </ItemGroup>
 </Project>
