@@ -21,7 +21,6 @@
             // canvas
             // 
             this.canvas.BackColor = System.Drawing.Color.Black;
-            this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.canvas.Location = new System.Drawing.Point(0, 0);
             this.canvas.Name = "canvas";
             this.canvas.Size = new System.Drawing.Size(320, 240);

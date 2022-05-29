@@ -15,6 +15,8 @@ namespace Bonsai.Vision.Design
     {
         bool loaded;
         bool disposed;
+        bool resizing;
+        bool resizeWidth;
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
         /// <summary>
@@ -81,8 +83,30 @@ namespace Bonsai.Vision.Design
             lock (syncRoot)
             {
                 canvas.SwapBuffers();
+                if (resizing)
+                {
+                    resizing = false;
+                    resizeWidth = !resizeWidth;
+                    if (canvas.Size != Size)
+                    {
+                        OnResize(EventArgs.Empty);
+                    }
+                }
             }
             OnSwapBuffers(e);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            var partialResize = canvas.Width == Width || canvas.Height == Height;
+            if (!loaded || partialResize) canvas.Size = Size;
+            else
+            {
+                if (resizeWidth) canvas.Size = new Size(Width, canvas.Height);
+                else canvas.Size = new Size(canvas.Width, Height);
+                resizing = true;
+            }
+            base.OnResize(e);
         }
 
         /// <summary>
