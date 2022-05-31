@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Bonsai": {
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)Bonsai/bin/$(Configuration)/net472/Bonsai.exe",
+      "commandLineArgs": "--lib:$(TargetDir)."
+    }
+  }
+}
