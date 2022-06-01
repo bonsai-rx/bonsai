@@ -697,21 +697,6 @@ namespace Bonsai.Editor.GraphView
 
                     var visualizer = visualizerDialog.Visualizer;
                     dialogSettings = CreateLayoutSettings(builder);
-                    var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
-                    if (mashupVisualizer != null)
-                    {
-                        foreach (ITypeVisualizerContext mashup in mashupVisualizer.Mashups)
-                        {
-                            var mashupIndex = topologicalOrder
-                                .Select((n, i) => ExpressionBuilder.GetVisualizerElement(n.Value) == mashup.Source ? (int?)i : null)
-                                .FirstOrDefault(index => index.HasValue);
-                            if (mashupIndex.HasValue)
-                            {
-                                dialogSettings.Mashups.Add(mashupIndex.Value);
-                            }
-                        }
-                    }
-
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
                     dialogSettings.WindowState = visualizerDialog.WindowState;
@@ -722,7 +707,10 @@ namespace Bonsai.Editor.GraphView
                         if (visualizerType.IsPublic)
                         {
                             dialogSettings.VisualizerTypeName = visualizerType.FullName;
-                            dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(visualizer.Value);
+                            dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(
+                                visualizer.Value,
+                                topologicalOrder,
+                                dialogSettings.Mashups);
                         }
                     }
                 }

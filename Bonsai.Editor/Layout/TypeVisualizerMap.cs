@@ -7,10 +7,12 @@ namespace Bonsai.Design
 {
     class TypeVisualizerMap
     {
+        readonly Dictionary<string, Type> visualizerTypeMap = new Dictionary<string, Type>();
         readonly Dictionary<Type, List<Type>> visualizerMap = new Dictionary<Type, List<Type>>();
 
         public void Add(Type targetType, Type visualizerType)
         {
+            visualizerTypeMap[visualizerType.FullName] = visualizerType;
             if (!visualizerMap.TryGetValue(targetType, out List<Type> visualizerTypes))
             {
                 visualizerTypes = new List<Type>();
@@ -18,6 +20,12 @@ namespace Bonsai.Design
             }
 
             visualizerTypes.Add(visualizerType);
+        }
+
+        public Type GetVisualizerType(string visualizerTypeName)
+        {
+            visualizerTypeMap.TryGetValue(visualizerTypeName, out Type visualizerType);
+            return visualizerType;
         }
 
         public IEnumerable<Type> GetTypeVisualizers(Type targetType)
