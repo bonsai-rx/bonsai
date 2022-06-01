@@ -1,4 +1,4 @@
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Design;
 using Bonsai.Design.Visualizers;
 using Bonsai.Expressions;
@@ -16,7 +16,7 @@ namespace Bonsai.Design.Visualizers
     /// <summary>
     /// Provides a type visualizer that can be used to arrange other visualizers in a grid.
     /// </summary>
-    public class TableLayoutPanelVisualizer : DialogMashupVisualizer
+    public class TableLayoutPanelVisualizer : MashupVisualizerContainer
     {
         internal TableLayoutPanel Panel { get; private set; }
 
@@ -53,6 +53,21 @@ namespace Bonsai.Design.Visualizers
             Panel.RowCount = rowCount;
             SetStyles(Panel.ColumnStyles, tableLayoutBuilder.ColumnStyles, columnCount, () => new ColumnStyle(SizeType.Percent, 100f / columnCount));
             SetStyles(Panel.RowStyles, tableLayoutBuilder.RowStyles, rowCount, () => new RowStyle(SizeType.Percent, 100f / rowCount));
+        }
+
+        /// <inheritdoc/>
+        public override MashupTypeVisualizer GetMashupAtPoint(int x, int y)
+        {
+            if (Panel == null) return null;
+            var panelPoint = Panel.PointToClient(new Point(x, y));
+            var childControl = Panel.GetChildAtPoint(panelPoint);
+            if (childControl != null)
+            {
+                var index = Panel.Controls.GetChildIndex(childControl);
+                return Mashups[index].Visualizer;
+            }
+
+            return null;
         }
 
         /// <inheritdoc/>
