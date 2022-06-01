@@ -601,11 +601,11 @@ namespace Bonsai.Editor
                                     let targetType = Type.GetType(typeVisualizer.TargetTypeName)
                                     let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)
                                     where targetType != null && visualizerType != null
-                                    select Tuple.Create(targetType, visualizerType);
+                                    select (targetType, visualizerType);
 
             return visualizerMapping
                 .ObserveOn(formScheduler)
-                .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
+                .Do(typeMapping => typeVisualizers.Add(typeMapping.targetType, typeMapping.visualizerType))
                 .SubscribeOn(Scheduler.Default)
                 .TakeLast(1)
                 .Select(xs => Unit.Default);

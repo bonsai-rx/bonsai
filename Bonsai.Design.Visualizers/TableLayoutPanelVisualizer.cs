@@ -1,4 +1,4 @@
-﻿using Bonsai;
+using Bonsai;
 using Bonsai.Design;
 using Bonsai.Design.Visualizers;
 using Bonsai.Expressions;
@@ -8,10 +8,8 @@ using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
-[assembly: TypeVisualizer(typeof(MashupVisualizer<>), Target = typeof(VisualizerMashup<TableLayoutPanelVisualizer>))]
+[assembly: TypeVisualizer(typeof(MashupVisualizerAdapter), Target = typeof(VisualizerMashup<TableLayoutPanelVisualizer>))]
 
 namespace Bonsai.Design.Visualizers
 {
@@ -21,13 +19,6 @@ namespace Bonsai.Design.Visualizers
     public class TableLayoutPanelVisualizer : DialogMashupVisualizer
     {
         internal TableLayoutPanel Panel { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the mashup visualizer settings for all visualizers which have been
-        /// combined with the table layout panel.
-        /// </summary>
-        [XmlAnyElement]
-        public XElement[] MashupsXml { get; set; }
 
         static void SetStyles(TableLayoutStyleCollection styles, IReadOnlyList<TableLayoutStyle> builderStyles, int count, Func<TableLayoutStyle> defaultStyle)
         {
@@ -67,18 +58,16 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            Mashups.Deserialize(MashupsXml);
             Panel = new TableLayoutPanel();
             Panel.Dock = DockStyle.Fill;
             Panel.Size = new Size(320, 240);
+            base.Load(provider);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
                 visualizerService.AddControl(Panel);
             }
-
-            base.Load(provider);
         }
 
         /// <inheritdoc/>
@@ -117,7 +106,6 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Unload()
         {
-            MashupsXml = Mashups.Serialize();
             base.Unload();
             Panel.Dispose();
             Panel = null;

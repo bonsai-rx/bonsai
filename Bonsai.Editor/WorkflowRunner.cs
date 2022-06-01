@@ -25,8 +25,8 @@ namespace Bonsai.Editor
                                    let targetType = Type.GetType(typeVisualizer.TargetTypeName)
                                    let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)
                                    where targetType != null && visualizerType != null
-                                   select Tuple.Create(targetType, visualizerType))
-                                   .Do(entry => typeVisualizers.Add(entry.Item1, entry.Item2))
+                                   select (targetType, visualizerType))
+                                   .Do(entry => typeVisualizers.Add(entry.targetType, entry.visualizerType))
                                    .ToEnumerable().ToList();
 
             workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
