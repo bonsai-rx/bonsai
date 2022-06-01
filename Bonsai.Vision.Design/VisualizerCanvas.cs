@@ -96,6 +96,7 @@ namespace Bonsai.Vision.Design
             OnSwapBuffers(e);
         }
 
+        /// <inheritdoc/>
         protected override void OnResize(EventArgs e)
         {
             var partialResize = canvas.Width == Width || canvas.Height == Height;
