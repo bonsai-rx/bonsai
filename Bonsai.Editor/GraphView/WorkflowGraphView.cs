@@ -709,8 +709,7 @@ namespace Bonsai.Editor.GraphView
                             dialogSettings.VisualizerTypeName = visualizerType.FullName;
                             dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(
                                 visualizer.Value,
-                                topologicalOrder,
-                                dialogSettings.Mashups);
+                                topologicalOrder);
                         }
                     }
                 }

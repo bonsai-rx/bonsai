@@ -4,7 +4,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 
-[assembly: TypeVisualizer(typeof(IplImageMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, IplImageVisualizer>))]
+[assembly: TypeVisualizer(typeof(IplImageMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, IplImageVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -12,7 +12,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a grayscale mask over an existing
     /// image visualizer.
     /// </summary>
-    public class IplImageMashupVisualizer : MashupTypeVisualizer
+    public class IplImageMashupVisualizer : DialogTypeVisualizer
     {
         IplImage color;
         ImageMashupVisualizer visualizer;
@@ -44,7 +44,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

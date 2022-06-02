@@ -5,7 +5,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using Point = OpenCV.Net.Point;
 
-[assembly: TypeVisualizer(typeof(BinaryRegionExtremesMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, BinaryRegionExtremesVisualizer>))]
+[assembly: TypeVisualizer(typeof(BinaryRegionExtremesMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, BinaryRegionExtremesVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -13,7 +13,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays the extremities of a binary
     /// connected component over an existing image visualizer.
     /// </summary>
-    public class BinaryRegionExtremesMashupVisualizer : MashupTypeVisualizer
+    public class BinaryRegionExtremesMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -29,7 +29,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

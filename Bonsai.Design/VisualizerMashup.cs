@@ -7,6 +7,7 @@ namespace Bonsai.Design
     /// Represents the association between a workflow element and a mashup type visualizer
     /// which can be combined with a <see cref="DialogTypeVisualizer"/>.
     /// </summary>
+    [Obsolete]
     public class VisualizerMashup : ITypeVisualizerContext
     {
         readonly InspectBuilder inspectBuilder;
@@ -71,6 +72,7 @@ namespace Bonsai.Design
     /// The type visualizer which will accept to be combined with any
     /// <see cref="DialogTypeVisualizer"/> class.
     /// </typeparam>
+    [Obsolete]
     public static class VisualizerMashup<TMashupVisualizer>
         where TMashupVisualizer : DialogMashupVisualizer
     {
@@ -87,6 +89,7 @@ namespace Bonsai.Design
     /// <typeparam name="TVisualizer">
     /// The type visualizer which can be combined with <typeparamref name="TMashupVisualizer"/>.
     /// </typeparam>
+    [Obsolete]
     public static class VisualizerMashup<TMashupVisualizer, TVisualizer>
         where TMashupVisualizer : DialogMashupVisualizer
         where TVisualizer : DialogTypeVisualizer

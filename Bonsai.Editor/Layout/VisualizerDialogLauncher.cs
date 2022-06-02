@@ -122,10 +122,10 @@ namespace Bonsai.Design
                 {
                     var mousePosition = Control.MousePosition;
                     var mashupContainer = GetMashupContainer(mousePosition.X, mousePosition.Y, allowEmpty: false);
-                    if (mashupContainer != null && mashupContainer.Mashups.Count > 0)
+                    if (mashupContainer != null && mashupContainer.MashupSources.Count > 0)
                     {
                         UnloadMashups();
-                        mashupContainer.Mashups.RemoveAt(mashupContainer.Mashups.Count - 1);
+                        mashupContainer.MashupSources.RemoveAt(mashupContainer.MashupSources.Count - 1);
                         ReloadMashups();
                     }
                 }));
@@ -134,7 +134,7 @@ namespace Bonsai.Design
 
         void ReloadMashups()
         {
-            if (visualizerObserver != null && Visualizer.Value is DialogMashupVisualizer dialogMashup)
+            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer dialogMashup)
             {
                 dialogMashup.LoadMashups(visualizerContext);
                 var visualizerOutput = dialogMashup.Visualize(visualizerSource.Output, visualizerContext);
@@ -144,22 +144,21 @@ namespace Bonsai.Design
 
         void UnloadMashups()
         {
-            if (visualizerObserver != null && Visualizer.Value is DialogMashupVisualizer dialogMashup)
+            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer dialogMashup)
             {
                 visualizerObserver.Dispose();
                 dialogMashup.UnloadMashups();
             }
         }
 
-        DialogMashupVisualizer GetMashupContainer(int x, int y, bool allowEmpty = true)
+        MashupVisualizer GetMashupContainer(int x, int y, bool allowEmpty = true)
         {
-            var visualizer = Visualizer.Value as DialogMashupVisualizer;
-            while (visualizer is MashupVisualizerContainer mashupContainer)
+            var visualizer = Visualizer.Value as MashupVisualizer;
+            while (visualizer is MashupVisualizer mashupContainer)
             {
-                var mashup = mashupContainer.GetMashupAtPoint(x, y);
-                if (mashup is MashupVisualizerAdapter mashupAdapter &&
-                    mashupAdapter.Visualizer is DialogMashupVisualizer nestedMashup &&
-                    (allowEmpty || nestedMashup.Mashups.Count > 0))
+                var source = mashupContainer.GetMashupSource(x, y);
+                if (source?.Visualizer is MashupVisualizer nestedMashup &&
+                    (allowEmpty || nestedMashup.MashupSources.Count > 0))
                 {
                     visualizer = nestedMashup;
                 }
@@ -169,46 +168,44 @@ namespace Bonsai.Design
             return visualizer;
         }
 
-        static Type GetMashupVisualizerType(Type dialogMashupType, Type visualizerType, TypeVisualizerMap typeVisualizerMap)
+        static Type GetMashupSourceType(Type mashupVisualizerType, Type visualizerType, TypeVisualizerMap typeVisualizerMap)
         {
-            var mashupVisualizerType = default(Type);
-            while (dialogMashupType != null && dialogMashupType != typeof(DialogMashupVisualizer))
+            Type mashupSource = default;
+            while (mashupVisualizerType != null && mashupVisualizerType != typeof(MashupVisualizer))
             {
-                var mashup = typeof(VisualizerMashup<,>).MakeGenericType(dialogMashupType, visualizerType);
-                mashupVisualizerType = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
-                if (mashupVisualizerType != null) break;
+                var mashup = typeof(MashupSource<,>).MakeGenericType(mashupVisualizerType, visualizerType);
+                mashupSource = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
+                if (mashupSource != null) break;
 
-                mashup = typeof(VisualizerMashup<>).MakeGenericType(dialogMashupType);
-                mashupVisualizerType = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
-                if (mashupVisualizerType != null) break;
-                dialogMashupType = dialogMashupType.BaseType;
+                mashup = typeof(MashupSource<>).MakeGenericType(mashupVisualizerType);
+                mashupSource = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
+                if (mashupSource != null) break;
+                mashupVisualizerType = mashupVisualizerType.BaseType;
             }
 
-            if (mashupVisualizerType.IsGenericTypeDefinition)
+            if (mashupSource != null && mashupSource.IsGenericTypeDefinition)
             {
-                mashupVisualizerType = mashupVisualizerType.MakeGenericType(visualizerType);
+                mashupSource = mashupSource.MakeGenericType(visualizerType);
             }
-            return mashupVisualizerType;
+            return mashupSource;
         }
 
-        public void CreateMashup(DialogMashupVisualizer dialogMashup, VisualizerDialogLauncher visualizerDialog, TypeVisualizerMap typeVisualizerMap)
+        public void CreateMashup(MashupVisualizer dialogMashup, VisualizerDialogLauncher visualizerDialog, TypeVisualizerMap typeVisualizerMap)
         {
             if (visualizerDialog != null)
             {
                 var dialogMashupType = dialogMashup.GetType();
                 var visualizerType = visualizerDialog.VisualizerType;
-                var mashupVisualizer = GetMashupVisualizerType(dialogMashupType, visualizerType, typeVisualizerMap);
-                if (mashupVisualizer != null)
+                var mashupSourceType = GetMashupSourceType(dialogMashupType, visualizerType, typeVisualizerMap);
+                if (mashupSourceType != null)
                 {
                     UnloadMashups();
-                    MashupTypeVisualizer visualizerMashup;
-                    if (mashupVisualizer == typeof(MashupVisualizerAdapter))
+                    if (mashupSourceType == typeof(DialogTypeVisualizer))
                     {
-                        var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                        visualizerMashup = (MashupTypeVisualizer)Activator.CreateInstance(mashupVisualizer, visualizer);
+                        mashupSourceType = visualizerType;
                     }
-                    else visualizerMashup = (MashupTypeVisualizer)Activator.CreateInstance(mashupVisualizer);
-                    dialogMashup.Mashups.Add(new VisualizerMashup(visualizerDialog.visualizerSource, visualizerMashup));
+                    var visualizerMashup = (DialogTypeVisualizer)Activator.CreateInstance(mashupSourceType);
+                    dialogMashup.MashupSources.Add(new MashupSource(visualizerDialog.visualizerSource, visualizerMashup));
                     ReloadMashups();
                 }
             }
@@ -239,11 +236,11 @@ namespace Bonsai.Design
                 if (visualizerDialog != null && visualizerDialog != this)
                 {
                     var dialogMashupType = VisualizerType;
-                    if (dialogMashupType.IsSubclassOf(typeof(DialogMashupVisualizer)))
+                    if (dialogMashupType.IsSubclassOf(typeof(MashupVisualizer)))
                     {
                         var visualizerType = visualizerDialog.VisualizerType;
                         var typeVisualizerMap = (TypeVisualizerMap)visualizerContext.GetService(typeof(TypeVisualizerMap));
-                        var mashupVisualizerType = GetMashupVisualizerType(dialogMashupType, visualizerType, typeVisualizerMap);
+                        var mashupVisualizerType = GetMashupSourceType(dialogMashupType, visualizerType, typeVisualizerMap);
                         if (mashupVisualizerType != null)
                         {
                             e.Effect = DragDropEffects.Link;

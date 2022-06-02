@@ -3,7 +3,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using Bonsai.Design;
 
-[assembly: TypeVisualizer(typeof(KeyPointOpticalFlowMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, KeyPointOpticalFlowVisualizer>))]
+[assembly: TypeVisualizer(typeof(KeyPointOpticalFlowMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, KeyPointOpticalFlowVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays the sparse optical flow between key points
     /// over an existing image visualizer.
     /// </summary>
-    public class KeyPointOpticalFlowMashupVisualizer : MashupTypeVisualizer
+    public class KeyPointOpticalFlowMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -25,7 +25,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

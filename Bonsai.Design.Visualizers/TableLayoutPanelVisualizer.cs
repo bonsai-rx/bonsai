@@ -9,14 +9,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
-[assembly: TypeVisualizer(typeof(MashupVisualizerAdapter), Target = typeof(VisualizerMashup<TableLayoutPanelVisualizer>))]
+[assembly: TypeVisualizer(typeof(DialogTypeVisualizer), Target = typeof(MashupSource<TableLayoutPanelVisualizer>))]
 
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
     /// Provides a type visualizer that can be used to arrange other visualizers in a grid.
     /// </summary>
-    public class TableLayoutPanelVisualizer : MashupVisualizerContainer
+    public class TableLayoutPanelVisualizer : MashupVisualizer
     {
         internal TableLayoutPanel Panel { get; private set; }
 
@@ -46,8 +46,8 @@ namespace Bonsai.Design.Visualizers
             {
                 throw new InvalidOperationException("The table layout must have at least one non-zero dimension.");
             }
-            if (columnCount == 0) columnCount = Mashups.Count / rowCount;
-            if (rowCount == 0) rowCount = Mashups.Count / columnCount;
+            if (columnCount == 0) columnCount = MashupSources.Count / rowCount;
+            if (rowCount == 0) rowCount = MashupSources.Count / columnCount;
 
             Panel.ColumnCount = columnCount;
             Panel.RowCount = rowCount;
@@ -56,7 +56,7 @@ namespace Bonsai.Design.Visualizers
         }
 
         /// <inheritdoc/>
-        public override MashupTypeVisualizer GetMashupAtPoint(int x, int y)
+        public override MashupSource GetMashupSource(int x, int y)
         {
             if (Panel == null) return null;
             var panelPoint = Panel.PointToClient(new Point(x, y));
@@ -64,7 +64,7 @@ namespace Bonsai.Design.Visualizers
             if (childControl != null)
             {
                 var index = Panel.Controls.GetChildIndex(childControl);
-                return Mashups[index].Visualizer;
+                return MashupSources[index];
             }
 
             return null;
@@ -92,9 +92,9 @@ namespace Bonsai.Design.Visualizers
             var tableLayoutBuilder = (TableLayoutPanelBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             UpdateLayoutPanel(tableLayoutBuilder);
             var container = new TableLayoutPanelContainer(this, tableLayoutBuilder.CellSpans, provider);
-            foreach (var mashup in Mashups)
+            foreach (var source in MashupSources)
             {
-                mashup.Visualizer.Load(container);
+                source.Visualizer.Load(container);
             }
         }
 
@@ -115,7 +115,7 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            return Observable.Merge(Mashups.Select(mashup => mashup.Visualizer.Visualize(((ITypeVisualizerContext)mashup).Source.Output, provider)));
+            return Observable.Merge(MashupSources.Select(xs => xs.Visualizer.Visualize(xs.Source.Output, provider)));
         }
 
         /// <inheritdoc/>
@@ -172,7 +172,7 @@ namespace Bonsai.Design.Visualizers
                     return this;
                 }
 
-                if (serviceType == typeof(DialogMashupVisualizer))
+                if (serviceType == typeof(MashupVisualizer))
                 {
                     return Visualizer;
                 }
@@ -180,7 +180,7 @@ namespace Bonsai.Design.Visualizers
                 if (serviceType == typeof(ITypeVisualizerContext))
                 {
                     var index = Visualizer.Panel.Controls.Count;
-                    return Visualizer.Mashups[index];
+                    return Visualizer.MashupSources[index];
                 }
 
                 return Provider.GetService(serviceType);

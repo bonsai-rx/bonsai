@@ -3,7 +3,7 @@ using Bonsai.Design;
 using Bonsai.Vision.Design;
 using System;
 
-[assembly: TypeVisualizer(typeof(LineSegmentMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, LineSegmentVisualizer>))]
+[assembly: TypeVisualizer(typeof(LineSegmentMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, LineSegmentVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a collection of line segments
     /// over an existing image visualizer.
     /// </summary>
-    public class LineSegmentMashupVisualizer : MashupTypeVisualizer
+    public class LineSegmentMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>
