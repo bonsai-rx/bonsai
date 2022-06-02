@@ -3,7 +3,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using Bonsai.Design;
 
-[assembly: TypeVisualizer(typeof(KeyPointCollectionMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, KeyPointCollectionVisualizer>))]
+[assembly: TypeVisualizer(typeof(KeyPointCollectionMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, KeyPointCollectionVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a collection of key points
     /// over an existing image visualizer.
     /// </summary>
-    public class KeyPointCollectionMashupVisualizer : MashupTypeVisualizer
+    public class KeyPointCollectionMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -25,7 +25,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

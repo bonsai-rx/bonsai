@@ -9,6 +9,7 @@ namespace Bonsai.Design
     /// Provides the abstract base class for type visualizers which are designed to be
     /// combined with a <see cref="DialogMashupVisualizer"/>.
     /// </summary>
+    [Obsolete]
     public abstract class MashupTypeVisualizer : DialogTypeVisualizer
     {
         /// <inheritdoc/>

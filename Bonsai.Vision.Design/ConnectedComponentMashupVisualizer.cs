@@ -3,7 +3,7 @@ using Bonsai.Design;
 using Bonsai;
 using Bonsai.Vision.Design;
 
-[assembly: TypeVisualizer(typeof(ConnectedComponentMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, ConnectedComponentVisualizer>))]
+[assembly: TypeVisualizer(typeof(ConnectedComponentMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, ConnectedComponentVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a cluster of connected pixels
     /// over an existing image visualizer.
     /// </summary>
-    public class ConnectedComponentMashupVisualizer : MashupTypeVisualizer
+    public class ConnectedComponentMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -29,7 +29,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

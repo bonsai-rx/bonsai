@@ -4,7 +4,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 
-[assembly: TypeVisualizer(typeof(ContoursMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, ContoursVisualizer>))]
+[assembly: TypeVisualizer(typeof(ContoursMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, ContoursVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -12,7 +12,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a hierarchy of polygonal contours
     /// over an existing image visualizer.
     /// </summary>
-    public class ContoursMashupVisualizer : MashupTypeVisualizer
+    public class ContoursMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -30,7 +30,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

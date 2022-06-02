@@ -4,7 +4,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 
-[assembly: TypeVisualizer(typeof(ContourConvexityMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, ContourConvexityVisualizer>))]
+[assembly: TypeVisualizer(typeof(ContourConvexityMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, ContourConvexityVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -12,7 +12,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays the results of contour convexity
     /// analysis over an existing image visualizer.
     /// </summary>
-    public class ContourConvexityMashupVisualizer : MashupTypeVisualizer
+    public class ContourConvexityMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -33,7 +33,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

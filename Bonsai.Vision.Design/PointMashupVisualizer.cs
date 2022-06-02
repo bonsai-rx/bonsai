@@ -1,4 +1,4 @@
-﻿using Bonsai;
+using Bonsai;
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
 
-[assembly: TypeVisualizer(typeof(PointMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, PointVisualizer>))]
+[assembly: TypeVisualizer(typeof(PointMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, PointVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -15,7 +15,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays a sequence of points over an
     /// existing image visualizer.
     /// </summary>
-    public class PointMashupVisualizer : MashupTypeVisualizer
+    public class PointMashupVisualizer : DialogTypeVisualizer
     {
         TrackingMode tracking;
         Queue<Point?> points;
@@ -85,7 +85,7 @@ namespace Bonsai.Vision.Design
         public override void Load(IServiceProvider provider)
         {
             points = new Queue<Point?>(1);
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
             MouseEventHandler mouseHandler = (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)

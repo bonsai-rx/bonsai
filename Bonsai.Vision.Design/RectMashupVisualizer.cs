@@ -3,7 +3,7 @@ using Bonsai.Design;
 using Bonsai.Vision.Design;
 using System;
 
-[assembly: TypeVisualizer(typeof(RectMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, RectVisualizer>))]
+[assembly: TypeVisualizer(typeof(RectMashupVisualizer), Target = typeof(MashupSource<ImageMashupVisualizer, RectVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -11,7 +11,7 @@ namespace Bonsai.Vision.Design
     /// Provides a type visualizer that overlays the visual representation of a
     /// rectangle over an existing image visualizer.
     /// </summary>
-    public class RectMashupVisualizer : MashupTypeVisualizer
+    public class RectMashupVisualizer : DialogTypeVisualizer
     {
         ImageMashupVisualizer visualizer;
 
@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
         }
 
         /// <inheritdoc/>

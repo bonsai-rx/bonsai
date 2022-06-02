@@ -14,7 +14,7 @@ namespace Bonsai.Vision.Design
     /// Provides an abstract base class for type visualizers that overlay multiple
     /// values into a single image display.
     /// </summary>
-    public abstract class ImageMashupVisualizer : DialogMashupVisualizer
+    public abstract class ImageMashupVisualizer : MashupVisualizer
     {
         const int TargetInterval = 16;
         IObserver<IList<object>> activeObserver;
@@ -49,7 +49,7 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var inputImage = (IplImage)value;
-            if (Mashups.Count > 0)
+            if (MashupSources.Count > 0)
             {
                 visualizerCache = IplImageHelper.EnsureImageFormat(visualizerCache, inputImage.Size, inputImage.Depth, inputImage.Channels);
                 CV.Copy(inputImage, visualizerCache);
@@ -68,7 +68,7 @@ namespace Bonsai.Vision.Design
         {
             shownValues = values;
             foreach (var pair in values.Zip(
-                Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer).Prepend(this),
+                MashupSources.Select(xs => xs.Visualizer).Prepend(this),
                 (value, visualizer) => Tuple.Create(value, visualizer)))
             {
                 pair.Item2.Show(pair.Item1);
@@ -125,9 +125,9 @@ namespace Bonsai.Vision.Design
                 ys => { },
                 () => VisualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
 
-            if (Mashups.Count > 0)
+            if (MashupSources.Count > 0)
             {
-                var mergedMashups = Mashups.Select(xs => xs.Visualizer.Visualize(((ITypeVisualizerContext)xs).Source.Output, provider).Publish().RefCount()).ToArray();
+                var mergedMashups = MashupSources.Select(xs => xs.Source.Output.Merge().Publish().RefCount()).ToArray();
                 dataSource = Observable
                     .CombineLatest(mergedMashups.Prepend(mergedSource))
                     .Window(mergedMashups.Last())

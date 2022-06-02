@@ -18,8 +18,8 @@ namespace Bonsai.Design
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
-        const string MashupSettingsElement = "MashupSettings";
-        const string IntElement = "int";
+        const string MashupSourceElement = "MashupSource";
+        const string MashupIndexAttribute = "Index";
 
         public static VisualizerDialogSettings GetLayoutSettings(this VisualizerLayout visualizerLayout, object key)
         {
@@ -61,14 +61,16 @@ namespace Bonsai.Design
             while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
             {
                 inspectBuilder.PublishNotifications = publishNotifications || !string.IsNullOrEmpty(settings.VisualizerTypeName);
-                foreach (var mashup in settings.Mashups.Concat(settings.VisualizerSettings?
-                                                       .Descendants(nameof(settings.Mashups))
-                                                       .SelectMany(m => m.Elements(IntElement).Select(e => int.Parse(e.Value)))
-                                                       .Distinct() ?? Enumerable.Empty<int>()))
+                foreach (var index in settings.Mashups.Concat(settings.VisualizerSettings?
+                                                      .Descendants(MashupSourceElement)
+                                                      .Select(m => m.Attribute(MashupIndexAttribute)?.Value)
+                                                      .Where(attr => attr != null)
+                                                      .Select(int.Parse)
+                                                      .Distinct() ?? Enumerable.Empty<int>()))
                 {
-                    if (mashup < 0 || mashup >= root.DialogSettings.Count) continue;
-                    var dialogSettings = root.DialogSettings[mashup];
-                    SetLayoutNotifications(dialogSettings, root, publishNotifications: true);
+                    if (index < 0 || index >= root.DialogSettings.Count) continue;
+                    var mashupSource = root.DialogSettings[index];
+                    SetLayoutNotifications(mashupSource, root, publishNotifications: true);
                 }
 
                 var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
@@ -167,8 +169,7 @@ namespace Bonsai.Design
 
         public static XElement SerializeVisualizerSettings(
             DialogTypeVisualizer visualizer,
-            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder,
-            IList<int> mashups)
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder)
         {
             var visualizerType = visualizer.GetType();
             var visualizerSettings = new XDocument();
@@ -178,9 +179,9 @@ namespace Bonsai.Design
                 serializer.Serialize(writer, visualizer);
             }
             var root = visualizerSettings.Root;
-            if (visualizer is DialogMashupVisualizer mashupVisualizer)
+            if (visualizer is MashupVisualizer mashupVisualizer)
             {
-                SerializeMashupVisualizerSettings(root, mashupVisualizer, topologicalOrder, mashups);
+                SerializeMashupVisualizerSettings(root, mashupVisualizer, topologicalOrder);
             }
             root.Remove();
             var xsdAttribute = root.Attribute(XsdAttributeName);
@@ -192,32 +193,26 @@ namespace Bonsai.Design
 
         static void SerializeMashupVisualizerSettings(
             XElement root,
-            DialogMashupVisualizer mashupVisualizer,
-            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder,
-            IList<int> mashups)
+            MashupVisualizer mashupVisualizer,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder)
         {
-            foreach (var mashup in mashupVisualizer.Mashups)
+            foreach (var source in mashupVisualizer.MashupSources)
             {
-                var mashupIndex = GetMashupIndex(mashup, topologicalOrder);
-                if (mashupIndex.HasValue)
+                var sourceIndex = GetMashupSourceIndex(source, topologicalOrder);
+                if (sourceIndex.HasValue)
                 {
-                    var mashupSettings = SerializeMashupSettings(mashup.Visualizer, topologicalOrder);
-                    root.Add(mashupSettings);
-                    mashups.Add(mashupIndex.Value);
+                    var mashupSource = SerializeMashupSource(sourceIndex.Value, source.Visualizer, topologicalOrder);
+                    root.Add(mashupSource);
                 }
             }
         }
 
-        static XElement SerializeMashupSettings(
+        static XElement SerializeMashupSource(
+            int sourceIndex,
             DialogTypeVisualizer visualizer,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder)
         {
             var visualizerSettings = new XDocument();
-            if (visualizer is MashupVisualizerAdapter mashupSettings)
-            {
-                visualizer = mashupSettings.Visualizer;
-            }
-
             var visualizerType = visualizer.GetType();
             var serializer = new XmlSerializer(visualizerType);
             using (var writer = visualizerSettings.CreateWriter())
@@ -225,26 +220,19 @@ namespace Bonsai.Design
                 serializer.Serialize(writer, visualizer);
             }
 
-            List<int> mashups = default;
-            if (visualizer is DialogMashupVisualizer mashupVisualizer)
+            if (visualizer is MashupVisualizer mashupVisualizer)
             {
-                mashups = new List<int>();
-                SerializeMashupVisualizerSettings(visualizerSettings.Root, mashupVisualizer, topologicalOrder, mashups);
+                SerializeMashupVisualizerSettings(visualizerSettings.Root, mashupVisualizer, topologicalOrder);
             }
 
             visualizerSettings = new XDocument(
-                new XElement(MashupSettingsElement,
+                new XElement(MashupSourceElement,
+                new XAttribute(MashupIndexAttribute, sourceIndex),
                 new XElement(nameof(VisualizerDialogSettings.VisualizerSettings),
                 visualizerSettings.Root)));
             visualizerSettings.Root.AddFirst(new XElement(
                 nameof(VisualizerDialogSettings.VisualizerTypeName),
                 visualizerType.FullName));
-            if (mashups != null)
-            {
-                visualizerSettings.Root.Add(new XElement(
-                    nameof(VisualizerDialogSettings.Mashups),
-                    mashups.Select(index => new XElement(IntElement, index)).ToArray()));
-            }
             return visualizerSettings.Root;
         }
 
@@ -254,23 +242,21 @@ namespace Bonsai.Design
             VisualizerLayout visualizerLayout,
             TypeVisualizerMap typeVisualizerMap)
         {
-            return DeserializeMashupSettings(
+            return DeserializeMashupSource(
                 source,
                 layoutSettings?.VisualizerTypeName,
                 layoutSettings?.VisualizerSettings,
-                layoutSettings?.Mashups,
                 visualizerLayout,
                 typeVisualizerMap);
         }
 
-        static DialogTypeVisualizer DeserializeMashupSettings(
+        static DialogTypeVisualizer DeserializeMashupSource(
             InspectBuilder source,
             string visualizerTypeName,
             XElement visualizerSettings,
-            IEnumerable<int> mashupIndices,
             VisualizerLayout visualizerLayout,
             TypeVisualizerMap typeVisualizerMap,
-            DialogMashupVisualizer container = null)
+            MashupVisualizer container = null)
         {
             Type visualizerType = default;
             if (!string.IsNullOrEmpty(visualizerTypeName))
@@ -286,23 +272,22 @@ namespace Bonsai.Design
                         if (serializer.CanDeserialize(reader))
                         {
                             var visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
-                            if (visualizer is DialogMashupVisualizer mashupContainer)
+                            if (visualizer is MashupVisualizer mashupContainer)
                             {
-                                var mashupSettings = visualizerSettings.Elements(MashupSettingsElement);
-                                foreach (var mashup in mashupSettings.Zip(mashupIndices, (element, i) => (element, i)))
+                                var mashupSources = visualizerSettings.Elements(MashupSourceElement);
+                                foreach (var mashupSource in mashupSources)
                                 {
-                                    var mashupSource = (InspectBuilder)visualizerLayout.DialogSettings[mashup.i]?.Tag;
-                                    var mashupVisualizerTypeName = mashup.element.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
-                                    var mashupVisualizerSettings = mashup.element.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
-                                    var nestedMashups = mashup.element
-                                        .Element(nameof(VisualizerDialogSettings.Mashups))?
-                                        .Elements(IntElement)
-                                        .Select(node => int.Parse(node.Value));
-                                    DeserializeMashupSettings(
-                                        mashupSource,
+                                    var mashupIndexAttribute = mashupSource.Attribute(MashupIndexAttribute);
+                                    if (mashupIndexAttribute == null) continue;
+
+                                    var mashupIndex = int.Parse(mashupIndexAttribute.Value);
+                                    var mashupSourceBuilder = (InspectBuilder)visualizerLayout.DialogSettings[mashupIndex]?.Tag;
+                                    var mashupVisualizerTypeName = mashupSource.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
+                                    var mashupVisualizerSettings = mashupSource.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
+                                    DeserializeMashupSource(
+                                        mashupSourceBuilder,
                                         mashupVisualizerTypeName,
                                         mashupVisualizerSettings.Elements().FirstOrDefault(),
-                                        nestedMashups,
                                         visualizerLayout,
                                         typeVisualizerMap,
                                         mashupContainer);
@@ -311,14 +296,8 @@ namespace Bonsai.Design
 
                             if (container != null)
                             {
-                                var mashupVisualizer = visualizer as MashupTypeVisualizer;
-                                if (mashupVisualizer == null)
-                                {
-                                    mashupVisualizer = (MashupTypeVisualizer)Activator.CreateInstance(typeof(MashupVisualizerAdapter), visualizer);
-                                }
-
-                                var visualizerMashup = new VisualizerMashup(source, mashupVisualizer);
-                                container.Mashups.Add(visualizerMashup);
+                                var visualizerMashup = new MashupSource(source, visualizer);
+                                container.MashupSources.Add(visualizerMashup);
                             }
                             return visualizer;
                         }
@@ -329,7 +308,7 @@ namespace Bonsai.Design
             return null;
         }
 
-        static int? GetMashupIndex(
+        static int? GetMashupSourceIndex(
             ITypeVisualizerContext mashup,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder)
         {

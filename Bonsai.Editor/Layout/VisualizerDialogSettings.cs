@@ -35,6 +35,7 @@ namespace Bonsai.Design
 
         public XElement VisualizerSettings { get; set; }
 
+        // [Obsolete]
         public Collection<int> Mashups { get; } = new Collection<int>();
 
         public bool MashupsSpecified
