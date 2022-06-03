@@ -40,7 +40,7 @@ namespace Bonsai.Design
 
         public bool MashupsSpecified
         {
-            get { return Mashups.Count > 0; }
+            get { return false; }
         }
     }
 }
