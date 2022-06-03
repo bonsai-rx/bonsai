@@ -275,8 +275,13 @@ namespace Bonsai.Design
             if (!string.IsNullOrEmpty(visualizerTypeName))
             {
                 var visualizerType = typeVisualizerMap.GetVisualizerType(visualizerTypeName);
-                if (visualizerType != null && visualizerSettings != null)
+                if (visualizerType != null)
                 {
+                    if (visualizerSettings == null)
+                    {
+                        return (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
+                    }
+
                     visualizerSettings.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
                     visualizerSettings.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
                     var serializer = new XmlSerializer(visualizerType);
