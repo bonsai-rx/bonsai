@@ -78,5 +78,100 @@ namespace Bonsai.Dsp
                 return Tuple.Create(magnitude, angle);
             });
         }
+
+        void Process(double x, double y, out double magnitude, out double angle)
+        {
+            const double RadiansToDegrees = 180.0 / Math.PI;
+            magnitude = Math.Sqrt(x * x + y * y);
+            angle = Math.Atan2(y, x);
+            if (AngleInDegrees)
+            {
+                angle *= RadiansToDegrees;
+            }
+        }
+
+        /// <summary>
+        /// Computes the magnitude and angle for each pair of 2D points in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D points with double-precision cartesian coordinates, for
+        /// which to compute the corresponding polar coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of points specifying the corresponding double-precision polar
+        /// coordinates for each 2D vector in the <paramref name="source"/> sequence.
+        /// </returns>
+        public IObservable<Point2d> Process(IObservable<Point2d> source)
+        {
+            return source.Select(input =>
+            {
+                Point2d polar;
+                Process(input.X, input.Y, out polar.X, out polar.Y);
+                return polar;
+            });
+        }
+
+        /// <summary>
+        /// Computes the magnitude and angle for each pair of 2D points in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of 2D points with single-precision cartesian coordinates, for
+        /// which to compute the corresponding polar coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of points specifying the corresponding single-precision polar
+        /// coordinates for each 2D vector in the <paramref name="source"/> sequence.
+        /// </returns>
+        public IObservable<Point2f> Process(IObservable<Point2f> source)
+        {
+            return source.Select(input =>
+            {
+                Point2d polar;
+                Process(input.X, input.Y, out polar.X, out polar.Y);
+                return new Point2f((float)polar.X, (float)polar.Y);
+            });
+        }
+
+        /// <summary>
+        /// Computes the polar coordinates for each pair of cartesian coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs specifying double-precision cartesian coordinates, where
+        /// the first item stores the x-coordinate, and the second item the y-coordinate
+        /// of a 2D vector for which to compute the polar coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of pairs specifying double-precision polar coordinates, where the
+        /// first item stores the magnitude, and the second item the angle of a 2D vector.
+        /// </returns>
+        public IObservable<Tuple<double, double>> Process(IObservable<Tuple<double, double>> source)
+        {
+            return source.Select(input =>
+            {
+                Process(input.Item1, input.Item2, out double magnitude, out double angle);
+                return Tuple.Create(magnitude, angle);
+            });
+        }
+
+        /// <summary>
+        /// Computes the polar coordinates for each pair of cartesian coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs specifying single-precision cartesian coordinates, where
+        /// the first item stores the x-coordinate, and the second item the y-coordinate
+        /// of a 2D vector for which to compute the polar coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of pairs specifying single-precision polar coordinates, where the
+        /// first item stores the magnitude, and the second item the angle of a 2D vector.
+        /// </returns>
+        public IObservable<Tuple<float, float>> Process(IObservable<Tuple<float, float>> source)
+        {
+            return source.Select(input =>
+            {
+                Process(input.Item1, input.Item2, out double magnitude, out double angle);
+                return Tuple.Create((float)magnitude, (float)angle);
+            });
+        }
     }
 }

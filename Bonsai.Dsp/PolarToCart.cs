@@ -80,5 +80,102 @@ namespace Bonsai.Dsp
                 return Tuple.Create(x, y);
             });
         }
+
+        void Process(double radius, double angle, out double x, out double y)
+        {
+            const double DegreesToRadians = Math.PI / 180.0;
+            if (AngleInDegrees)
+            {
+                angle *= DegreesToRadians;
+            }
+            x = radius * Math.Cos(angle);
+            y = radius * Math.Sin(angle);
+        }
+
+        /// <summary>
+        /// Computes the cartesian coordinates for each pair of polar coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of points in double-precision polar coordinates, where the first
+        /// coordinate stores the magnitude, and the second coordinate the angle of a
+        /// vector for which to compute the cartesian coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D points with double-precision cartesian coordinates.
+        /// </returns>
+        public IObservable<Point2d> Process(IObservable<Point2d> source)
+        {
+            return source.Select(input =>
+            {
+                Point2d cart;
+                Process(input.X, input.Y, out cart.X, out cart.Y);
+                return cart;
+            });
+        }
+
+        /// <summary>
+        /// Computes the cartesian coordinates for each pair of polar coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of points in single-precision polar coordinates, where the first
+        /// coordinate stores the magnitude, and the second coordinate the angle of a
+        /// vector for which to compute the cartesian coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of 2D points with single-precision cartesian coordinates.
+        /// </returns>
+        public IObservable<Point2f> Process(IObservable<Point2f> source)
+        {
+            return source.Select(input =>
+            {
+                Point2d cart;
+                Process(input.X, input.Y, out cart.X, out cart.Y);
+                return new Point2f((float)cart.X, (float)cart.Y);
+            });
+        }
+
+        /// <summary>
+        /// Computes the cartesian coordinates for each pair of polar coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs specifying double-precision polar coordinates, where the
+        /// first coordinate stores the magnitude, and the second coordinate the angle
+        /// of a vector for which to compute the cartesian coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of pairs specifying double-precision cartesian coordinates, where
+        /// the first item stores the x-coordinate, and the second item the y-coordinate
+        /// of a 2D vector.
+        /// </returns>
+        public IObservable<Tuple<double, double>> Process(IObservable<Tuple<double, double>> source)
+        {
+            return source.Select(input =>
+            {
+                Process(input.Item1, input.Item2, out double x, out double y);
+                return Tuple.Create(x, y);
+            });
+        }
+
+        /// <summary>
+        /// Computes the cartesian coordinates for each pair of polar coordinates in the sequence.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of pairs specifying single-precision polar coordinates, where the
+        /// first coordinate stores the magnitude, and the second coordinate the angle
+        /// of a vector for which to compute the cartesian coordinates.
+        /// </param>
+        /// <returns>
+        /// A sequence of pairs specifying single-precision cartesian coordinates, where
+        /// the first item stores the x-coordinate, and the second item the y-coordinate
+        /// of a 2D vector.
+        /// </returns>
+        public IObservable<Tuple<float, float>> Process(IObservable<Tuple<float, float>> source)
+        {
+            return source.Select(input =>
+            {
+                Process(input.Item1, input.Item2, out double x, out double y);
+                return Tuple.Create((float)x, (float)y);
+            });
+        }
     }
 }
