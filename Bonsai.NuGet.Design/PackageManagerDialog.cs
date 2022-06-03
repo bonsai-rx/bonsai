@@ -16,7 +16,7 @@ namespace Bonsai.NuGet.Design
     {
         const string AggregateRepository = "All";
         const string DefaultRepository = "Bonsai Packages";
-        PackageViewController packageViewController;
+        readonly PackageViewController packageViewController;
 
         public PackageManagerDialog(NuGetFramework projectFramework, string path)
         {
