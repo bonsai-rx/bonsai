@@ -12,6 +12,20 @@ namespace Bonsai.Editor
 
         public bool CueBannerVisible { get; private set; }
 
+        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+        {
+            if (e.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.A: SelectAll(); break;
+                    case Keys.C: Copy(); break;
+                    case Keys.V: Paste(); break;
+                }
+            }
+            base.OnPreviewKeyDown(e);
+        }
+
         private void ShowCueBanner()
         {
             if (string.IsNullOrWhiteSpace(Text) && !string.IsNullOrWhiteSpace(CueBanner))
