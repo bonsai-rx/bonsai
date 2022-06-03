@@ -211,6 +211,7 @@
             this.packageSourceComboBox.Name = "packageSourceComboBox";
             this.packageSourceComboBox.Size = new System.Drawing.Size(150, 24);
             this.packageSourceComboBox.TabIndex = 0;
+            this.packageSourceComboBox.SelectedIndexChanged += new System.EventHandler(this.refreshButton_Click);
             // 
             // settingsButton
             // 

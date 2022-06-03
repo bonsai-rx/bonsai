@@ -13,7 +13,8 @@ namespace Bonsai.NuGet.Design
     public partial class GalleryDialog : Form
     {
         const string AggregateRepository = "All";
-        PackageViewController packageViewController;
+        const string DefaultRepository = "Community Packages";
+        readonly PackageViewController packageViewController;
 
         string targetPath;
         PackageIdentity targetPackage;
@@ -134,11 +135,16 @@ namespace Bonsai.NuGet.Design
         {
             packageSourceComboBox.Items.Clear();
             packageSourceComboBox.Items.Add(AggregateRepository);
+            packageSourceComboBox.SelectedIndex = 0;
+
             foreach (var repository in PackageManager.SourceRepositoryProvider.GetRepositories())
             {
                 packageSourceComboBox.Items.Add(repository);
+                if (repository.PackageSource.Name == DefaultRepository)
+                {
+                    packageSourceComboBox.SelectedIndex = packageSourceComboBox.Items.Count - 1;
+                }
             }
-            packageSourceComboBox.SelectedIndex = 0;
         }
 
         private void UpdateSelectedRepository()
@@ -168,7 +174,7 @@ namespace Bonsai.NuGet.Design
             Hide();
             if (packageViewController.ShowPackageSourceConfigurationDialog() == DialogResult.OK)
             {
-                UpdateSelectedRepository();
+                InitializePackageSourceItems();
             }
             Show();
         }
