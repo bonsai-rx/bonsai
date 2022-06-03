@@ -18,8 +18,8 @@ namespace Bonsai.Design
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
-        const string MashupSourceElement = "MashupSource";
-        const string MashupIndexAttribute = "Index";
+        const string MashupSourceElement = "Mashup";
+        const string MashupSourceAttribute = "Source";
 
         public static VisualizerDialogSettings GetLayoutSettings(this VisualizerLayout visualizerLayout, object key)
         {
@@ -63,7 +63,7 @@ namespace Bonsai.Design
                 inspectBuilder.PublishNotifications = publishNotifications || !string.IsNullOrEmpty(settings.VisualizerTypeName);
                 foreach (var index in settings.Mashups.Concat(settings.VisualizerSettings?
                                                       .Descendants(MashupSourceElement)
-                                                      .Select(m => m.Attribute(MashupIndexAttribute)?.Value)
+                                                      .Select(m => m.Attribute(MashupSourceAttribute)?.Value)
                                                       .Where(attr => attr != null)
                                                       .Select(int.Parse)
                                                       .Distinct() ?? Enumerable.Empty<int>()))
@@ -227,7 +227,7 @@ namespace Bonsai.Design
 
             visualizerSettings = new XDocument(
                 new XElement(MashupSourceElement,
-                new XAttribute(MashupIndexAttribute, sourceIndex),
+                new XAttribute(MashupSourceAttribute, sourceIndex),
                 new XElement(nameof(VisualizerDialogSettings.VisualizerSettings),
                 visualizerSettings.Root)));
             visualizerSettings.Root.AddFirst(new XElement(
@@ -277,7 +277,7 @@ namespace Bonsai.Design
                                 var mashupSources = visualizerSettings.Elements(MashupSourceElement);
                                 foreach (var mashupSource in mashupSources)
                                 {
-                                    var mashupIndexAttribute = mashupSource.Attribute(MashupIndexAttribute);
+                                    var mashupIndexAttribute = mashupSource.Attribute(MashupSourceAttribute);
                                     if (mashupIndexAttribute == null) continue;
 
                                     var mashupIndex = int.Parse(mashupIndexAttribute.Value);
