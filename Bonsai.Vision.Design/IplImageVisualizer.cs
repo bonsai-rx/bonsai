@@ -140,7 +140,8 @@ namespace Bonsai.Vision.Design
         public override void Unload()
         {
             base.Unload();
-            imageTexture.Dispose();
+            visualizerCanvas.Dispose();
+            imageTexture?.Dispose();
             imagePanel.Dispose();
             imagePanel = null;
             statusStrip = null;
