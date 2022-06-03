@@ -6,6 +6,6 @@
         public const string GalleryDirectory = "Gallery";
         public const string BonsaiExtension = ".bonsai";
         public const string LayoutExtension = ".layout";
-        public const string GalleryPackageType = "GalleryPackage";
+        public const string GalleryPackageType = "BonsaiGallery";
     }
 }
