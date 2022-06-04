@@ -49,8 +49,10 @@ namespace Bonsai.Expressions
         protected override Expression BuildSelector(Expression expression)
         {
             var format = Format;
+            var selector = Selector;
             if (string.IsNullOrEmpty(format))
             {
+                expression = MemberSelector(expression, selector);
                 var toStringMethod = expression.Type.GetMethod(nameof(ToString), new[] { typeof(IFormatProvider) });
                 if (toStringMethod != null)
                 {
@@ -61,7 +63,7 @@ namespace Bonsai.Expressions
 
             var formatExpression = Expression.Constant(format);
             var args = Expression.NewArrayInit(typeof(object), ExpressionHelper
-                .SelectMembers(expression, Selector)
+                .SelectMembers(expression, selector)
                 .Select(x => Expression.Convert(x, typeof(object))));
             return Expression.Call(formatMethod, Expression.Constant(CultureInfo.InvariantCulture), formatExpression, args);
         }
