@@ -26,7 +26,7 @@
             this.canvas.Size = new System.Drawing.Size(320, 240);
             this.canvas.TabIndex = 1;
             this.canvas.VSync = false;
-            this.canvas.Load += new System.EventHandler(this.canvas_Load);
+            this.canvas.HandleCreated += new System.EventHandler(this.canvas_HandleCreated);
             this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             this.canvas.Resize += new System.EventHandler(this.canvas_Resize);
             // 

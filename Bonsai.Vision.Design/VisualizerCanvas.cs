@@ -48,7 +48,7 @@ namespace Bonsai.Vision.Design
             get { return canvas; }
         }
 
-        private void canvas_Load(object sender, EventArgs e)
+        private void canvas_HandleCreated(object sender, EventArgs e)
         {
             if (DesignMode) return;
             MakeCurrent();
@@ -60,6 +60,7 @@ namespace Bonsai.Vision.Design
             GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 1.0);
 
             loaded = true;
+            canvas.Size = Size;
         }
 
         private void canvas_Resize(object sender, EventArgs e)
