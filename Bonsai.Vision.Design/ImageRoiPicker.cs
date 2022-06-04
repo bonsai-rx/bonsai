@@ -102,7 +102,7 @@ namespace Bonsai.Vision.Design
                             .Switch();
 
             var regionInsertion = (from downEvt in mouseDown
-                                   where Image != null && downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue
+                                   where Image != null && downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue && !(regions.Count >= MaxRegions)
                                    let count = regions.Count
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
@@ -271,7 +271,7 @@ namespace Bonsai.Vision.Design
             if (e.KeyCode == Keys.PageDown) ImageScale -= ScaleIncrement;
             if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
             if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
-            if (e.Control && e.KeyCode == Keys.V)
+            if (e.Control && e.KeyCode == Keys.V && !(regions.Count >= MaxRegions))
             {
                 var roiText = (string)Clipboard.GetData(DataFormats.Text);
                 try

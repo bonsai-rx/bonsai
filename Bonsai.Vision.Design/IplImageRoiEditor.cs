@@ -7,6 +7,7 @@ using Bonsai.Design;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace Bonsai.Vision.Design
 {
@@ -57,11 +58,12 @@ namespace Bonsai.Vision.Design
             {
                 using (var visualizerDialog = new TypeVisualizerDialog())
                 {
+                    Point[][] regions = default;
                     var imageControl = new ImageRoiPicker();
                     imageControl.LabelRegions = LabelRegions;
-                    var regions = default(Point[][]);
                     var propertyDescriptor = context.PropertyDescriptor;
-                    if (propertyDescriptor.PropertyType == typeof(Point[]))
+                    var singleRegion = propertyDescriptor.PropertyType == typeof(Point[]);
+                    if (singleRegion)
                     {
                         if (value != null) regions = new[] { (Point[])value };
                         imageControl.MaxRegions = 1;
@@ -72,10 +74,17 @@ namespace Bonsai.Vision.Design
                     visualizerDialog.Text = propertyDescriptor.Name;
                     if (regions != null)
                     {
-                        foreach (var region in regions) imageControl.Regions.Add(region);
+                        foreach (var region in regions)
+                        {
+                            imageControl.Regions.Add(region);
+                        }
                     }
 
-                    imageControl.RegionsChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Regions.ToArray());
+                    imageControl.RegionsChanged += (sender, e) =>
+                    {
+                        propertyDescriptor.SetValue(context.Instance, GetResult(imageControl.Regions, singleRegion));
+                    };
+
                     visualizerDialog.AddControl(imageControl);
                     imageControl.Canvas.MouseDoubleClick += (sender, e) =>
                     {
@@ -93,18 +102,18 @@ namespace Bonsai.Vision.Design
                     imageControl.Load += delegate { subscription = imageSource.Subscribe(image => imageControl.Image = image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
-
-                    var result = imageControl.Regions.ToArray();
-                    if (result.Length == 0) return null;
-                    else if (propertyDescriptor.PropertyType == typeof(Point[]))
-                    {
-                        return result[0];
-                    }
-                    else return result;
+                    return GetResult(imageControl.Regions, singleRegion);
                 }
             }
 
             return base.EditValue(context, provider, value);
+        }
+
+        static object GetResult(IList<Point[]> regions, bool singleRegion)
+        {
+            if (regions.Count == 0) return null;
+            else if (singleRegion) return regions[0];
+            else return regions.ToArray();
         }
     }
 }
