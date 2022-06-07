@@ -139,6 +139,7 @@
             this.createGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.subscribeSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.multicastSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.workflowFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
@@ -944,6 +945,7 @@
             this.toolboxTreeView.Size = new System.Drawing.Size(197, 222);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
+            this.toolboxTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.toolboxTreeView_AfterLabelEdit);
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
             this.toolboxTreeView.Enter += new System.EventHandler(this.toolboxTreeView_Enter);
@@ -1159,7 +1161,8 @@
             this.createBranchToolStripMenuItem,
             this.createGroupToolStripMenuItem,
             this.subscribeSubjectToolStripMenuItem,
-            this.multicastSubjectToolStripMenuItem});
+            this.multicastSubjectToolStripMenuItem,
+            this.renameSubjectToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
             this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 136);
             // 
@@ -1210,6 +1213,14 @@
             this.multicastSubjectToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.multicastSubjectToolStripMenuItem.Text = "Multicast";
             this.multicastSubjectToolStripMenuItem.Click += new System.EventHandler(this.createGroupToolStripMenuItem_Click);
+            // 
+            // renameToolStripMenuItem
+            // 
+            this.renameSubjectToolStripMenuItem.Name = "renameSubjectToolStripMenuItem";
+            this.renameSubjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F2;
+            this.renameSubjectToolStripMenuItem.Size = new System.Drawing.Size(206, 32);
+            this.renameSubjectToolStripMenuItem.Text = "Rename";
+            this.renameSubjectToolStripMenuItem.Click += new System.EventHandler(this.renameSubjectToolStripMenuItem_Click);
             // 
             // commandExecutor
             // 
@@ -1368,6 +1379,7 @@
         private System.Windows.Forms.ToolStripMenuItem createGroupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem subscribeSubjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem multicastSubjectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renameSubjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reloadExtensionsDebugToolStripMenuItem;
