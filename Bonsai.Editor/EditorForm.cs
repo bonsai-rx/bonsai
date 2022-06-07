@@ -444,7 +444,7 @@ namespace Bonsai.Editor
                     var isEmpty = subjectCategory.Nodes.Count == 0;
                     subjectCategory.Nodes.Clear();
 
-                    var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))["Name"];
+                    var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))[nameof(SubscribeSubjectBuilder.Name)];
                     var subjects = nameProperty.Converter.GetStandardValues(new TypeDescriptorContext(workflowBuilder, nameProperty, editorSite));
                     if (subjects != null && subjects.Count > 0)
                     {
@@ -1767,6 +1767,9 @@ namespace Bonsai.Editor
                         toolboxTreeView.SelectedNode = toolboxTreeView.SelectedNode.NextVisibleNode ?? toolboxTreeView.SelectedNode;
                         e.Handled = true;
                         break;
+                    case Keys.F2:
+                        toolboxTreeView_KeyDown(sender, e);
+                        break;
                     case Keys.Return:
                         toolboxTreeView_KeyDown(sender, e);
                         searchTextBox.Clear();
@@ -1846,17 +1849,57 @@ namespace Bonsai.Editor
             selectedNode.BackColor = focused ? Color.Empty : themeRenderer.ToolStripRenderer.ColorTable.InactiveCaption;
         }
 
+        void SelectTreeViewSubjectNode(string subjectName)
+        {
+            var subjectCategory = toolboxCategories[SubjectCategoryName];
+            var subjectNode = subjectCategory.Nodes.Find(subjectName, false);
+            if (subjectNode.Length > 0)
+            {
+                toolboxTreeView.SelectedNode = subjectNode[0];
+            }
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return &&
-                toolboxTreeView.SelectedNode != null &&
-                toolboxTreeView.SelectedNode.Tag != null)
+            var selectedNode = toolboxTreeView.SelectedNode;
+            if (e.KeyCode == Keys.Return && selectedNode?.Tag != null)
             {
-                var typeNode = toolboxTreeView.SelectedNode;
-                CreateGraphNode(typeNode, e.Modifiers);
+                CreateGraphNode(selectedNode, e.Modifiers);
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
+
+            if (e.KeyCode == Keys.F2 && selectedNode?.Tag != null)
+            {
+                var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
+                if (!selectedNode.IsEditing && elementCategory == ~ElementCategory.Source)
+                {
+                    toolboxTreeView.LabelEdit = true;
+                    selectedNode.BeginEdit();
+                }
+            }
+        }
+
+        private void toolboxTreeView_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            e.CancelEdit = true;
+
+            var selectedView = selectionModel.SelectedView;
+            if (e.Node == null || string.IsNullOrEmpty(e.Label) || selectedView == null)
+            {
+                return;
+            }
+
+            var newName = e.Label;
+            var currentName = e.Node.Name;
+            var currentLabel = e.Node.Text;
+            selectedView.Editor.RenameSubject(currentName, newName);
+            e.Node.Name = newName;
+            e.Node.Text = newName + currentLabel.Substring(currentName.Length);
+            toolboxTreeView.LabelEdit = false;
+            searchTextBox.Clear();
+            SelectTreeViewSubjectNode(newName);
+            UpdatePropertyGrid();
         }
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -1893,6 +1936,7 @@ namespace Bonsai.Editor
                             }
                             subscribeSubjectToolStripMenuItem.Visible = true;
                             multicastSubjectToolStripMenuItem.Visible = true;
+                            renameSubjectToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -1908,6 +1952,7 @@ namespace Bonsai.Editor
                             createGroupToolStripMenuItem.Visible = allowGroup || selectionType != null;
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
+                            renameSubjectToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
@@ -1944,6 +1989,27 @@ namespace Bonsai.Editor
         private void createGroupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Control | Keys.Return));
+        }
+
+        private void renameSubjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!toolboxTreeView.Focused)
+            {
+                var model = selectionModel.SelectedView;
+                if (!model.GraphView.Focused) return;
+
+                var selection = selectionModel.SelectedNodes.ToArray();
+                var selectedBuilder = selection?.Length == 1 && selection?[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.Builder : null;
+                if (selectedBuilder is SubjectExpressionBuilder ||
+                    selectedBuilder is SubscribeSubjectBuilder ||
+                    selectedBuilder is MulticastSubjectBuilder)
+                {
+                    var subjectName = ((INamedElement)selectedBuilder).Name;
+                    SelectTreeViewSubjectNode(subjectName);
+                }
+            }
+
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F2));
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
@@ -2290,6 +2356,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.startToolStripButtonMenuItem, siteForm.startToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.restartToolStripMenuItem, siteForm.restartToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.stopToolStripMenuItem, siteForm.stopToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.renameSubjectToolStripMenuItem, siteForm.renameSubjectToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
