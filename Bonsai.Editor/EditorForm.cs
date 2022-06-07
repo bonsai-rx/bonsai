@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1550,18 +1550,27 @@ namespace Bonsai.Editor
                 return name + " (" + workflowProperty.MemberName + ")";
             }
 
+            var componentType = component.GetType();
             if (component is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
             {
                 var operandType = binaryOperator.Operand.GetType();
                 if (operandType.IsGenericType) operandType = operandType.GetGenericArguments()[0];
                 return name + " (" + ExpressionBuilder.GetElementDisplayName(operandType) + ")";
             }
+            else if (component is SubscribeSubjectBuilder subscribeSubject && componentType.IsGenericType)
+            {
+                componentType = componentType.GetGenericArguments()[0];
+                if (string.IsNullOrWhiteSpace(subscribeSubject.Name))
+                {
+                    name = name.Substring(0, name.IndexOf("`"));
+                }
+                return name + " (" + ExpressionBuilder.GetElementDisplayName(componentType) + ")";
+            }
             else
             {
                 if (component is INamedElement namedExpressionBuilder && !string.IsNullOrWhiteSpace(namedExpressionBuilder.Name))
                 {
-                    var elementType = component.GetType();
-                    name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
+                    name += " (" + ExpressionBuilder.GetElementDisplayName(componentType) + ")";
                 }
 
                 return name;
