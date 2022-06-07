@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1552,7 +1552,9 @@ namespace Bonsai.Editor
 
             if (component is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
             {
-                return name + " (" + ExpressionBuilder.GetElementDisplayName(binaryOperator.Operand.GetType()) + ")";
+                var operandType = binaryOperator.Operand.GetType();
+                if (operandType.IsGenericType) operandType = operandType.GetGenericArguments()[0];
+                return name + " (" + ExpressionBuilder.GetElementDisplayName(operandType) + ")";
             }
             else
             {
