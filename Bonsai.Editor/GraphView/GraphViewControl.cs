@@ -326,6 +326,21 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        public override void Refresh()
+        {
+            using (var graphics = CreateGraphics())
+            {
+                foreach (var layout in layoutNodes)
+                {
+                    if (layout.Text != layout.Node.Text)
+                    {
+                        layout.SetNodeLabel(layout.Node.Text, Font, graphics);
+                    }
+                }
+            }
+            base.Refresh();
+        }
+
         public void Invalidate(GraphNode node)
         {
             if (node != null && layoutNodes.Contains(node))
