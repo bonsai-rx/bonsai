@@ -790,6 +790,19 @@ namespace Bonsai.Editor.GraphView
             UpdateSelection();
         }
 
+        private void InvalidateGraphLayout(bool validateWorkflow)
+        {
+            graphView.Refresh();
+            if (Launcher != null)
+            {
+                Launcher.ParentView.InvalidateGraphLayout(validateWorkflow);
+            }
+            else if (validateWorkflow)
+            {
+                editorService.ValidateWorkflow();
+            }
+        }
+
         #endregion
 
         #region Controller
@@ -1242,6 +1255,12 @@ namespace Bonsai.Editor.GraphView
                 {
                     Launcher.ParentView.UpdateGraphLayout(validateWorkflow);
                 }
+            });
+
+            Editor.InvalidateLayout.Subscribe(validateWorkflow =>
+            {
+                if (Launcher != null) Launcher.WorkflowGraphView.InvalidateGraphLayout(validateWorkflow);
+                else InvalidateGraphLayout(validateWorkflow);
             });
 
             Editor.UpdateSelection.Subscribe(selection =>
