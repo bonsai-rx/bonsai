@@ -39,7 +39,7 @@ namespace Bonsai.Editor
 
         public static void ShowForum()
         {
-            OpenUri("https://groups.google.com/forum/#!forum/bonsai-users");
+            OpenUri("https://github.com/bonsai-rx/bonsai/discussions");
         }
 
         public static void ShowReportBug()
