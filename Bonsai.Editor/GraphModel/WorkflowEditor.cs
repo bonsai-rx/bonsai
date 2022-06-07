@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -20,6 +20,7 @@ namespace Bonsai.Editor.GraphModel
         readonly Subject<Exception> error;
         readonly Subject<bool> updateLayout;
         readonly Subject<bool> updateParentLayout;
+        readonly Subject<bool> invalidateLayout;
         readonly Subject<IEnumerable<ExpressionBuilder>> updateSelection;
         readonly Subject<IWorkflowExpressionBuilder> closeWorkflowEditor;
 
@@ -31,6 +32,7 @@ namespace Bonsai.Editor.GraphModel
             error = new Subject<Exception>();
             updateLayout = new Subject<bool>();
             updateParentLayout = new Subject<bool>();
+            invalidateLayout = new Subject<bool>();
             updateSelection = new Subject<IEnumerable<ExpressionBuilder>>();
             closeWorkflowEditor = new Subject<IWorkflowExpressionBuilder>();
         }
@@ -42,6 +44,8 @@ namespace Bonsai.Editor.GraphModel
         public IObservable<bool> UpdateLayout => updateLayout;
 
         public IObservable<bool> UpdateParentLayout => updateParentLayout;
+
+        public IObservable<bool> InvalidateLayout => invalidateLayout;
 
         public IObservable<IEnumerable<ExpressionBuilder>> UpdateSelection => updateSelection;
 
@@ -91,6 +95,11 @@ namespace Bonsai.Editor.GraphModel
         private Action CreateUpdateGraphLayoutDelegate()
         {
             return () => updateLayout.OnNext(true);
+        }
+
+        private Action CreateInvalidateGraphLayoutDelegate()
+        {
+            return () => invalidateLayout.OnNext(true);
         }
 
         private Action CreateUpdateSelectionDelegate()
@@ -1586,6 +1595,64 @@ namespace Bonsai.Editor.GraphModel
         public void EnableGraphNodes(IEnumerable<GraphNode> nodes)
         {
             UpdateGraphNodes(nodes, EnableGraphNode);
+        }
+
+        public void RenameSubject(string currentName, string newName)
+        {
+            var workflow = Workflow;
+            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+            var declaration = workflowBuilder.GetSubjectDeclaration(workflow, currentName);
+            if (declaration == null) return;
+
+            var subscribeDependents = new List<SubscribeSubjectBuilder>();
+            var multicastDependents = new List<MulticastSubjectBuilder>();
+            foreach (var dependent in declaration.Root.GetDependentExpressions(declaration.Subject)
+                                                      .SelectMany(context => context)
+                                                      .Where(builder => builder is INamedElement namedElement &&
+                                                                        namedElement.Name == currentName))
+            {
+                if (dependent is SubscribeSubjectBuilder subscribeSubject)
+                {
+                    subscribeDependents.Add(subscribeSubject);
+                }
+
+                if (dependent is MulticastSubjectBuilder multicastSubject)
+                {
+                    multicastDependents.Add(multicastSubject);
+                }
+            }
+
+            var invalidateGraphLayout = CreateInvalidateGraphLayoutDelegate();
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(EmptyAction, invalidateGraphLayout);
+            commandExecutor.Execute(() =>
+            {
+                declaration.Subject.Name = newName;
+                foreach (var dependent in subscribeDependents)
+                {
+                    dependent.Name = newName;
+                }
+
+                foreach (var dependent in multicastDependents)
+                {
+                    dependent.Name = newName;
+                }
+            },
+            () =>
+            {
+                declaration.Subject.Name = currentName;
+                foreach (var dependent in subscribeDependents)
+                {
+                    dependent.Name = currentName;
+                }
+
+                foreach (var dependent in multicastDependents)
+                {
+                    dependent.Name = currentName;
+                }
+            });
+            commandExecutor.Execute(invalidateGraphLayout, EmptyAction);
+            commandExecutor.EndCompositeCommand();
         }
 
         public GraphNode FindGraphNode(ExpressionBuilder value)
