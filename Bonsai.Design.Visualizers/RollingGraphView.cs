@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using ZedGraph;
 using System.Globalization;
@@ -49,7 +49,7 @@ namespace Bonsai.Design.Visualizers
         public int NumSeries
         {
             get { return graph.NumSeries; }
-            set { graph.NumSeries = value; }
+            set { graph.EnsureCapacity(value); }
         }
 
         public virtual int Capacity
@@ -91,7 +91,7 @@ namespace Bonsai.Design.Visualizers
 
         protected override void OnLoad(EventArgs e)
         {
-            graph.EnsureCapacity();
+            graph.EnsureCapacity(NumSeries);
             base.OnLoad(e);
         }
 
