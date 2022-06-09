@@ -18,8 +18,8 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918">
-      <package id="Bonsai.Core" version="2.6.0" />
-      <package id="Bonsai.Design" version="2.6.0" />
+      <package id="Bonsai.Core" version="2.7.0" />
+      <package id="Bonsai.Design" version="2.7.0" />
     </packages>
   </WizardData>
 </VSTemplate>

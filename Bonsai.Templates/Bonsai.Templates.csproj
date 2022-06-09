@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>2.6.0</PackageVersion>
+    <PackageVersion>2.7.0</PackageVersion>
     <PackageId>Bonsai.Templates</PackageId>
     <Title>Bonsai Templates</Title>
     <Authors>Gonçalo Lopes</Authors>
