@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using System;
 using System.Windows.Forms;
 using ZedGraph;
@@ -11,11 +11,31 @@ namespace Bonsai.Design.Visualizers
     public class RollingGraphVisualizer : DialogTypeVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
-        DateTimeOffset updateTime;
-        GraphControl graph;
         RollingGraphBuilder.VisualizerController controller;
-        IPointListEdit[] lineSeries;
+        DateTimeOffset updateTime;
+        RollingGraphView view;
         bool labelLines;
+
+        /// <summary>
+        /// Gets or sets the maximum number of time points displayed at any one moment in the graph.
+        /// </summary>
+        public int Capacity { get; set; } = 640;
+
+        /// <summary>
+        /// Gets or sets the lower limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double Min { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upper limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double Max { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the y-axis range should be recalculated
+        /// automatically as the graph updates.
+        /// </summary>
+        public bool AutoScale { get; set; } = true;
 
         internal void AddValues(string index, params double[] values) => AddValues(0, index, values);
 
@@ -23,33 +43,13 @@ namespace Bonsai.Design.Visualizers
 
         internal void AddValues(double index, string tag, params double[] values)
         {
-            EnsureSeries(values.Length);
-            for (int i = 0; i < lineSeries.Length; i++)
+            if (view.Graph.NumSeries != values.Length)
             {
-                lineSeries[i].Add(new PointPair(index, values[i], tag));
+                view.Graph.EnsureCapacity(
+                    values.Length,
+                    labelLines ? controller.ValueLabels : null);
             }
-        }
-
-        void EnsureSeries(int count)
-        {
-            if (lineSeries == null || lineSeries.Length != count)
-            {
-                graph.ResetColorCycle();
-                graph.GraphPane.CurveList.Clear();
-                lineSeries = new IPointListEdit[count];
-                for (int i = 0; i < lineSeries.Length; i++)
-                {
-                    var color = graph.GetNextColor();
-                    var values = controller.Capacity > 0
-                        ? (IPointListEdit)new RollingPointPairList(controller.Capacity)
-                        : new PointPairList();
-                    var lineItem = new LineItem(labelLines ? controller.ValueLabels[i] : null, values, color, SymbolType.None, 1);
-                    lineItem.Line.IsAntiAlias = true;
-                    lineItem.Line.IsOptimizedDraw = true;
-                    graph.GraphPane.CurveList.Add(lineItem);
-                    lineSeries[i] = values;
-                }
-            }
+            view.Graph.AddValues(index, tag, values);
         }
 
         /// <inheritdoc/>
@@ -59,23 +59,43 @@ namespace Bonsai.Design.Visualizers
             var lineChartBuilder = (RollingGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             controller = lineChartBuilder.Controller;
 
-            graph = new GraphControl();
-            graph.Dock = DockStyle.Fill;
-            var indexAxis = graph.GraphPane.XAxis;
-            var valueAxis = graph.GraphPane.YAxis;
+            view = new RollingGraphView();
+            view.Dock = DockStyle.Fill;
+            var indexAxis = view.Graph.GraphPane.XAxis;
+            var valueAxis = view.Graph.GraphPane.YAxis;
             GraphHelper.FormatOrdinalAxis(indexAxis, controller.IndexType);
             GraphHelper.SetAxisLabel(indexAxis, controller.IndexLabel);
+            view.Capacity = Capacity;
+            view.AutoScale = AutoScale;
+            if (!AutoScale)
+            {
+                view.Min = Min;
+                view.Max = Max;
+            }
 
             var hasLabels = controller.ValueLabels != null;
             var labelAxis = hasLabels && controller.ValueLabels.Length == 1;
             if (labelAxis) GraphHelper.SetAxisLabel(valueAxis, controller.ValueLabels[0]);
             labelLines = hasLabels && !labelAxis;
-            EnsureSeries(hasLabels ? controller.ValueLabels.Length : 0);
+            if (hasLabels)
+            {
+                view.Graph.EnsureCapacity(
+                    controller.ValueLabels.Length,
+                    labelLines ? controller.ValueLabels : null);
+            }
+
+            view.HandleDestroyed += delegate
+            {
+                Min = view.Min;
+                Max = view.Max;
+                AutoScale = view.AutoScale;
+                Capacity = view.Capacity;
+            };
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(graph);
+                visualizerService.AddControl(view);
             }
         }
 
@@ -86,7 +106,7 @@ namespace Bonsai.Design.Visualizers
             controller.AddValues(value, this);
             if ((time - updateTime) > TargetElapsedTime)
             {
-                graph.Invalidate();
+                view.Graph.Invalidate();
                 updateTime = time;
             }
         }
@@ -94,10 +114,9 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Unload()
         {
-            graph.Dispose();
-            graph = null;
+            view.Dispose();
+            view = null;
             controller = null;
-            lineSeries = null;
         }
     }
 }

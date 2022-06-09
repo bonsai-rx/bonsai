@@ -34,7 +34,8 @@ namespace Bonsai.Design.Visualizers
         /// Gets or sets the optional capacity used for rolling line graphs. If no capacity is specified,
         /// all data points will be displayed.
         /// </summary>
-        [Description("The optional capacity used for rolling line graphs. If no capacity is specified, all data points will be displayed.")]
+        [Obsolete]
+        [Browsable(false)]
         public int? Capacity { get; set; }
 
         /// <summary>
@@ -61,7 +62,6 @@ namespace Bonsai.Design.Visualizers
 
         internal class VisualizerController
         {
-            internal int Capacity;
             internal Type IndexType;
             internal string IndexLabel;
             internal string[] ValueLabels;
@@ -81,7 +81,6 @@ namespace Bonsai.Design.Visualizers
             var viewParameter = Expression.Parameter(typeof(RollingGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
             Controller = new VisualizerController();
-            Controller.Capacity = Capacity.GetValueOrDefault();
 
             var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;

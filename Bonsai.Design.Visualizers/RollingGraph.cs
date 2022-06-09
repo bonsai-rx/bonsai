@@ -38,15 +38,6 @@ namespace Bonsai.Design.Visualizers
         public int NumSeries
         {
             get { return numSeries; }
-            set
-            {
-                numSeries = value;
-                if (series != null)
-                {
-                    series = null;
-                    EnsureCapacity();
-                }
-            }
         }
 
         public int Capacity
@@ -55,7 +46,7 @@ namespace Bonsai.Design.Visualizers
             set
             {
                 capacity = value;
-                EnsureCapacity();
+                EnsureCapacity(numSeries);
                 Invalidate();
             }
         }
@@ -98,26 +89,32 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        private void EnsureSeries()
+        private void EnsureSeries(string[] labels)
         {
+            var hasLabels = labels != null;
             if (GraphPane.CurveList.Count != series.Length)
             {
                 ResetColorCycle();
                 GraphPane.CurveList.Clear();
                 for (int i = 0; i < series.Length; i++)
                 {
-                    var curve = new LineItem(string.Empty, series[i], GetNextColor(), symbolType, lineWidth);
+                    var curve = new LineItem(hasLabels ? labels[i] : string.Empty, series[i], GetNextColor(), symbolType, lineWidth);
                     curve.Line.IsAntiAlias = true;
                     curve.Line.IsOptimizedDraw = true;
-                    curve.Label.IsVisible = false;
+                    curve.Label.IsVisible = hasLabels;
                     GraphPane.CurveList.Add(curve);
                 }
             }
         }
 
-        public void EnsureCapacity()
+        public void EnsureCapacity(int count, string[] labels = null)
         {
-            series = series ?? new RollingPointPairList[numSeries];
+            numSeries = count;
+            if (series == null || series.Length != numSeries)
+            {
+                series = new RollingPointPairList[numSeries];
+            }
+
             for (int i = 0; i < series.Length; i++)
             {
                 var points = new RollingPointPairList(capacity);
@@ -130,7 +127,7 @@ namespace Bonsai.Design.Visualizers
                 series[i] = points;
             }
 
-            EnsureSeries();
+            EnsureSeries(labels);
             for (int i = 0; i < series.Length; i++)
             {
                 GraphPane.CurveList[i].Points = series[i];

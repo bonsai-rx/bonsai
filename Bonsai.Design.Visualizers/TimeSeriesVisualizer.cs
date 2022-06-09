@@ -174,7 +174,11 @@ namespace Bonsai.Design.Visualizers
 
         internal void AddValue(DateTime time, Array array)
         {
-            if (array.Length != view.Graph.NumSeries) view.Graph.NumSeries = array.Length;
+            if (array.Length != view.Graph.NumSeries)
+            {
+                view.Graph.EnsureCapacity(array.Length);
+            }
+
             var values = new double[array.Length];
             for (int i = 0; i < values.Length; i++)
             {
