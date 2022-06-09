@@ -107,10 +107,10 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        public void EnsureCapacity(int count, string[] labels = null)
+        public void EnsureCapacity(int count, string[] labels = null, bool reset = false)
         {
             numSeries = count;
-            if (series == null || series.Length != numSeries)
+            if (series == null || series.Length != numSeries || reset)
             {
                 series = new RollingPointPairList[numSeries];
             }
