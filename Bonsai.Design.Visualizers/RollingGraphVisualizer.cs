@@ -15,6 +15,7 @@ namespace Bonsai.Design.Visualizers
         DateTimeOffset updateTime;
         RollingGraphView view;
         bool labelLines;
+        bool reset;
 
         /// <summary>
         /// Gets or sets the maximum number of time points displayed at any one moment in the graph.
@@ -43,11 +44,13 @@ namespace Bonsai.Design.Visualizers
 
         internal void AddValues(double index, string tag, params double[] values)
         {
-            if (view.Graph.NumSeries != values.Length)
+            if (view.Graph.NumSeries != values.Length || reset)
             {
                 view.Graph.EnsureCapacity(
                     values.Length,
-                    labelLines ? controller.ValueLabels : null);
+                    labelLines ? controller.ValueLabels : null,
+                    reset);
+                reset = false;
             }
             view.Graph.AddValues(index, tag, values);
         }
@@ -109,6 +112,12 @@ namespace Bonsai.Design.Visualizers
                 view.Graph.Invalidate();
                 updateTime = time;
             }
+        }
+
+        /// <inheritdoc/>
+        public override void SequenceCompleted()
+        {
+            reset = true;
         }
 
         /// <inheritdoc/>

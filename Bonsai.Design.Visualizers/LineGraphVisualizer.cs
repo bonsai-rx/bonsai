@@ -13,6 +13,7 @@ namespace Bonsai.Design.Visualizers
         GraphControl graph;
         LineGraphBuilder.VisualizerController controller;
         IPointListEdit[] lineSeries;
+        bool reset;
 
         internal void AddValues(PointPair[] values)
         {
@@ -28,8 +29,9 @@ namespace Bonsai.Design.Visualizers
 
         void EnsureSeries(int count)
         {
-            if (lineSeries == null || lineSeries.Length != count)
+            if (lineSeries == null || lineSeries.Length != count || reset)
             {
+                reset = false;
                 graph.ResetColorCycle();
                 graph.GraphPane.CurveList.Clear();
                 lineSeries = new IPointListEdit[count];
@@ -85,6 +87,12 @@ namespace Bonsai.Design.Visualizers
         {
             controller.AddValues(value, this);
             graph.Invalidate();
+        }
+
+        /// <inheritdoc/>
+        public override void SequenceCompleted()
+        {
+            reset = true;
         }
 
         /// <inheritdoc/>

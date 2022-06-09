@@ -14,6 +14,7 @@ namespace Bonsai.Design.Visualizers
         BarGraphBuilder.VisualizerController controller;
         IPointListEdit[] barSeries;
         bool labelBars;
+        bool reset;
 
         static void GetBarGraphAxes(BarBase barBase, GraphControl graph, out Axis indexAxis, out Axis valueAxis)
         {
@@ -73,8 +74,9 @@ namespace Bonsai.Design.Visualizers
 
         void EnsureSeries(int count)
         {
-            if (barSeries == null || barSeries.Length != count)
+            if (barSeries == null || barSeries.Length != count || reset)
             {
+                reset = false;
                 graph.ResetColorCycle();
                 graph.GraphPane.CurveList.Clear();
                 barSeries = new IPointListEdit[count];
@@ -128,6 +130,12 @@ namespace Bonsai.Design.Visualizers
         {
             controller.AddValues(value, this);
             graph.Invalidate();
+        }
+
+        /// <inheritdoc/>
+        public override void SequenceCompleted()
+        {
+            reset = true;
         }
 
         /// <inheritdoc/>
