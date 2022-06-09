@@ -34,6 +34,7 @@ namespace Bonsai.Design.Visualizers
         /// <summary>
         /// Gets or sets the name of the visualizer window.
         /// </summary>
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("The name of the visualizer window.")]
         public string Name { get; set; }
 
