@@ -43,14 +43,18 @@ namespace Bonsai.Reactive
         /// <returns>The sliced sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
+            var start = Start;
+            var step = Step;
+            var stop = Stop;
             return Observable.Defer(() =>
             {
                 int i = 0;
-                return source.Where(xs =>
+                var slice = source.Where(_ =>
                 {
                     var index = i++;
-                    return index >= Start && (!Stop.HasValue || index < Stop) && (index - Start) % Step == 0;
+                    return index >= start && (index - start) % step == 0;
                 });
+                return stop.HasValue ? slice.TakeWhile(_ => i < stop) : slice;
             });
         }
     }
