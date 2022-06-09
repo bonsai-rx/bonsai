@@ -1022,13 +1022,10 @@ namespace Bonsai.Editor
             if (model.GraphView.SelectedNodes.Count() > 0)
             {
                 var selectedElements = model.GraphView.SelectedNodes.ToWorkflowBuilder();
-                var selectedLayout = selectedElements.Workflow.ConnectedComponentLayering().ToList();
-                using var graphView = new GraphViewControl
-                {
-                    IconRenderer = model.GraphView.IconRenderer,
-                    Font = model.GraphView.Font,
-                    Nodes = selectedLayout
-                };
+                using var graphView = WorkflowExporter.CreateGraphView(
+                    selectedElements.Workflow,
+                    model.GraphView.Font,
+                    model.GraphView.IconRenderer);
                 ExportImage(graphView, fileName);
             }
             else ExportImage(model.GraphView, fileName);
@@ -1036,32 +1033,20 @@ namespace Bonsai.Editor
 
         void ExportImage(GraphViewControl graphView, string fileName)
         {
-            var bounds = graphView.GetLayoutSize();
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
-                var graphics = new SvgNet.SvgGdi.SvgGraphics();
-                graphView.DrawGraphics(graphics, true);
-                var svg = graphics.WriteSVGString();
-                var attributes = string.Format(
-                    "<svg width=\"{0}\" height=\"{1}\" ",
-                    bounds.Width, bounds.Height);
-                svg = svg.Replace("<svg ", attributes);
+                var svg = WorkflowExporter.ExportSvg(graphView);
                 File.WriteAllText(fileName, svg);
             }
             else
             {
-                using (var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height))
-                using (var graphics = Graphics.FromImage(bitmap))
+                using var bitmap = WorkflowExporter.ExportBitmap(graphView);
+                if (string.IsNullOrEmpty(fileName))
                 {
-                    var gdi = new SvgNet.SvgGdi.GdiGraphics(graphics);
-                    graphView.DrawGraphics(gdi, false);
-                    if (string.IsNullOrEmpty(fileName))
-                    {
-                        Clipboard.SetImage(bitmap);
-                    }
-                    else bitmap.Save(fileName);
+                    Clipboard.SetImage(bitmap);
                 }
+                else bitmap.Save(fileName);
             }
         }
 
