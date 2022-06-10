@@ -50,7 +50,8 @@ namespace Bonsai.Design
                                          where element != null
                                          select from descriptor in TypeDescriptor.GetProperties(element, ExternalizableAttributes)
                                                                                  .Cast<PropertyDescriptor>()
-                                                where descriptor.IsBrowsable && !descriptor.IsReadOnly
+                                                where descriptor.IsBrowsable &&
+                                                      (!descriptor.IsReadOnly || ExpressionHelper.IsCollectionType(descriptor.PropertyType))
                                                 select descriptor;
                         HashSet<PropertyDescriptor> propertySet = null;
                         foreach (var group in properties)
