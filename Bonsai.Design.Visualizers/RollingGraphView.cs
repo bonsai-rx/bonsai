@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using ZedGraph;
 using System.Globalization;
@@ -62,6 +62,17 @@ namespace Bonsai.Design.Visualizers
         {
             get { return autoScaleButton.Checked; }
             set { autoScaleButton.Checked = value; }
+        }
+
+        public bool AutoScaleVisible
+        {
+            get { return autoScaleButton.Visible; }
+            set
+            {
+                autoScaleButton.Visible = value;
+                minEditableLabel.Enabled = value;
+                maxEditableLabel.Enabled = value;
+            }
         }
 
         public event EventHandler AutoScaleChanged

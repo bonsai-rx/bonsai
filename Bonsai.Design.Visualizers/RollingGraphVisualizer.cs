@@ -68,12 +68,23 @@ namespace Bonsai.Design.Visualizers
             var valueAxis = view.Graph.GraphPane.YAxis;
             GraphHelper.FormatOrdinalAxis(indexAxis, controller.IndexType);
             GraphHelper.SetAxisLabel(indexAxis, controller.IndexLabel);
-            view.Capacity = Capacity;
-            view.AutoScale = AutoScale;
-            if (!AutoScale)
+            var fixedScale = controller.Min.HasValue || controller.Max.HasValue;
+            if (fixedScale)
             {
-                view.Min = Min;
-                view.Max = Max;
+                view.AutoScale = false;
+                view.AutoScaleVisible = false;
+                view.Min = controller.Min.GetValueOrDefault();
+                view.Max = controller.Max.GetValueOrDefault();
+            }
+            else
+            {
+                view.Capacity = Capacity;
+                view.AutoScale = AutoScale;
+                if (!AutoScale)
+                {
+                    view.Min = Min;
+                    view.Max = Max;
+                }
             }
 
             var hasLabels = controller.ValueLabels != null;
