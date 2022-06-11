@@ -64,6 +64,8 @@ namespace Bonsai.Design.Visualizers
 
             view = new RollingGraphView();
             view.Dock = DockStyle.Fill;
+            view.Graph.SymbolType = controller.SymbolType;
+            view.Graph.LineWidth = controller.LineWidth;
             var indexAxis = view.Graph.GraphPane.XAxis;
             var valueAxis = view.Graph.GraphPane.YAxis;
             GraphHelper.FormatOrdinalAxis(indexAxis, controller.IndexType);

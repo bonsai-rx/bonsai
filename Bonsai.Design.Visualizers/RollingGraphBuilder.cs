@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
@@ -29,6 +30,20 @@ namespace Bonsai.Design.Visualizers
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The names of the properties that will be displayed in the graph.")]
         public string ValueSelector { get; set; }
+
+        /// <summary>
+        /// Gets or sets the optional symbol type to use for the line graph.
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Appearance))]
+        [Description("The optional symbol type to use for the line graph.")]
+        public SymbolType SymbolType { get; set; } = SymbolType.None;
+
+        /// <summary>
+        /// Gets or sets the width, in points, to be used for the line graph. Use a value of zero to hide the line.
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Appearance))]
+        [Description("The width, in points, to be used for the line graph. Use a value of zero to hide the line.")]
+        public float LineWidth { get; set; } = 1;
 
         /// <summary>
         /// Gets or sets the optional capacity used for rolling line graphs. If no capacity is specified,
@@ -84,6 +99,8 @@ namespace Bonsai.Design.Visualizers
             internal Type IndexType;
             internal string IndexLabel;
             internal string[] ValueLabels;
+            internal SymbolType SymbolType;
+            internal float LineWidth;
             internal Action<object, RollingGraphVisualizer> AddValues;
         }
 
@@ -103,7 +120,9 @@ namespace Bonsai.Design.Visualizers
             {
                 Capacity = Capacity,
                 Min = Min,
-                Max = Max
+                Max = Max,
+                SymbolType = SymbolType,
+                LineWidth = LineWidth
             };
 
             var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
