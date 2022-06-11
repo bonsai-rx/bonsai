@@ -9,7 +9,8 @@ namespace Bonsai.Design.Visualizers
         bool autoScale;
         float lineWidth;
         SymbolType symbolType;
-        RollingPointPairList[] series;
+        IPointListEdit[] series;
+        RollingPointPairList[] rollingSeries;
         const int DefaultCapacity = 640;
         const int DefaultNumSeries = 1;
 
@@ -105,6 +106,13 @@ namespace Bonsai.Design.Visualizers
                     GraphPane.CurveList.Add(curve);
                 }
             }
+            else
+            {
+                for (int i = 0; i < series.Length; i++)
+                {
+                    GraphPane.CurveList[i].Points = series[i];
+                }
+            }
         }
 
         public void EnsureCapacity(int count, string[] labels = null, bool reset = false)
@@ -112,35 +120,66 @@ namespace Bonsai.Design.Visualizers
             numSeries = count;
             if (series == null || series.Length != numSeries || reset)
             {
-                series = new RollingPointPairList[numSeries];
+                if (capacity == 0)
+                {
+                    rollingSeries = null;
+                    series = new IPointListEdit[numSeries];
+                }
+                else
+                {
+                    rollingSeries = new RollingPointPairList[numSeries];
+                    series = rollingSeries;
+                }
             }
 
             for (int i = 0; i < series.Length; i++)
             {
-                var points = new RollingPointPairList(capacity);
                 var previousPoints = series[i];
-                if (previousPoints != null)
+                if (capacity > 0)
                 {
-                    points.Add(previousPoints);
-                }
+                    var points = new RollingPointPairList(capacity);
+                    if (previousPoints != null)
+                    {
+                        points.Add(previousPoints);
+                    }
 
-                series[i] = points;
+                    series[i] = points;
+                }
+                else
+                {
+                    var points = new PointPairList();
+                    if (previousPoints != null)
+                    {
+                        for (int p = 0; p < previousPoints.Count; p++)
+                        {
+                            points.Add(previousPoints[p]);
+                        }
+                    }
+
+                    series[i] = points;
+                }
             }
 
             EnsureSeries(labels);
-            for (int i = 0; i < series.Length; i++)
-            {
-                GraphPane.CurveList[i].Points = series[i];
-            }
         }
 
         public void AddValues(double index, params double[] values) => AddValues(index, null, values);
 
         public void AddValues(double index, object tag, params double[] values)
         {
-            for (int i = 0; i < series.Length; i++)
+            if (rollingSeries != null)
             {
-                series[i].Add(index, values[i], tag);
+                for (int i = 0; i < rollingSeries.Length; i++)
+                {
+                    rollingSeries[i].Add(index, values[i], tag);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < series.Length; i++)
+                {
+                    series[i].Add(new PointPair(index, values[i], double.MaxValue, tag));
+                }
             }
         }
     }
