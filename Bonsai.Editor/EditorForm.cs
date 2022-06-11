@@ -1619,22 +1619,15 @@ namespace Bonsai.Editor
 
         private void UpdatePropertyGrid()
         {
-            var selectedView = selectionModel.SelectedView;
-            var readOnly = selectedView != null && selectedView.ReadOnly;
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
                 var builder = ExpressionBuilder.Unwrap(node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 var instance = workflowElement ?? builder;
-                if (readOnly)
-                {
-                    var provider = TypeDescriptor.GetProvider(instance);
-                    var typeDescriptor = provider.GetTypeDescriptor(instance);
-                    instance = new ReadOnlyTypeDescriptor(instance, typeDescriptor);
-                }
                 return instance;
             }).ToArray();
 
+            var selectedView = selectionModel.SelectedView;
             var canEdit = selectedView != null && selectedView.CanEdit;
             var hasSelectedObjects = selectedObjects.Length > 0;
             saveAsWorkflowToolStripMenuItem.Enabled = hasSelectedObjects;
