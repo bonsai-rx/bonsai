@@ -145,6 +145,7 @@ namespace Bonsai.Design.Visualizers
             graph = null;
             controller = null;
             barSeries = null;
+            reset = false;
         }
     }
 }
