@@ -46,6 +46,12 @@ namespace Bonsai.Design.Visualizers
             set { graph.Capacity = value; }
         }
 
+        public bool CanEditCapacity
+        {
+            get { return capacityEditableLabel.Enabled; }
+            set { capacityEditableLabel.Enabled = value; }
+        }
+
         public double Min
         {
             get { return graph.Min; }
