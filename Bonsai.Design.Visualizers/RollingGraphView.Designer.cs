@@ -75,7 +75,6 @@
             this.capacityValueLabel.Name = "capacityValueLabel";
             this.capacityValueLabel.Size = new System.Drawing.Size(12, 17);
             this.capacityValueLabel.Text = "count";
-            this.capacityValueLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // scaleStatusLabel
             // 
@@ -89,7 +88,6 @@
             this.minStatusLabel.Size = new System.Drawing.Size(13, 17);
             this.minStatusLabel.Text = "min";
             this.minStatusLabel.Visible = false;
-            this.minStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // maxStatusLabel
             // 
@@ -97,7 +95,6 @@
             this.maxStatusLabel.Size = new System.Drawing.Size(14, 17);
             this.maxStatusLabel.Text = "Max";
             this.maxStatusLabel.Visible = false;
-            this.maxStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // autoScaleButton
             // 

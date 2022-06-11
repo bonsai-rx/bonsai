@@ -7,33 +7,21 @@ namespace Bonsai.Design.Visualizers
 {
     partial class RollingGraphView : UserControl
     {
-        readonly ToolStripTextBox minTextBox;
-        readonly ToolStripTextBox maxTextBox;
-        readonly ToolStripTextBox capacityTextBox;
+        readonly ToolStripEditableLabel minEditableLabel;
+        readonly ToolStripEditableLabel maxEditableLabel;
+        readonly ToolStripEditableLabel capacityEditableLabel;
 
         public RollingGraphView()
         {
             InitializeComponent();
             autoScaleButton.Checked = true;
-            capacityTextBox = new ToolStripTextBox();
-            capacityTextBox.LostFocus += capacityTextBox_LostFocus;
-            InitializeEditableScale(capacityTextBox, capacityValueLabel);
+            capacityEditableLabel = new ToolStripEditableLabel(capacityValueLabel, OnCapacityEdit);
+            minEditableLabel = new ToolStripEditableLabel(minStatusLabel, OnMinEdit);
+            maxEditableLabel = new ToolStripEditableLabel(maxStatusLabel, OnMaxEdit);
             Graph.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-
-            minTextBox = new ToolStripTextBox();
-            maxTextBox = new ToolStripTextBox();
-            minTextBox.LostFocus += minTextBox_LostFocus;
-            maxTextBox.LostFocus += maxTextBox_LostFocus;
-            InitializeEditableScale(minTextBox, minStatusLabel);
-            InitializeEditableScale(maxTextBox, maxStatusLabel);
-        }
-
-        private void InitializeEditableScale(ToolStripTextBox textBox, ToolStripStatusLabel statusLabel)
-        {
-            statusLabel.Tag = textBox;
-            textBox.Tag = statusLabel;
-            textBox.LostFocus += editableTextBox_LostFocus;
-            textBox.KeyDown += editableTextBox_KeyDown;
+            components.Add(capacityEditableLabel);
+            components.Add(minEditableLabel);
+            components.Add(maxEditableLabel);
         }
 
         protected StatusStrip StatusStrip
@@ -129,11 +117,10 @@ namespace Bonsai.Design.Visualizers
 
         private bool graph_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
         {
-            double x, y;
             var pane = graph.MasterPane.FindChartRect(e.Location);
             if (pane != null)
             {
-                pane.ReverseTransform(e.Location, out x, out y);
+                pane.ReverseTransform(e.Location, out double x, out double y);
                 cursorStatusLabel.Text = string.Format("Cursor: ({0:F0}, {1:G5})", x, y);
             }
             return false;
@@ -165,65 +152,28 @@ namespace Bonsai.Design.Visualizers
             maxStatusLabel.Visible = !autoScaleButton.Checked;
         }
 
-        private void editableTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void OnCapacityEdit(string text)
         {
-            if (e.KeyCode == Keys.Return)
-            {
-                e.SuppressKeyPress = true;
-                statusStrip.Select();
-            }
-        }
-
-        private void capacityTextBox_LostFocus(object sender, EventArgs e)
-        {
-            if (capacityTextBox.Text != capacityValueLabel.Text &&
-                int.TryParse(capacityTextBox.Text, out int capacity))
+            if (int.TryParse(text, out int capacity))
             {
                 Capacity = capacity;
             }
         }
 
-        private void maxTextBox_LostFocus(object sender, EventArgs e)
+        private void OnMinEdit(string text)
         {
-            if (maxTextBox.Text != maxStatusLabel.Text &&
-                double.TryParse(maxTextBox.Text, out double max))
-            {
-                Max = max;
-            }
-        }
-
-        private void minTextBox_LostFocus(object sender, EventArgs e)
-        {
-            if (minTextBox.Text != minStatusLabel.Text &&
-                double.TryParse(minTextBox.Text, out double min))
+            if (double.TryParse(text, out double min))
             {
                 Min = min;
             }
         }
 
-        private void editableTextBox_LostFocus(object sender, EventArgs e)
+        private void OnMaxEdit(string text)
         {
-            var textBox = (ToolStripTextBox)sender;
-            var statusLabel = (ToolStripStatusLabel)textBox.Tag;
-            var labelIndex = statusStrip.Items.IndexOf(textBox);
-            statusStrip.SuspendLayout();
-            statusStrip.Items.Remove(textBox);
-            statusStrip.Items.Insert(labelIndex, statusLabel);
-            statusStrip.ResumeLayout();
-        }
-
-        private void editableStatusLabel_Click(object sender, EventArgs e)
-        {
-            var statusLabel = (ToolStripStatusLabel)sender;
-            var textBox = (ToolStripTextBox)statusLabel.Tag;
-            var labelIndex = statusStrip.Items.IndexOf(statusLabel);
-            statusStrip.SuspendLayout();
-            statusStrip.Items.Remove(statusLabel);
-            statusStrip.Items.Insert(labelIndex, textBox);
-            textBox.Size = statusLabel.Size;
-            textBox.Text = statusLabel.Text;
-            statusStrip.ResumeLayout();
-            textBox.Focus();
+            if (double.TryParse(text, out double max))
+            {
+                Max = max;
+            }
         }
 
         private void graph_KeyDown(object sender, KeyEventArgs e)
