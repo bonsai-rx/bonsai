@@ -173,6 +173,7 @@ namespace Bonsai.Design.Visualizers
             view.Dispose();
             view = null;
             controller = null;
+            reset = false;
         }
     }
 }
