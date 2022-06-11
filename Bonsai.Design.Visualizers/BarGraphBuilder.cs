@@ -35,12 +35,14 @@ namespace Bonsai.Design.Visualizers
         /// Gets or sets a value specifying the axis on which the bars in the graph will be displayed.
         /// </summary>
         [TypeConverter(typeof(BaseAxisConverter))]
+        [Category(nameof(CategoryAttribute.Appearance))]
         [Description("Specifies the axis on which the bars in the graph will be displayed.")]
         public BarBase BaseAxis { get; set; }
 
         /// <summary>
         /// Gets or sets a value specifying how the different bars in the graph will be visually arranged.
         /// </summary>
+        [Category(nameof(CategoryAttribute.Appearance))]
         [Description("Specifies how the different bars in the graph will be visually arranged.")]
         public BarType BarType { get; set; }
 
@@ -48,6 +50,7 @@ namespace Bonsai.Design.Visualizers
         /// Gets or sets the optional capacity used for rolling bar graphs. If no capacity is specified,
         /// all data points will be displayed.
         /// </summary>
+        [Category("Range")]
         [Description("The optional capacity used for rolling bar graphs. If no capacity is specified, all data points will be displayed.")]
         public int? Capacity { get; set; }
 
@@ -61,6 +64,7 @@ namespace Bonsai.Design.Visualizers
             internal string[] ValueLabels;
             internal Action<object, BarGraphVisualizer> AddValues;
             internal BarBase BaseAxis;
+            internal BarType BarType;
         }
 
         /// <summary>
@@ -75,9 +79,12 @@ namespace Bonsai.Design.Visualizers
             var valueParameter = Expression.Parameter(typeof(object));
             var viewParameter = Expression.Parameter(typeof(BarGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
-            Controller = new VisualizerController();
-            Controller.Capacity = Capacity.GetValueOrDefault();
-            Controller.BaseAxis = BaseAxis;
+            Controller = new VisualizerController
+            {
+                Capacity = Capacity.GetValueOrDefault(),
+                BaseAxis = BaseAxis,
+                BarType = BarType
+            };
 
             var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;

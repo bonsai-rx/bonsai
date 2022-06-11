@@ -104,8 +104,8 @@ namespace Bonsai.Design.Visualizers
 
             graph = new GraphControl();
             graph.Dock = DockStyle.Fill;
-            graph.GraphPane.BarSettings.Base = barChartBuilder.BaseAxis;
-            graph.GraphPane.BarSettings.Type = barChartBuilder.BarType;
+            graph.GraphPane.BarSettings.Base = controller.BaseAxis;
+            graph.GraphPane.BarSettings.Type = controller.BarType;
             GetBarGraphAxes(barChartBuilder.BaseAxis, graph, out Axis indexAxis, out Axis valueAxis);
             GraphHelper.FormatOrdinalAxis(indexAxis, typeof(string));
             GraphHelper.SetAxisLabel(indexAxis, controller.IndexLabel);
