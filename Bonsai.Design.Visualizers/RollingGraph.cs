@@ -6,7 +6,8 @@ namespace Bonsai.Design.Visualizers
     {
         int capacity;
         int numSeries;
-        bool autoScale;
+        bool autoScaleX;
+        bool autoScaleY;
         float lineWidth;
         SymbolType symbolType;
         IPointListEdit[] series;
@@ -16,7 +17,8 @@ namespace Bonsai.Design.Visualizers
 
         public RollingGraph()
         {
-            autoScale = true;
+            autoScaleX = true;
+            autoScaleY = true;
             IsShowContextMenu = false;
             capacity = DefaultCapacity;
             numSeries = DefaultNumSeries;
@@ -52,7 +54,29 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        public double Min
+        public double XMin
+        {
+            get { return GraphPane.XAxis.Scale.Min; }
+            set
+            {
+                GraphPane.XAxis.Scale.Min = value;
+                GraphPane.AxisChange();
+                Invalidate();
+            }
+        }
+
+        public double XMax
+        {
+            get { return GraphPane.XAxis.Scale.Max; }
+            set
+            {
+                GraphPane.XAxis.Scale.Max = value;
+                GraphPane.AxisChange();
+                Invalidate();
+            }
+        }
+
+        public double YMin
         {
             get { return GraphPane.YAxis.Scale.Min; }
             set
@@ -63,7 +87,7 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        public double Max
+        public double YMax
         {
             get { return GraphPane.YAxis.Scale.Max; }
             set
@@ -74,18 +98,34 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        public bool AutoScale
+        public bool AutoScaleX
         {
-            get { return autoScale; }
+            get { return autoScaleX; }
             set
             {
-                var changed = autoScale != value;
-                autoScale = value;
+                var changed = autoScaleX != value;
+                autoScaleX = value;
                 if (changed)
                 {
-                    GraphPane.YAxis.Scale.MaxAuto = autoScale;
-                    GraphPane.YAxis.Scale.MinAuto = autoScale;
-                    if (autoScale) Invalidate();
+                    GraphPane.XAxis.Scale.MaxAuto = autoScaleX;
+                    GraphPane.XAxis.Scale.MinAuto = autoScaleX;
+                    if (autoScaleX) Invalidate();
+                }
+            }
+        }
+
+        public bool AutoScaleY
+        {
+            get { return autoScaleY; }
+            set
+            {
+                var changed = autoScaleY != value;
+                autoScaleY = value;
+                if (changed)
+                {
+                    GraphPane.YAxis.Scale.MaxAuto = autoScaleY;
+                    GraphPane.YAxis.Scale.MinAuto = autoScaleY;
+                    if (autoScaleY) Invalidate();
                 }
             }
         }
@@ -99,10 +139,17 @@ namespace Bonsai.Design.Visualizers
                 GraphPane.CurveList.Clear();
                 for (int i = 0; i < series.Length; i++)
                 {
-                    var curve = new LineItem(hasLabels ? labels[i] : string.Empty, series[i], GetNextColor(), symbolType, lineWidth);
+                    var curve = new LineItem(
+                        label: hasLabels ? labels[i] : string.Empty,
+                        points: series[i],
+                        color: GetNextColor(),
+                        symbolType,
+                        lineWidth);
                     curve.Line.IsAntiAlias = true;
                     curve.Line.IsOptimizedDraw = true;
                     curve.Label.IsVisible = hasLabels;
+                    curve.Symbol.Fill.Type = FillType.Solid;
+                    curve.Symbol.IsAntiAlias = true;
                     GraphPane.CurveList.Add(curve);
                 }
             }
@@ -187,6 +234,14 @@ namespace Bonsai.Design.Visualizers
                 {
                     series[i].Add(new PointPair(index, values[i], double.MaxValue, tag));
                 }
+            }
+        }
+
+        public void AddValues(params PointPair[] values)
+        {
+            for (int i = 0; i < series.Length; i++)
+            {
+                series[i].Add(values[i]);
             }
         }
     }
