@@ -39,6 +39,22 @@ namespace Bonsai.Design.Visualizers
         public int? Capacity { get; set; }
 
         /// <summary>
+        /// Gets or sets a value specifying a fixed lower limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed lower limit of the y-axis range.")]
+        public double? Min { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed upper limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed upper limit of the y-axis range.")]
+        public double? Max { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether to serialize the element selector property.
         /// </summary>
         /// <returns>
@@ -62,6 +78,8 @@ namespace Bonsai.Design.Visualizers
 
         internal class VisualizerController
         {
+            internal double? Min;
+            internal double? Max;
             internal Type IndexType;
             internal string IndexLabel;
             internal string[] ValueLabels;
@@ -80,7 +98,11 @@ namespace Bonsai.Design.Visualizers
             var valueParameter = Expression.Parameter(typeof(object));
             var viewParameter = Expression.Parameter(typeof(RollingGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
-            Controller = new VisualizerController();
+            Controller = new VisualizerController
+            {
+                Min = Min,
+                Max = Max
+            };
 
             var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;
