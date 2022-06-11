@@ -28,12 +28,14 @@ namespace Bonsai.Design.Visualizers
         /// <summary>
         /// Gets or sets the optional symbol type to use for the line graph.
         /// </summary>
+        [Category(nameof(CategoryAttribute.Appearance))]
         [Description("The optional symbol type to use for the line graph.")]
         public SymbolType SymbolType { get; set; } = SymbolType.None;
 
         /// <summary>
         /// Gets or sets the width, in points, to be used for the line graph. Use a value of zero to hide the line.
         /// </summary>
+        [Category(nameof(CategoryAttribute.Appearance))]
         [Description("The width, in points, to be used for the line graph. Use a value of zero to hide the line.")]
         public float LineWidth { get; set; } = 1;
 
@@ -85,10 +87,10 @@ namespace Bonsai.Design.Visualizers
             internal double? XMax;
             internal double? YMin;
             internal double? YMax;
-            internal float LineWidth;
             internal bool LabelAxes;
             internal string[] ValueLabels;
             internal SymbolType SymbolType;
+            internal float LineWidth;
             internal Action<object, LineGraphVisualizer> AddValues;
         }
 
