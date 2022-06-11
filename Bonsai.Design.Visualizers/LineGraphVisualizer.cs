@@ -10,59 +10,59 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     public class LineGraphVisualizer : DialogTypeVisualizer
     {
-        GraphControl graph;
         LineGraphBuilder.VisualizerController controller;
-        IPointListEdit[] lineSeries;
+        LineGraphView view;
+        bool labelLines;
         bool reset;
+
+        /// <summary>
+        /// Gets or sets the maximum number of points displayed at any one moment in the graph.
+        /// </summary>
+        public int Capacity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the lower limit of the x-axis range when using a fixed scale.
+        /// </summary>
+        public double XMin { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upper limit of the x-axis range when using a fixed scale.
+        /// </summary>
+        public double XMax { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets the lower limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double YMin { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upper limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double YMax { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the x-axis range should be recalculated
+        /// automatically as the graph updates.
+        /// </summary>
+        public bool AutoScaleX { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the y-axis range should be recalculated
+        /// automatically as the graph updates.
+        /// </summary>
+        public bool AutoScaleY { get; set; } = true;
 
         internal void AddValues(PointPair[] values)
         {
-            EnsureSeries(values.Length);
-            if (values.Length > 0)
+            if (view.Graph.NumSeries != values.Length || reset)
             {
-                for (int i = 0; i < lineSeries.Length; i++)
-                {
-                    lineSeries[i].Add(values[i]);
-                }
-            }
-        }
-
-        void EnsureSeries(int count)
-        {
-            if (lineSeries == null || lineSeries.Length != count || reset)
-            {
+                view.Graph.EnsureCapacity(
+                    values.Length,
+                    labelLines ? controller.ValueLabels : null,
+                    reset);
                 reset = false;
-                graph.ResetColorCycle();
-                graph.GraphPane.CurveList.Clear();
-                lineSeries = new IPointListEdit[count];
-                var labelLines = controller.ValueLabels != null;
-                if (labelLines && controller.ValueLabels.Length == 2 && count == 1)
-                {
-                    labelLines = false;
-                    GraphHelper.SetAxisLabel(graph.GraphPane.XAxis, controller.ValueLabels[0]);
-                    GraphHelper.SetAxisLabel(graph.GraphPane.YAxis, controller.ValueLabels[1]);
-                }
-
-                for (int i = 0; i < lineSeries.Length; i++)
-                {
-                    var color = graph.GetNextColor();
-                    var values = controller.Capacity > 0
-                        ? (IPointListEdit)new RollingPointPairList(controller.Capacity)
-                        : new PointPairList();
-                    var lineItem = new LineItem(
-                        labelLines ? controller.ValueLabels[i] : null,
-                        values,
-                        color,
-                        controller.SymbolType,
-                        controller.LineWidth);
-                    lineItem.Line.IsAntiAlias = true;
-                    lineItem.Line.IsOptimizedDraw = true;
-                    lineItem.Symbol.Fill.Type = FillType.Solid;
-                    lineItem.Symbol.IsAntiAlias = true;
-                    graph.GraphPane.CurveList.Add(lineItem);
-                    lineSeries[i] = values;
-                }
             }
+            view.Graph.AddValues(values);
         }
 
         /// <inheritdoc/>
@@ -72,13 +72,85 @@ namespace Bonsai.Design.Visualizers
             var lineChartBuilder = (LineGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             controller = lineChartBuilder.Controller;
 
-            graph = new GraphControl();
-            graph.Dock = DockStyle.Fill;
+            view = new LineGraphView();
+            view.Dock = DockStyle.Fill;
+            view.Graph.LineWidth = controller.LineWidth;
+            view.Graph.SymbolType = controller.SymbolType;
+            labelLines = controller.ValueLabels != null;
+            if (labelLines && controller.LabelAxes && controller.ValueLabels.Length == 2)
+            {
+                labelLines = false;
+                GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, controller.ValueLabels[0]);
+                GraphHelper.SetAxisLabel(view.Graph.GraphPane.YAxis, controller.ValueLabels[1]);
+            }
+
+            if (labelLines)
+            {
+                view.Graph.EnsureCapacity(
+                    controller.ValueLabels.Length,
+                    labelLines ? controller.ValueLabels : null);
+            }
+
+            if (controller.XMin.HasValue || controller.XMax.HasValue)
+            {
+                view.AutoScaleX = false;
+                view.AutoScaleXVisible = false;
+                view.XMin = controller.XMin.GetValueOrDefault();
+                view.XMax = controller.XMax.GetValueOrDefault();
+            }
+            else
+            {
+                view.AutoScaleX = AutoScaleX;
+                if (!AutoScaleX)
+                {
+                    view.XMin = XMin;
+                    view.XMax = XMax;
+                }
+            }
+
+            if (controller.YMin.HasValue || controller.YMax.HasValue)
+            {
+                view.AutoScaleY = false;
+                view.AutoScaleYVisible = false;
+                view.YMin = controller.YMin.GetValueOrDefault();
+                view.YMax = controller.YMax.GetValueOrDefault();
+            }
+            else
+            {
+                view.AutoScaleY = AutoScaleY;
+                if (!AutoScaleY)
+                {
+                    view.YMin = YMin;
+                    view.YMax = YMax;
+                }
+            }
+
+            if (controller.Capacity.HasValue)
+            {
+                view.Capacity = controller.Capacity.Value;
+                view.CanEditCapacity = false;
+            }
+            else
+            {
+                view.Capacity = Capacity;
+                view.CanEditCapacity = true;
+            }
+
+            view.HandleDestroyed += delegate
+            {
+                XMin = view.XMin;
+                XMax = view.XMax;
+                YMin = view.YMin;
+                YMax = view.YMax;
+                AutoScaleX = view.AutoScaleX;
+                AutoScaleY = view.AutoScaleY;
+                Capacity = view.Capacity;
+            };
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(graph);
+                visualizerService.AddControl(view);
             }
         }
 
@@ -86,7 +158,7 @@ namespace Bonsai.Design.Visualizers
         public override void Show(object value)
         {
             controller.AddValues(value, this);
-            graph.Invalidate();
+            view.Graph.Invalidate();
         }
 
         /// <inheritdoc/>
@@ -98,10 +170,9 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Unload()
         {
-            graph.Dispose();
-            graph = null;
+            view.Dispose();
+            view = null;
             controller = null;
-            lineSeries = null;
         }
     }
 }

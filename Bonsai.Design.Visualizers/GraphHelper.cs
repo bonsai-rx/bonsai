@@ -124,6 +124,12 @@ namespace Bonsai.Design.Visualizers
 
         internal static Expression SelectDataPoints(Expression expression, string valueSelector, out string[] valueLabels)
         {
+            return SelectDataPoints(expression, valueSelector, out valueLabels, out _);
+        }
+
+        internal static Expression SelectDataPoints(Expression expression, string valueSelector, out string[] valueLabels, out bool labelAxes)
+        {
+            labelAxes = false;
             var memberNames = ExpressionHelper.SelectMemberNames(valueSelector).ToArray();
             if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
             if (memberNames.Length == 1)
@@ -148,6 +154,7 @@ namespace Bonsai.Design.Visualizers
             var members = Array.ConvertAll(memberNames, name => ExpressionHelper.MemberAccess(expression, name));
             if (members.Length == 2 && members[0].Type.IsPrimitive && members[1].Type.IsPrimitive)
             {
+                labelAxes = true;
                 var x = Expression.Convert(members[0], typeof(double));
                 var y = Expression.Convert(members[1], typeof(double));
                 return Expression.NewArrayInit(typeof(PointPair), Expression.New(NewPointPair, x, y));
