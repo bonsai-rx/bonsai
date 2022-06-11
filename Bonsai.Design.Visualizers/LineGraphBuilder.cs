@@ -40,15 +40,53 @@ namespace Bonsai.Design.Visualizers
         /// <summary>
         /// Gets or sets the optional capacity used for rolling line graphs. If no capacity is specified, all data points will be displayed.
         /// </summary>
+        [Category("Range")]
         [Description("The optional capacity used for rolling line graphs. If no capacity is specified, all data points will be displayed.")]
         public int? Capacity { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed lower limit for the x-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed lower limit of the x-axis range.")]
+        public double? XMin { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed upper limit for the x-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed upper limit of the x-axis range.")]
+        public double? XMax { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed lower limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed lower limit of the y-axis range.")]
+        public double? YMin { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed upper limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed upper limit of the y-axis range.")]
+        public double? YMax { get; set; }
 
         internal VisualizerController Controller { get; set; }
 
         internal class VisualizerController
         {
-            internal int Capacity;
+            internal int? Capacity;
+            internal double? XMin;
+            internal double? XMax;
+            internal double? YMin;
+            internal double? YMax;
             internal float LineWidth;
+            internal bool LabelAxes;
             internal string[] ValueLabels;
             internal SymbolType SymbolType;
             internal Action<object, LineGraphVisualizer> AddValues;
@@ -66,12 +104,22 @@ namespace Bonsai.Design.Visualizers
             var valueParameter = Expression.Parameter(typeof(object));
             var viewParameter = Expression.Parameter(typeof(LineGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
-            Controller = new VisualizerController();
-            Controller.Capacity = Capacity.GetValueOrDefault();
-            Controller.SymbolType = SymbolType;
-            Controller.LineWidth = LineWidth;
+            Controller = new VisualizerController
+            {
+                Capacity = Capacity,
+                XMin = XMin,
+                XMax = XMax,
+                YMin = YMin,
+                YMax = YMax,
+                SymbolType = SymbolType,
+                LineWidth = LineWidth
+            };
 
-            var selectedValues = GraphHelper.SelectDataPoints(elementVariable, ValueSelector, out Controller.ValueLabels);
+            var selectedValues = GraphHelper.SelectDataPoints(
+                elementVariable,
+                ValueSelector,
+                out Controller.ValueLabels,
+                out Controller.LabelAxes);
             var addValuesBody = Expression.Block(new[] { elementVariable },
                 Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
                 Expression.Call(viewParameter, nameof(LineGraphVisualizer.AddValues), null, selectedValues));
