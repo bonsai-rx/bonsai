@@ -132,9 +132,16 @@ namespace Bonsai.Design.Visualizers
                 }
             }
 
+            var previousSeries = series;
+            if (capacity == 0 && rollingSeries != null)
+            {
+                rollingSeries = null;
+                series = new IPointListEdit[numSeries];
+            }
+
             for (int i = 0; i < series.Length; i++)
             {
-                var previousPoints = series[i];
+                var previousPoints = previousSeries[i];
                 if (capacity > 0)
                 {
                     var points = new RollingPointPairList(capacity);
