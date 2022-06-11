@@ -54,14 +54,14 @@ namespace Bonsai.Design.Visualizers
 
         public double Min
         {
-            get { return graph.Min; }
-            set { graph.Min = value; }
+            get { return graph.YMin; }
+            set { graph.YMin = value; }
         }
 
         public double Max
         {
-            get { return graph.Max; }
-            set { graph.Max = value; }
+            get { return graph.YMax; }
+            set { graph.YMax = value; }
         }
 
         public bool AutoScale
@@ -164,7 +164,7 @@ namespace Bonsai.Design.Visualizers
 
         private void autoScaleButton_CheckedChanged(object sender, EventArgs e)
         {
-            graph.AutoScale = autoScaleButton.Checked;
+            graph.AutoScaleY = autoScaleButton.Checked;
             minStatusLabel.Visible = !autoScaleButton.Checked;
             maxStatusLabel.Visible = !autoScaleButton.Checked;
         }
