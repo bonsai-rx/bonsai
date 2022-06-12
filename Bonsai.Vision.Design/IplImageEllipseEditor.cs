@@ -77,6 +77,7 @@ namespace Bonsai.Vision.Design
                             regions = new[] { ellipse };
                         }
                         imageControl.MaxRegions = 1;
+                        imageControl.LabelRegions = false;
                     }
                     else regions = (RotatedRect[])value;
 

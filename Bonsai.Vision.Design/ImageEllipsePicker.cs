@@ -33,6 +33,7 @@ namespace Bonsai.Vision.Design
 
         public ImageEllipsePicker()
         {
+            LabelRegions = true;
             Canvas.KeyDown += Canvas_KeyDown;
             commandExecutor.StatusChanged += commandExecutor_StatusChanged;
             regions.CollectionChanged += regions_CollectionChanged;
@@ -251,6 +252,8 @@ namespace Bonsai.Vision.Design
             return new RectangleF(x, y, width, height);
         }
 
+        public bool LabelRegions { get; set; }
+
         public int? MaxRegions { get; set; }
 
         public int? SelectedRegion
@@ -309,7 +312,10 @@ namespace Bonsai.Vision.Design
                         var rect = RegionRectangle(regions[i]);
                         var brush = i == selectedRoi ? selectedBrush : regionBrush;
                         graphics.FillEllipse(brush, rect);
-                        graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), labelFont, Brushes.White, rect, format);
+                        if (LabelRegions)
+                        {
+                            graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), labelFont, Brushes.White, rect, format);
+                        }
                     }
                 }
 
