@@ -20,7 +20,7 @@ namespace Bonsai.Vision
         /// activation intensity.
         /// </summary>
         [Description("The regions of interest for which to calculate activation intensity.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputLabeledRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Vision.Design.IplImageLabeledRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point[][] Regions { get; set; }
 
         /// <summary>

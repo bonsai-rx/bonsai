@@ -12,12 +12,19 @@ using System.Collections.Generic;
 namespace Bonsai.Vision.Design
 {
     /// <summary>
-    /// Provides an abstract base class for user interface editors that allow
-    /// visually editing a collection of polygonal regions on top of the active
-    /// image source.
+    /// Provides a user interface for visually editing polygonal regions on top of
+    /// the input image sequence.
     /// </summary>
-    public abstract class IplImageRoiEditor : DataSourceTypeEditor
+    public class IplImageRoiEditor : DataSourceTypeEditor
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageRoiEditor"/> class.
+        /// </summary>
+        public IplImageRoiEditor()
+            : this(DataSource.Input)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IplImageRoiEditor"/> class
         /// using the specified image data source.
@@ -114,6 +121,70 @@ namespace Bonsai.Vision.Design
             if (regions.Count == 0) return null;
             else if (singleRegion) return regions[0];
             else return regions.ToArray();
+        }
+    }
+
+    /// <summary>
+    /// Provides a user interface for visually editing polygonal regions on top of
+    /// the output image sequence.
+    /// </summary>
+    public class IplImageOutputRoiEditor : IplImageRoiEditor
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageOutputRoiEditor"/> class.
+        /// </summary>
+        public IplImageOutputRoiEditor()
+            : base(DataSource.Output)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Provides a user interface for visually editing labeled polygonal regions on
+    /// top of the input image sequence.
+    /// </summary>
+    public class IplImageLabeledRoiEditor : IplImageRoiEditor
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageLabeledRoiEditor"/> class.
+        /// </summary>
+        public IplImageLabeledRoiEditor()
+            : base(DataSource.Input)
+        {
+            LabelRegions = true;
+        }
+    }
+
+    /// <summary>
+    /// Provides a user interface for visually editing a collection of polygonal
+    /// regions on top of the input image sequence.
+    /// </summary>
+    [Obsolete]
+    public class IplImageInputRoiEditor : IplImageRoiEditor
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageInputRoiEditor"/> class.
+        /// </summary>
+        public IplImageInputRoiEditor()
+            : base(DataSource.Input)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Provides a user interface for visually editing a collection of labeled
+    /// polygonal regions on top of the active image source.
+    /// </summary>
+    [Obsolete]
+    public class IplImageInputLabeledRoiEditor : IplImageRoiEditor
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IplImageInputLabeledRoiEditor"/> class.
+        /// </summary>
+        public IplImageInputLabeledRoiEditor()
+            : base(DataSource.Input)
+        {
+            LabelRegions = true;
         }
     }
 }

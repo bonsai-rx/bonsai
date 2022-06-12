@@ -18,7 +18,7 @@ namespace Bonsai.Vision
         /// Gets or sets a rectangle specifying the region of interest inside the image.
         /// </summary>
         [Description("Specifies the region of interest inside the image.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Vision.Design.IplImageRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
         /// <summary>
