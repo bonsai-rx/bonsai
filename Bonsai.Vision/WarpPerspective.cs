@@ -19,7 +19,7 @@ namespace Bonsai.Vision
         /// in the input image.
         /// </summary>
         [Description("The coordinates of the four source quadrangle vertices in the input image.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Vision.Design.IplImageQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Source { get; set; }
 
         /// <summary>

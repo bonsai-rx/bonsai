@@ -34,7 +34,7 @@ namespace Bonsai.Vision
         /// Gets or sets the array of vertices specifying each polygonal region of interest.
         /// </summary>
         [Description("The array of vertices specifying each polygonal region of interest.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Vision.Design.IplImageRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point[][] Regions { get; set; }
 
         /// <summary>

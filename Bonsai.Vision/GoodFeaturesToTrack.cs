@@ -36,7 +36,7 @@ namespace Bonsai.Vision
         /// If the rectangle is empty, the whole image is used.
         /// </summary>
         [Description("The region of interest used to find image corners.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Vision.Design.IplImageRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
         /// <summary>
