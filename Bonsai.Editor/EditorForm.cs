@@ -1019,29 +1019,23 @@ namespace Bonsai.Editor
 
         void ExportImage(WorkflowGraphView model, string fileName)
         {
+            var workflow = model.Workflow;
             if (model.GraphView.SelectedNodes.Count() > 0)
             {
                 var selectedElements = model.GraphView.SelectedNodes.ToWorkflowBuilder();
-                using var graphView = WorkflowExporter.CreateGraphView(
-                    selectedElements.Workflow,
-                    model.GraphView.Font,
-                    model.GraphView.IconRenderer);
-                ExportImage(graphView, fileName);
+                workflow = selectedElements.Workflow;
             }
-            else ExportImage(model.GraphView, fileName);
-        }
 
-        void ExportImage(GraphViewControl graphView, string fileName)
-        {
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
-                var svg = WorkflowExporter.ExportSvg(graphView);
+                using var font = new Font(Font.FontFamily, Font.SizeInPoints * inverseScaleFactor.Height);
+                var svg = WorkflowExporter.ExportSvg(workflow, font, iconRenderer);
                 File.WriteAllText(fileName, svg);
             }
             else
             {
-                using var bitmap = WorkflowExporter.ExportBitmap(graphView);
+                using var bitmap = WorkflowExporter.ExportBitmap(workflow, Font, iconRenderer);
                 if (string.IsNullOrEmpty(fileName))
                 {
                     Clipboard.SetImage(bitmap);
