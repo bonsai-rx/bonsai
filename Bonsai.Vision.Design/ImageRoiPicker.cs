@@ -45,8 +45,8 @@ namespace Bonsai.Vision.Design
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseMove)).Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseDown)).Select(e => e.EventArgs);
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, nameof(MouseUp)).Select(e => e.EventArgs);
-            mouseDown = mouseDown.Do(x => dragging = true);
-            mouseUp = mouseUp.Do(x => dragging = false);
+            var dragStart = mouseDown.Select(x => new Action(() => dragging = true));
+            var dragEnd = mouseUp.Select(x => new Action(() => dragging = false));
 
             var roiSelected = from downEvt in mouseDown
                               where Image != null
@@ -164,7 +164,15 @@ namespace Bonsai.Vision.Design
                                          () => regions[selection] = region);
                                 });
 
-            var roiActions = Observable.Merge(roiSelected, pointMove, roiMoveScale, pointInsertion, pointDeletion, regionInsertion);
+            var roiActions = Observable.Merge(
+                dragStart,
+                dragEnd,
+                roiSelected,
+                pointMove,
+                roiMoveScale,
+                pointInsertion,
+                pointDeletion,
+                regionInsertion);
             roiActions.Subscribe(action =>
             {
                 action();
