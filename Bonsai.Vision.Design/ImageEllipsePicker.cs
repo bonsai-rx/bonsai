@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using OpenCV.Net;
 using System.Reactive.Linq;
@@ -84,7 +84,10 @@ namespace Bonsai.Vision.Design
                                    let count = regions.Count
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
-                                           let location = EnsureSizeRatio(origin, NormalizedLocation(moveEvt.X, moveEvt.Y), ModifierKeys.HasFlag(Keys.Control))
+                                           let location = EnsureSizeRatio(
+                                               origin,
+                                               NormalizedLocation(moveEvt.X, moveEvt.Y),
+                                               IsCirclePicker || ModifierKeys.HasFlag(Keys.Control))
                                            where location.X - origin.X != 0 && location.Y - origin.Y != 0
                                            select CreateEllipseRegion(origin, location))
                                            .Publish(ps =>
@@ -253,6 +256,8 @@ namespace Bonsai.Vision.Design
         }
 
         public bool LabelRegions { get; set; }
+
+        public bool IsCirclePicker { get; set; }
 
         public int? MaxRegions { get; set; }
 
