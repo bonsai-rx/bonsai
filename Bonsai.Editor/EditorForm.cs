@@ -1430,6 +1430,35 @@ namespace Bonsai.Editor
             else clearErrors();
         }
 
+        void HighlightDeclaration(WorkflowGraphView workflowView, ExpressionDeclaration declaration)
+        {
+            if (workflowView == null)
+            {
+                throw new ArgumentNullException(nameof(workflowView));
+            }
+
+            var graphNode = workflowView.FindGraphNode(declaration.Value);
+            if (graphNode != null)
+            {
+                workflowView.GraphView.SelectedNode = graphNode;
+                var nestedDeclaration = declaration.InnerDeclaration;
+                if (nestedDeclaration != null)
+                {
+                    workflowView.LaunchWorkflowView(graphNode);
+                    var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
+                    if (editorLauncher != null)
+                    {
+                        HighlightDeclaration(editorLauncher.WorkflowGraphView, nestedDeclaration);
+                    }
+                }
+                else
+                {
+                    var ownerForm = workflowView.EditorControl.ParentForm;
+                    if (ownerForm != null) ownerForm.Activate();
+                }
+            }
+        }
+
         #endregion
 
         #region Workflow Controller
@@ -2505,6 +2534,19 @@ namespace Bonsai.Editor
 
             public void ShowDefinition(object component)
             {
+                if (component is INamedElement namedElement &&
+                   (namedElement is SubscribeSubjectBuilder || namedElement is MulticastSubjectBuilder))
+                {
+                    var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
+                    var definition = siteForm.workflowBuilder.GetSubjectDefinition(model.Workflow, namedElement.Name);
+                    if (definition != null)
+                    {
+                        var declaration = siteForm.workflowBuilder.GetDeclaration(definition.Subject);
+                        siteForm.HighlightDeclaration(siteForm.editorControl.WorkflowGraphView, declaration);
+                        return;
+                    }
+                }
+
                 Type componentType;
                 if (siteForm.scriptEnvironment == null) return;
                 if (siteForm.scriptEnvironment.AssemblyName != null &&
