@@ -91,6 +91,47 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
         }
+
+        public static ExpressionDeclaration GetDeclaration(this WorkflowBuilder source, ExpressionBuilder target)
+        {
+            return GetDeclaration(source.Workflow, target);
+        }
+
+        static ExpressionDeclaration GetDeclaration(ExpressionBuilderGraph source, ExpressionBuilder target)
+        {
+            foreach (var node in source)
+            {
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                if (builder == target)
+                {
+                    return new ExpressionDeclaration(node.Value, innerDeclaration: null);
+                }
+
+                if (builder is IWorkflowExpressionBuilder workflowBuilder)
+                {
+                    var innerDeclaration = GetDeclaration(workflowBuilder.Workflow, target);
+                    if (innerDeclaration != null)
+                    {
+                        return new ExpressionDeclaration(node.Value, innerDeclaration);
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
+    class ExpressionDeclaration
+    {
+        public ExpressionDeclaration(ExpressionBuilder value, ExpressionDeclaration innerDeclaration)
+        {
+            Value = value;
+            InnerDeclaration = innerDeclaration;
+        }
+
+        public ExpressionBuilder Value { get; }
+
+        public ExpressionDeclaration InnerDeclaration { get; }
     }
 
     class SubjectDefinition
