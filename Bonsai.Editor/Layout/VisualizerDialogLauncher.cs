@@ -95,17 +95,6 @@ namespace Bonsai.Design
                 visualizerContext.Dispose();
                 visualizerContext = null;
             };
-
-            if (graphView != null)
-            {
-                visualizerDialog.Shown += delegate
-                {
-                    visualizerDialog.Activated += delegate
-                    {
-                        graphView.SelectBuilderNode(Source);
-                    };
-                };
-            }
         }
 
         void visualizerDialog_KeyDown(object sender, KeyEventArgs e)
