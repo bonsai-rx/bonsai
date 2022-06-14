@@ -6,79 +6,61 @@ namespace Bonsai.Editor.GraphModel
 {
     static class WorkflowBuilderExtensions
     {
-        static bool IsGroup(IWorkflowExpressionBuilder builder)
+        public static bool IsGroup(this IWorkflowExpressionBuilder builder)
         {
             return builder is IncludeWorkflowBuilder || builder is GroupWorkflowBuilder;
         }
 
-        static IEnumerable<ExpressionBuilder> SelectContextElements(ExpressionBuilderGraph source)
+        static bool GetCallContext(ExpressionBuilderGraph source, bool readOnly, ExpressionBuilderGraph target, Stack<ContextGrouping> callContext)
         {
-            foreach (var node in source)
-            {
-                var element = ExpressionBuilder.Unwrap(node.Value);
-                yield return element;
-
-                if (element is IWorkflowExpressionBuilder workflowBuilder && IsGroup(workflowBuilder))
-                {
-                    var workflow = workflowBuilder.Workflow;
-                    if (workflow == null) continue;
-                    foreach (var groupElement in SelectContextElements(workflow))
-                    {
-                        yield return groupElement;
-                    }
-                }
-            }
-        }
-
-        static bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
-        {
-            context.Push(source);
+            var context = new ContextGrouping(source, readOnly);
+            callContext.Push(context);
             if (source == target)
             {
                 return true;
             }
 
-            foreach (var element in SelectContextElements(source))
+            foreach (var element in context)
             {
-                var groupBuilder = element as IWorkflowExpressionBuilder;
+                var groupBuilder = element.Builder as IWorkflowExpressionBuilder;
                 if (IsGroup(groupBuilder) && groupBuilder.Workflow == target)
                 {
                     return true;
                 }
 
-                if (element is WorkflowExpressionBuilder workflowBuilder)
+                if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
                 {
-                    if (GetCallContext(workflowBuilder.Workflow, target, context))
+                    if (GetCallContext(workflowBuilder.Workflow, element.IsReadOnly, target, callContext))
                     {
                         return true;
                     }
                 }
             }
 
-            context.Pop();
+            callContext.Pop();
             return false;
         }
 
-        public static SubjectDeclaration GetSubjectDeclaration(this WorkflowBuilder source, ExpressionBuilderGraph target, string name)
+        public static SubjectDefinition GetSubjectDefinition(this WorkflowBuilder source, ExpressionBuilderGraph target, string name)
         {
-            var callContext = new Stack<ExpressionBuilderGraph>();
-            if (GetCallContext(source.Workflow, target, callContext))
+            var callContext = new Stack<ContextGrouping>();
+            if (GetCallContext(source.Workflow, readOnly: false, target, callContext))
             {
                 return (from level in callContext
-                        from element in SelectContextElements(level)
-                        let subjectBuilder = element as SubjectExpressionBuilder
+                        from element in level
+                        let subjectBuilder = element.Builder as SubjectExpressionBuilder
                         where subjectBuilder != null && subjectBuilder.Name == name
-                        select new SubjectDeclaration(level, subjectBuilder))
+                        select new SubjectDefinition(level, subjectBuilder, element.IsReadOnly))
                         .LastOrDefault();
             }
 
             return null;
         }
 
-        public static IEnumerable<ContextGrouping> GetDependentExpressions(this ExpressionBuilderGraph source, SubjectExpressionBuilder subject)
+        public static IEnumerable<ContextGrouping> GetDependentExpressions(this SubjectDefinition source)
         {
-            var callContext = new Stack<ExpressionBuilderGraph>();
-            callContext.Push(source);
+            var callContext = new Stack<ContextGrouping>();
+            callContext.Push(source.Root);
 
             while (callContext.Count > 0)
             {
@@ -86,57 +68,75 @@ namespace Bonsai.Editor.GraphModel
 
                 var exclude = false;
                 var snapshot = callContext.Count;
-                foreach (var element in SelectContextElements(root))
+                foreach (var element in root)
                 {
-                    if (element is SubjectExpressionBuilder subjectDeclaration &&
-                        subjectDeclaration != subject &&
-                        subjectDeclaration.Name == subject.Name)
+                    if (element.Builder is SubjectExpressionBuilder subjectDefinition &&
+                        subjectDefinition != source.Subject &&
+                        subjectDefinition.Name == source.Subject.Name)
                     {
                         exclude = true;
                         while (callContext.Count > snapshot) callContext.Pop();
                         break;
                     }
 
-                    if (element is WorkflowExpressionBuilder workflowBuilder)
+                    if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
                     {
-                        callContext.Push(workflowBuilder.Workflow);
+                        callContext.Push(new ContextGrouping(workflowBuilder.Workflow, element.IsReadOnly));
                     }
                 }
 
                 if (!exclude)
                 {
-                    yield return new ContextGrouping(root, SelectContextElements(root));
+                    yield return root;
                 }
             }
         }
     }
 
-    class SubjectDeclaration
+    class SubjectDefinition
     {
-        public SubjectDeclaration(ExpressionBuilderGraph root, SubjectExpressionBuilder subject)
+        public SubjectDefinition(ContextGrouping root, SubjectExpressionBuilder subject, bool readOnly)
         {
             Root = root;
             Subject = subject;
+            IsReadOnly = readOnly;
         }
 
-        public ExpressionBuilderGraph Root { get; }
+        public ContextGrouping Root { get; }
 
         public SubjectExpressionBuilder Subject { get; }
+
+        public bool IsReadOnly { get; }
     }
 
-    class ContextGrouping : IGrouping<ExpressionBuilderGraph, ExpressionBuilder>
+    struct ContextElement
     {
-        public ContextGrouping(ExpressionBuilderGraph key, IEnumerable<ExpressionBuilder> elements)
+        public ExpressionBuilder Builder;
+        public bool IsReadOnly;
+
+        public ContextElement(ExpressionBuilder element, bool readOnly)
+        {
+            Builder = element;
+            IsReadOnly = readOnly;
+        }
+    }
+
+    class ContextGrouping : IGrouping<ExpressionBuilderGraph, ContextElement>
+    {
+        public ContextGrouping(ExpressionBuilderGraph key, bool readOnly)
         {
             Key = key;
-            Elements = elements;
+            IsReadOnly = readOnly;
+            Elements = SelectContextElements(key, readOnly);
         }
 
         public ExpressionBuilderGraph Key { get; }
 
-        IEnumerable<ExpressionBuilder> Elements { get; }
+        public bool IsReadOnly { get; }
 
-        public IEnumerator<ExpressionBuilder> GetEnumerator()
+        IEnumerable<ContextElement> Elements { get; }
+
+        public IEnumerator<ContextElement> GetEnumerator()
         {
             return Elements.GetEnumerator();
         }
@@ -144,6 +144,25 @@ namespace Bonsai.Editor.GraphModel
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        static IEnumerable<ContextElement> SelectContextElements(ExpressionBuilderGraph source, bool readOnly)
+        {
+            foreach (var node in source)
+            {
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                yield return new ContextElement(builder, readOnly);
+
+                if (builder is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.IsGroup())
+                {
+                    var workflow = workflowBuilder.Workflow;
+                    if (workflow == null) continue;
+                    foreach (var groupElement in SelectContextElements(workflow, readOnly || workflowBuilder is IncludeWorkflowBuilder))
+                    {
+                        yield return groupElement;
+                    }
+                }
+            }
         }
     }
 }
