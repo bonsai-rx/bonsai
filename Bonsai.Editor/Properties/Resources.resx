@@ -329,4 +329,13 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="OutputMenuItemLabel" xml:space="preserve">
     <value>Output</value>
   </data>
+  <data name="ReadOnlySubjectDefinition_Error" xml:space="preserve">
+    <value>The specified subject definition is read-only.</value>
+  </data>
+  <data name="RenameReadOnlySubjectDefinition_Error" xml:space="preserve">
+    <value>The definition of {0} is read-only and cannot be renamed.</value>
+  </data>
+  <data name="SubjectDefinitionNotFound_Error" xml:space="preserve">
+    <value>The specified subject definition could not be found.</value>
+  </data>
 </root>

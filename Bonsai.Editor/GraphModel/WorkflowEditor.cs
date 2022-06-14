@@ -1597,26 +1597,32 @@ namespace Bonsai.Editor.GraphModel
             UpdateGraphNodes(nodes, EnableGraphNode);
         }
 
-        public void RenameSubject(string currentName, string newName)
+        public void RenameSubject(SubjectDefinition definition, string newName)
         {
-            var workflow = Workflow;
-            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
-            var declaration = workflowBuilder.GetSubjectDeclaration(workflow, currentName);
-            if (declaration == null) return;
+            if (definition == null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
 
+            if (definition.IsReadOnly)
+            {
+                throw new ArgumentException(Resources.ReadOnlySubjectDefinition_Error, nameof(definition));
+            }
+
+            var currentName = definition.Subject.Name;
             var subscribeDependents = new List<SubscribeSubjectBuilder>();
             var multicastDependents = new List<MulticastSubjectBuilder>();
-            foreach (var dependent in declaration.Root.GetDependentExpressions(declaration.Subject)
-                                                      .SelectMany(context => context)
-                                                      .Where(builder => builder is INamedElement namedElement &&
-                                                                        namedElement.Name == currentName))
+            foreach (var dependent in definition.GetDependentExpressions()
+                                                .SelectMany(context => context)
+                                                .Where(element => element.Builder is INamedElement namedElement &&
+                                                    namedElement.Name == definition.Subject.Name))
             {
-                if (dependent is SubscribeSubjectBuilder subscribeSubject)
+                if (dependent.IsReadOnly) continue;
+                else if (dependent.Builder is SubscribeSubjectBuilder subscribeSubject)
                 {
                     subscribeDependents.Add(subscribeSubject);
                 }
-
-                if (dependent is MulticastSubjectBuilder multicastSubject)
+                else if (dependent.Builder is MulticastSubjectBuilder multicastSubject)
                 {
                     multicastDependents.Add(multicastSubject);
                 }
@@ -1627,7 +1633,7 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.Execute(EmptyAction, invalidateGraphLayout);
             commandExecutor.Execute(() =>
             {
-                declaration.Subject.Name = newName;
+                definition.Subject.Name = newName;
                 foreach (var dependent in subscribeDependents)
                 {
                     dependent.Name = newName;
@@ -1640,7 +1646,7 @@ namespace Bonsai.Editor.GraphModel
             },
             () =>
             {
-                declaration.Subject.Name = currentName;
+                definition.Subject.Name = currentName;
                 foreach (var dependent in subscribeDependents)
                 {
                     dependent.Name = currentName;

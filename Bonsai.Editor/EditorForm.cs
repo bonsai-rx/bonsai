@@ -1874,6 +1874,18 @@ namespace Bonsai.Editor
                 var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
                 if (!selectedNode.IsEditing && elementCategory == ~ElementCategory.Source)
                 {
+                    var currentName = selectedNode.Name;
+                    var selectedView = selectionModel.SelectedView;
+                    var definition = workflowBuilder.GetSubjectDefinition(selectedView.Workflow, currentName);
+                    if (definition == null || definition.IsReadOnly)
+                    {
+                        var message = definition == null
+                            ? Resources.SubjectDefinitionNotFound_Error
+                            : string.Format(Resources.RenameReadOnlySubjectDefinition_Error, currentName);
+                        editorSite.ShowError(message);
+                        return;
+                    }
+
                     toolboxTreeView.LabelEdit = true;
                     selectedNode.BeginEdit();
                 }
@@ -1893,7 +1905,8 @@ namespace Bonsai.Editor
             var newName = e.Label;
             var currentName = e.Node.Name;
             var currentLabel = e.Node.Text;
-            selectedView.Editor.RenameSubject(currentName, newName);
+            var definition = workflowBuilder.GetSubjectDefinition(selectedView.Workflow, currentName);
+            selectedView.Editor.RenameSubject(definition, newName);
             e.Node.Name = newName;
             e.Node.Text = newName + currentLabel.Substring(currentName.Length);
             toolboxTreeView.LabelEdit = false;
