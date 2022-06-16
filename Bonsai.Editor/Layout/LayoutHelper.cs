@@ -31,6 +31,30 @@ namespace Bonsai.Design
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
+        public static void SetLayoutTags(ExpressionBuilderGraph source, VisualizerLayout layout)
+        {
+            foreach (var node in source)
+            {
+                var builder = node.Value;
+                var layoutSettings = layout.GetLayoutSettings(builder);
+                if (layoutSettings == null)
+                {
+                    layoutSettings = new VisualizerDialogSettings();
+                    layout.DialogSettings.Add(layoutSettings);
+                }
+                layoutSettings.Tag = builder;
+
+                if (layoutSettings is WorkflowEditorSettings editorSettings &&
+                    ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
+                    editorSettings.EditorVisualizerLayout != null &&
+                    editorSettings.EditorDialogSettings.Visible &&
+                    workflowBuilder.Workflow != null)
+                {
+                    SetLayoutTags(workflowBuilder.Workflow, editorSettings.EditorVisualizerLayout);
+                }
+            }
+        }
+
         public static void SetWorkflowNotifications(ExpressionBuilderGraph source, bool publishNotifications)
         {
             foreach (var builder in from node in source
