@@ -6,7 +6,12 @@ namespace Bonsai.Editor
 {
     static class EditorDialog
     {
-        public static void OpenUri(string url)
+        public static void OpenUrl(Uri url)
+        {
+            OpenUrl(url.AbsoluteUri);
+        }
+
+        public static void OpenUrl(string url)
         {
             var validUrl = Uri.TryCreate(url, UriKind.Absolute, out Uri result) &&
                 (result.Scheme == Uri.UriSchemeFile || result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
@@ -34,17 +39,17 @@ namespace Bonsai.Editor
 
         public static void ShowDocs()
         {
-            OpenUri("http://bonsai-rx.org/docs/editor/");
+            OpenUrl("http://bonsai-rx.org/docs/editor/");
         }
 
         public static void ShowForum()
         {
-            OpenUri("https://github.com/bonsai-rx/bonsai/discussions");
+            OpenUrl("https://github.com/bonsai-rx/bonsai/discussions");
         }
 
         public static void ShowReportBug()
         {
-            OpenUri("https://github.com/bonsai-rx/bonsai/issues");
+            OpenUrl("https://github.com/bonsai-rx/bonsai/issues");
         }
 
         public static void ShowAboutBox()

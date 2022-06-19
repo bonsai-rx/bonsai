@@ -1285,6 +1285,11 @@ namespace Bonsai.Editor.GraphView
             LaunchDefaultEditor(graphView.SelectedNode);
         }
 
+        private void docsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.OnKeyDown(new KeyEventArgs(Keys.F1));
+        }
+
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefinition(graphView.SelectedNode);
@@ -1784,6 +1789,7 @@ namespace Bonsai.Editor.GraphView
                 var builder = WorkflowEditor.GetGraphNodeBuilder(selectedNode);
                 defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
                 goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
+                docsToolStripMenuItem.Enabled = true;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 if (workflowElement != null)

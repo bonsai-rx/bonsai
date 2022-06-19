@@ -133,6 +133,7 @@
             this.propertiesLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.propertiesLabel = new System.Windows.Forms.Label();
             this.toolboxContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolboxDocsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -599,7 +600,7 @@
             // welcomeToolStripMenuItem
             // 
             this.welcomeToolStripMenuItem.Name = "welcomeToolStripMenuItem";
-            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.welcomeToolStripMenuItem.Text = "&Welcome...";
             this.welcomeToolStripMenuItem.Click += new System.EventHandler(this.welcomeToolStripMenuItem_Click);
             // 
@@ -607,15 +608,16 @@
             // 
             this.docsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
             this.docsToolStripMenuItem.Name = "docsToolStripMenuItem";
-            this.docsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.docsToolStripMenuItem.Text = "&Documentation";
+            this.docsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.docsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.docsToolStripMenuItem.Text = "&View Help";
             this.docsToolStripMenuItem.Click += new System.EventHandler(this.docsToolStripMenuItem_Click);
             // 
             // forumToolStripMenuItem
             // 
             this.forumToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("forumToolStripMenuItem.Image")));
             this.forumToolStripMenuItem.Name = "forumToolStripMenuItem";
-            this.forumToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.forumToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.forumToolStripMenuItem.Text = "Bonsai &Forums";
             this.forumToolStripMenuItem.Click += new System.EventHandler(this.forumToolStripMenuItem_Click);
             // 
@@ -623,19 +625,19 @@
             // 
             this.reportBugToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reportBugToolStripMenuItem.Image")));
             this.reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
-            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.reportBugToolStripMenuItem.Text = "&Report a Bug";
             this.reportBugToolStripMenuItem.Click += new System.EventHandler(this.reportBugToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(154, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -1157,6 +1159,7 @@
             // toolboxContextMenuStrip
             // 
             this.toolboxContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolboxDocsToolStripMenuItem,
             this.insertAfterToolStripMenuItem,
             this.insertBeforeToolStripMenuItem,
             this.createBranchToolStripMenuItem,
@@ -1167,6 +1170,14 @@
             this.goToDefinitionToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
             this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 202);
+            // 
+            // toolboxDocsToolStripMenuItem
+            // 
+            this.toolboxDocsToolStripMenuItem.Name = "toolboxDocsToolStripMenuItem";
+            this.toolboxDocsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.toolboxDocsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.toolboxDocsToolStripMenuItem.Text = "View Help";
+            this.toolboxDocsToolStripMenuItem.Click += new System.EventHandler(this.docsToolStripMenuItem_Click);
             // 
             // insertAfterToolStripMenuItem
             // 
@@ -1248,7 +1259,7 @@
     "*.tiff)|*.tif;*.tiff|PNG (*.png)|*.png|SVG (*.svg)|*.svg";
             this.exportImageDialog.FilterIndex = 6;
             // 
-            // MainForm
+            // EditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -1261,7 +1272,7 @@
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(600, 343);
-            this.Name = "MainForm";
+            this.Name = "EditorForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bonsai";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
@@ -1414,6 +1425,7 @@
         private System.Windows.Forms.ToolStripMenuItem startWithoutDebuggingToolStripButtonMenuItem;
         private System.Windows.Forms.ContextMenuStrip statusContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem statusCopyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolboxDocsToolStripMenuItem;
     }
 }
 

@@ -16,13 +16,14 @@ using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
-using System.Reflection;
 using System.Globalization;
 using System.Reactive.Subjects;
 using Bonsai.Editor.Scripting;
 using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphView;
 using Bonsai.Editor.GraphModel;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace Bonsai.Editor
 {
@@ -51,6 +52,7 @@ namespace Bonsai.Editor
         readonly HotKeyMessageFilter hotKeys;
         readonly IServiceProvider serviceProvider;
         readonly IScriptEnvironment scriptEnvironment;
+        readonly IDocumentationProvider documentationProvider;
         readonly WorkflowEditorControl editorControl;
         readonly WorkflowSelectionModel selectionModel;
         readonly Dictionary<string, string> propertyAssignments;
@@ -159,6 +161,7 @@ namespace Bonsai.Editor
             if (serviceProvider != null)
             {
                 scriptEnvironment = (IScriptEnvironment)serviceProvider.GetService(typeof(IScriptEnvironment));
+                documentationProvider = (IDocumentationProvider)serviceProvider.GetService(typeof(IDocumentationProvider));
             }
 
             definitionsPath = Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
@@ -1050,7 +1053,7 @@ namespace Bonsai.Editor
 
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            EditorDialog.OpenUri(directoryToolStripItem.Text);
+            EditorDialog.OpenUrl(directoryToolStripItem.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2221,8 +2224,72 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
-        private void docsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async Task OpenDocumentationAsync(Type type)
         {
+            var uid = type.FullName;
+            var assemblyName = type.Assembly.GetName().Name;
+            await OpenDocumentationAsync(assemblyName, uid);
+        }
+
+        private async Task OpenDocumentationAsync(string assemblyName, string uid)
+        {
+            if (documentationProvider == null)
+            {
+                EditorDialog.ShowDocs();
+                return;
+            }
+
+            try
+            {
+                var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
+                EditorDialog.OpenUrl(url);
+            }
+            catch (ArgumentException ex) when (ex.ParamName == nameof(assemblyName))
+            {
+                var message = $"Documentation for the module {assemblyName} is not available.";
+                editorSite.ShowError(ex, message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                var message = $"The specified operator {uid} was not found in the documentation for {assemblyName}.";
+                editorSite.ShowError(ex, message);
+            }
+            catch (SystemException ex) when (ex is WebException || ex is NotSupportedException)
+            {
+                var message = $"The documentation for the module {assemblyName} is not available. {{0}}";
+                editorSite.ShowError(ex, message);
+            }
+            catch (SystemException ex)
+            {
+                editorSite.ShowError(ex);
+            }
+        }
+
+        private async void docsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (toolboxTreeView.Focused || searchTextBox.Focused)
+            {
+                var typeNode = toolboxTreeView.SelectedNode;
+                if (typeNode != null && typeNode.Tag != null)
+                {
+                    var type = Type.GetType(typeNode.Name);
+                    await OpenDocumentationAsync(type);
+                    return;
+                }
+            }
+
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                var selectedNode = selectionModel.SelectedNodes.FirstOrDefault();
+                if (selectedNode != null)
+                {
+                    var selectedElementType = ExpressionBuilder.GetWorkflowElement(selectedNode.Value).GetType();
+                    await OpenDocumentationAsync(selectedElementType);
+                    return;
+                }
+            }
+
             EditorDialog.ShowDocs();
         }
 
@@ -2399,6 +2466,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.restartToolStripMenuItem, siteForm.restartToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.stopToolStripMenuItem, siteForm.stopToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.renameSubjectToolStripMenuItem, siteForm.renameSubjectToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.docsToolStripMenuItem, siteForm.docsToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
