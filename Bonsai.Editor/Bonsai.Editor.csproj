@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
     <PackageReference Include="SvgNet" Version="2.2.2" />
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
