@@ -116,9 +116,9 @@ namespace Bonsai
             }
 
             var packageMap = packageConfiguration.GetPackageReferenceMap();
-            var dependencies = packageConfiguration.GetAssemblyPackageReferences(
-                assemblies.Select(assembly => assembly.GetName().Name),
-                packageMap);
+            var dependencies = assemblies.Select(assembly =>
+                packageConfiguration.GetAssemblyPackageReference(assembly.GetName().Name, packageMap))
+                .Where(package => package != null);
             if (File.Exists(scriptEnvironment.ProjectFileName))
             {
                 dependencies = dependencies.Concat(

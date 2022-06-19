@@ -9,6 +9,7 @@ using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -86,8 +87,12 @@ namespace Bonsai
             }, cancellation.Token);
 
             EditorBootstrapper.EnableVisualStyles();
+            using var serviceContainer = new ServiceContainer();
             var scriptEnvironment = new ScriptExtensionsEnvironment(scriptExtensions);
-            using var mainForm = new EditorForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
+            var documentationProvider = new DocumentationProvider(packageConfiguration, packageManager);
+            serviceContainer.AddService(typeof(IScriptEnvironment), scriptEnvironment);
+            serviceContainer.AddService(typeof(IDocumentationProvider), documentationProvider);
+            using var mainForm = new EditorForm(elementProvider, visualizerProvider, serviceContainer, editorScale);
             try
             {
                 updatesAvailable.ContinueWith(
