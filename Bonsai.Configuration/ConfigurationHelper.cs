@@ -80,29 +80,25 @@ namespace Bonsai.Configuration
             return packageMap;
         }
 
-        public static IEnumerable<PackageReference> GetAssemblyPackageReferences(
+        public static PackageReference GetAssemblyPackageReference(
             this PackageConfiguration configuration,
-            IEnumerable<string> assemblyNames,
+            string assemblyName,
             IDictionary<string, PackageReference> packageMap)
         {
-            var dependencies = new List<PackageReference>();
-            foreach (var assemblyName in assemblyNames)
+            var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
+            if (assemblyLocation != null)
             {
-                var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
-                if (assemblyLocation != null)
+                var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                if (pathElements.Length > 1 && pathElements[0] == RepositoryPath)
                 {
-                    var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                    if (pathElements.Length > 1 && pathElements[0] == RepositoryPath)
+                    if (packageMap.TryGetValue(pathElements[1], out PackageReference package))
                     {
-                        if (packageMap.TryGetValue(pathElements[1], out PackageReference package))
-                        {
-                            dependencies.Add(package);
-                        }
+                        return package;
                     }
                 }
             }
 
-            return dependencies;
+            return null;
         }
 
         public static void SetAssemblyResolve(PackageConfiguration configuration)

@@ -143,7 +143,9 @@ namespace Bonsai.Configuration
             var projectReferences = root.Descendants(PackageReferenceElement).ToArray();
             var lastReference = projectReferences.LastOrDefault();
 
-            var packageReferences = packageConfiguration.GetAssemblyPackageReferences(assemblyReferences, packageMap);
+            var packageReferences = assemblyReferences
+                .Select(assemblyName => packageConfiguration.GetAssemblyPackageReference(assemblyName, packageMap))
+                .Where(package => package != null);
             foreach (var reference in packageReferences)
             {
                 var includeAttribute = new XAttribute(PackageIncludeAttribute, reference.Id);

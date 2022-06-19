@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Bonsai
 {
-    class ScriptExtensionsEnvironment : IScriptEnvironment, IServiceProvider
+    class ScriptExtensionsEnvironment : IScriptEnvironment
     {
         readonly ScriptExtensions extensions;
 
@@ -34,16 +34,6 @@ namespace Bonsai
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             extensions.AddAssemblyReferences(assemblyReferences);
-        }
-
-        public object GetService(Type serviceType)
-        {
-            if (serviceType == typeof(IScriptEnvironment))
-            {
-                return this;
-            }
-
-            return null;
         }
     }
 }
