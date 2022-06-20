@@ -1029,8 +1029,7 @@ namespace Bonsai.Editor
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
-                using var font = new Font(Font.FontFamily, Font.SizeInPoints * inverseScaleFactor.Height);
-                var svg = WorkflowExporter.ExportSvg(workflow, font, iconRenderer);
+                var svg = WorkflowExporter.ExportSvg(workflow, iconRenderer);
                 File.WriteAllText(fileName, svg);
             }
             else
