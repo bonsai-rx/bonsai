@@ -66,7 +66,6 @@ namespace Bonsai.Editor.GraphView
         Pen SolidPen;
         Pen DashPen;
         Font DefaultIconFont;
-        Font ExportFont;
 
         float drawScale;
         bool ignoreMouseUp;
@@ -238,6 +237,8 @@ namespace Bonsai.Editor.GraphView
 
         public SvgRendererFactory IconRenderer { get; set; }
 
+        public Image GraphicsProvider { get; set; }
+
         public IEnumerable<GraphNodeGrouping> Nodes
         {
             get { return nodes; }
@@ -310,6 +311,11 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        Graphics CreateVectorGraphics()
+        {
+            return GraphicsProvider != null ? Graphics.FromImage(GraphicsProvider) : CreateGraphics();
+        }
+
         void UpdateSelection(Action update)
         {
             InvalidateSelection();
@@ -342,12 +348,6 @@ namespace Bonsai.Editor.GraphView
                 DashPen.Dispose();
                 SolidPen = DashPen = null;
             }
-
-            if (ExportFont != null)
-            {
-                ExportFont.Dispose();
-                ExportFont = null;
-            }
         }
 
         void UpdateCursorPen()
@@ -372,9 +372,13 @@ namespace Bonsai.Editor.GraphView
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             DisposeDrawResources();
-            using (var graphics = CreateGraphics())
+            using (var graphics = CreateVectorGraphics())
             {
-                drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
+                drawScale = graphics.DpiY / DefaultDpi;
+                if (GraphicsProvider == null)
+                {
+                    drawScale *= Font.SizeInPoints / DefaultFont.SizeInPoints;
+                }
             }
 
             iconRendererState.Scale = drawScale;
@@ -407,7 +411,7 @@ namespace Bonsai.Editor.GraphView
             var labelRectangle = nodeLayout.LabelRectangle;
             if (nodeText != nodeLayout.Text)
             {
-                using (var graphics = CreateGraphics())
+                using (var graphics = CreateVectorGraphics())
                 {
                     nodeLayout.SetNodeLabel(nodeText, Font, graphics);
                     labelRectangle = RectangleF.Union(labelRectangle, nodeLayout.LabelRectangle);
@@ -809,7 +813,7 @@ namespace Bonsai.Editor.GraphView
             var size = SizeF.Empty;
             if (model != null)
             {
-                using (var graphics = CreateGraphics())
+                using (var graphics = CreateVectorGraphics())
                 {
                     var layerCount = model.Count();
                     foreach (var layer in model)
@@ -1122,21 +1126,14 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void DrawGraphics(IGraphics graphics, bool scaleFont)
+        public void DrawGraphics(IGraphics graphics)
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.Clear(Color.White);
 
-            using (var measureGraphics = CreateGraphics())
+            using (var measureGraphics = CreateVectorGraphics())
             {
                 var font = Font;
-                var fontScale = measureGraphics.DpiY / DefaultDpi;
-                if (scaleFont && fontScale != 1.0)
-                {
-                    ExportFont = ExportFont ?? new Font(Font.FontFamily, Font.SizeInPoints * fontScale);
-                    font = ExportFont;
-                }
-
                 using (var fill = new SolidBrush(Color.White))
                 using (var stroke = new Pen(NodeEdgeColor, PenWidth))
                 {
@@ -1152,7 +1149,7 @@ namespace Bonsai.Editor.GraphView
                             {
                                 int charactersFitted, linesFilled;
                                 var size = measureGraphics.MeasureString(
-                                    line, Font,
+                                    line, font,
                                     labelRect.Size,
                                     VectorTextFormat,
                                     out charactersFitted, out linesFilled);
