@@ -8,13 +8,12 @@ using System.Reactive.Linq;
 using System.Linq.Expressions;
 using IronPython.Runtime;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Python
 {
     /// <summary>
     /// Represents an operator that uses a Python script to project each element of an
     /// observable sequence into multiple elements.
     /// </summary>
-    [Obsolete]
     [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [TypeDescriptionProvider(typeof(PythonSelectManyTypeDescriptionProvider))]

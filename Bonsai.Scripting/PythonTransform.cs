@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     /// Represents an operator that uses a Python script to transform each
     /// element of an observable sequence.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(PythonTransformTypeDescriptionProvider))]
@@ -47,7 +48,7 @@ namespace Bonsai.Scripting
         /// <summary>
         /// Gets or sets the script that determines the operation of the transform.
         /// </summary>
-        [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.Python.Design.PythonScriptEditor, Bonsai.Scripting.Python.Design", DesignTypes.UITypeEditor)]
         [Description("The script that determines the operation of the transform.")]
         public string Script { get; set; }
 

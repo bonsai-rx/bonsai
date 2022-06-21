@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     /// Represents an operator that uses an expression script to filter the elements
     /// of an observable sequence.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Expression))]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
@@ -44,7 +45,7 @@ namespace Bonsai.Scripting
         /// <summary>
         /// Gets or sets the expression that determines which elements to filter.
         /// </summary>
-        [Editor("Bonsai.Scripting.ExpressionScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.Expressions.Design.ExpressionScriptEditor, Bonsai.Scripting.Expressions.Design", DesignTypes.UITypeEditor)]
         [Description("The expression that determines which elements to filter.")]
         public string Expression { get; set; } = "it";
 
