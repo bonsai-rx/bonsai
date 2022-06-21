@@ -3,12 +3,14 @@ using Bonsai.Dag;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
+using System;
 
 namespace Bonsai.Editor
 {
     static class UpgradeHelper
     {
-        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
+        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.7.0");
+        static readonly SemanticVersion RetargetScriptingPackageVersion = SemanticVersion.Parse("2.7.0");
         static readonly SemanticVersion RemoveMemberSelectorPrefixVersion = SemanticVersion.Parse("2.4.0-preview");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
         const string MemberSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + ".";
@@ -107,6 +109,39 @@ namespace Bonsai.Editor
                     {
                         Pattern = parse.Pattern.Replace("%p", "%T")
                     };
+                }
+
+                var elementType = workflowElement.GetType();
+                if (elementType.Namespace == "Bonsai.Scripting" && version < RetargetScriptingPackageVersion)
+                {
+                    if (elementType.Name.Contains("Expression"))
+                    {
+                        var replacementTypeName = elementType.AssemblyQualifiedName.Replace("Bonsai.Scripting", "Bonsai.Scripting.Expressions");
+                        var replacementType = Type.GetType(replacementTypeName);
+                        if (replacementType != null)
+                        {
+                            dynamic legacyElement = workflowElement;
+                            dynamic element = Activator.CreateInstance(replacementType);
+                            element.Name = legacyElement.Name;
+                            element.Description = legacyElement.Description;
+                            element.Expression = legacyElement.Expression;
+                            return element;
+                        }
+                    }
+                    else if (elementType.Name.Contains("Python"))
+                    {
+                        var replacementTypeName = elementType.AssemblyQualifiedName.Replace("Bonsai.Scripting", "Bonsai.Scripting.Python");
+                        var replacementType = Type.GetType(replacementTypeName);
+                        if (replacementType != null)
+                        {
+                            dynamic legacyElement = workflowElement;
+                            dynamic element = Activator.CreateInstance(replacementType);
+                            element.Name = legacyElement.Name;
+                            element.Description = legacyElement.Description;
+                            element.Script = legacyElement.Script;
+                            return element;
+                        }
+                    }
                 }
 
 #pragma warning disable CS0612 // Type or member is obsolete
