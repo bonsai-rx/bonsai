@@ -6,51 +6,49 @@ using Microsoft.Scripting.Hosting;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Linq.Expressions;
-using IronPython.Runtime;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Python
 {
     /// <summary>
-    /// Represents an operator that uses a Python script to project each element of an
-    /// observable sequence into multiple elements.
+    /// Represents an operator that uses a Python script to transform each
+    /// element of an observable sequence.
     /// </summary>
-    [Obsolete]
     [DefaultProperty(nameof(Script))]
-    [WorkflowElementCategory(ElementCategory.Combinator)]
-    [TypeDescriptionProvider(typeof(PythonSelectManyTypeDescriptionProvider))]
-    [Description("A Python script used to project each element of the sequence into multiple elements.")]
-    public class PythonSelectMany : SingleArgumentExpressionBuilder, IScriptingElement
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [TypeDescriptionProvider(typeof(PythonTransformTypeDescriptionProvider))]
+    [Description("A Python script used to transform each element of the sequence.")]
+    public class PythonTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PythonSelectMany"/> class.
+        /// Initializes a new instance of the <see cref="PythonTransform"/> class.
         /// </summary>
-        public PythonSelectMany()
+        public PythonTransform()
         {
-            Script = "@returns(bool)\ndef process(value):\n  yield True";
+            Script = "@returns(bool)\ndef process(value):\n  return True";
         }
 
         /// <summary>
-        /// Gets or sets the name of the python operator.
+        /// Gets or sets the name of the python transform.
         /// </summary>
         [Category("Design")]
         [Externalizable(false)]
-        [Description("The name of the python operator.")]
+        [Description("The name of the python transform.")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets a description for the python operator.
+        /// Gets or sets a description for the python transform.
         /// </summary>
         [Category("Design")]
         [Externalizable(false)]
-        [Description("A description for the python operator.")]
+        [Description("A description for the python transform.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the script that determines how each element is projected into a sequence of elements.
+        /// Gets or sets the script that determines the operation of the transform.
         /// </summary>
         [Editor("Bonsai.Scripting.Python.Design.PythonScriptEditor, Bonsai.Scripting.Python.Design", DesignTypes.UITypeEditor)]
-        [Description("The script that determines how each element is projected into a sequence of elements.")]
+        [Description("The script that determines the operation of the transform.")]
         public string Script { get; set; }
 
         /// <inheritdoc/>
@@ -62,13 +60,14 @@ namespace Bonsai.Scripting
             var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
 
+            object transform;
             var source = arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
-            if (PythonHelper.TryGetClass(scope, "SelectMany", out object selectMany))
+            if (PythonHelper.TryGetClass(scope, "Transform", out transform))
             {
-                var classExpression = Expression.Constant(selectMany);
+                var classExpression = Expression.Constant(transform);
                 var opExpression = Expression.Constant(engine.Operations);
-                var outputType = PythonHelper.GetOutputType(engine.Operations, selectMany, PythonHelper.ProcessFunction);
+                var outputType = PythonHelper.GetOutputType(engine.Operations, transform, PythonHelper.ProcessFunction);
                 return Expression.Call(
                     typeof(PythonTransform),
                     nameof(Process),
@@ -82,7 +81,7 @@ namespace Bonsai.Scripting
                 var outputType = PythonHelper.GetOutputType(scope, PythonHelper.ProcessFunction);
                 var scopeExpression = Expression.Constant(scope);
                 return Expression.Call(
-                    typeof(PythonSelectMany),
+                    typeof(PythonTransform),
                     nameof(Process),
                     new[] { observableType, outputType },
                     source,
@@ -97,9 +96,9 @@ namespace Bonsai.Scripting
         {
             return Observable.Defer(() =>
             {
-                var processor = new PythonProcessor<TSource, PythonGenerator>(op, processorClass);
-                var result = source.SelectMany(input => processor.Process(input).Cast<TResult>());
-                processor.Load?.Invoke();
+                var processor = new PythonProcessor<TSource, TResult>(op, processorClass);
+                var result = source.Select(processor.Process);
+                if (processor.Load != null) processor.Load();
                 if (processor.Unload != null)
                 {
                     return result.Finally(processor.Unload);
@@ -112,8 +111,8 @@ namespace Bonsai.Scripting
             IObservable<TSource> source,
             ScriptScope scope)
         {
-            var processor = new PythonProcessor<TSource, PythonGenerator>(scope);
-            var result = source.SelectMany(input => processor.Process(input).Cast<TResult>());
+            var processor = new PythonProcessor<TSource, TResult>(scope);
+            var result = source.Select(processor.Process);
             if (processor.Unload != null)
             {
                 result = result.Finally(processor.Unload);
@@ -132,11 +131,11 @@ namespace Bonsai.Scripting
             return result;
         }
 
-        class PythonSelectManyTypeDescriptionProvider : TypeDescriptionProvider
+        class PythonTransformTypeDescriptionProvider : TypeDescriptionProvider
         {
-            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PythonSelectMany));
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PythonTransform));
 
-            public PythonSelectManyTypeDescriptionProvider()
+            public PythonTransformTypeDescriptionProvider()
                 : base(parentProvider)
             {
             }
@@ -144,7 +143,7 @@ namespace Bonsai.Scripting
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
             {
                 return new ScriptingElementTypeDescriptor(instance,
-                    "A Python script used to project each element of the sequence into multiple elements.");
+                    "A Python script used to transform each element of the sequence.");
             }
         }
     }

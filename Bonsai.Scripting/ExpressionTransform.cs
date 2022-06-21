@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     /// Represents an operator that uses an expression script to transform each
     /// element of an observable sequence.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Expression))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(ExpressionTransformTypeDescriptionProvider))]
@@ -44,7 +45,7 @@ namespace Bonsai.Scripting
         /// <summary>
         /// Gets or sets the expression that determines the operation of the transform.
         /// </summary>
-        [Editor("Bonsai.Scripting.ExpressionScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.Expressions.Design.ExpressionScriptEditor, Bonsai.Scripting.Expressions.Design", DesignTypes.UITypeEditor)]
         [Description("The expression that determines the operation of the transform.")]
         public string Expression { get; set; } = "it";
 

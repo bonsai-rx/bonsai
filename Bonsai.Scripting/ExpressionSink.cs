@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     /// Represents an operator that uses an expression script to invoke an action for
     /// each element of an observable sequence.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Expression))]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [TypeDescriptionProvider(typeof(ExpressionSinkTypeDescriptionProvider))]
@@ -45,7 +46,7 @@ namespace Bonsai.Scripting
         /// Gets or sets the expression that determines the action to perform
         /// on the input elements.
         /// </summary>
-        [Editor("Bonsai.Scripting.ExpressionScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.Expressions.Design.ExpressionScriptEditor, Bonsai.Scripting.Expressions.Design", DesignTypes.UITypeEditor)]
         [Description("The expression that determines the action to perform on the input elements.")]
         public string Expression { get; set; }
 

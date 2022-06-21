@@ -3,7 +3,7 @@ using System.Linq;
 using System.ComponentModel;
 using System.Reactive.Linq;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Python
 {
     /// <summary>
     /// Represents an operator that uses a Python script to filter the elements

@@ -9,13 +9,12 @@ using IronPython.Runtime;
 using System.Threading.Tasks;
 using Microsoft.Scripting.Hosting;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Python
 {
     /// <summary>
     /// Represents an operator that uses a Python script to generate an observable
     /// sequence of values.
     /// </summary>
-    [Obsolete]
     [DefaultProperty(nameof(Script))]
     [WorkflowElementCategory(ElementCategory.Source)]
     [TypeDescriptionProvider(typeof(PythonSourceTypeDescriptionProvider))]

@@ -9,12 +9,8 @@
     <Version>2.7.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="IronPython" Version="2.7.5" />
-    <PackageReference Include="IronPython.StdLib" Version="2.7.5" />
-    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
-    <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
+    <ProjectReference Include="..\Bonsai.Scripting.Expressions.Design\Bonsai.Scripting.Expressions.Design.csproj" />
+    <ProjectReference Include="..\Bonsai.Scripting.Python.Design\Bonsai.Scripting.Python.Design.csproj" />
   </ItemGroup>
 </Project>

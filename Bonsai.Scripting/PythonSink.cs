@@ -26,7 +26,7 @@ namespace Bonsai.Scripting
         /// <summary>
         /// Gets or sets the script that determines the operation of the sink.
         /// </summary>
-        [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.Python.Design.PythonScriptEditor, Bonsai.Scripting.Python.Design", DesignTypes.UITypeEditor)]
         [Description("The script that determines the operation of the sink.")]
         public string Script { get; set; }
 
