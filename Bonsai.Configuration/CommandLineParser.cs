@@ -8,7 +8,7 @@ namespace Bonsai.Configuration
         const char WordSeparator = '-';
         const char OptionSeparator = ':';
         const string CommandPrefix = "--";
-        readonly Dictionary<string, Action<string>> commands = new Dictionary<string, Action<string>>();
+        readonly Dictionary<string, Delegate> commands = new Dictionary<string, Delegate>();
         Action<string> defaultHandler;
 
         public void RegisterCommand(Action<string> handler)
@@ -18,10 +18,15 @@ namespace Bonsai.Configuration
 
         public void RegisterCommand(string name, Action handler)
         {
-            RegisterCommand(name, option => handler());
+            RegisterCommandHandler(name, handler);
         }
 
         public void RegisterCommand(string name, Action<string> handler)
+        {
+            RegisterCommandHandler(name, handler);
+        }
+
+        void RegisterCommandHandler(string name, Delegate handler)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -56,9 +61,16 @@ namespace Bonsai.Configuration
             for (int i = 0; i < args.Length; i++)
             {
                 var options = args[i].Split(new[] { OptionSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
-                if (commands.TryGetValue(options[0], out Action<string> handler))
+                if (commands.TryGetValue(options[0], out Delegate handler))
                 {
-                    handler(options.Length > 1 ? options[1] : string.Empty);
+                    if (handler is Action action) action();
+                    else if (handler is Action<string> command)
+                    {
+                        var argument = string.Empty;
+                        if (options.Length > 1) argument = options[1];
+                        else if (args.Length > i + 1) argument = args[++i];
+                        command(argument);
+                    }
                 }
                 else
                 {
