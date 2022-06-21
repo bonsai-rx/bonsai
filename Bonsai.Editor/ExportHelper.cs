@@ -7,7 +7,7 @@ using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
-    static class WorkflowExporter
+    static class ExportHelper
     {
         const float ReferenceDpi = 96f;
         const float ReferenceFontSize = 8.25f;

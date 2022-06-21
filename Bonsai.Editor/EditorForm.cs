@@ -1029,12 +1029,12 @@ namespace Bonsai.Editor
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
-                var svg = WorkflowExporter.ExportSvg(workflow, iconRenderer);
+                var svg = ExportHelper.ExportSvg(workflow, iconRenderer);
                 File.WriteAllText(fileName, svg);
             }
             else
             {
-                using var bitmap = WorkflowExporter.ExportBitmap(workflow, Font, iconRenderer);
+                using var bitmap = ExportHelper.ExportBitmap(workflow, Font, iconRenderer);
                 if (string.IsNullOrEmpty(fileName))
                 {
                     Clipboard.SetImage(bitmap);
