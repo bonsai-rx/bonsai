@@ -24,6 +24,7 @@ namespace Bonsai
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
+        const string ExportImageCommand = "--export-image";
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
         const string EditorDomainName = "EditorDomain";
@@ -45,9 +46,11 @@ namespace Bonsai
             var launchEditor = true;
             var debugScripts = false;
             var editorScale = 1.0f;
+            var exportImage = false;
             var updatePackages = false;
             var launchResult = default(EditorResult);
             var initialFileName = default(string);
+            var imageFileName = default(string);
             var layoutPath = default(string);
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
@@ -59,6 +62,7 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
+            parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
             parser.RegisterCommand(ReloadEditorCommand, () => { launchResult = EditorResult.ReloadEditor; bootstrap = false; });
             parser.RegisterCommand(GalleryCommand, () => { launchResult = EditorResult.OpenGallery; bootstrap = false; });
@@ -143,6 +147,7 @@ namespace Bonsai
                     libFolders.ForEach(path => ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     using var scriptExtensions = ScriptExtensionsProvider.CompileAssembly(Launcher.ProjectFramework, packageConfiguration, editorRepositoryPath, debugScripts);
                     ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    if (exportImage) return Launcher.LaunchExportImage(initialFileName, imageFileName, packageConfiguration);
                     if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, layoutPath, packageConfiguration, propertyAssignments);
                     else return Launcher.LaunchWorkflowEditor(
                         packageConfiguration,

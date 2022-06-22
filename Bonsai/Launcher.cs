@@ -141,6 +141,27 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
+        internal static int LaunchExportImage(
+            string fileName,
+            string imageFileName,
+            PackageConfiguration packageConfiguration)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine("No workflow file was specified.");
+                return Program.NormalExitCode;
+            }
+
+            if (string.IsNullOrEmpty(imageFileName))
+            {
+                Console.WriteLine("No image file was specified.");
+                return Program.NormalExitCode;
+            }
+
+            WorkflowExporter.ExportImage(fileName, imageFileName);
+            return Program.NormalExitCode;
+        }
+
         static int ShowManifestReadError(string path, string message)
         {
             MessageBox.Show(
