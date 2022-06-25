@@ -156,11 +156,21 @@ namespace Bonsai.Expressions
             {
                 if (methodCall.Object == null)
                 {
-                    // If merging dangling branches in a workflow, recurse on the main output source
-                    if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder) &&
-                        methodCall.Method.Name == nameof(ExpressionBuilder.MergeOutput))
+                    if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder))
                     {
-                        source = methodCall.Arguments[0];
+                        // If merging dangling branches in a workflow, recurse on the main output source
+                        if (methodCall.Method.Name == nameof(ExpressionBuilder.MergeOutput))
+                        {
+                            source = methodCall.Arguments[0];
+                        }
+                        // If merging with build dependencies in a workflow, recurse on the main output
+                        else if (methodCall.Method.Name == nameof(ExpressionBuilder.MergeDependencies) &&
+                                 methodCall.Arguments[0] is MethodCallExpression lazy &&
+                                 lazy.Arguments[0] is LambdaExpression lambda)
+                        {
+                            source = lambda.Body;
+                        }
+                        else break;
                     }
                     // If disposing declared build context subjects, recurse on the output source
                     else if (methodCall.Method.DeclaringType == typeof(BuildContext) &&
