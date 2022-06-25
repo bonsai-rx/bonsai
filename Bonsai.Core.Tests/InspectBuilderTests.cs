@@ -102,6 +102,25 @@ namespace Bonsai.Core.Tests
             Assert.AreEqual(combinator.Value, visualizerElement.Builder);
         }
 
+        [TestMethod]
+        public void Build_PropertyMappedInspectBuilderToWorkflowOutput_ReturnVisualizerElement()
+        {
+            var workflowBuilder = new WorkflowBuilder();
+            var source = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new Reactive.Range() });
+            var valueSource = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new IntProperty() });
+            var propertyMapping = workflowBuilder.Workflow.Add(new PropertyMappingBuilder { PropertyMappings = { new PropertyMapping { Name = "Count" } } });
+            var output = workflowBuilder.Workflow.Add(new WorkflowOutputBuilder());
+            workflowBuilder.Workflow.AddEdge(valueSource, propertyMapping, new ExpressionBuilderArgument());
+            workflowBuilder.Workflow.AddEdge(propertyMapping, source, new ExpressionBuilderArgument());
+            workflowBuilder.Workflow.AddEdge(source, output, new ExpressionBuilderArgument());
+
+            var inspectable = workflowBuilder.Workflow.ToInspectableGraph();
+            var inspectOutput = (InspectBuilder)inspectable.ElementAt(workflowBuilder.Workflow.Count - 1).Value;
+            inspectable.Build();
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectOutput);
+            Assert.AreEqual(source.Value, visualizerElement.Builder);
+        }
+
         #region Error Classes
 
         class ErrorBuilder : ExpressionBuilder
