@@ -17,10 +17,21 @@ namespace Bonsai.Vision.Design
     /// </summary>
     public class PointOverlay : DialogTypeVisualizer
     {
-        TrackingMode tracking;
         Queue<Point?> points;
         ImageMashupVisualizer visualizer;
         IDisposable subscription;
+
+        /// <summary>
+        /// Gets or sets a value specifying the tracking mode used to overlay the
+        /// point sequence on the image visualizer.
+        /// </summary>
+        public TrackingMode Tracking { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying how many previous points to include
+        /// in the point sequence.
+        /// </summary>
+        public int Capacity { get; set; } = 1;
 
         /// <inheritdoc/>
         public override void Show(object value)
@@ -43,10 +54,10 @@ namespace Bonsai.Vision.Design
             }
 
             var image = visualizer.VisualizerImage;
-            if (tracking != TrackingMode.None)
+            if (Tracking != TrackingMode.None)
             {
                 points.Enqueue(point);
-                if (tracking == TrackingMode.Fixed)
+                if (Tracking == TrackingMode.Rolling)
                 {
                     points.Dequeue();
                 }
@@ -84,15 +95,18 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            points = new Queue<Point?>(1);
+            var preloadCapacity = Capacity;
+            points = new Queue<Point?>(preloadCapacity);
+            while (preloadCapacity-- > 0) points.Enqueue(null);
+
             visualizer = (ImageMashupVisualizer)provider.GetService(typeof(MashupVisualizer));
             MouseEventHandler mouseHandler = (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    if (++tracking > TrackingMode.Fixed)
+                    if (++Tracking > TrackingMode.Rolling)
                     {
-                        tracking = TrackingMode.None;
+                        Tracking = TrackingMode.None;
                     }
                 }
             };
@@ -107,17 +121,35 @@ namespace Bonsai.Vision.Design
             if (subscription != null)
             {
                 subscription.Dispose();
+                Capacity = Tracking == TrackingMode.Rolling ? points.Count : 1;
                 subscription = null;
                 visualizer = null;
                 points = null;
             }
         }
+    }
 
-        enum TrackingMode
-        {
-            None,
-            Infinite,
-            Fixed
-        }
+    /// <summary>
+    /// Specifies the tracking mode used to overlay a point sequence over an existing
+    /// image visualizer.
+    /// </summary>
+    public enum TrackingMode
+    {
+        /// <summary>
+        /// Specifies that only the current point should be overlaid on the image.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Specifies that all recorded points should be overlaid as an infinite
+        /// trace on the image.
+        /// </summary>
+        Infinite,
+
+        /// <summary>
+        /// Specifies that a fixed rolling number of the latest points should be
+        /// overlaid on the image.
+        /// </summary>
+        Rolling
     }
 }
