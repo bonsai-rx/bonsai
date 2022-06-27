@@ -178,6 +178,13 @@ namespace Bonsai.Expressions
                     {
                         source = methodCall.Arguments[0];
                     }
+                    // If multicasting into a subject, recurse on the input source
+                    else if ((methodCall.Method.DeclaringType == typeof(SubjectBuilder) ||
+                             methodCall.Method.DeclaringType == typeof(MulticastSubjectBuilder)) &&
+                             methodCall.Method.Name == nameof(Combinator.Process))
+                    {
+                        source = methodCall.Arguments[0];
+                    }
                     else break;
                 }
                 else if (methodCall.Object.Type == typeof(InspectBuilder))
