@@ -25,15 +25,15 @@ namespace Bonsai.Design
         }
 
         /// <summary>
+        /// Gets the source of runtime notifications to be visualized.
+        /// </summary>
+        public InspectBuilder Source { get; }
+
+        /// <summary>
         /// Gets the type visualizer used to display notifications from the source
         /// in the context of the mashup combination.
         /// </summary>
         public DialogTypeVisualizer Visualizer { get; }
-
-        /// <summary>
-        /// Gets the source of runtime notifications to be visualized.
-        /// </summary>
-        public InspectBuilder Source { get; }
     }
 
     /// <summary>
