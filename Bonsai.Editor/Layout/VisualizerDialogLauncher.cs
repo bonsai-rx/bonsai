@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.ComponentModel.Design;
 using Bonsai.Expressions;
@@ -194,7 +194,7 @@ namespace Bonsai.Design
                         mashupSourceType = visualizerType;
                     }
                     var visualizerMashup = (DialogTypeVisualizer)Activator.CreateInstance(mashupSourceType);
-                    dialogMashup.MashupSources.Add(new MashupSource(visualizerDialog.visualizerSource, visualizerMashup));
+                    dialogMashup.MashupSources.Add(visualizerFactory.Source, visualizerMashup);
                     ReloadMashups();
                 }
             }

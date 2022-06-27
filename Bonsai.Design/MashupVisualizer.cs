@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Xml.Serialization;
 
@@ -11,13 +10,13 @@ namespace Bonsai.Design
     /// </summary>
     public abstract class MashupVisualizer : DialogTypeVisualizer
     {
-        readonly Collection<MashupSource> mashupSources = new Collection<MashupSource>();
+        readonly MashupSourceCollection mashupSources = new MashupSourceCollection();
 
         /// <summary>
         /// Gets the collection of visualizer sources combined in the mashup visualizer.
         /// </summary>
         [XmlIgnore]
-        public Collection<MashupSource> MashupSources
+        public MashupSourceCollection MashupSources
         {
             get { return mashupSources; }
         }
