@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -109,11 +108,46 @@ namespace Bonsai.Design
             }
         }
 
+        static IEnumerable<VisualizerFactory> GetMashupSources(this VisualizerFactory visualizerFactory)
+        {
+            yield return visualizerFactory;
+            foreach (var source in visualizerFactory.MashupSources)
+            {
+                foreach (var nestedSource in source.GetMashupSources())
+                {
+                    yield return nestedSource;
+                }
+            }
+        }
+
+        internal static Type GetMashupSourceType(Type mashupVisualizerType, Type visualizerType, TypeVisualizerMap typeVisualizerMap)
+        {
+            Type mashupSource = default;
+            while (mashupVisualizerType != null && mashupVisualizerType != typeof(MashupVisualizer))
+            {
+                var mashup = typeof(MashupSource<,>).MakeGenericType(mashupVisualizerType, visualizerType);
+                mashupSource = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
+                if (mashupSource != null) break;
+
+                mashup = typeof(MashupSource<>).MakeGenericType(mashupVisualizerType);
+                mashupSource = typeVisualizerMap.GetTypeVisualizers(mashup).FirstOrDefault();
+                if (mashupSource != null) break;
+                mashupVisualizerType = mashupVisualizerType.BaseType;
+            }
+
+            if (mashupSource != null && mashupSource.IsGenericTypeDefinition)
+            {
+                mashupSource = mashupSource.MakeGenericType(visualizerType);
+            }
+            return mashupSource;
+        }
+
         public static VisualizerDialogLauncher CreateVisualizerLauncher(
             InspectBuilder source,
             VisualizerLayout visualizerLayout,
             TypeVisualizerMap typeVisualizerMap,
             ExpressionBuilderGraph workflow,
+            IReadOnlyList<VisualizerFactory> mashupArguments,
             Editor.GraphView.WorkflowGraphView workflowGraphView = null)
         {
             var inspectBuilder = ExpressionBuilder.GetVisualizerElement(source);
@@ -122,34 +156,24 @@ namespace Bonsai.Design
                 return null;
             }
 
-            var deserializeVisualizer = false;
-            Func<DialogTypeVisualizer> visualizerFactory = null;
             var layoutSettings = visualizerLayout.GetLayoutSettings(source);
-            var visualizer = DeserializeVisualizerSettings(inspectBuilder, layoutSettings, visualizerLayout, typeVisualizerMap);
-            if (visualizer != null)
-            {
-                visualizerFactory = () => visualizer;
-                deserializeVisualizer = true;
-            }
-
-            var visualizerType = visualizer?.GetType() ?? typeVisualizerMap.GetTypeVisualizers(inspectBuilder).FirstOrDefault();
+            var visualizerType = typeVisualizerMap.GetVisualizerType(layoutSettings?.VisualizerTypeName ?? string.Empty)
+                                 ?? typeVisualizerMap.GetTypeVisualizers(inspectBuilder).FirstOrDefault();
             if (visualizerType == null)
             {
                 return null;
             }
 
-            if (visualizerFactory == null)
-            {
-                var visualizerActivation = Expression.New(visualizerType);
-                visualizerFactory = Expression.Lambda<Func<DialogTypeVisualizer>>(visualizerActivation).Compile();
-            }
+            var visualizerFactory = new VisualizerFactory(inspectBuilder, visualizerType, mashupArguments);
+            var visualizer = new Lazy<DialogTypeVisualizer>(() => DeserializeVisualizerSettings(
+                visualizerType,
+                layoutSettings,
+                visualizerLayout,
+                visualizerFactory,
+                typeVisualizerMap));
 
-            var launcher = new VisualizerDialogLauncher(visualizerType, inspectBuilder, visualizerFactory, workflow, source, workflowGraphView);
+            var launcher = new VisualizerDialogLauncher(visualizer, visualizerFactory, workflow, source, workflowGraphView);
             launcher.Text = source != null ? ExpressionBuilder.GetElementDisplayName(source) : null;
-            if (deserializeVisualizer)
-            {
-                launcher = launcher.Visualizer.Value != null ? launcher : null;
-            }
             return launcher;
         }
 
@@ -162,12 +186,20 @@ namespace Bonsai.Design
             Editor.GraphView.WorkflowGraphView graphView = null)
         {
             if (workflow == null) return null;
+            var mashupArgumentMap = new MashupArgumentMap();
             var visualizerMapping = (from node in workflow.TopologicalSort()
-                                     let key = (InspectBuilder)node.Value
-                                     let visualizerLauncher = CreateVisualizerLauncher(key, visualizerLayout, typeVisualizerMap, workflow, graphView)
+                                     let source = (InspectBuilder)node.Value
+                                     let mashupArguments = mashupArgumentMap.GetMashupArgumentList(source)
+                                     let visualizerLauncher = CreateVisualizerLauncher(
+                                         source,
+                                         visualizerLayout,
+                                         typeVisualizerMap,
+                                         workflow,
+                                         mashupArguments,
+                                         graphView)
                                      where visualizerLauncher != null
-                                     select new { key, visualizerLauncher })
-                                     .ToDictionary(mapping => mapping.key,
+                                     select new { source, visualizerLauncher = mashupArgumentMap.Add(node, visualizerLauncher) })
+                                     .ToDictionary(mapping => mapping.source,
                                                    mapping => mapping.visualizerLauncher);
             foreach (var mapping in visualizerMapping)
             {
@@ -176,7 +208,6 @@ namespace Bonsai.Design
                 var layoutSettings = visualizerLayout.GetLayoutSettings(key);
                 if (layoutSettings != null)
                 {
-                    var visualizer = visualizerLauncher.Visualizer;
                     visualizerLauncher.Bounds = layoutSettings.Bounds;
                     visualizerLauncher.WindowState = layoutSettings.WindowState;
                     if (layoutSettings.Visible)
@@ -256,13 +287,18 @@ namespace Bonsai.Design
         }
 
         public static DialogTypeVisualizer DeserializeVisualizerSettings(
-            InspectBuilder source,
+            Type visualizerType,
             VisualizerDialogSettings layoutSettings,
             VisualizerLayout visualizerLayout,
+            VisualizerFactory visualizerFactory,
             TypeVisualizerMap typeVisualizerMap)
         {
-            if (layoutSettings == null) return null;
-            if (layoutSettings.Mashups.Count > 0)
+            if (layoutSettings?.VisualizerTypeName != visualizerType.FullName)
+            {
+                layoutSettings = default;
+            }
+
+            if (layoutSettings != null && layoutSettings.Mashups.Count > 0)
             {
                 var mashupSettings = layoutSettings.VisualizerSettings.Elements(MashupSettingsElement);
                 foreach (var mashup in mashupSettings.Zip(layoutSettings.Mashups, (element, index) => (element, index)))
@@ -280,74 +316,7 @@ namespace Bonsai.Design
                 layoutSettings.Mashups.Clear();
             }
 
-            return DeserializeMashupSource(
-                source,
-                layoutSettings.VisualizerTypeName,
-                layoutSettings.VisualizerSettings,
-                visualizerLayout,
-                typeVisualizerMap);
-        }
-
-        static DialogTypeVisualizer DeserializeMashupSource(
-            InspectBuilder source,
-            string visualizerTypeName,
-            XElement visualizerSettings,
-            VisualizerLayout visualizerLayout,
-            TypeVisualizerMap typeVisualizerMap,
-            MashupVisualizer container = null)
-        {
-            if (!string.IsNullOrEmpty(visualizerTypeName))
-            {
-                var visualizerType = typeVisualizerMap.GetVisualizerType(visualizerTypeName);
-                if (visualizerType != null)
-                {
-                    if (visualizerSettings == null)
-                    {
-                        return (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                    }
-
-                    visualizerSettings.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
-                    visualizerSettings.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
-                    var serializer = new XmlSerializer(visualizerType);
-                    using (var reader = visualizerSettings.CreateReader())
-                    {
-                        if (serializer.CanDeserialize(reader))
-                        {
-                            var visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
-                            if (visualizer is MashupVisualizer mashupContainer)
-                            {
-                                var mashupSettings = visualizerSettings.Elements(MashupSettingsElement);
-                                foreach (var mashup in mashupSettings)
-                                {
-                                    var mashupSourceElement = mashup.Element(MashupSourceElement);
-                                    if (mashupSourceElement == null) continue;
-
-                                    var mashupSourceIndex = int.Parse(mashupSourceElement.Value);
-                                    var mashupSource = (InspectBuilder)visualizerLayout.DialogSettings[mashupSourceIndex]?.Tag;
-                                    var mashupVisualizerTypeName = mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
-                                    var mashupVisualizerSettings = mashup.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
-                                    DeserializeMashupSource(
-                                        mashupSource,
-                                        mashupVisualizerTypeName,
-                                        mashupVisualizerSettings.Elements().FirstOrDefault(),
-                                        visualizerLayout,
-                                        typeVisualizerMap,
-                                        mashupContainer);
-                                }
-                            }
-
-                            if (container != null)
-                            {
-                                var visualizerMashup = new MashupSource(source, visualizer);
-                                container.MashupSources.Add(visualizerMashup);
-                            }
-                            return visualizer;
-                        }
-                    }
-                }
-            }
-
-            return null;
+            return visualizerFactory.CreateVisualizer(layoutSettings?.VisualizerSettings, visualizerLayout, typeVisualizerMap);
         }
 
         static int? GetMashupSourceIndex(
@@ -357,6 +326,75 @@ namespace Bonsai.Design
             return topologicalOrder
                 .Select((n, i) => ExpressionBuilder.GetVisualizerElement(n.Value) == mashup.Source ? (int?)i : null)
                 .FirstOrDefault(index => index.HasValue);
+        }
+
+        public static DialogTypeVisualizer CreateVisualizer(
+            this VisualizerFactory visualizerFactory,
+            XElement visualizerSettings,
+            VisualizerLayout visualizerLayout,
+            TypeVisualizerMap typeVisualizerMap)
+        {
+            DialogTypeVisualizer visualizer;
+            if (visualizerSettings != null)
+            {
+                visualizerSettings.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
+                visualizerSettings.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
+                var serializer = new XmlSerializer(visualizerFactory.VisualizerType);
+                using var reader = visualizerSettings.CreateReader();
+                visualizer = (DialogTypeVisualizer)(serializer.CanDeserialize(reader)
+                    ? serializer.Deserialize(reader)
+                    : Activator.CreateInstance(visualizerFactory.VisualizerType));
+            }
+            else visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerFactory.VisualizerType);
+
+            if (visualizer is MashupVisualizer mashupVisualizer)
+            {
+                int index = 0;
+                var mashupSettings = visualizerSettings?.Elements(MashupSettingsElement) ?? Enumerable.Empty<XElement>();
+                foreach (var mashup in mashupSettings)
+                {
+                    VisualizerFactory mashupFactory;
+                    if (index < visualizerFactory.MashupSources.Count)
+                    {
+                        mashupFactory = visualizerFactory.MashupSources[index++];
+                    }
+                    else
+                    {
+                        var mashupSourceElement = mashup.Element(MashupSourceElement);
+                        if (mashupSourceElement == null) continue;
+
+                        var mashupSourceIndex = int.Parse(mashupSourceElement.Value);
+                        var mashupSource = (InspectBuilder)visualizerLayout.DialogSettings[mashupSourceIndex]?.Tag;
+                        var mashupVisualizerTypeName = mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
+                        var mashupVisualizerType = typeVisualizerMap.GetVisualizerType(mashupVisualizerTypeName);
+                        mashupFactory = new VisualizerFactory(mashupSource, mashupVisualizerType);
+                    }
+                    
+                    var mashupVisualizerSettingsElement = mashup.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
+                    var mashupVisualizerSettings = mashupVisualizerSettingsElement.Elements().FirstOrDefault();
+                    var nestedVisualizer = mashupFactory.CreateVisualizer(mashupVisualizerSettings, visualizerLayout, typeVisualizerMap);
+                    mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
+                }
+
+                for (int i = index; i < visualizerFactory.MashupSources.Count; i++)
+                {
+                    var mashupFactory = visualizerFactory.MashupSources[i];
+                    var mashupSourceType = GetMashupSourceType(
+                        visualizerFactory.VisualizerType,
+                        mashupFactory.VisualizerType,
+                        typeVisualizerMap);
+                    if (mashupSourceType == null) continue;
+                    if (mashupSourceType != typeof(DialogTypeVisualizer))
+                    {
+                        mashupFactory = new VisualizerFactory(mashupFactory.Source, mashupSourceType);
+                    }
+
+                    var nestedVisualizer = mashupFactory.CreateVisualizer(visualizerSettings: null, visualizerLayout, typeVisualizerMap);
+                    mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
+                }
+            }
+
+            return visualizer;
         }
     }
 }
