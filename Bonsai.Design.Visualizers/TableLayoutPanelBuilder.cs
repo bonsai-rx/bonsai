@@ -84,7 +84,7 @@ namespace Bonsai.Design.Visualizers
             var source = arguments.SingleOrDefault();
             if (source == null)
             {
-                return Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
+                return Expression.Call(typeof(Observable), nameof(Observable.Never), new[] { typeof(Unit) });
             }
             else return Expression.Call(typeof(TableLayoutPanelBuilder), nameof(Process), source.Type.GetGenericArguments(), source);
         }

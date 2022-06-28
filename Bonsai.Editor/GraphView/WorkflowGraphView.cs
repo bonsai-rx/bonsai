@@ -1638,7 +1638,13 @@ namespace Bonsai.Editor.GraphView
                         }
 
                         var visualizerBounds = visualizerLauncher.Bounds;
-                        visualizerLauncher = LayoutHelper.CreateVisualizerLauncher(inspectBuilder, visualizerLayout, typeVisualizerMap, workflow, this);
+                        visualizerLauncher = LayoutHelper.CreateVisualizerLauncher(
+                            inspectBuilder,
+                            visualizerLayout,
+                            typeVisualizerMap,
+                            workflow,
+                            visualizerLauncher.VisualizerFactory.MashupSources,
+                            workflowGraphView: this);
                         visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
                         visualizerMapping[inspectBuilder] = visualizerLauncher;
                         if (layoutSettings.Visible)
