@@ -177,6 +177,18 @@ namespace Bonsai.Design
             return launcher;
         }
 
+        static IReadOnlyList<VisualizerFactory> GetMashupArguments(InspectBuilder builder, TypeVisualizerMap typeVisualizerMap)
+        {
+            var visualizerMappings = ExpressionBuilder.GetVisualizerMappings(builder);
+            if (visualizerMappings.Count == 0) return Array.Empty<VisualizerFactory>();
+            return visualizerMappings.Select(mashupSource =>
+            {
+                var nestedSources = GetMashupArguments(mashupSource, typeVisualizerMap);
+                var visualizerType = typeVisualizerMap.GetTypeVisualizers(mashupSource).FirstOrDefault();
+                return new VisualizerFactory(mashupSource, visualizerType, nestedSources);
+            }).ToList();
+        }
+
         public static Dictionary<InspectBuilder, VisualizerDialogLauncher> CreateVisualizerMapping(
             ExpressionBuilderGraph workflow,
             VisualizerLayout visualizerLayout,
@@ -186,10 +198,9 @@ namespace Bonsai.Design
             Editor.GraphView.WorkflowGraphView graphView = null)
         {
             if (workflow == null) return null;
-            var mashupArgumentMap = new MashupArgumentMap();
             var visualizerMapping = (from node in workflow.TopologicalSort()
                                      let source = (InspectBuilder)node.Value
-                                     let mashupArguments = mashupArgumentMap.GetMashupArgumentList(source)
+                                     let mashupArguments = GetMashupArguments(source, typeVisualizerMap)
                                      let visualizerLauncher = CreateVisualizerLauncher(
                                          source,
                                          visualizerLayout,
@@ -198,7 +209,7 @@ namespace Bonsai.Design
                                          mashupArguments,
                                          graphView)
                                      where visualizerLauncher != null
-                                     select new { source, visualizerLauncher = mashupArgumentMap.Add(node, visualizerLauncher) })
+                                     select new { source, visualizerLauncher })
                                      .ToDictionary(mapping => mapping.source,
                                                    mapping => mapping.visualizerLauncher);
             foreach (var mapping in visualizerMapping)
