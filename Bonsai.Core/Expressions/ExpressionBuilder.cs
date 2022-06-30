@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -123,9 +123,12 @@ namespace Bonsai.Expressions
         /// The <see cref="InspectBuilder"/> instance that should be used to visualize the
         /// specified workflow element.
         /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="builder"/> is <see langword="null"/>.
+        /// </exception>
         public static InspectBuilder GetVisualizerElement(ExpressionBuilder builder)
         {
-            var inspectBuilder = (InspectBuilder)builder;
+            var inspectBuilder = (InspectBuilder)builder ?? throw new ArgumentNullException(nameof(builder));
             return GetVisualizerElement(inspectBuilder);
         }
 

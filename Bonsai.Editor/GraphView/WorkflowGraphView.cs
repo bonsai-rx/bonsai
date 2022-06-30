@@ -1775,7 +1775,7 @@ namespace Bonsai.Editor.GraphView
                     }
 
                     var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                    if (visualizerElement != null && visualizerElement.ObservableType != null &&
+                    if (visualizerElement.ObservableType != null &&
                         (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
                     {
                         var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
