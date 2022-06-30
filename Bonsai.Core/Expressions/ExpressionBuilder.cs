@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -135,6 +135,26 @@ namespace Bonsai.Expressions
         internal static InspectBuilder GetVisualizerElement(InspectBuilder builder)
         {
             return builder.VisualizerElement ?? builder;
+        }
+
+        /// <summary>
+        /// Returns the read-only collection of visualizer mappings that have been
+        /// assigned to the specified workflow element.
+        /// </summary>
+        /// <param name="builder">
+        /// The <see cref="ExpressionBuilder"/> for which to retrieve visualizer mappings.
+        /// </param>
+        /// <returns>
+        /// The read-only collection of <see cref="InspectBuilder"/> objects that
+        /// have been assigned to the specified workflow element.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="builder"/> is <see langword="null"/>.
+        /// </exception>
+        public static IReadOnlyList<InspectBuilder> GetVisualizerMappings(ExpressionBuilder builder)
+        {
+            var inspectBuilder = GetVisualizerElement(builder);
+            return inspectBuilder.VisualizerSources ?? Array.Empty<InspectBuilder>();
         }
 
         internal static Type GetWorkflowPropertyType(Type expressionType)

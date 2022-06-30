@@ -34,6 +34,19 @@ namespace Bonsai.Expressions
 
         internal InspectBuilder VisualizerElement { get; set; }
 
+        private VisualizerSourceList SourceList { get; set; }
+
+        internal void AddVisualizerSource(int index, InspectBuilder source)
+        {
+            SourceList ??= new VisualizerSourceList();
+            SourceList.Add(index, source);
+        }
+
+        internal IReadOnlyList<InspectBuilder> VisualizerSources
+        {
+            get { return SourceList?.VisualizerSources ?? Array.Empty<InspectBuilder>(); }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether runtime notifications from
         /// the decorated expression builder should be multicast by this inspector.
@@ -98,6 +111,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             ObservableType = null;
+            SourceList?.ResetVisualizerSources();
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
             if (IsReducible(source))
@@ -140,7 +154,7 @@ namespace Bonsai.Expressions
             }
         }
 
-        static InspectBuilder GetInspectBuilder(Expression source)
+        internal static InspectBuilder GetInspectBuilder(Expression source)
         {
             while (source is MulticastBranchExpression multicastExpression)
             {
@@ -239,6 +253,24 @@ namespace Bonsai.Expressions
                     finally { sourceInspector.OnCompleted(); }
                 });
             });
+        }
+
+        class VisualizerSourceList
+        {
+            readonly SortedList<int, InspectBuilder> visualizerSources = new SortedList<int, InspectBuilder>();
+
+            public void Add(int index, InspectBuilder source)
+            {
+                visualizerSources.Add(index, source);
+            }
+
+            public void ResetVisualizerSources()
+            {
+                VisualizerSources = visualizerSources.Values.ToList();
+                visualizerSources.Clear();
+            }
+
+            public IReadOnlyList<InspectBuilder> VisualizerSources { get; private set; }
         }
     }
 }
