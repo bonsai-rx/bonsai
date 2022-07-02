@@ -20,7 +20,7 @@ namespace Bonsai.Design.Visualizers
         /// <summary>
         /// Gets or sets the maximum number of time points displayed at any one moment in the graph.
         /// </summary>
-        public int Capacity { get; set; } = 640;
+        public int Capacity { get; set; }
 
         /// <summary>
         /// Gets or sets the lower limit of the y-axis range when using a fixed scale.
