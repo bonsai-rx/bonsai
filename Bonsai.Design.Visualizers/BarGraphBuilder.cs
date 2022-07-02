@@ -54,11 +54,29 @@ namespace Bonsai.Design.Visualizers
         [Description("The optional capacity used for rolling bar graphs. If no capacity is specified, all data points will be displayed.")]
         public int? Capacity { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value specifying a fixed lower limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed lower limit of the y-axis range.")]
+        public double? Min { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying a fixed upper limit for the y-axis range.
+        /// If no fixed range is specified, the graph limits can be edited online.
+        /// </summary>
+        [Category("Range")]
+        [Description("Specifies the optional fixed upper limit of the y-axis range.")]
+        public double? Max { get; set; }
+
         internal VisualizerController Controller { get; set; }
 
         internal class VisualizerController
         {
-            internal int Capacity;
+            internal int? Capacity;
+            internal double? Min;
+            internal double? Max;
             internal Type IndexType;
             internal string IndexLabel;
             internal string[] ValueLabels;
@@ -81,7 +99,9 @@ namespace Bonsai.Design.Visualizers
             var elementVariable = Expression.Variable(parameterType);
             Controller = new VisualizerController
             {
-                Capacity = Capacity.GetValueOrDefault(),
+                Capacity = Capacity,
+                Min = Min,
+                Max = Max,
                 BaseAxis = BaseAxis,
                 BarType = BarType
             };
