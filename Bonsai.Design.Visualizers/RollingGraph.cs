@@ -1,15 +1,15 @@
-﻿using ZedGraph;
+﻿using System.Drawing;
+using System.Windows.Forms;
+using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
-    class RollingGraph : GraphControl
+    abstract class RollingGraph : GraphControl
     {
         int capacity;
         int numSeries;
         bool autoScaleX;
         bool autoScaleY;
-        float lineWidth;
-        SymbolType symbolType;
         IPointListEdit[] series;
         RollingPointPairList[] rollingSeries;
         const int DefaultCapacity = 640;
@@ -22,20 +22,12 @@ namespace Bonsai.Design.Visualizers
             IsShowContextMenu = false;
             capacity = DefaultCapacity;
             numSeries = DefaultNumSeries;
-            symbolType = SymbolType.None;
-            lineWidth = 1;
+            ZoomEvent += RollingGraph_ZoomEvent;
         }
 
-        public SymbolType SymbolType
+        protected IPointListEdit[] Series
         {
-            get { return symbolType; }
-            set { symbolType = value; }
-        }
-
-        public float LineWidth
-        {
-            get { return lineWidth; }
-            set { lineWidth = value; }
+            get { return series; }
         }
 
         public int NumSeries
@@ -130,6 +122,8 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        internal abstract CurveItem CreateSeries(string label, IPointListEdit points, Color color);
+
         private void EnsureSeries(string[] labels)
         {
             var hasLabels = labels != null;
@@ -139,17 +133,10 @@ namespace Bonsai.Design.Visualizers
                 GraphPane.CurveList.Clear();
                 for (int i = 0; i < series.Length; i++)
                 {
-                    var curve = new LineItem(
+                    var curve = CreateSeries(
                         label: hasLabels ? labels[i] : string.Empty,
                         points: series[i],
-                        color: GetNextColor(),
-                        symbolType,
-                        lineWidth);
-                    curve.Line.IsAntiAlias = true;
-                    curve.Line.IsOptimizedDraw = true;
-                    curve.Label.IsVisible = hasLabels;
-                    curve.Symbol.Fill.Type = FillType.Solid;
-                    curve.Symbol.IsAntiAlias = true;
+                        color: GetNextColor());
                     GraphPane.CurveList.Add(curve);
                 }
             }
@@ -243,6 +230,31 @@ namespace Bonsai.Design.Visualizers
             {
                 series[i].Add(values[i]);
             }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P)
+            {
+                DoPrint();
+            }
+
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.S)
+            {
+                SaveAs();
+            }
+
+            if (e.KeyCode == Keys.Back)
+            {
+                ZoomOut(GraphPane);
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        private void RollingGraph_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
+        {
+            MasterPane.AxisChange();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Bonsai.Design.Visualizers
             get { return statusStrip; }
         }
 
-        public RollingGraph Graph
+        public LineGraph Graph
         {
             get { return graph; }
         }
@@ -100,36 +100,9 @@ namespace Bonsai.Design.Visualizers
             base.OnLoad(e);
         }
 
-        public void AddValues(string index, params double[] values)
-        {
-            graph.AddValues(0, index, values);
-        }
-
         public virtual void AddValues(double index, params double[] values)
         {
             graph.AddValues(index, values);
-        }
-
-        protected override bool ProcessDialogKey(Keys keyData)
-        {
-            var keyCode = keyData & Keys.KeyCode;
-            var modifiers = keyData & Keys.Modifiers;
-            if (modifiers == Keys.Control && keyCode == Keys.P)
-            {
-                graph.DoPrint();
-            }
-
-            if (modifiers == Keys.Control && keyCode == Keys.S)
-            {
-                graph.SaveAs();
-            }
-
-            return base.ProcessDialogKey(keyData);
-        }
-
-        private void graph_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
-        {
-            graph.MasterPane.AxisChange();
         }
 
         private bool graph_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
@@ -190,14 +163,6 @@ namespace Bonsai.Design.Visualizers
             if (double.TryParse(text, out double max))
             {
                 Max = max;
-            }
-        }
-
-        private void graph_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Back)
-            {
-                graph.ZoomOut(graph.GraphPane);
             }
         }
     }
