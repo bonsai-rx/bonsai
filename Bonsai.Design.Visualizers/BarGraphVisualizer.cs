@@ -10,11 +10,45 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     public class BarGraphVisualizer : DialogTypeVisualizer
     {
-        GraphControl graph;
         BarGraphBuilder.VisualizerController controller;
-        IPointListEdit[] barSeries;
+        BarGraphView view;
         bool labelBars;
         bool reset;
+
+        /// <summary>
+        /// Gets or sets the maximum number of data points displayed at any one moment
+        /// in the bar graph.
+        /// </summary>
+        public int Capacity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the lower limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double Min { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upper limit of the y-axis range when using a fixed scale.
+        /// </summary>
+        public double Max { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the y-axis range should be recalculated
+        /// automatically as the graph updates.
+        /// </summary>
+        public bool AutoScale { get; set; } = true;
+
+        internal void AddValues(string index, params double[] values)
+        {
+            if (view.Graph.NumSeries != values.Length || reset)
+            {
+                view.Graph.EnsureCapacity(
+                    values.Length,
+                    labelBars ? controller.ValueLabels : null,
+                    reset);
+                reset = false;
+            }
+            view.Graph.AddValues(index, values);
+        }
 
         static void GetBarGraphAxes(BarBase barBase, GraphControl graph, out Axis indexAxis, out Axis valueAxis)
         {
@@ -34,67 +68,6 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        internal void AddValues(string index, double[] values)
-        {
-            EnsureSeries(values.Length);
-            if (values.Length > 0)
-            {
-                var count = barSeries[0].Count;
-                var updateLast = count > 0 && index.Equals(barSeries[0][count - 1].Tag);
-                if (updateLast && controller.BaseAxis <= BarBase.X2) UpdateLastBaseX();
-                else if (updateLast) UpdateLastBaseY();
-                else if (controller.BaseAxis <= BarBase.X2) AddBaseX();
-                else AddBaseY();
-
-                void UpdateLastBaseX()
-                {
-                    for (int i = 0; i < barSeries.Length; i++)
-                        barSeries[i][count - 1].Y = values[i];
-                }
-
-                void UpdateLastBaseY()
-                {
-                    for (int i = 0; i < barSeries.Length; i++)
-                        barSeries[i][count - 1].X = values[i];
-                }
-
-                void AddBaseX()
-                {
-                    for (int i = 0; i < barSeries.Length; i++)
-                        barSeries[i].Add(new PointPair(0, values[i], index));
-                }
-
-                void AddBaseY()
-                {
-                    for (int i = 0; i < barSeries.Length; i++)
-                        barSeries[i].Add(new PointPair(values[i], 0, index));
-                }
-            }
-        }
-
-        void EnsureSeries(int count)
-        {
-            if (barSeries == null || barSeries.Length != count || reset)
-            {
-                reset = false;
-                graph.ResetColorCycle();
-                graph.GraphPane.CurveList.Clear();
-                barSeries = new IPointListEdit[count];
-                for (int i = 0; i < barSeries.Length; i++)
-                {
-                    var color = graph.GetNextColor();
-                    var values = controller.Capacity > 0
-                        ? (IPointListEdit)new RollingPointPairList(controller.Capacity)
-                        : new PointPairList();
-                    var barItem = new BarItem(labelBars ? controller.ValueLabels[i] : null, values, color);
-                    barItem.Bar.Fill.Type = FillType.Solid;
-                    barItem.Bar.Border.IsVisible = false;
-                    graph.GraphPane.CurveList.Add(barItem);
-                    barSeries[i] = values;
-                }
-            }
-        }
-
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
@@ -102,26 +75,67 @@ namespace Bonsai.Design.Visualizers
             var barChartBuilder = (BarGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             controller = barChartBuilder.Controller;
 
-            graph = new GraphControl();
-            graph.Dock = DockStyle.Fill;
-            graph.GraphPane.BarSettings.Base = controller.BaseAxis;
-            graph.GraphPane.BarSettings.Type = controller.BarType;
-            GetBarGraphAxes(barChartBuilder.BaseAxis, graph, out Axis indexAxis, out Axis valueAxis);
+            view = new BarGraphView();
+            view.Dock = DockStyle.Fill;
+            view.Graph.BaseAxis = controller.BaseAxis;
+            view.Graph.BarType = controller.BarType;
+            GetBarGraphAxes(controller.BaseAxis, view.Graph, out Axis indexAxis, out Axis valueAxis);
             GraphHelper.FormatOrdinalAxis(indexAxis, typeof(string));
             GraphHelper.SetAxisLabel(indexAxis, controller.IndexLabel);
             indexAxis.Scale.IsReverse = controller.BaseAxis == BarBase.Y;
             indexAxis.MajorTic.IsInside = false;
 
+            if (controller.Min.HasValue || controller.Max.HasValue)
+            {
+                view.AutoScale = false;
+                view.AutoScaleVisible = false;
+                view.Min = controller.Min.GetValueOrDefault();
+                view.Max = controller.Max.GetValueOrDefault();
+            }
+            else
+            {
+                view.AutoScale = AutoScale;
+                if (!AutoScale)
+                {
+                    view.Min = Min;
+                    view.Max = Max;
+                }
+            }
+
+            if (controller.Capacity.HasValue)
+            {
+                view.Capacity = controller.Capacity.Value;
+                view.CanEditCapacity = false;
+            }
+            else
+            {
+                view.Capacity = Capacity;
+                view.CanEditCapacity = true;
+            }
+
             var hasLabels = controller.ValueLabels != null;
             var labelAxis = hasLabels && controller.ValueLabels.Length == 1;
             if (labelAxis) GraphHelper.SetAxisLabel(valueAxis, controller.ValueLabels[0]);
             labelBars = hasLabels && !labelAxis;
-            EnsureSeries(hasLabels ? controller.ValueLabels.Length : 0);
+            if (hasLabels)
+            {
+                view.Graph.EnsureCapacity(
+                    controller.ValueLabels.Length,
+                    labelBars ? controller.ValueLabels : null);
+            }
+
+            view.HandleDestroyed += delegate
+            {
+                Min = view.Min;
+                Max = view.Max;
+                AutoScale = view.AutoScale;
+                Capacity = view.Capacity;
+            };
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(graph);
+                visualizerService.AddControl(view);
             }
         }
 
@@ -129,7 +143,7 @@ namespace Bonsai.Design.Visualizers
         public override void Show(object value)
         {
             controller.AddValues(value, this);
-            graph.Invalidate();
+            view.Graph.Invalidate();
         }
 
         /// <inheritdoc/>
@@ -141,10 +155,9 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Unload()
         {
-            graph.Dispose();
-            graph = null;
+            view.Dispose();
+            view = null;
             controller = null;
-            barSeries = null;
             reset = false;
         }
     }
