@@ -41,7 +41,7 @@
             this.maxStatusLabelY = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleButtonX = new System.Windows.Forms.ToolStripButton();
             this.autoScaleButtonY = new System.Windows.Forms.ToolStripButton();
-            this.graph = new Bonsai.Design.Visualizers.RollingGraph();
+            this.graph = new Bonsai.Design.Visualizers.LineGraph();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -162,9 +162,7 @@
             this.graph.ScrollMinY2 = 0D;
             this.graph.Size = new System.Drawing.Size(400, 218);
             this.graph.TabIndex = 2;
-            this.graph.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.graph_ZoomEvent);
             this.graph.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.graph_MouseMoveEvent);
-            this.graph.KeyDown += new System.Windows.Forms.KeyEventHandler(this.graph_KeyDown);
             this.graph.MouseClick += new System.Windows.Forms.MouseEventHandler(this.graph_MouseClick);
             // 
             // LineGraphView
@@ -187,7 +185,7 @@
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripButton autoScaleButtonX;
         private System.Windows.Forms.ToolStripButton autoScaleButtonY;
-        private RollingGraph graph;
+        private LineGraph graph;
         private System.Windows.Forms.ToolStripStatusLabel cursorStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel scaleStatusLabelX;
         private System.Windows.Forms.ToolStripStatusLabel minStatusLabelX;
