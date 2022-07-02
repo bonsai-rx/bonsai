@@ -41,6 +41,7 @@ namespace Bonsai.Design.Visualizers
                 {
                     if (graph.CurveList.Count == 0) return null;
                     var series = graph.CurveList[0];
+                    index *= (int)axis.Scale.MajorStep;
                     return index < series.NPts ? series[index].Tag as string : null;
                 };
             }
