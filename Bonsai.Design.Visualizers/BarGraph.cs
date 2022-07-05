@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
@@ -26,27 +27,39 @@ namespace Bonsai.Design.Visualizers
             return curve;
         }
 
+        static int FindIndex(IPointListEdit series, string index)
+        {
+            for (int i = 0; i < series.Count; i++)
+            {
+                if (EqualityComparer<string>.Default.Equals(index, (string)series[i].Tag))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         public void AddValues(string index, double[] values)
         {
             if (values.Length > 0)
             {
-                var count = Series[0].Count;
-                var updateLast = count > 0 && index.Equals(Series[0][count - 1].Tag);
-                if (updateLast && BaseAxis <= BarBase.X2) UpdateLastBaseX();
-                else if (updateLast) UpdateLastBaseY();
+                var updateIndex = FindIndex(Series[0], index);
+                if (updateIndex >= 0 && BaseAxis <= BarBase.X2) UpdateLastBaseX();
+                else if (updateIndex >= 0) UpdateLastBaseY();
                 else if (BaseAxis <= BarBase.X2) AddBaseX();
                 else AddBaseY();
 
                 void UpdateLastBaseX()
                 {
                     for (int i = 0; i < Series.Length; i++)
-                        Series[i][count - 1].Y = values[i];
+                        Series[i][updateIndex].Y = values[i];
                 }
 
                 void UpdateLastBaseY()
                 {
                     for (int i = 0; i < Series.Length; i++)
-                        Series[i][count - 1].X = values[i];
+                        Series[i][updateIndex].X = values[i];
                 }
 
                 void AddBaseX()
