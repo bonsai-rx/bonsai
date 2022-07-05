@@ -33,10 +33,9 @@ namespace Bonsai.Expressions
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
             if (successor.Target.Value is InspectBuilder targetBuilder &&
-                GetVisualizerElement(targetBuilder) is InspectBuilder targetVisualizer &&
                 InspectBuilder.GetInspectBuilder(source) is InspectBuilder sourceVisualizer)
             {
-                targetVisualizer.AddVisualizerSource(successor.Label.Index, sourceVisualizer);
+                targetBuilder.AddVisualizerSource(successor.Label.Index, sourceVisualizer);
             }
 
             argument = source;
