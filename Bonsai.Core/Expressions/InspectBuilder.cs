@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -40,6 +40,11 @@ namespace Bonsai.Expressions
         {
             SourceList ??= new VisualizerSourceList();
             SourceList.Add(index, source);
+        }
+
+        internal void ResetVisualizerSources()
+        {
+            SourceList?.ResetVisualizerSources();
         }
 
         internal IReadOnlyList<InspectBuilder> VisualizerSources
@@ -111,7 +116,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             ObservableType = null;
-            SourceList?.ResetVisualizerSources();
+            ResetVisualizerSources();
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
             if (IsReducible(source))
