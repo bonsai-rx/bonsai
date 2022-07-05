@@ -677,6 +677,17 @@ namespace Bonsai.Expressions
             }
 
             try { return source.Build(buildContext); }
+            catch
+            {
+                foreach (var node in source)
+                {
+                    if (node.Value is InspectBuilder builder)
+                    {
+                        builder.ResetVisualizerSources();
+                    }
+                }
+                throw;
+            }
             finally
             {
                 foreach (var parameter in parameters)
