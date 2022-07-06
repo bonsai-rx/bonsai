@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -40,6 +40,18 @@ namespace Bonsai.Expressions
         {
             SourceList ??= new VisualizerSourceList();
             SourceList.Add(index, source);
+        }
+
+        private InspectBuilder BuildVisualizerElement(InspectBuilder builder, IReadOnlyList<InspectBuilder> visualizerSources)
+        {
+            var visualizerElement = GetVisualizerElement(builder);
+            if (visualizerSources.Count > 0)
+            {
+                visualizerElement.SourceList ??= new VisualizerSourceList();
+                visualizerElement.SourceList.AddInspectorSources(visualizerSources);
+            }
+
+            return visualizerElement;
         }
 
         internal void ResetVisualizerSources()
@@ -131,13 +143,13 @@ namespace Bonsai.Expressions
             {
                 Output = VisualizerElement.Output;
                 ErrorEx = Observable.Empty<Exception>();
-                VisualizerElement = GetVisualizerElement(VisualizerElement);
+                VisualizerElement = BuildVisualizerElement(VisualizerElement, VisualizerSources);
                 return source;
             }
             else if (Builder.GetType() == typeof(VisualizerBuilder))
             {
                 var visualizerSource = GetInspectBuilder(((LambdaExpression)((MethodCallExpression)source).Arguments[1]).Body);
-                if (visualizerSource != null) VisualizerElement = GetVisualizerElement(visualizerSource);
+                if (visualizerSource != null) VisualizerElement = BuildVisualizerElement(visualizerSource, VisualizerSources);
             }
             
             if (PublishNotifications && ObservableType != null)
@@ -262,17 +274,23 @@ namespace Bonsai.Expressions
 
         class VisualizerSourceList
         {
-            readonly SortedList<int, InspectBuilder> visualizerSources = new SortedList<int, InspectBuilder>();
+            readonly SortedList<int, InspectBuilder> localSources = new SortedList<int, InspectBuilder>();
 
             public void Add(int index, InspectBuilder source)
             {
-                visualizerSources.Add(index, source);
+                localSources.Add(index, source);
+            }
+
+            public void AddInspectorSources(IReadOnlyList<InspectBuilder> sources)
+            {
+                VisualizerSources ??= new List<InspectBuilder>();
+                ((List<InspectBuilder>)VisualizerSources).AddRange(sources);
             }
 
             public void ResetVisualizerSources()
             {
-                VisualizerSources = visualizerSources.Values.ToList();
-                visualizerSources.Clear();
+                VisualizerSources = localSources.Values.ToList();
+                localSources.Clear();
             }
 
             public IReadOnlyList<InspectBuilder> VisualizerSources { get; private set; }
