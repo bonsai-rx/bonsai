@@ -380,32 +380,51 @@ namespace Bonsai.Design
                         var mashupVisualizerType = typeVisualizerMap.GetVisualizerType(mashupVisualizerTypeName);
                         mashupFactory = new VisualizerFactory(mashupSource, mashupVisualizerType);
                     }
-                    
-                    var mashupVisualizerSettingsElement = mashup.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
-                    var mashupVisualizerSettings = mashupVisualizerSettingsElement.Elements().FirstOrDefault();
-                    var nestedVisualizer = mashupFactory.CreateVisualizer(mashupVisualizerSettings, visualizerLayout, typeVisualizerMap);
-                    mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
+
+                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, visualizerLayout, typeVisualizerMap, mashup);
                 }
 
                 for (int i = index; i < visualizerFactory.MashupSources.Count; i++)
                 {
                     var mashupFactory = visualizerFactory.MashupSources[i];
-                    var mashupSourceType = GetMashupSourceType(
-                        visualizerFactory.VisualizerType,
-                        mashupFactory.VisualizerType,
-                        typeVisualizerMap);
-                    if (mashupSourceType == null) continue;
-                    if (mashupSourceType != typeof(DialogTypeVisualizer))
-                    {
-                        mashupFactory = new VisualizerFactory(mashupFactory.Source, mashupSourceType);
-                    }
-
-                    var nestedVisualizer = mashupFactory.CreateVisualizer(visualizerSettings: null, visualizerLayout, typeVisualizerMap);
-                    mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
+                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, visualizerLayout, typeVisualizerMap);
                 }
             }
 
             return visualizer;
+        }
+
+        static void CreateMashupVisualizer(
+            MashupVisualizer mashupVisualizer,
+            VisualizerFactory visualizerFactory,
+            VisualizerFactory mashupFactory,
+            VisualizerLayout visualizerLayout,
+            TypeVisualizerMap typeVisualizerMap,
+            XElement mashup = null)
+        {
+            var mashupSourceType = GetMashupSourceType(
+                visualizerFactory.VisualizerType,
+                mashupFactory.VisualizerType,
+                typeVisualizerMap);
+            if (mashupSourceType == null) return;
+            if (mashupSourceType != typeof(DialogTypeVisualizer))
+            {
+                mashupFactory = new VisualizerFactory(mashupFactory.Source, mashupSourceType);
+            }
+
+            var mashupVisualizerSettings = default(XElement);
+            if (mashup != null)
+            {
+                var mashupVisualizerSettingsElement = mashup.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
+                mashupVisualizerSettings = mashupVisualizerSettingsElement.Elements().FirstOrDefault();
+                if (mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName)).Value != mashupFactory.VisualizerType.FullName)
+                {
+                    mashupVisualizerSettings = default;
+                }
+            }
+
+            var nestedVisualizer = mashupFactory.CreateVisualizer(mashupVisualizerSettings, visualizerLayout, typeVisualizerMap);
+            mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
         }
     }
 }
