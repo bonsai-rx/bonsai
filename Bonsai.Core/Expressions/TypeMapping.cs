@@ -5,8 +5,8 @@ namespace Bonsai.Expressions
 {
     /// <summary>
     /// Represents the target type to be created from selected member variables. This type is manipulated internally
-    /// by <see cref="InputMappingBuilder"/> and <see cref="MemberSelectorBuilder"/> to force a specific
-    /// output type.
+    /// by <see cref="InputMappingBuilder"/>, <see cref="MemberSelectorBuilder"/> and <see cref="VisualizerMappingBuilder"/>
+    /// to specify output and visualizer types.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class TypeMapping

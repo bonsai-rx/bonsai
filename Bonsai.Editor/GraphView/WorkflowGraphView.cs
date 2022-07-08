@@ -1618,7 +1618,18 @@ namespace Bonsai.Editor.GraphView
             var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : TypeHelper.GetTypeName(typeName);
             menuItem = new ToolStripMenuItem(itemText, null, delegate
             {
-                if (!menuItem.Checked)
+                var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                if (ExpressionBuilder.Unwrap(inspectBuilder) is VisualizerMappingBuilder mappingBuilder)
+                {
+                    if (emptyVisualizer) mappingBuilder.VisualizerType = null;
+                    else
+                    {
+                        var visualizerType = typeVisualizerMap.GetVisualizerType(typeName);
+                        var mappingType = typeof(TypeMapping<>).MakeGenericType(visualizerType);
+                        mappingBuilder.VisualizerType = (TypeMapping)Activator.CreateInstance(mappingType);
+                    }
+                }
+                else if (!menuItem.Checked)
                 {
                     layoutSettings.VisualizerTypeName = typeName;
                     layoutSettings.VisualizerSettings = null;
@@ -1629,7 +1640,6 @@ namespace Bonsai.Editor.GraphView
                     }
                     else
                     {
-                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
                         var visualizerLauncher = visualizerMapping[inspectBuilder];
                         var visualizerVisible = visualizerLauncher.Visible;
                         if (visualizerVisible)
@@ -1762,6 +1772,12 @@ namespace Bonsai.Editor.GraphView
                 if (layoutSettings != null)
                 {
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
+                    if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
+                        mappingBuilder.VisualizerType != null)
+                    {
+                        activeVisualizer = mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
+                    }
+
                     if (editorState.WorkflowRunning)
                     {
                         if (visualizerMapping.TryGetValue(inspectBuilder, out VisualizerDialogLauncher visualizerLauncher))

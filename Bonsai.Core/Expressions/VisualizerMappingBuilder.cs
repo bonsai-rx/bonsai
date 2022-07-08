@@ -15,8 +15,20 @@ namespace Bonsai.Expressions
     [XmlType("VisualizerMapping", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Visualizer")]
     [Description("Specifies an observable sequence to be combined in a mashup visualizer.")]
-    public class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, IArgumentBuilder
+    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, IArgumentBuilder, ISerializableElement
     {
+        /// <summary>
+        /// Gets or sets an optional type mapping specifying the visualizer type which
+        /// the selected properties will be projected into.
+        /// </summary>
+        [Browsable(false)]
+        public TypeMapping VisualizerType { get; set; }
+
+        object ISerializableElement.Element
+        {
+            get { return VisualizerType; }
+        }
+
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
@@ -35,7 +47,7 @@ namespace Bonsai.Expressions
             if (successor.Target.Value is InspectBuilder targetBuilder &&
                 InspectBuilder.GetInspectBuilder(source) is InspectBuilder sourceVisualizer)
             {
-                targetBuilder.AddVisualizerSource(successor.Label.Index, sourceVisualizer);
+                targetBuilder.AddVisualizerMapping(successor.Label.Index, sourceVisualizer, VisualizerType?.TargetType);
             }
 
             argument = source;

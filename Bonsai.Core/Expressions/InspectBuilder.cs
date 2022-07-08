@@ -34,34 +34,34 @@ namespace Bonsai.Expressions
 
         internal InspectBuilder VisualizerElement { get; set; }
 
-        private VisualizerSourceList SourceList { get; set; }
+        private VisualizerMappingList MappingList { get; set; }
 
-        internal void AddVisualizerSource(int index, InspectBuilder source)
+        internal void AddVisualizerMapping(int index, InspectBuilder source, Type visualizerType)
         {
-            SourceList ??= new VisualizerSourceList();
-            SourceList.Add(index, source);
+            MappingList ??= new VisualizerMappingList();
+            MappingList.Add(index, source, visualizerType);
         }
 
-        private InspectBuilder BuildVisualizerElement(InspectBuilder builder, IReadOnlyList<InspectBuilder> visualizerSources)
+        private InspectBuilder BuildVisualizerElement(InspectBuilder builder, IReadOnlyList<VisualizerMapping> visualizerMappings)
         {
             var visualizerElement = GetVisualizerElement(builder);
-            if (visualizerSources.Count > 0)
+            if (visualizerMappings.Count > 0)
             {
-                visualizerElement.SourceList ??= new VisualizerSourceList();
-                visualizerElement.SourceList.AddInspectorSources(visualizerSources);
+                visualizerElement.MappingList ??= new VisualizerMappingList();
+                visualizerElement.MappingList.AddRange(visualizerMappings);
             }
 
             return visualizerElement;
         }
 
-        internal void ResetVisualizerSources()
+        internal void ResetVisualizerMappings()
         {
-            SourceList?.ResetVisualizerSources();
+            MappingList?.ResetVisualizerMappings();
         }
 
-        internal IReadOnlyList<InspectBuilder> VisualizerSources
+        internal IReadOnlyList<VisualizerMapping> VisualizerMappings
         {
-            get { return SourceList?.VisualizerSources ?? Array.Empty<InspectBuilder>(); }
+            get { return MappingList?.VisualizerMappings ?? Array.Empty<VisualizerMapping>(); }
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             ObservableType = null;
-            ResetVisualizerSources();
+            ResetVisualizerMappings();
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
             if (IsReducible(source))
@@ -143,13 +143,13 @@ namespace Bonsai.Expressions
             {
                 Output = VisualizerElement.Output;
                 ErrorEx = Observable.Empty<Exception>();
-                VisualizerElement = BuildVisualizerElement(VisualizerElement, VisualizerSources);
+                VisualizerElement = BuildVisualizerElement(VisualizerElement, VisualizerMappings);
                 return source;
             }
             else if (Builder.GetType() == typeof(VisualizerBuilder))
             {
                 var visualizerSource = GetInspectBuilder(((LambdaExpression)((MethodCallExpression)source).Arguments[1]).Body);
-                if (visualizerSource != null) VisualizerElement = BuildVisualizerElement(visualizerSource, VisualizerSources);
+                if (visualizerSource != null) VisualizerElement = BuildVisualizerElement(visualizerSource, VisualizerMappings);
             }
             
             if (PublishNotifications && ObservableType != null)
@@ -272,28 +272,29 @@ namespace Bonsai.Expressions
             });
         }
 
-        class VisualizerSourceList
+        class VisualizerMappingList
         {
-            readonly SortedList<int, InspectBuilder> localSources = new SortedList<int, InspectBuilder>();
+            readonly SortedList<int, VisualizerMapping> localMappings = new SortedList<int, VisualizerMapping>();
 
-            public void Add(int index, InspectBuilder source)
+            public void Add(int index, InspectBuilder source, Type visualizerType)
             {
-                localSources.Add(index, source);
+                var visualizerMapping = new VisualizerMapping(source, visualizerType);
+                localMappings.Add(index, visualizerMapping);
             }
 
-            public void AddInspectorSources(IReadOnlyList<InspectBuilder> sources)
+            public void AddRange(IReadOnlyList<VisualizerMapping> mappings)
             {
-                VisualizerSources ??= new List<InspectBuilder>();
-                ((List<InspectBuilder>)VisualizerSources).AddRange(sources);
+                VisualizerMappings ??= new List<VisualizerMapping>();
+                ((List<VisualizerMapping>)VisualizerMappings).AddRange(mappings);
             }
 
-            public void ResetVisualizerSources()
+            public void ResetVisualizerMappings()
             {
-                VisualizerSources = localSources.Values.ToList();
-                localSources.Clear();
+                VisualizerMappings = localMappings.Values.ToList();
+                localMappings.Clear();
             }
 
-            public IReadOnlyList<InspectBuilder> VisualizerSources { get; private set; }
+            public IReadOnlyList<VisualizerMapping> VisualizerMappings { get; private set; }
         }
     }
 }

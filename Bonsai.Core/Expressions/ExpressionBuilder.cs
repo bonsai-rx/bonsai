@@ -145,16 +145,16 @@ namespace Bonsai.Expressions
         /// The <see cref="ExpressionBuilder"/> for which to retrieve visualizer mappings.
         /// </param>
         /// <returns>
-        /// The read-only collection of <see cref="InspectBuilder"/> objects that
+        /// The read-only collection of <see cref="VisualizerMapping"/> objects that
         /// have been assigned to the specified workflow element.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="builder"/> is <see langword="null"/>.
         /// </exception>
-        public static IReadOnlyList<InspectBuilder> GetVisualizerMappings(ExpressionBuilder builder)
+        public static IReadOnlyList<VisualizerMapping> GetVisualizerMappings(ExpressionBuilder builder)
         {
             var inspectBuilder = GetVisualizerElement(builder);
-            return inspectBuilder.VisualizerSources ?? Array.Empty<InspectBuilder>();
+            return inspectBuilder.VisualizerMappings;
         }
 
         internal static Type GetWorkflowPropertyType(Type expressionType)

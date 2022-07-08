@@ -683,7 +683,7 @@ namespace Bonsai.Expressions
                 {
                     if (node.Value is InspectBuilder builder)
                     {
-                        builder.ResetVisualizerSources();
+                        builder.ResetVisualizerMappings();
                     }
                 }
                 throw;
