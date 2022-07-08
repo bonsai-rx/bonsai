@@ -151,7 +151,8 @@ namespace Bonsai.Design
             Editor.GraphView.WorkflowGraphView workflowGraphView = null)
         {
             var inspectBuilder = ExpressionBuilder.GetVisualizerElement(source);
-            if (inspectBuilder.ObservableType == null || !inspectBuilder.PublishNotifications)
+            if (inspectBuilder.ObservableType == null || !inspectBuilder.PublishNotifications ||
+                source.Builder is VisualizerMappingBuilder)
             {
                 return null;
             }
@@ -181,11 +182,11 @@ namespace Bonsai.Design
         {
             var visualizerMappings = ExpressionBuilder.GetVisualizerMappings(builder);
             if (visualizerMappings.Count == 0) return Array.Empty<VisualizerFactory>();
-            return visualizerMappings.Select(mashupSource =>
+            return visualizerMappings.Select(mapping =>
             {
-                var nestedSources = GetMashupArguments(mashupSource, typeVisualizerMap);
-                var visualizerType = typeVisualizerMap.GetTypeVisualizers(mashupSource).FirstOrDefault();
-                return new VisualizerFactory(mashupSource, visualizerType, nestedSources);
+                var nestedSources = GetMashupArguments(mapping.Source, typeVisualizerMap);
+                var visualizerType = mapping.VisualizerType ?? typeVisualizerMap.GetTypeVisualizers(mapping.Source).FirstOrDefault();
+                return new VisualizerFactory(mapping.Source, visualizerType, nestedSources);
             }).ToList();
         }
 
