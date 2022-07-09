@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
     [XmlType("VisualizerMapping", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Visualizer")]
     [Description("Specifies an observable sequence to be combined in a mashup visualizer.")]
-    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, IArgumentBuilder, ISerializableElement
+    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, ISerializableElement
     {
         /// <summary>
         /// Gets or sets an optional type mapping specifying the visualizer type which
@@ -23,6 +23,11 @@ namespace Bonsai.Expressions
         /// </summary>
         [Browsable(false)]
         public TypeMapping VisualizerType { get; set; }
+
+        string INamedElement.Name
+        {
+            get { return VisualizerType?.TargetType.Name ?? GetElementDisplayName(GetType()); }
+        }
 
         object ISerializableElement.Element
         {
