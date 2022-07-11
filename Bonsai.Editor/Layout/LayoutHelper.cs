@@ -74,16 +74,21 @@ namespace Bonsai.Design
         {
             foreach (var settings in root.DialogSettings)
             {
-                SetLayoutNotifications(settings, root, publishNotifications: false);
+                SetLayoutNotifications(settings, root, forcePublish: false);
             }
         }
 
-        static void SetLayoutNotifications(VisualizerDialogSettings settings, VisualizerLayout root, bool publishNotifications = false)
+        static void SetLayoutNotifications(VisualizerDialogSettings settings, VisualizerLayout root, bool forcePublish = false)
         {
             var inspectBuilder = settings.Tag as InspectBuilder;
             while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
             {
-                inspectBuilder.PublishNotifications = publishNotifications || !string.IsNullOrEmpty(settings.VisualizerTypeName);
+                if (string.IsNullOrEmpty(settings.VisualizerTypeName) && !forcePublish)
+                {
+                    break;
+                }
+
+                SetVisualizerNotifications(inspectBuilder);
                 foreach (var index in settings.Mashups.Concat(settings.VisualizerSettings?
                                                       .Descendants(MashupSourceElement)
                                                       .Select(m => int.Parse(m.Value))
@@ -91,20 +96,24 @@ namespace Bonsai.Design
                 {
                     if (index < 0 || index >= root.DialogSettings.Count) continue;
                     var mashupSource = root.DialogSettings[index];
-                    SetLayoutNotifications(mashupSource, root, publishNotifications: true);
+                    SetLayoutNotifications(mashupSource, root, forcePublish: true);
                 }
 
-                var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                if (inspectBuilder.PublishNotifications && visualizerElement != inspectBuilder)
-                {
-                    inspectBuilder = visualizerElement;
-                }
-                else inspectBuilder = null;
+                inspectBuilder = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
             }
 
             if (settings is WorkflowEditorSettings editorSettings && editorSettings.EditorVisualizerLayout != null)
             {
                 SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
+            }
+        }
+
+        static void SetVisualizerNotifications(InspectBuilder inspectBuilder)
+        {
+            inspectBuilder.PublishNotifications = true;
+            foreach (var visualizerMapping in ExpressionBuilder.GetVisualizerMappings(inspectBuilder))
+            {
+                SetVisualizerNotifications(visualizerMapping.Source);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using Bonsai.Design;
+using Bonsai.Design;
 using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
@@ -15,10 +15,11 @@ namespace Bonsai.Editor
     public class WorkflowRunner
     {
         static void RunLayout(
-            string fileName,
-            IObservable<TypeVisualizerDescriptor> visualizerProvider,
             WorkflowBuilder workflowBuilder,
-            VisualizerLayout layout)
+            Dictionary<string, string> propertyAssignments,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            VisualizerLayout layout,
+            string fileName)
         {
             var typeVisualizers = new TypeVisualizerMap();
             var loadVisualizers = (from typeVisualizer in visualizerProvider
@@ -30,6 +31,7 @@ namespace Bonsai.Editor
                                    .ToEnumerable().ToList();
 
             workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+            BuildAssignProperties(workflowBuilder, propertyAssignments);
             LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: false);
             LayoutHelper.SetLayoutTags(workflowBuilder.Workflow, layout);
             LayoutHelper.SetLayoutNotifications(layout);
@@ -85,14 +87,24 @@ namespace Bonsai.Editor
             Application.Run();
         }
 
-        static void RunHeadless(WorkflowBuilder workflowBuilder)
+        static void RunHeadless(WorkflowBuilder workflowBuilder, Dictionary<string, string> propertyAssignments)
         {
+            BuildAssignProperties(workflowBuilder, propertyAssignments);
             var workflowCompleted = new ManualResetEvent(false);
             workflowBuilder.Workflow.BuildObservable().Subscribe(
                 unit => { },
                 ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
                 () => workflowCompleted.Set());
             workflowCompleted.WaitOne();
+        }
+
+        static void BuildAssignProperties(WorkflowBuilder workflowBuilder, Dictionary<string, string> propertyAssignments)
+        {
+            workflowBuilder.Workflow.Build();
+            foreach (var assignment in propertyAssignments)
+            {
+                workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
+            }
         }
 
         public static void Run(string fileName, Dictionary<string, string> propertyAssignments, IObservable<TypeVisualizerDescriptor> visualizerProvider = null)
@@ -124,12 +136,6 @@ namespace Bonsai.Editor
                 workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
             }
 
-            workflowBuilder.Workflow.Build();
-            foreach (var assignment in propertyAssignments)
-            {
-                workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
-            }
-
             layoutPath ??= LayoutHelper.GetLayoutPath(fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {
@@ -139,9 +145,9 @@ namespace Bonsai.Editor
                     layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
                 }
 
-                RunLayout(fileName, visualizerProvider, workflowBuilder, layout);
+                RunLayout(workflowBuilder, propertyAssignments, visualizerProvider, layout, fileName);
             }
-            else RunHeadless(workflowBuilder);
+            else RunHeadless(workflowBuilder, propertyAssignments);
         }
     }
 }
