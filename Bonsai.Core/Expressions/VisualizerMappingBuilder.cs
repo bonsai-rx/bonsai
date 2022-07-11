@@ -18,15 +18,17 @@ namespace Bonsai.Expressions
     public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, ISerializableElement
     {
         /// <summary>
-        /// Gets or sets an optional type mapping specifying the visualizer type which
-        /// the selected properties will be projected into.
+        /// Gets or sets a value specifying the visualizer type used to combine the
+        /// observable sequence with a mashup visualizer.
         /// </summary>
-        [Browsable(false)]
+        [Externalizable(false)]
+        [TypeConverter(typeof(TypeMappingConverter))]
+        [Description("Specifies the visualizer type used to combine the observable sequence with a mashup visualizer.")]
         public TypeMapping VisualizerType { get; set; }
 
         string INamedElement.Name
         {
-            get { return VisualizerType?.TargetType.Name ?? GetElementDisplayName(GetType()); }
+            get { return VisualizerType?.TargetType.Name; }
         }
 
         object ISerializableElement.Element

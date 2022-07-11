@@ -580,7 +580,13 @@ namespace Bonsai.Editor.GraphView
 
         internal void UpdateSelection()
         {
-            if (selectionModel.SelectedView != this ||
+            UpdateSelection(forceUpdate: false);
+        }
+
+        internal void UpdateSelection(bool forceUpdate)
+        {
+            if (forceUpdate ||
+                selectionModel.SelectedView != this ||
                 selectionModel.SelectedNodes != GraphView.SelectedNodes)
             {
                 selectionModel.UpdateSelection(this);
@@ -1628,6 +1634,7 @@ namespace Bonsai.Editor.GraphView
                         var mappingType = typeof(TypeMapping<>).MakeGenericType(visualizerType);
                         mappingBuilder.VisualizerType = (TypeMapping)Activator.CreateInstance(mappingType);
                     }
+                    UpdateSelection(forceUpdate: true);
                 }
                 else if (!menuItem.Checked)
                 {
