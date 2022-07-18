@@ -24,9 +24,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.Expression
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.Expressions.Design", "Bonsai.Scripting.Expressions.Design\Bonsai.Scripting.Expressions.Design.csproj", "{B9456E54-9249-4178-951A-166A6F54A206}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.Python", "Bonsai.Scripting.Python\Bonsai.Scripting.Python.csproj", "{D487E501-77E3-4A1C-943E-F4F2534E3BC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.IronPython", "Bonsai.Scripting.IronPython\Bonsai.Scripting.IronPython.csproj", "{D487E501-77E3-4A1C-943E-F4F2534E3BC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.Python.Design", "Bonsai.Scripting.Python.Design\Bonsai.Scripting.Python.Design.csproj", "{18A71178-6045-49A6-810B-1F5E50DD621F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.IronPython.Design", "Bonsai.Scripting.IronPython.Design\Bonsai.Scripting.IronPython.Design.csproj", "{18A71178-6045-49A6-810B-1F5E50DD621F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Player", "Bonsai.Player\Bonsai.Player.csproj", "{156452CC-3847-4706-AC65-4FA3BECA88EF}"
 EndProject

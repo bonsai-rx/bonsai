@@ -9,7 +9,7 @@ using IronPython.Runtime;
 using System.Threading.Tasks;
 using Microsoft.Scripting.Hosting;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     /// <summary>
     /// Represents an operator that uses a Python script to generate an observable

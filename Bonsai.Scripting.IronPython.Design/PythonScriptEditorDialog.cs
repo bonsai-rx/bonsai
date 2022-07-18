@@ -3,7 +3,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Bonsai.Scripting.Python.Design
+namespace Bonsai.Scripting.IronPython.Design
 {
     internal partial class PythonScriptEditorDialog : Form
     {

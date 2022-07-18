@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     class ScriptingElementTypeDescriptor : CustomTypeDescriptor
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Scripting.Hosting;
 using System;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     class PythonProcessor<TSource, TResult>
     {

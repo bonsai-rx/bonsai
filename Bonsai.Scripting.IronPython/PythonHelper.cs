@@ -3,7 +3,7 @@ using IronPython.Runtime.Types;
 using Microsoft.Scripting.Hosting;
 using System;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     static class PythonHelper
     {

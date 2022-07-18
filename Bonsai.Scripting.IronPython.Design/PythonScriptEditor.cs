@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 
-namespace Bonsai.Scripting.Python.Design
+namespace Bonsai.Scripting.IronPython.Design
 {
     /// <summary>
     /// Provides a user interface editor that displays a dialog box for editing
