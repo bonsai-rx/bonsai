@@ -2224,6 +2224,31 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
+        private async Task OpenDocumentationAsync(ExpressionBuilder builder)
+        {
+            var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
+            if (selectedElement is IncludeWorkflowBuilder include &&
+                !string.IsNullOrEmpty(include.Path))
+            {
+                var path = include.Path;
+                const char AssemblySeparator = ':';
+                var separatorIndex = path.IndexOf(AssemblySeparator);
+                if (separatorIndex >= 0 && !Path.IsPathRooted(path))
+                {
+                    var nameElements = path.Split(new[] { AssemblySeparator }, 2);
+                    if (!string.IsNullOrEmpty(nameElements[0]))
+                    {
+                        var assemblyName = nameElements[0];
+                        var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                        await OpenDocumentationAsync(assemblyName, resourceName);
+                        return;
+                    }
+                }
+            }
+
+            await OpenDocumentationAsync(selectedElement.GetType());
+        }
+
         private async Task OpenDocumentationAsync(Type type)
         {
             var uid = type.FullName;
@@ -2284,8 +2309,7 @@ namespace Bonsai.Editor
                 var selectedNode = selectionModel.SelectedNodes.FirstOrDefault();
                 if (selectedNode != null)
                 {
-                    var selectedElementType = ExpressionBuilder.GetWorkflowElement(selectedNode.Value).GetType();
-                    await OpenDocumentationAsync(selectedElementType);
+                    await OpenDocumentationAsync(selectedNode.Value);
                     return;
                 }
             }
