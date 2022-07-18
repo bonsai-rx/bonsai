@@ -25,8 +25,8 @@ namespace Bonsai.Editor
 
         static async Task<Uri> GetDocumentationAsync(string baseUrl, string uid)
         {
-            var lookup = await GetXRefMapAsync(baseUrl, "docs-wip/", string.Empty);
-            return new Uri($"{baseUrl}docs-wip/{lookup[uid]}");
+            var lookup = await GetXRefMapAsync(baseUrl, "docs/", string.Empty);
+            return new Uri($"{baseUrl}docs/{lookup[uid]}");
         }
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl, params string[] hrefs)
