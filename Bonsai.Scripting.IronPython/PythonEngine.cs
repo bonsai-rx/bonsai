@@ -2,13 +2,13 @@
 using System.IO;
 using System.Reflection;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     static class PythonEngine
     {
         internal static ScriptEngine Create()
         {
-            var engine = IronPython.Hosting.Python.CreateEngine();
+            var engine = global::IronPython.Hosting.Python.CreateEngine();
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var libPath = Directory.GetDirectories(Path.Combine(basePath, "../../../"), "IronPython.StdLib.*");
             if (libPath.Length == 1)

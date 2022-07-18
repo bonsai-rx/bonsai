@@ -7,7 +7,7 @@ using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Linq.Expressions;
 
-namespace Bonsai.Scripting.Python
+namespace Bonsai.Scripting.IronPython
 {
     /// <summary>
     /// Represents an operator that uses a Python script to transform each

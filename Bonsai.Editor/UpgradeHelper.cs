@@ -130,7 +130,7 @@ namespace Bonsai.Editor
                     }
                     else if (elementType.Name.Contains("Python"))
                     {
-                        var replacementTypeName = elementType.AssemblyQualifiedName.Replace("Bonsai.Scripting", "Bonsai.Scripting.Python");
+                        var replacementTypeName = elementType.AssemblyQualifiedName.Replace("Bonsai.Scripting", "Bonsai.Scripting.IronPython");
                         var replacementType = Type.GetType(replacementTypeName);
                         if (replacementType != null)
                         {

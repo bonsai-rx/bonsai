@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Scripting.Python.Design
+﻿namespace Bonsai.Scripting.IronPython.Design
 {
     partial class PythonScriptEditorDialog
     {

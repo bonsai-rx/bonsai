@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Scripting.Python
+﻿namespace Bonsai.Scripting.IronPython
 {
     interface IScriptingElement : INamedElement
     {

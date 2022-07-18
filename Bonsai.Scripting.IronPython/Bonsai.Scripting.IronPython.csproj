@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Python Scripting Library</Title>
-    <Description>Bonsai Scripting Library containing Python scripting infrastructure for Bonsai.</Description>
-    <PackageTags>Bonsai Rx Scripting Python</PackageTags>
+    <Title>Bonsai - IronPython Scripting Library</Title>
+    <Description>Bonsai Scripting Library containing IronPython scripting infrastructure for Bonsai.</Description>
+    <PackageTags>Bonsai Rx Scripting Iron Python</PackageTags>
     <TargetFramework>net462</TargetFramework>
     <Version>2.7.0</Version>
   </PropertyGroup>
