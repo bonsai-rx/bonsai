@@ -2233,8 +2233,9 @@ namespace Bonsai.Editor
                 var path = include.Path;
                 const char AssemblySeparator = ':';
                 var separatorIndex = path.IndexOf(AssemblySeparator);
-                if (separatorIndex >= 0 && !Path.IsPathRooted(path))
+                if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(BonsaiExtension))
                 {
+                    path = Path.ChangeExtension(path, null);
                     var nameElements = path.Split(new[] { AssemblySeparator }, 2);
                     if (!string.IsNullOrEmpty(nameElements[0]))
                     {
