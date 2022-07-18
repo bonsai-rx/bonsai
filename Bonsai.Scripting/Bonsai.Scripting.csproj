@@ -11,6 +11,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
     <ProjectReference Include="..\Bonsai.Scripting.Expressions.Design\Bonsai.Scripting.Expressions.Design.csproj" />
-    <ProjectReference Include="..\Bonsai.Scripting.Python.Design\Bonsai.Scripting.IronPython.Design.csproj" />
+    <ProjectReference Include="..\Bonsai.Scripting.IronPython.Design\Bonsai.Scripting.IronPython.Design.csproj" />
   </ItemGroup>
 </Project>
