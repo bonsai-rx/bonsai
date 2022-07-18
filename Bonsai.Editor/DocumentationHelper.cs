@@ -26,7 +26,7 @@ namespace Bonsai.Editor
         static async Task<Uri> GetDocumentationAsync(string baseUrl, string uid)
         {
             var lookup = await GetXRefMapAsync(baseUrl, "docs/", string.Empty);
-            return new Uri($"{baseUrl}docs/{lookup[uid]}");
+            return new Uri(lookup[uid]);
         }
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl, params string[] hrefs)
@@ -39,8 +39,7 @@ namespace Bonsai.Editor
             WebException lastException = default;
             for (int i = 0; i < hrefs.Length; i++)
             {
-                var requestUrl = $"{baseUrl}{hrefs[i]}xrefmap.yml";
-                try { return await GetXRefMapAsync(requestUrl); }
+                try { return await GetXRefMapAsync($"{baseUrl}{hrefs[i]}"); }
                 catch (WebException ex) when (ex.Response is HttpWebResponse httpResponse &&
                                               httpResponse.StatusCode is HttpStatusCode.NotFound)
                 {
@@ -52,8 +51,9 @@ namespace Bonsai.Editor
             throw lastException;
         }
 
-        static async Task<Dictionary<string, string>> GetXRefMapAsync(string requestUrl)
+        static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl)
         {
+            var requestUrl = $"{baseUrl}xrefmap.yml";
             var request = WebRequest.CreateHttp(requestUrl);
             request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
             using var response = await request.GetResponseAsync();
@@ -66,7 +66,7 @@ namespace Bonsai.Editor
             var xrefmap = deserializer.Deserialize<XRefMap>(reader);
             return xrefmap.References.ToDictionary(
                 reference => reference.Uid,
-                reference => reference.Href);
+                reference => $"{baseUrl}{reference.Href}");
         }
 
         class XRefMap
