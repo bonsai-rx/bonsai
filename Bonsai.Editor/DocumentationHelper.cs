@@ -25,7 +25,7 @@ namespace Bonsai.Editor
 
         static async Task<Uri> GetDocumentationAsync(string baseUrl, string uid)
         {
-            var lookup = await GetXRefMapAsync(baseUrl, "docs/", string.Empty);
+            var lookup = await GetXRefMapAsync(baseUrl.TrimEnd('/'), "/docs", string.Empty);
             return new Uri(lookup[uid]);
         }
 
@@ -53,7 +53,7 @@ namespace Bonsai.Editor
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl)
         {
-            var requestUrl = $"{baseUrl}xrefmap.yml";
+            var requestUrl = $"{baseUrl}/xrefmap.yml";
             var request = WebRequest.CreateHttp(requestUrl);
             request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
             using var response = await request.GetResponseAsync();
@@ -66,7 +66,7 @@ namespace Bonsai.Editor
             var xrefmap = deserializer.Deserialize<XRefMap>(reader);
             return xrefmap.References.ToDictionary(
                 reference => reference.Uid,
-                reference => $"{baseUrl}{reference.Href}");
+                reference => $"{baseUrl}/{reference.Href}");
         }
 
         class XRefMap
