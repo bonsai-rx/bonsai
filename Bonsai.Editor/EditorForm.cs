@@ -1880,7 +1880,9 @@ namespace Bonsai.Editor
                 e.SuppressKeyPress = true;
             }
 
-            if (e.KeyCode == Keys.F2 && selectedNode?.Tag != null)
+            var rename = e.KeyCode == Keys.F2;
+            var goToDefinition = e.KeyCode == Keys.F12;
+            if ((rename || goToDefinition) && selectedNode?.Tag != null)
             {
                 var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
                 if (!selectedNode.IsEditing && elementCategory == ~ElementCategory.Source)
@@ -1888,7 +1890,7 @@ namespace Bonsai.Editor
                     var currentName = selectedNode.Name;
                     var selectedView = selectionModel.SelectedView;
                     var definition = workflowBuilder.GetSubjectDefinition(selectedView.Workflow, currentName);
-                    if (definition == null || definition.IsReadOnly)
+                    if (definition == null || rename && definition.IsReadOnly)
                     {
                         var message = definition == null
                             ? Resources.SubjectDefinitionNotFound_Error
@@ -1897,8 +1899,16 @@ namespace Bonsai.Editor
                         return;
                     }
 
-                    toolboxTreeView.LabelEdit = true;
-                    selectedNode.BeginEdit();
+                    if (rename)
+                    {
+                        toolboxTreeView.LabelEdit = true;
+                        selectedNode.BeginEdit();
+                    }
+                    else
+                    {
+                        var declaration = workflowBuilder.GetDeclaration(definition.Subject);
+                        HighlightDeclaration(editorControl.WorkflowGraphView, declaration);
+                    }
                 }
             }
         }
@@ -1961,6 +1971,7 @@ namespace Bonsai.Editor
                             subscribeSubjectToolStripMenuItem.Visible = true;
                             multicastSubjectToolStripMenuItem.Visible = true;
                             renameSubjectToolStripMenuItem.Visible = true;
+                            goToDefinitionToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -1977,6 +1988,7 @@ namespace Bonsai.Editor
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
                             renameSubjectToolStripMenuItem.Visible = false;
+                            goToDefinitionToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
@@ -2034,6 +2046,11 @@ namespace Bonsai.Editor
             }
 
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F2));
+        }
+
+        private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F12));
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
