@@ -94,8 +94,13 @@ namespace Bonsai.Vision
                 }
 
                 var output = new IplImage(targetSize, input.Depth, input.Channels);
-                using (var inputHeader = input.GetSubRect(inputRect))
+                if (inputRect.Width < 0 || inputRect.Height < 0)
                 {
+                    output.Set(FillValue);
+                }
+                else
+                {
+                    using var inputHeader = input.GetSubRect(inputRect);
                     CV.CopyMakeBorder(inputHeader, output, offset, BorderType, FillValue);
                 }
                 return output;
