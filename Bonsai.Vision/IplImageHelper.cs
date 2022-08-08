@@ -61,5 +61,62 @@ namespace Bonsai.Vision
             else CV.Copy(image, output);
             return output;
         }
+
+        static void AdjustRectangle(ref int left, int right, ref int origin, ref int extent)
+        {
+            if (left < 0)
+            {
+                origin -= left;
+                extent += left;
+                left = 0;
+            }
+            if (right < 0)
+            {
+                extent += right;
+            }
+        }
+
+        internal static IplImage CropMakeBorder(
+            IplImage image,
+            Size size,
+            Point? offset,
+            IplBorder borderType,
+            Scalar fillValue)
+        {
+            if (size.Width == 0) size.Width = image.Width;
+            if (size.Height == 0) size.Height = image.Height;
+
+            Point origin;
+            if (offset.HasValue) origin = offset.Value;
+            else
+            {
+                origin.X = (size.Width - image.Width) / 2;
+                origin.Y = (size.Height - image.Height) / 2;
+            }
+
+            var right = size.Width - origin.X - image.Width;
+            var bottom = size.Height - origin.Y - image.Height;
+            if (origin.X == 0 && origin.Y == 0 && right == 0 && bottom == 0) return image;
+
+            var inputRect = new Rect(0, 0, image.Width, image.Height);
+            AdjustRectangle(ref origin.X, right, ref inputRect.X, ref inputRect.Width);
+            AdjustRectangle(ref origin.Y, bottom, ref inputRect.Y, ref inputRect.Height);
+            if (origin.X <= 0 && origin.Y <= 0 && right <= 0 && bottom <= 0)
+            {
+                return image.GetSubRect(inputRect);
+            }
+
+            var output = new IplImage(size, image.Depth, image.Channels);
+            if (inputRect.Width < 0 || inputRect.Height < 0)
+            {
+                output.Set(fillValue);
+            }
+            else
+            {
+                using var inputHeader = image.GetSubRect(inputRect);
+                CV.CopyMakeBorder(inputHeader, output, origin, borderType, fillValue);
+            }
+            return output;
+        }
     }
 }
