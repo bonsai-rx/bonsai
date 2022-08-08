@@ -1455,6 +1455,7 @@ namespace Bonsai.Editor
                 {
                     var ownerForm = workflowView.EditorControl.ParentForm;
                     if (ownerForm != null) ownerForm.Activate();
+                    workflowView.SelectGraphNode(graphNode);
                 }
             }
         }
