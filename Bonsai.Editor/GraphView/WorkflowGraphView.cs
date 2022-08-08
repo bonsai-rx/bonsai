@@ -371,11 +371,16 @@ namespace Bonsai.Editor.GraphView
             var graphNode = FindGraphNode(builder);
             if (graphNode != null)
             {
-                GraphView.SelectedNode = graphNode;
-                EditorControl.SelectTab(this);
-                GraphView.Select();
-                UpdateSelection();
+                SelectGraphNode(graphNode);
             }
+        }
+
+        internal void SelectGraphNode(GraphNode node)
+        {
+            GraphView.SelectedNode = node;
+            EditorControl.SelectTab(this);
+            GraphView.Select();
+            UpdateSelection();
         }
 
         private bool HasDefaultEditor(ExpressionBuilder builder)
