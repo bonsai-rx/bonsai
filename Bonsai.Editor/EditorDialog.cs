@@ -39,7 +39,7 @@ namespace Bonsai.Editor
 
         public static void ShowDocs()
         {
-            OpenUrl("http://bonsai-rx.org/docs/articles/editor");
+            OpenUrl("https://bonsai-rx.org/docs/articles/editor");
         }
 
         public static void ShowForum()
