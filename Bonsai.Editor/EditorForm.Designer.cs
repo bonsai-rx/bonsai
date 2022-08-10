@@ -1173,6 +1173,8 @@
             // 
             // toolboxDocsToolStripMenuItem
             // 
+            this.toolboxDocsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
+            this.toolboxDocsToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolboxDocsToolStripMenuItem.Name = "toolboxDocsToolStripMenuItem";
             this.toolboxDocsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
             this.toolboxDocsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
