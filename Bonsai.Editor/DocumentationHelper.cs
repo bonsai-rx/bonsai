@@ -53,8 +53,10 @@ namespace Bonsai.Editor
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl)
         {
+            const int ReadWriteTimeout = 10000;
             var requestUrl = $"{baseUrl}/xrefmap.yml";
             var request = WebRequest.CreateHttp(requestUrl);
+            request.ReadWriteTimeout = ReadWriteTimeout;
             request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
             using var response = await request.GetResponseAsync();
             var stream = response.GetResponseStream();
