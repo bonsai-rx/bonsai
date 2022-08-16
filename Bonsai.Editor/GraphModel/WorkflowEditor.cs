@@ -818,12 +818,19 @@ namespace Bonsai.Editor.GraphModel
                 throw new ArgumentNullException(nameof(typeName));
             }
 
+            ExpressionBuilder builder;
             var selectedNodes = graphView.SelectedNodes.ToArray();
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
             if (group && selectedNode != null)
             {
                 if (elementCategory == ~ElementCategory.Combinator)
                 {
+                    if (branch)
+                    {
+                        ReplaceSubjectNode(selectedNode, typeName, elementCategory);
+                        return;
+                    }
+
                     var genericType = MakeGenericType(typeName, selectedNode);
                     var elementCategoryAttribute = (WorkflowElementCategoryAttribute)TypeDescriptor.GetAttributes(genericType)[typeof(WorkflowElementCategoryAttribute)];
                     if (elementCategoryAttribute != null) elementCategory = elementCategoryAttribute.Category;
@@ -839,7 +846,6 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
 
-            ExpressionBuilder builder;
             if (elementCategory == ~ElementCategory.Workflow)
             {
                 builder = new IncludeWorkflowBuilder { Path = typeName };
@@ -1418,6 +1424,21 @@ namespace Bonsai.Editor.GraphModel
             },
             EmptyAction);
             commandExecutor.EndCompositeCommand();
+        }
+
+        public void ReplaceSubjectNode(GraphNode node, string typeName, ElementCategory elementCategory)
+        {
+            if (!(GetGraphNodeBuilder(node) is SubjectExpressionBuilder subjectBuilder))
+            {
+                throw new ArgumentException(Resources.InvalidReplaceSubjectNode_Error, nameof(node));
+            }
+
+            if (subjectBuilder.GetType().AssemblyQualifiedName != typeName)
+            {
+                var builder = (SubjectExpressionBuilder)CreateBuilder(typeName, elementCategory);
+                builder.Name = subjectBuilder.Name;
+                ReplaceGraphNode(node, builder);
+            }
         }
 
         public void ReplaceGroupNode(GraphNode node, string typeName)
