@@ -338,4 +338,7 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="SubjectDefinitionNotFound_Error" xml:space="preserve">
     <value>The specified subject definition could not be found.</value>
   </data>
+  <data name="InvalidReplaceSubjectNode_Error" xml:space="preserve">
+    <value>Replaced node must be subject expression builder.</value>
+  </data>
 </root>
