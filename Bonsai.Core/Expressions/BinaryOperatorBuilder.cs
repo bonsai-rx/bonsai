@@ -13,9 +13,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that define a simple binary operator
     /// on paired elements of an observable sequence. This is an abstract class.
     /// </summary>
-    [DefaultProperty("Value")]
-    [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
-    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder, ISerializableElement
+    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder, ISerializableElement, ICustomTypeDescriptor
     {
         static readonly MethodInfo GetEnumeratorMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
         static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
@@ -173,5 +171,80 @@ namespace Bonsai.Expressions
 
             return ConvertAndBuildSelector(left, right);
         }
+
+        #region ICustomTypeDescriptor Members
+
+        static readonly Attribute[] ValueAttributes = new[]
+        {
+            new DescriptionAttribute("The value of the right hand operand in the binary operator.")
+        };
+
+        AttributeCollection ICustomTypeDescriptor.GetAttributes()
+        {
+            return TypeDescriptor.GetAttributes(GetType());
+        }
+
+        string ICustomTypeDescriptor.GetClassName()
+        {
+            return TypeDescriptor.GetClassName(GetType());
+        }
+
+        string ICustomTypeDescriptor.GetComponentName()
+        {
+            return null;
+        }
+
+        TypeConverter ICustomTypeDescriptor.GetConverter()
+        {
+            return TypeDescriptor.GetConverter(GetType());
+        }
+
+        EventDescriptor ICustomTypeDescriptor.GetDefaultEvent()
+        {
+            return null;
+        }
+
+        PropertyDescriptor ICustomTypeDescriptor.GetDefaultProperty()
+        {
+            var operand = Operand;
+            return operand != null ? new WorkflowPropertyDescriptor("Value", ValueAttributes, operand) : null;
+        }
+
+        object ICustomTypeDescriptor.GetEditor(Type editorBaseType)
+        {
+            return TypeDescriptor.GetEditor(GetType(), editorBaseType);
+        }
+
+        EventDescriptorCollection ICustomTypeDescriptor.GetEvents()
+        {
+            return EventDescriptorCollection.Empty;
+        }
+
+        EventDescriptorCollection ICustomTypeDescriptor.GetEvents(Attribute[] attributes)
+        {
+            return EventDescriptorCollection.Empty;
+        }
+
+        PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties()
+        {
+            return ((ICustomTypeDescriptor)this).GetProperties(ValueAttributes);
+        }
+
+        PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
+        {
+            var defaultProperty = ((ICustomTypeDescriptor)this).GetDefaultProperty();
+            if (defaultProperty != null)
+            {
+                return new PropertyDescriptorCollection(new[] { defaultProperty });
+            }
+            else return PropertyDescriptorCollection.Empty;
+        }
+
+        object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
+        {
+            return (object)Operand ?? this;
+        }
+
+        #endregion
     }
 }

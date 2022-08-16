@@ -1033,10 +1033,13 @@ namespace Bonsai.Expressions
                 return argument;
             }
 
-            //TODO: The special case for binary operator operands should be avoided in the future
-            if (element is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
+            if (element is ICustomTypeDescriptor typeDescriptor)
             {
-                instance = Expression.Constant(binaryOperator.Operand);
+                var propertyOwner = typeDescriptor.GetPropertyOwner(null);
+                if (propertyOwner != instance.Value)
+                {
+                    instance = Expression.Constant(propertyOwner);
+                }
             }
 
             var property = Expression.Property(instance, propertyName);
