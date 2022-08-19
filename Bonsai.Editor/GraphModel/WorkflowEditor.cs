@@ -1,4 +1,4 @@
-﻿using Bonsai.Dag;
+using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -1250,11 +1250,6 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.EndCompositeCommand();
         }
 
-        public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
-        {
-            UpdateGraphNodes(new[] { node }, selectedNode => ReplaceNode(selectedNode, builder));
-        }
-
         private void ReplaceNode(GraphNode node, ExpressionBuilder builder)
         {
             CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
@@ -1453,11 +1448,11 @@ namespace Bonsai.Editor.GraphModel
                 var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
                 builder.Name = workflowBuilder.Name;
                 builder.Description = workflowBuilder.Description;
-                ReplaceGroupNode(node, builder);
+                ReplaceGraphNode(node, builder);
             }
         }
 
-        private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder)
+        public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
         {
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var selectCreatedNode = CreateUpdateSelectionDelegate(builder);
