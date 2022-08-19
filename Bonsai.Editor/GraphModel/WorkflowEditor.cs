@@ -826,22 +826,35 @@ namespace Bonsai.Editor.GraphModel
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
             if (group && selectedNode != null)
             {
-                if (elementCategory == ~ElementCategory.Combinator)
+                var subjectType = elementCategory == ~ElementCategory.Combinator;
+                var groupType = elementCategory > ~ElementCategory.Source;
+                if (branch && selectedNodes.Length == 1)
                 {
-                    if (branch)
+                    var selectedBuilder = GetGraphNodeBuilder(selectedNode);
+                    if (subjectType && selectedBuilder is SubjectExpressionBuilder)
                     {
                         ReplaceSubjectNode(selectedNode, typeName, elementCategory);
-                        selectedNode = graphView.SelectedNodes.First();
-                        ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
-                        return;
                     }
-
+                    else if (groupType && GetGraphNodeBuilder(selectedNode) is WorkflowExpressionBuilder)
+                    {
+                        ReplaceGroupNode(selectedNode, typeName);
+                    }
+                    else
+                    {
+                        builder = CreateBuilder(typeName, elementCategory);
+                        ReplaceGraphNode(selectedNode, builder);
+                    }
+                    selectedNode = graphView.SelectedNodes.First();
+                    ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
+                    return;
+                }
+                else if (subjectType)
+                {
                     typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
                 }
-                else if (elementCategory > ~ElementCategory.Source)
+                else if (groupType)
                 {
-                    if (branch) ReplaceGroupNode(selectedNode, typeName);
-                    else GroupGraphNodes(selectedNodes, typeName);
+                    GroupGraphNodes(selectedNodes, typeName);
                     selectedNode = graphView.SelectedNodes.First();
                     ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
                     return;
