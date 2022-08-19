@@ -1053,42 +1053,15 @@ namespace Bonsai.Editor.GraphView
                 LaunchDefinition(graphView.SelectedNode);
             }
 
-            if (e.KeyCode == Keys.Return)
+            if (e.KeyCode == Keys.Return && editorState.WorkflowRunning)
             {
-                if (graphView.SelectedNode != null && !graphView.SelectedNodes.Contains(graphView.CursorNode))
-                {
-                    var branch = (e.Modifiers & Keys.Alt) == Keys.Alt;
-                    var shift = (e.Modifiers & Keys.Shift) == Keys.Shift;
-                    var control = (e.Modifiers & Keys.Control) == Keys.Control;
-                    if (branch)
-                    {
-                        e.Handled = true;
-                        e.SuppressKeyPress = true;
-                    }
-
-                    if (control)
-                    {
-                        var nodeType = shift ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                        Editor.MoveGraphNodes(graphView.SelectedNodes, graphView.CursorNode, nodeType, branch);
-                    }
-                    else if (Editor.ValidateConnection(branch, shift, graphView.SelectedNodes, graphView.CursorNode))
-                    {
-                        if (branch) Editor.ReorderGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                        else if (shift) Editor.DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                        else Editor.ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                    }
-                }
-                else if (e.Modifiers == Keys.Control)
+                if (e.Modifiers == Keys.Control)
                 {
                     LaunchDefaultEditor(graphView.SelectedNode);
-                }
-                else if (editorState.WorkflowRunning)
-                {
-                    LaunchVisualizer(graphView.SelectedNode);
                 }
                 else
                 {
-                    LaunchDefaultEditor(graphView.SelectedNode);
+                    LaunchVisualizer(graphView.SelectedNode);
                 }
             }
 
@@ -1124,6 +1097,34 @@ namespace Bonsai.Editor.GraphView
 
             if (CanEdit)
             {
+                if (e.KeyCode == Keys.Return)
+                {
+                    if (graphView.SelectedNode != null && !graphView.SelectedNodes.Contains(graphView.CursorNode))
+                    {
+                        var branch = (e.Modifiers & Keys.Alt) == Keys.Alt;
+                        var shift = (e.Modifiers & Keys.Shift) == Keys.Shift;
+                        var control = (e.Modifiers & Keys.Control) == Keys.Control;
+                        if (branch)
+                        {
+                            e.Handled = true;
+                            e.SuppressKeyPress = true;
+                        }
+
+                        if (control)
+                        {
+                            var nodeType = shift ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                            Editor.MoveGraphNodes(graphView.SelectedNodes, graphView.CursorNode, nodeType, branch);
+                        }
+                        else if (Editor.ValidateConnection(branch, shift, graphView.SelectedNodes, graphView.CursorNode))
+                        {
+                            if (branch) Editor.ReorderGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                            else if (shift) Editor.DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                            else Editor.ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                        }
+                    }
+                    else LaunchDefaultEditor(graphView.SelectedNode);
+                }
+
                 if (e.KeyCode == Keys.Delete)
                 {
                     Editor.DeleteGraphNodes(selectionModel.SelectedNodes);
