@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -792,7 +792,7 @@ namespace Bonsai.Editor.GraphModel
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
         }
 
-        static Type MakeGenericType(string typeName, GraphNode selectedNode)
+        static string MakeGenericType(string typeName, GraphNode selectedNode, out ElementCategory elementCategory)
         {
             var separatorToken = typeName.IndexOf(',');
             var genericTypeName = typeName.Substring(0, separatorToken) + "`1" + typeName.Substring(separatorToken);
@@ -803,7 +803,10 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var inspectBuilder = (InspectBuilder)selectedNode.Value;
-            return genericType.MakeGenericType(inspectBuilder.ObservableType);
+            var genericTypeAttributes = TypeDescriptor.GetAttributes(genericType);
+            var elementCategoryAttribute = (WorkflowElementCategoryAttribute)genericTypeAttributes[typeof(WorkflowElementCategoryAttribute)];
+            elementCategory = elementCategoryAttribute.Category;
+            return genericType.MakeGenericType(inspectBuilder.ObservableType).AssemblyQualifiedName;
         }
 
         public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
@@ -828,13 +831,12 @@ namespace Bonsai.Editor.GraphModel
                     if (branch)
                     {
                         ReplaceSubjectNode(selectedNode, typeName, elementCategory);
+                        selectedNode = graphView.SelectedNodes.First();
+                        ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
                         return;
                     }
 
-                    var genericType = MakeGenericType(typeName, selectedNode);
-                    var elementCategoryAttribute = (WorkflowElementCategoryAttribute)TypeDescriptor.GetAttributes(genericType)[typeof(WorkflowElementCategoryAttribute)];
-                    if (elementCategoryAttribute != null) elementCategory = elementCategoryAttribute.Category;
-                    typeName = genericType.AssemblyQualifiedName;
+                    typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
                 }
                 else if (elementCategory > ~ElementCategory.Source)
                 {
@@ -1428,8 +1430,14 @@ namespace Bonsai.Editor.GraphModel
                 throw new ArgumentException(Resources.InvalidReplaceSubjectNode_Error, nameof(node));
             }
 
-            if (subjectBuilder.GetType().AssemblyQualifiedName != typeName)
+            var subjectBuilderType = subjectBuilder.GetType();
+            if (subjectBuilderType.AssemblyQualifiedName != typeName)
             {
+                if (subjectBuilderType.IsGenericType)
+                {
+                    typeName = MakeGenericType(typeName, node, out elementCategory);
+                }
+
                 var builder = (SubjectExpressionBuilder)CreateBuilder(typeName, elementCategory);
                 builder.Name = subjectBuilder.Name;
                 ReplaceGraphNode(node, builder);
