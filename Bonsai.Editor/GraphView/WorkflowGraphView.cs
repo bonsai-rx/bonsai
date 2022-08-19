@@ -1055,7 +1055,7 @@ namespace Bonsai.Editor.GraphView
 
             if (e.KeyCode == Keys.Return)
             {
-                if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
+                if (graphView.SelectedNode != null && !graphView.SelectedNodes.Contains(graphView.CursorNode))
                 {
                     var branch = (e.Modifiers & Keys.Alt) == Keys.Alt;
                     var shift = (e.Modifiers & Keys.Shift) == Keys.Shift;
