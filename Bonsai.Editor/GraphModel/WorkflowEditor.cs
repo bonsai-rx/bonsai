@@ -850,7 +850,7 @@ namespace Bonsai.Editor.GraphModel
                     }
                     else
                     {
-                        group = selectedBuilder is MulticastSubjectBuilder;
+                        group = selectedNode.Category == ElementCategory.Sink;
                         builder = CreateBuilder(typeName, elementCategory, group);
                         ReplaceGraphNode(selectedNode, builder);
                     }
