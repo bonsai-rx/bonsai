@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -137,7 +137,6 @@ namespace Bonsai.Editor.GraphModel
 
         private Action CreateUpdateSelectionDelegate(IEnumerable<ExpressionBuilder> selection)
         {
-            var builders = selection.Select(builder => ExpressionBuilder.Unwrap(builder)).ToArray();
             return () => updateSelection.OnNext(selection);
         }
 
