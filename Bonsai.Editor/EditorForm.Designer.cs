@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor
+namespace Bonsai.Editor
 {
     partial class EditorForm
     {
@@ -138,6 +138,7 @@
             this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.subscribeSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.multicastSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1164,12 +1165,13 @@
             this.insertBeforeToolStripMenuItem,
             this.createBranchToolStripMenuItem,
             this.createGroupToolStripMenuItem,
+            this.replaceToolStripMenuItem,
             this.subscribeSubjectToolStripMenuItem,
             this.multicastSubjectToolStripMenuItem,
             this.renameSubjectToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 202);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 246);
             // 
             // toolboxDocsToolStripMenuItem
             // 
@@ -1212,6 +1214,14 @@
             this.createGroupToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.createGroupToolStripMenuItem.Text = "Create Group";
             this.createGroupToolStripMenuItem.Click += new System.EventHandler(this.createGroupToolStripMenuItem_Click);
+            // 
+            // replaceToolStripMenuItem
+            // 
+            this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
+            this.replaceToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Alt+Enter";
+            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.replaceToolStripMenuItem.Text = "Replace";
+            this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
             // subscribeSubjectToolStripMenuItem
             // 
@@ -1400,6 +1410,7 @@
         private System.Windows.Forms.ToolStripMenuItem exportPackageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem galleryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createGroupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem subscribeSubjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem multicastSubjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameSubjectToolStripMenuItem;
