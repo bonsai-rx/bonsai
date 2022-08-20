@@ -1976,6 +1976,7 @@ namespace Bonsai.Editor
                             multicastSubjectToolStripMenuItem.Visible = true;
                             renameSubjectToolStripMenuItem.Visible = true;
                             goToDefinitionToolStripMenuItem.Visible = true;
+                            replaceToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -1994,7 +1995,6 @@ namespace Bonsai.Editor
                             renameSubjectToolStripMenuItem.Visible = false;
                             goToDefinitionToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
-                            replaceToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
