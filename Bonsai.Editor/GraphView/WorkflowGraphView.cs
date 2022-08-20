@@ -1273,7 +1273,11 @@ namespace Bonsai.Editor.GraphView
             {
                 var activeView = Launcher != null ? Launcher.WorkflowGraphView.GraphView : graphView;
                 activeView.SelectedNodes = activeView.Nodes.LayeredNodes()
-                    .Where(node => selection.Contains(WorkflowEditor.GetGraphNodeBuilder(node)));
+                    .Where(node =>
+                    {
+                        var nodeBuilder = WorkflowEditor.GetGraphNodeBuilder(node);
+                        return selection.Any(builder => workflow.Comparer.Compare(builder, nodeBuilder) == 0);
+                    });
             });
         }
 
