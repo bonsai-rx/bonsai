@@ -10,6 +10,7 @@ namespace Bonsai.Expressions
     /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
     [XmlType("AsyncSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(AsyncSubjectBuilder), nameof(AsyncSubjectBuilder))]
     [Description("Broadcasts the last value of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class AsyncSubjectBuilder : SubjectBuilder
     {
@@ -42,6 +43,7 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="T">The type of the result stored by the subject.</typeparam>
     [XmlType("AsyncSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(AsyncSubjectBuilder), nameof(AsyncSubjectBuilder))]
     [Description("Broadcasts the result of the first observable sequence to complete to all subscribed and future observers.")]
     public class AsyncSubjectBuilder<T> : SubjectBuilder<T>
     {

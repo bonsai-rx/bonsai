@@ -10,6 +10,7 @@ namespace Bonsai.Expressions
     /// sequence to multiple subscribers using a shared subject.
     /// </summary>
     [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values of an observable sequence to multiple subscribers using a shared subject.")]
     public class PublishSubjectBuilder : SubjectBuilder
     {
@@ -36,6 +37,7 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values from other observable sequences to multiple subscribers.")]
     public class PublishSubjectBuilder<T> : SubjectBuilder<T>
     {
