@@ -12,6 +12,7 @@ namespace Bonsai.Expressions
     /// is disposed when the containing context is closed.
     /// </summary>
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubjectBuilder : SubjectBuilder
     {
@@ -45,6 +46,7 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="T">The type of the disposable resource stored by the subject.</typeparam>
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubjectBuilder<T> : SubjectBuilder<T> where T : class, IDisposable
     {
