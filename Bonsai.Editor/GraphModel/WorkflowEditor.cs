@@ -1,4 +1,4 @@
-﻿using Bonsai.Dag;
+using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -763,8 +763,18 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.EndCompositeCommand();
         }
 
-        ExpressionBuilder CreateBuilder(string typeName, ElementCategory elementCategory)
+        ExpressionBuilder CreateBuilder(string typeName, ElementCategory elementCategory, bool group)
         {
+            if (elementCategory == ~ElementCategory.Workflow)
+            {
+                return new IncludeWorkflowBuilder { Path = typeName };
+            }
+            else if (elementCategory == ~ElementCategory.Source)
+            {
+                if (group) return new MulticastSubjectBuilder { Name = typeName };
+                else return new SubscribeSubjectBuilder { Name = typeName };
+            }
+
             var type = Type.GetType(typeName);
             if (type == null)
             {
@@ -841,7 +851,8 @@ namespace Bonsai.Editor.GraphModel
                     }
                     else
                     {
-                        builder = CreateBuilder(typeName, elementCategory);
+                        group = selectedBuilder is MulticastSubjectBuilder;
+                        builder = CreateBuilder(typeName, elementCategory, group);
                         ReplaceGraphNode(selectedNode, builder);
                     }
                     selectedNode = graphView.SelectedNodes.First();
@@ -860,22 +871,9 @@ namespace Bonsai.Editor.GraphModel
                     return;
                 }
             }
-
-            if (elementCategory == ~ElementCategory.Workflow)
-            {
-                builder = new IncludeWorkflowBuilder { Path = typeName };
-            }
-            else if (elementCategory == ~ElementCategory.Source)
-            {
-                if (group) builder = new MulticastSubjectBuilder { Name = typeName };
-                else builder = new SubscribeSubjectBuilder { Name = typeName };
-            }
-            else
-            {
-                builder = CreateBuilder(typeName, elementCategory);
-                ConfigureBuilder(builder, selectedNode, arguments);
-            }
-
+            
+            builder = CreateBuilder(typeName, elementCategory, group);
+            ConfigureBuilder(builder, selectedNode, arguments);
             var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
             if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes, nodeType, branch);
@@ -1451,7 +1449,7 @@ namespace Bonsai.Editor.GraphModel
                     typeName = MakeGenericType(typeName, node, out elementCategory);
                 }
 
-                var builder = (SubjectExpressionBuilder)CreateBuilder(typeName, elementCategory);
+                var builder = (SubjectExpressionBuilder)CreateBuilder(typeName, elementCategory, group: false);
                 builder.Name = subjectBuilder.Name;
                 ReplaceGraphNode(node, builder);
             }
