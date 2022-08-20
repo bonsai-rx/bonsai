@@ -1994,6 +1994,7 @@ namespace Bonsai.Editor
                             renameSubjectToolStripMenuItem.Visible = false;
                             goToDefinitionToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
+                            replaceToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
@@ -2029,6 +2030,11 @@ namespace Bonsai.Editor
         private void createGroupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Control | Keys.Return));
+        }
+
+        private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Control | Keys.Alt | Keys.Return));
         }
 
         private void renameSubjectToolStripMenuItem_Click(object sender, EventArgs e)
