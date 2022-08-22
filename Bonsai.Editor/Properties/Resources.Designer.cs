@@ -278,15 +278,6 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replaced node must be subject expression builder..
-        /// </summary>
-        internal static string InvalidReplaceSubjectNode_Error {
-            get {
-                return ResourceManager.GetString("InvalidReplaceSubjectNode_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to There was an error opening the workflow {0}:
         ///{1}.
         /// </summary>
