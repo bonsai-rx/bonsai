@@ -1,4 +1,4 @@
-﻿using Bonsai.Dag;
+using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -1463,8 +1463,11 @@ namespace Bonsai.Editor.GraphModel
             }
             else
             {
-                var group = node.Category == ElementCategory.Sink;
-                builder = CreateBuilder(typeName, elementCategory, group);
+                var isReference = elementCategory == ~ElementCategory.Source;
+                var preferMulticast = isReference && Workflow
+                    .Predecessors(GetGraphNodeTag(Workflow, node))
+                    .Any(node => !node.Value.IsBuildDependency());
+                builder = CreateBuilder(typeName, elementCategory, group: preferMulticast);
                 if (selectedBuilder is INamedElement namedBuilder &&
                    (namedBuilder is SubjectExpressionBuilder ||
                     namedBuilder is SubscribeSubjectBuilder ||
