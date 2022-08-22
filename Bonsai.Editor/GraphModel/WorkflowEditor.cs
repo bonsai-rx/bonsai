@@ -835,66 +835,16 @@ namespace Bonsai.Editor.GraphModel
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
             if (group && selectedNode != null)
             {
-                var subjectType = elementCategory == ~ElementCategory.Combinator;
-                var groupType = elementCategory > ~ElementCategory.Source;
                 if (branch && selectedNodes.Length == 1)
                 {
-                    var selectedBuilder = GetGraphNodeBuilder(selectedNode);
-                    var selectedBuilderType = selectedBuilder.GetType();
-                    if (selectedBuilderType.AssemblyQualifiedName == typeName)
-                    {
-                        return;
-                    }
-
-                    if (subjectType && selectedBuilder is SubjectExpressionBuilder &&
-                        selectedBuilderType.IsGenericType)
-                    {
-                        typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
-                    }
-
-                    if (groupType && selectedBuilder is WorkflowExpressionBuilder workflowBuilder &&
-                        typeof(WorkflowExpressionBuilder).IsAssignableFrom(Type.GetType(typeName)))
-                    {
-                        var replaceBuilder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
-                        replaceBuilder.Name = workflowBuilder.Name;
-                        replaceBuilder.Description = workflowBuilder.Description;
-                        builder = replaceBuilder;
-                    }
-                    else
-                    {
-                        group = selectedNode.Category == ElementCategory.Sink;
-                        builder = CreateBuilder(typeName, elementCategory, group);
-                        if (selectedBuilder is INamedElement namedBuilder &&
-                           (namedBuilder is SubjectExpressionBuilder ||
-                            namedBuilder is SubscribeSubjectBuilder ||
-                            namedBuilder is MulticastSubjectBuilder))
-                        {
-                            if (builder is SubjectExpressionBuilder subjectBuilder)
-                            {
-                                subjectBuilder.Name = namedBuilder.Name;
-                            }
-                            else if (builder is SubscribeSubjectBuilder subscribeBuilder &&
-                                string.IsNullOrEmpty(subscribeBuilder.Name))
-                            {
-                                subscribeBuilder.Name = namedBuilder.Name;
-                            }
-                            else if (builder is MulticastSubjectBuilder multicastBuilder &&
-                                string.IsNullOrEmpty(multicastBuilder.Name))
-                            {
-                                multicastBuilder.Name = namedBuilder.Name;
-                            }
-                        }
-                    }
-                    ReplaceGraphNode(selectedNode, builder);
-                    selectedNode = graphView.SelectedNodes.First();
-                    ConfigureBuilder(selectedNode.Value, selectedNode, arguments);
+                    ReplaceGraphNode(selectedNode, typeName, elementCategory, arguments);
                     return;
                 }
-                else if (subjectType)
+                else if (elementCategory == ~ElementCategory.Combinator)
                 {
                     typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
                 }
-                else if (groupType)
+                else if (elementCategory > ~ElementCategory.Source)
                 {
                     GroupGraphNodes(selectedNodes, typeName);
                     selectedNode = graphView.SelectedNodes.First();
@@ -1479,6 +1429,60 @@ namespace Bonsai.Editor.GraphModel
                 builder.Description = workflowBuilder.Description;
                 ReplaceGraphNode(node, builder);
             }
+        }
+
+        public void ReplaceGraphNode(GraphNode node, string typeName, ElementCategory elementCategory, string arguments)
+        {
+            var selectedBuilder = GetGraphNodeBuilder(node);
+            var selectedBuilderType = selectedBuilder.GetType();
+            if (selectedBuilderType.AssemblyQualifiedName == typeName)
+            {
+                return;
+            }
+
+            var allowGenericSource = elementCategory == ~ElementCategory.Combinator;
+            if (allowGenericSource && selectedBuilder is SubjectExpressionBuilder &&
+                selectedBuilderType.IsGenericType)
+            {
+                typeName = MakeGenericType(typeName, node, out elementCategory);
+            }
+
+            ExpressionBuilder builder;
+            if (selectedBuilder is WorkflowExpressionBuilder workflowBuilder &&
+                typeof(WorkflowExpressionBuilder).IsAssignableFrom(Type.GetType(typeName)))
+            {
+                var replaceBuilder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
+                replaceBuilder.Name = workflowBuilder.Name;
+                replaceBuilder.Description = workflowBuilder.Description;
+                builder = replaceBuilder;
+            }
+            else
+            {
+                var group = node.Category == ElementCategory.Sink;
+                builder = CreateBuilder(typeName, elementCategory, group);
+                if (selectedBuilder is INamedElement namedBuilder &&
+                   (namedBuilder is SubjectExpressionBuilder ||
+                    namedBuilder is SubscribeSubjectBuilder ||
+                    namedBuilder is MulticastSubjectBuilder))
+                {
+                    if (builder is SubjectExpressionBuilder subjectBuilder)
+                    {
+                        subjectBuilder.Name = namedBuilder.Name;
+                    }
+                    else if (builder is SubscribeSubjectBuilder subscribeBuilder &&
+                        string.IsNullOrEmpty(subscribeBuilder.Name))
+                    {
+                        subscribeBuilder.Name = namedBuilder.Name;
+                    }
+                    else if (builder is MulticastSubjectBuilder multicastBuilder &&
+                        string.IsNullOrEmpty(multicastBuilder.Name))
+                    {
+                        multicastBuilder.Name = namedBuilder.Name;
+                    }
+                }
+            }
+            ReplaceGraphNode(node, builder);
+            ConfigureBuilder(builder, null, arguments);
         }
 
         public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
