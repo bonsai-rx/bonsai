@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -1446,8 +1446,8 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var allowGenericSource = elementCategory == ~ElementCategory.Combinator;
-            if (allowGenericSource && selectedBuilder is SubjectExpressionBuilder &&
-                selectedBuilderType.IsGenericType)
+            if (allowGenericSource && (selectedBuilder is SubscribeSubjectBuilder ||
+               (selectedBuilder is SubjectExpressionBuilder && selectedBuilderType.IsGenericType)))
             {
                 typeName = MakeGenericType(typeName, node, out elementCategory);
             }
