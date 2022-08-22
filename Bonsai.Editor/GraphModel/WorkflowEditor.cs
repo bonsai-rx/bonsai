@@ -840,18 +840,46 @@ namespace Bonsai.Editor.GraphModel
                 if (branch && selectedNodes.Length == 1)
                 {
                     var selectedBuilder = GetGraphNodeBuilder(selectedNode);
-                    if (subjectType && selectedBuilder is SubjectExpressionBuilder)
-                    {
-                        ReplaceSubjectNode(selectedNode, typeName, elementCategory);
-                    }
-                    else if (groupType && GetGraphNodeBuilder(selectedNode) is WorkflowExpressionBuilder)
+                    if (groupType && GetGraphNodeBuilder(selectedNode) is WorkflowExpressionBuilder)
                     {
                         ReplaceGroupNode(selectedNode, typeName);
                     }
                     else
                     {
+                        var selectedBuilderType = selectedBuilder.GetType();
+                        if (selectedBuilderType.AssemblyQualifiedName == typeName)
+                        {
+                            return;
+                        }
+
+                        if (subjectType && selectedBuilder is SubjectExpressionBuilder &&
+                            selectedBuilderType.IsGenericType)
+                        {
+                            typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
+                        }
+
                         group = selectedNode.Category == ElementCategory.Sink;
                         builder = CreateBuilder(typeName, elementCategory, group);
+                        if (selectedBuilder is INamedElement namedBuilder &&
+                           (namedBuilder is SubjectExpressionBuilder ||
+                            namedBuilder is SubscribeSubjectBuilder ||
+                            namedBuilder is MulticastSubjectBuilder))
+                        {
+                            if (builder is SubjectExpressionBuilder subjectBuilder)
+                            {
+                                subjectBuilder.Name = namedBuilder.Name;
+                            }
+                            else if (builder is SubscribeSubjectBuilder subscribeBuilder &&
+                                string.IsNullOrEmpty(subscribeBuilder.Name))
+                            {
+                                subscribeBuilder.Name = namedBuilder.Name;
+                            }
+                            else if (builder is MulticastSubjectBuilder multicastBuilder &&
+                                string.IsNullOrEmpty(multicastBuilder.Name))
+                            {
+                                multicastBuilder.Name = namedBuilder.Name;
+                            }
+                        }
                         ReplaceGraphNode(selectedNode, builder);
                     }
                     selectedNode = graphView.SelectedNodes.First();
@@ -1431,27 +1459,6 @@ namespace Bonsai.Editor.GraphModel
             },
             EmptyAction);
             commandExecutor.EndCompositeCommand();
-        }
-
-        public void ReplaceSubjectNode(GraphNode node, string typeName, ElementCategory elementCategory)
-        {
-            if (!(GetGraphNodeBuilder(node) is SubjectExpressionBuilder subjectBuilder))
-            {
-                throw new ArgumentException(Resources.InvalidReplaceSubjectNode_Error, nameof(node));
-            }
-
-            var subjectBuilderType = subjectBuilder.GetType();
-            if (subjectBuilderType.AssemblyQualifiedName != typeName)
-            {
-                if (subjectBuilderType.IsGenericType)
-                {
-                    typeName = MakeGenericType(typeName, node, out elementCategory);
-                }
-
-                var builder = (SubjectExpressionBuilder)CreateBuilder(typeName, elementCategory, group: false);
-                builder.Name = subjectBuilder.Name;
-                ReplaceGraphNode(node, builder);
-            }
         }
 
         public void ReplaceGroupNode(GraphNode node, string typeName)
