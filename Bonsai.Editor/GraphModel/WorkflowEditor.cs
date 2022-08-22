@@ -1,4 +1,4 @@
-﻿using Bonsai.Dag;
+using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -812,6 +812,11 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var inspectBuilder = (InspectBuilder)selectedNode.Value;
+            if (inspectBuilder.ObservableType == null)
+            {
+                throw new ArgumentException(Resources.TypeNotFound_Error, nameof(selectedNode));
+            }
+
             var genericTypeAttributes = TypeDescriptor.GetAttributes(genericType);
             var elementCategoryAttribute = (WorkflowElementCategoryAttribute)genericTypeAttributes[typeof(WorkflowElementCategoryAttribute)];
             elementCategory = elementCategoryAttribute.Category;
