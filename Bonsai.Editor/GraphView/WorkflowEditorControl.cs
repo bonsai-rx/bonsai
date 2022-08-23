@@ -133,6 +133,15 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        void CloseTab(TabPage tabPage)
+        {
+            var tabState = (TabPageController)tabPage.Tag;
+            if (tabState.Builder != null)
+            {
+                CloseTab(tabState);
+            }
+        }
+
         void CloseTab(TabPageController tabState)
         {
             var tabPage = tabState.TabPage;
@@ -280,11 +289,7 @@ namespace Bonsai.Editor.GraphView
             {
                 var selectedTab = tabControl.SelectedTab;
                 if (selectedTab == null) return;
-                var tabState = (TabPageController)selectedTab.Tag;
-                if (tabState.Builder != null)
-                {
-                    CloseTab(tabState);
-                }
+                CloseTab(selectedTab);
             }
 
             editorService.OnKeyDown(e);
@@ -294,6 +299,12 @@ namespace Bonsai.Editor.GraphView
         {
             var selectedTab = tabControl.SelectedTab;
             if (selectedTab == null) return;
+
+            if (e.Button == MouseButtons.Middle)
+            {
+                CloseTab(selectedTab);
+                return;
+            }
 
             if (e.Button == MouseButtons.Right)
             {
@@ -351,23 +362,14 @@ namespace Bonsai.Editor.GraphView
         {
             var selectedTab = tabControl.SelectedTab;
             if (selectedTab == null) return;
-
-            var tabState = (TabPageController)selectedTab.Tag;
-            if (tabState.Builder != null)
-            {
-                CloseTab(tabState);
-            }
+            CloseTab(selectedTab);
         }
 
         private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             while (tabControl.TabCount > 1)
             {
-                var tabState = (TabPageController)tabControl.TabPages[1].Tag;
-                if (tabState.Builder != null)
-                {
-                    CloseTab(tabState);
-                }
+                CloseTab(tabControl.TabPages[1]);
             }
         }
 
