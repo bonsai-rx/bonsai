@@ -1397,9 +1397,15 @@ namespace Bonsai.Editor.GraphModel
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var workflowExpressionBuilder = groupFactory(workflowBuilder.Workflow.ToInspectableGraph(recurse: false));
             var updateSelectedNode = CreateUpdateSelectionDelegate(workflowExpressionBuilder);
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(nodes.ToArray());
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(EmptyAction, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, () =>
+            {
+                updateGraphLayout();
+                restoreSelectedNodes();
+            });
+
             foreach (var node in nodes.Where(n => n != replacementNode))
             {
                 DeleteGraphNode(node, replaceEdges: false);
