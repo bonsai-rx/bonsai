@@ -1503,10 +1503,14 @@ namespace Bonsai.Editor.GraphModel
             string arguments,
             bool allowGroupReplacement = true)
         {
+            var workflow = Workflow;
             var inspectBuilder = (InspectBuilder)selectedBuilder;
             selectedBuilder = ExpressionBuilder.Unwrap(inspectBuilder);
+            var selectedNode = FindWorkflowValue(workflow, selectedBuilder);
+            var hasPredecessors = workflow.Predecessors(selectedNode).Any(node => !node.Value.IsBuildDependency());
+
             var allowGenericSource = elementCategory == ~ElementCategory.Combinator;
-            if (allowGenericSource && (selectedBuilder is SubscribeSubjectBuilder ||
+            if (allowGenericSource && (!hasPredecessors ||
                (selectedBuilder is SubjectExpressionBuilder && selectedBuilder.GetType().IsGenericType)))
             {
                 typeName = MakeGenericType(typeName, inspectBuilder, out elementCategory);
@@ -1524,14 +1528,11 @@ namespace Bonsai.Editor.GraphModel
             else
             {
                 var isReference = elementCategory == ~ElementCategory.Source;
-                var preferMulticast = isReference && Workflow
-                    .Predecessors(FindWorkflowValue(Workflow, selectedBuilder))
-                    .Any(node => !node.Value.IsBuildDependency());
+                var preferMulticast = isReference && hasPredecessors;
                 builder = CreateBuilder(typeName, elementCategory, group: preferMulticast);
                 if (builder is WorkflowExpressionBuilder replacementWorkflowBuilder)
                 {
-                    var targetNode = FindWorkflowValue(Workflow, selectedBuilder);
-                    ConfigureWorkflowBuilder(replacementWorkflowBuilder, new[] { targetNode }, Workflow, CreateGraphNodeType.Predecessor);
+                    ConfigureWorkflowBuilder(replacementWorkflowBuilder, new[] { selectedNode }, workflow, CreateGraphNodeType.Predecessor);
                 }
 
                 if (selectedBuilder is INamedElement namedBuilder &&
