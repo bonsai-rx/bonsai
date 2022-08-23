@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -1465,6 +1465,7 @@ namespace Bonsai.Editor.GraphModel
             if (replacementNode != null) DeleteGraphNode(replacementNode);
             if (continuation != null)
             {
+                commandExecutor.Execute(updateGraphLayout, EmptyAction);
                 try
                 {
                     var groupNode = workflow.Single(node => ExpressionBuilder.Unwrap(node.Value) == workflowExpressionBuilder);
