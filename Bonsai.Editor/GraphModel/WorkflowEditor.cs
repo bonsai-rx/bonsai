@@ -855,7 +855,12 @@ namespace Bonsai.Editor.GraphModel
                             node =>
                             {
                                 var groupBuilder = node.Value;
-                                var builder = CreateReplacementBuilder(groupBuilder, typeName, elementCategory, arguments);
+                                var builder = CreateReplacementBuilder(
+                                    groupBuilder,
+                                    typeName,
+                                    elementCategory,
+                                    arguments,
+                                    allowGroupReplacement: false);
                                 ReplaceNode(node, builder);
                                 return CreateUpdateSelectionDelegate(builder);
                             });
@@ -944,6 +949,38 @@ namespace Bonsai.Editor.GraphModel
             });
         }
 
+        void ConfigureWorkflowBuilder(
+            WorkflowExpressionBuilder workflowBuilder,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedNodes,
+            ExpressionBuilderGraph workflow,
+            CreateGraphNodeType nodeType)
+        {
+            // Estimate number of inputs to the nested node
+            var inputCount = workflowBuilder.ArgumentRange.LowerBound;
+            if (nodeType == CreateGraphNodeType.Successor) inputCount = Math.Max(inputCount, selectedNodes.Count());
+            else inputCount = Math.Max(inputCount, selectedNodes.Sum(node => workflow.PredecessorEdges(node).Count()));
+
+            // Limit number of inputs depending on nested operator argument range
+            if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder is NestedWorkflowBuilder))
+            {
+                inputCount = Math.Min(inputCount, workflowBuilder.ArgumentRange.UpperBound);
+            }
+
+            for (int i = 0; i < inputCount; i++)
+            {
+                var nestedInput = new WorkflowInputBuilder { Index = i };
+                var nestedInputInspectBuilder = new InspectBuilder(nestedInput);
+                var nestedInputNode = workflowBuilder.Workflow.Add(nestedInputInspectBuilder);
+                if (inputCount == 1)
+                {
+                    var nestedOutput = new WorkflowOutputBuilder();
+                    var nestedOutputInspectBuilder = new InspectBuilder(nestedOutput);
+                    var nestedOutputNode = workflowBuilder.Workflow.Add(nestedOutputInspectBuilder);
+                    workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
+                }
+            }
+        }
+
         Tuple<GraphCommand, GraphCommand> GetCreateGraphNodeCommands(
             ExpressionBuilder builder,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedNodes,
@@ -974,30 +1011,7 @@ namespace Bonsai.Editor.GraphModel
 
             if (builder is WorkflowExpressionBuilder workflowBuilder && validate)
             {
-                // Estimate number of inputs to the nested node
-                var inputCount = workflowBuilder.ArgumentRange.LowerBound;
-                if (nodeType == CreateGraphNodeType.Successor) inputCount = Math.Max(inputCount, targetNodes.Length);
-                else inputCount = Math.Max(inputCount, targetNodes.Sum(node => workflow.PredecessorEdges(node).Count()));
-
-                // Limit number of inputs depending on nested operator argument range
-                if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder is NestedWorkflowBuilder))
-                {
-                    inputCount = Math.Min(inputCount, workflowBuilder.ArgumentRange.UpperBound);
-                }
-
-                for (int i = 0; i < inputCount; i++)
-                {
-                    var nestedInput = new WorkflowInputBuilder { Index = i };
-                    var nestedInputInspectBuilder = new InspectBuilder(nestedInput);
-                    var nestedInputNode = workflowBuilder.Workflow.Add(nestedInputInspectBuilder);
-                    if (inputCount == 1)
-                    {
-                        var nestedOutput = new WorkflowOutputBuilder();
-                        var nestedOutputInspectBuilder = new InspectBuilder(nestedOutput);
-                        var nestedOutputNode = workflowBuilder.Workflow.Add(nestedOutputInspectBuilder);
-                        workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
-                    }
-                }
+                ConfigureWorkflowBuilder(workflowBuilder, targetNodes, workflow, nodeType);
             }
 
             var validateInsert = validate && !(nodeType == CreateGraphNodeType.Predecessor && builder.IsBuildDependency());
@@ -1477,7 +1491,8 @@ namespace Bonsai.Editor.GraphModel
             ExpressionBuilder selectedBuilder,
             string typeName,
             ElementCategory elementCategory,
-            string arguments)
+            string arguments,
+            bool allowGroupReplacement = true)
         {
             var inspectBuilder = (InspectBuilder)selectedBuilder;
             selectedBuilder = ExpressionBuilder.Unwrap(inspectBuilder);
@@ -1489,7 +1504,7 @@ namespace Bonsai.Editor.GraphModel
             }
 
             ExpressionBuilder builder;
-            if (selectedBuilder is WorkflowExpressionBuilder workflowBuilder &&
+            if (allowGroupReplacement && selectedBuilder is WorkflowExpressionBuilder workflowBuilder &&
                 typeof(WorkflowExpressionBuilder).IsAssignableFrom(Type.GetType(typeName)))
             {
                 var replaceBuilder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
@@ -1504,6 +1519,12 @@ namespace Bonsai.Editor.GraphModel
                     .Predecessors(FindWorkflowValue(Workflow, selectedBuilder))
                     .Any(node => !node.Value.IsBuildDependency());
                 builder = CreateBuilder(typeName, elementCategory, group: preferMulticast);
+                if (builder is WorkflowExpressionBuilder replacementWorkflowBuilder)
+                {
+                    var targetNode = FindWorkflowValue(Workflow, selectedBuilder);
+                    ConfigureWorkflowBuilder(replacementWorkflowBuilder, new[] { targetNode }, Workflow, CreateGraphNodeType.Predecessor);
+                }
+
                 if (selectedBuilder is INamedElement namedBuilder &&
                    (namedBuilder is SubjectExpressionBuilder ||
                     namedBuilder is SubscribeSubjectBuilder ||
