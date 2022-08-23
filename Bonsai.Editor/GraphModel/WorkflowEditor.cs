@@ -1,4 +1,4 @@
-using Bonsai.Dag;
+﻿using Bonsai.Dag;
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -148,6 +148,11 @@ namespace Bonsai.Editor.GraphModel
             }
 
             return null;
+        }
+
+        private static Node<ExpressionBuilder, ExpressionBuilderArgument> GetGraphNodeTag(GraphNode node)
+        {
+            return (Node<ExpressionBuilder, ExpressionBuilderArgument>)node?.Tag;
         }
 
         public static Node<ExpressionBuilder, ExpressionBuilderArgument> GetGraphNodeTag(ExpressionBuilderGraph workflow, GraphNode node)
@@ -801,7 +806,7 @@ namespace Bonsai.Editor.GraphModel
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
         }
 
-        static string MakeGenericType(string typeName, GraphNode selectedNode, out ElementCategory elementCategory)
+        static string MakeGenericType(string typeName, ExpressionBuilder builder, out ElementCategory elementCategory)
         {
             var separatorToken = typeName.IndexOf(',');
             var genericTypeName = typeName.Substring(0, separatorToken) + "`1" + typeName.Substring(separatorToken);
@@ -811,10 +816,10 @@ namespace Bonsai.Editor.GraphModel
                 throw new ArgumentException(Resources.TypeNotFound_Error, nameof(typeName));
             }
 
-            var inspectBuilder = (InspectBuilder)selectedNode.Value;
-            if (inspectBuilder.ObservableType == null)
+            var inspectBuilder = (InspectBuilder)builder;
+            if (inspectBuilder?.ObservableType == null)
             {
-                throw new ArgumentException(Resources.TypeNotFound_Error, nameof(selectedNode));
+                throw new ArgumentException(Resources.TypeNotFound_Error, nameof(builder));
             }
 
             var genericTypeAttributes = TypeDescriptor.GetAttributes(genericType);
@@ -840,14 +845,27 @@ namespace Bonsai.Editor.GraphModel
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
             if (group && selectedNode != null)
             {
-                if (branch && selectedNodes.Length == 1)
+                if (branch)
                 {
-                    ReplaceGraphNode(selectedNode, typeName, elementCategory, arguments);
+                    if (selectedNodes.Length > 1)
+                    {
+                        GroupGraphNodes(
+                            selectedNodes,
+                            graph => new GroupWorkflowBuilder(graph),
+                            node =>
+                            {
+                                var groupBuilder = node.Value;
+                                var builder = CreateReplacementBuilder(groupBuilder, typeName, elementCategory, arguments);
+                                ReplaceNode(node, builder);
+                                return CreateUpdateSelectionDelegate(builder);
+                            });
+                    }
+                    else ReplaceGraphNode(selectedNode, typeName, elementCategory, arguments);
                     return;
                 }
                 else if (elementCategory == ~ElementCategory.Combinator)
                 {
-                    typeName = MakeGenericType(typeName, selectedNode, out elementCategory);
+                    typeName = MakeGenericType(typeName, selectedNode.Value, out elementCategory);
                 }
                 else if (elementCategory > ~ElementCategory.Source)
                 {
@@ -862,7 +880,7 @@ namespace Bonsai.Editor.GraphModel
             ConfigureBuilder(builder, selectedNode, arguments);
             var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
             if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
-            var commands = GetCreateGraphNodeCommands(builder, selectedNodes, nodeType, branch);
+            var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, commands.Item2.Undo);
             commandExecutor.Execute(commands.Item1.Command, commands.Item1.Undo);
@@ -877,7 +895,7 @@ namespace Bonsai.Editor.GraphModel
             // TODO: This special case for binary operator operands should be avoided in the future
             if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
             {
-                if (((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value is InspectBuilder inputBuilder &&
+                if (GetGraphNodeTag(selectedNode).Value is InspectBuilder inputBuilder &&
                     inputBuilder.ObservableType != null)
                 {
                     binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
@@ -906,7 +924,12 @@ namespace Bonsai.Editor.GraphModel
 
         public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
-            var selection = selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<GraphNode>();
+            CreateGraphNode(builder, GetGraphNodeTag(selectedNode), nodeType, branch, validate);
+        }
+
+        void CreateGraphNode(ExpressionBuilder builder, Node<ExpressionBuilder, ExpressionBuilderArgument> selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        {
+            var selection = selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             var commands = GetCreateGraphNodeCommands(builder, selection, nodeType, branch, validate);
             commandExecutor.Execute(
             () =>
@@ -923,17 +946,17 @@ namespace Bonsai.Editor.GraphModel
 
         Tuple<GraphCommand, GraphCommand> GetCreateGraphNodeCommands(
             ExpressionBuilder builder,
-            IEnumerable<GraphNode> selectedNodes,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedNodes,
             CreateGraphNodeType nodeType,
             bool branch,
             bool validate = true)
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
-            var workflow = this.Workflow;
+            var workflow = Workflow;
             if (builder is WorkflowInputBuilder workflowInput)
             {
                 workflowInput.Index = workflow.Count(node => ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder);
@@ -946,8 +969,8 @@ namespace Bonsai.Editor.GraphModel
             Action removeNode = () => { RemoveWorkflowNode(workflow, inspectNode); };
             builder = inspectBuilder.Builder;
 
-            var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
-            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
+            var targetNodes = selectedNodes.ToArray();
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
 
             if (builder is WorkflowExpressionBuilder workflowBuilder && validate)
             {
@@ -1255,6 +1278,12 @@ namespace Bonsai.Editor.GraphModel
             DeleteGraphNode(node);
         }
 
+        private void ReplaceNode(Node<ExpressionBuilder, ExpressionBuilderArgument> node, ExpressionBuilder builder)
+        {
+            CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
+            DeleteGraphNode(node, replaceEdges: true);
+        }
+
         private bool CanGroup(IEnumerable<GraphNode> nodes, WorkflowBuilder groupBuilder)
         {
             if (nodes == null)
@@ -1284,7 +1313,10 @@ namespace Bonsai.Editor.GraphModel
             GroupGraphNodes(nodes, graph => CreateWorkflowBuilder(typeName, graph));
         }
 
-        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, Func<ExpressionBuilderGraph, WorkflowExpressionBuilder> groupFactory)
+        private void GroupGraphNodes(
+            IEnumerable<GraphNode> nodes,
+            Func<ExpressionBuilderGraph, WorkflowExpressionBuilder> groupFactory,
+            Func<Node<ExpressionBuilder, ExpressionBuilderArgument>, Action> continuation = null)
         {
             if (nodes == null)
             {
@@ -1411,6 +1443,11 @@ namespace Bonsai.Editor.GraphModel
             });
 
             if (replacementNode != null) DeleteGraphNode(replacementNode);
+            if (continuation != null)
+            {
+                var groupNode = workflow.Single(node => ExpressionBuilder.Unwrap(node.Value) == workflowExpressionBuilder);
+                updateSelectedNode = continuation(groupNode) ?? updateSelectedNode;
+            }
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
@@ -1436,20 +1473,19 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        public void ReplaceGraphNode(GraphNode node, string typeName, ElementCategory elementCategory, string arguments)
+        private ExpressionBuilder CreateReplacementBuilder(
+            ExpressionBuilder selectedBuilder,
+            string typeName,
+            ElementCategory elementCategory,
+            string arguments)
         {
-            var selectedBuilder = GetGraphNodeBuilder(node);
-            var selectedBuilderType = selectedBuilder.GetType();
-            if (selectedBuilderType.AssemblyQualifiedName == typeName)
-            {
-                return;
-            }
-
+            var inspectBuilder = (InspectBuilder)selectedBuilder;
+            selectedBuilder = ExpressionBuilder.Unwrap(inspectBuilder);
             var allowGenericSource = elementCategory == ~ElementCategory.Combinator;
             if (allowGenericSource && (selectedBuilder is SubscribeSubjectBuilder ||
-               (selectedBuilder is SubjectExpressionBuilder && selectedBuilderType.IsGenericType)))
+               (selectedBuilder is SubjectExpressionBuilder && selectedBuilder.GetType().IsGenericType)))
             {
-                typeName = MakeGenericType(typeName, node, out elementCategory);
+                typeName = MakeGenericType(typeName, inspectBuilder, out elementCategory);
             }
 
             ExpressionBuilder builder;
@@ -1465,7 +1501,7 @@ namespace Bonsai.Editor.GraphModel
             {
                 var isReference = elementCategory == ~ElementCategory.Source;
                 var preferMulticast = isReference && Workflow
-                    .Predecessors(GetGraphNodeTag(Workflow, node))
+                    .Predecessors(FindWorkflowValue(Workflow, selectedBuilder))
                     .Any(node => !node.Value.IsBuildDependency());
                 builder = CreateBuilder(typeName, elementCategory, group: preferMulticast);
                 if (selectedBuilder is INamedElement namedBuilder &&
@@ -1489,8 +1525,20 @@ namespace Bonsai.Editor.GraphModel
                     }
                 }
             }
-            ReplaceGraphNode(node, builder);
             ConfigureBuilder(builder, null, arguments);
+            return builder;
+        }
+
+        public void ReplaceGraphNode(GraphNode node, string typeName, ElementCategory elementCategory, string arguments)
+        {
+            var selectedBuilder = GetGraphNodeBuilder(node);
+            if (selectedBuilder.GetType().AssemblyQualifiedName == typeName)
+            {
+                return;
+            }
+
+            var builder = CreateReplacementBuilder(node.Value, typeName, elementCategory, arguments);
+            ReplaceGraphNode(node, builder);
         }
 
         public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
