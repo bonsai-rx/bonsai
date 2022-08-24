@@ -1496,7 +1496,7 @@ namespace Bonsai.Editor.GraphView
                             element.FullyQualifiedName,
                             ~ElementCategory.Combinator,
                             CreateGraphNodeType.Successor,
-                            branch: true,
+                            branch: false,
                             group: true));
                         ownerItem.DropDownItems.Add(menuItem);
                     }
