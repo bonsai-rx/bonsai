@@ -777,34 +777,19 @@ namespace Bonsai.Editor
             }
         }
 
-        WorkflowBuilder UpdateWorkflow(WorkflowBuilder workflowBuilder, SemanticVersion version)
+        WorkflowBuilder PrepareWorkflow(WorkflowBuilder workflowBuilder, SemanticVersion version, out bool upgraded)
         {
+            upgraded = false;
             var workflow = workflowBuilder.Workflow;
-            if (version == null || UpgradeHelper.IsDeprecated(version))
+            try { upgraded = UpgradeHelper.TryUpgradeWorkflow(workflow, version, out workflow); }
+            catch (WorkflowBuildException)
             {
                 MessageBox.Show(
                     this,
-                    Resources.UpdateWorkflow_Warning,
-                    Resources.UpdateWorkflow_Warning_Caption,
+                    Resources.UpgradeWorkflow_Error,
+                    Resources.UpgradeWorkflow_Warning_Caption,
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1);
-
-                try
-                {
-                    UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder, version);
-                    workflow = UpgradeHelper.UpgradeBuilderNodes(workflow, version);
-                }
-                catch (WorkflowBuildException)
-                {
-                    MessageBox.Show(
-                        this,
-                        Resources.UpdateWorkflow_Error,
-                        Resources.UpdateWorkflow_Warning_Caption,
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning,
-                        MessageBoxDefaultButton.Button1);
-                }
+                    MessageBoxIcon.Warning);
             }
 
             workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
@@ -861,7 +846,7 @@ namespace Bonsai.Editor
                 }
             }
 
-            workflowBuilder = UpdateWorkflow(workflowBuilder, workflowVersion);
+            workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
@@ -878,8 +863,14 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
-            if (UpgradeHelper.IsDeprecated(workflowVersion))
+            if (upgraded)
             {
+                MessageBox.Show(
+                    this,
+                    Resources.UpgradeWorkflow_Warning,
+                    Resources.UpgradeWorkflow_Warning_Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 saveWorkflowDialog.FileName = null;
                 version++;
             }
@@ -2559,7 +2550,7 @@ namespace Bonsai.Editor
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
                 var workflow = siteForm.LoadWorkflow(fileName, out SemanticVersion version);
-                return siteForm.UpdateWorkflow(workflow, version);
+                return siteForm.PrepareWorkflow(workflow, version, out _);
             }
 
             public void OpenWorkflow(string fileName)

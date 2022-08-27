@@ -33,7 +33,7 @@ namespace Bonsai.Editor
             return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
         }
 
-        internal static bool IsDeprecated(SemanticVersion version)
+        static bool IsDeprecated(SemanticVersion version)
         {
             return version < DeprecationTarget;
         }
@@ -55,11 +55,25 @@ namespace Bonsai.Editor
             }
         }
 
-        internal static ExpressionBuilderGraph UpgradeBuilderNodes(ExpressionBuilderGraph workflow, SemanticVersion version)
+        internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, SemanticVersion version, out ExpressionBuilderGraph upgradedWorkflow)
         {
+            var upgraded = false;
+            upgradedWorkflow = workflow;
+            if (version == null || IsDeprecated(version))
+            {
+                upgraded |= TryUpgradeEnumerableUnfoldingRules(workflow, version);
+                upgraded |= TryUpgradeBuilderNodes(workflow, version, out upgradedWorkflow);
+            }
+
+            return upgraded;
+        }
+
+        static bool TryUpgradeBuilderNodes(ExpressionBuilderGraph workflow, SemanticVersion version, out ExpressionBuilderGraph upgradedWorkflow)
+        {
+            var upgraded = false;
             var argumentCount = new Dictionary<ExpressionBuilder, int>();
             GetArgumentCount(workflow, argumentCount);
-            return workflow.Convert(builder =>
+            ExpressionBuilder UpgradeBuilder(ExpressionBuilder builder)
             {
 #pragma warning disable CS0612 // Type or member is obsolete
                 if (builder is SourceBuilder sourceBuilder)
@@ -156,6 +170,7 @@ namespace Bonsai.Editor
 
                 if (workflowElement is ExpressionBuilder builderElement && version < RemoveMemberSelectorPrefixVersion)
                 {
+                    upgraded = true;
                     if (builderElement is PropertyMappingBuilder mappingBuilder)
                     {
                         foreach (var mapping in mappingBuilder.PropertyMappings)
@@ -195,19 +210,31 @@ namespace Bonsai.Editor
                 }
 
                 return builder;
+            };
+
+            upgradedWorkflow = workflow.Convert(builder =>
+            {
+                var upgradedBuilder = UpgradeBuilder(builder);
+                if (upgradedBuilder != builder) upgraded = true;
+                return upgradedBuilder;
             });
+            return upgraded;
         }
 
-        internal static void UpgradeEnumerableUnfoldingRules(WorkflowBuilder workflowBuilder, SemanticVersion version)
+        static bool TryUpgradeEnumerableUnfoldingRules(ExpressionBuilderGraph workflow, SemanticVersion version)
         {
+            var upgraded = false;
             if (version < EnumerableUnfoldingVersion)
             {
-                var upgradeTargets = GetEnumerableUpgradeTargets(workflowBuilder.Workflow).ToList();
+                var upgradeTargets = GetEnumerableUpgradeTargets(workflow).ToList();
                 foreach (var upgradeTarget in upgradeTargets)
                 {
-                    UpgradeEnumerableInputDependency(workflowBuilder, upgradeTarget);
+                    UpgradeEnumerableInputDependency(workflow, upgradeTarget);
+                    upgraded = true;
                 }
             }
+
+            return upgraded;
         }
 
         struct WorkflowInputDependency
@@ -243,14 +270,14 @@ namespace Bonsai.Editor
             }
         }
 
-        static void UpgradeEnumerableInputDependency(WorkflowBuilder builder, WorkflowInputDependency inputDependency)
+        static void UpgradeEnumerableInputDependency(ExpressionBuilderGraph workflow, WorkflowInputDependency inputDependency)
         {
-            var dependency = builder.Workflow.Build(inputDependency.Dependency);
+            var dependency = workflow.Build(inputDependency.Dependency);
             var sourceType = dependency.Type.GetGenericArguments()[0];
             if (ExpressionHelper.IsEnumerableType(sourceType) && sourceType != typeof(string))
             {
-                var workflow = inputDependency.Target;
-                var inputNode = workflow.FirstOrDefault(node =>
+                var targetWorkflow = inputDependency.Target;
+                var inputNode = targetWorkflow.FirstOrDefault(node =>
                 {
                     return ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder inputBuilder && inputBuilder.Index == 0;
                 });
@@ -262,14 +289,14 @@ namespace Bonsai.Editor
                         Combinator = new Reactive.Merge()
                     };
 
-                    var mergeNode = workflow.Add(mergeBuilder);
+                    var mergeNode = targetWorkflow.Add(mergeBuilder);
                     foreach (var successor in inputNode.Successors)
                     {
                         mergeNode.Successors.Add(successor);
                     }
 
                     inputNode.Successors.Clear();
-                    workflow.AddEdge(inputNode, mergeNode, new ExpressionBuilderArgument());
+                    targetWorkflow.AddEdge(inputNode, mergeNode, new ExpressionBuilderArgument());
                 }
             }
         }
