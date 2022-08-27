@@ -19,7 +19,7 @@ namespace Bonsai.Editor.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -558,29 +558,29 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an error while updating the workflow. Please check if there are any missing packages that need to be installed before trying to upgrade again..
+        ///   Looks up a localized string similar to There was an error while upgrading the workflow. Please check if there are any missing packages that need to be installed before trying to upgrade again..
         /// </summary>
-        internal static string UpdateWorkflow_Error {
+        internal static string UpgradeWorkflow_Error {
             get {
-                return ResourceManager.GetString("UpdateWorkflow_Error", resourceCulture);
+                return ResourceManager.GetString("UpgradeWorkflow_Error", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This workflow file has been created with an older version of Bonsai. Further modifications will be incompatible with previous versions..
+        ///   Looks up a localized string similar to This workflow file has been upgraded to the latest version of Bonsai. Further modifications will be incompatible with previous versions..
         /// </summary>
-        internal static string UpdateWorkflow_Warning {
+        internal static string UpgradeWorkflow_Warning {
             get {
-                return ResourceManager.GetString("UpdateWorkflow_Warning", resourceCulture);
+                return ResourceManager.GetString("UpgradeWorkflow_Warning", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update Workflow.
+        ///   Looks up a localized string similar to Workflow Upgraded.
         /// </summary>
-        internal static string UpdateWorkflow_Warning_Caption {
+        internal static string UpgradeWorkflow_Warning_Caption {
             get {
-                return ResourceManager.GetString("UpdateWorkflow_Warning_Caption", resourceCulture);
+                return ResourceManager.GetString("UpgradeWorkflow_Warning_Caption", resourceCulture);
             }
         }
         
