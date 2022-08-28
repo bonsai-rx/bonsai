@@ -1,19 +1,40 @@
-BONSAI is an open-source visual programming language for data stream processing built on top of [Rx.NET](http://reactivex.io/). With BONSAI you tell your computer what to do not through long listings of text but by manipulating graphical elements in a workflow. Like in Rx, workflow elements in BONSAI represent asynchronous streams of data which can be connected together to perform complex operations.
+# Bonsai - Visual Reactive Programming
 
-A quick intro
+This is the main repository for the [Bonsai](https://bonsai-rx.org/) visual programming language. It contains source code for the compiler, IDE, and standard library.
+
+With Bonsai you tell your computer what to do not through long listings of text but by manipulating graphical elements in a workflow. Bonsai is built on top of [Rx.NET](http://reactivex.io/), and like in Rx, workflow elements in Bonsai represent asynchronous streams of data called [Observables](https://bonsai-rx.org/docs/articles/observables.html) which can be connected together to perform complex operations.
+
+Building from Source
+--------------------
+
+### Windows
+
+1. Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/). The Community Edition is available free of charge for open-source projects. Make sure the **.NET Desktop Development** workload is selected when running the installer.
+2. Open `Bonsai.sln` and select `Build` > `Build Solution` from the VS menu.
+
+### Installer
+
+1. Install the [Wix Toolset build tools](https://wixtoolset.org/releases/) version 3.11 or greater.
+2. From Visual Studio menu, select `Extensions` > `Manage Extensions` and install the WiX Toolset Visual Studio 2022 Extension.
+
+Getting Help
+------------
+
+You can find the Bonsai community in a few places:
+ * [GitHub](https://github.com/bonsai-rx/bonsai/discussions) - Announcements, general discussion and Q&A
+ * [Discord](https://discord.gg/K8jUKH7) - General discussion
+
+Contributing
+------------
+
+1. Create an [issue](https://github.com/bonsai-rx/bonsai/issues) describing what you would like to improve, or pick an existing issue.
+2. Install [Git](https://git-scm.com/downloads).
+3. [Fork Bonsai](https://github.com/bonsai-rx/bonsai/fork).
+4. Create a new branch in your fork called `issue-###` where `###` is the issue number.
+5. Make small incremental changes to your branch to resolve the issue.
+6. Create a new PR into the main repository and tag a reviewer.
+
+Documentation
 -------------
 
-The main goal of BONSAI is to make it easier to write programs that combine the acquisition and processing of many heterogeneous streams of data. These data streams can come from a variety of devices, including cameras, microphones, embedded microcontrollers, the network or files in your hard drive. BONSAI includes a variety of packages that take care of the tedious work of setting up and extracting data from all these devices.
-
-Included in BONSAI are various algorithms for image and digital signal processing that allow you to extract information from these raw data streams. Parameters can be manipulated and altered online using property pages and each processing step can be independently visualized while the workflow is running. It is also possible to change these parameters dynamically by using the output of other elements.
-
-Finally, BONSAI also includes several modules that allow you to specify useful side effects you might want to achieve with the processed data, such as saving it to a file, actuating a servomotor, or playing sound through the speakers. It is even possible to organize the message passing logic of BONSAI to design reactive asynchronous state machines to implement control procedures.
-
-Under the hood
---------------
-
-BONSAI is developed entirely in C# and one of its main features is extensibility and interoperability with the rest of the .NET framework and other Rx applications. In fact, every BONSAI module is just a standard C# class exposing [Observable](http://reactivex.io/documentation/observable.html) methods. This means that you can reference every single BONSAI package in your standard .NET application and just call the code as you would with any other library. There is no extra runtime.
-
-In its visual environment, BONSAI makes use of [attribute metadata](http://msdn.microsoft.com/en-us/library/5x6cd29c.aspx), type inference and [expression trees](http://msdn.microsoft.com/en-us/library/bb397951.aspx) to automatically generate [MSIL](http://msdn.microsoft.com/en-us/library/c5tkafs1.aspx) code that implements your design. This has the consequence that running a BONSAI workflow is as fast as if you wrote the code yourself!
-
-It is very easy to extend BONSAI with your own modules. There is no need to learn yet another API as BONSAI uses entirely Rx under the hood. If you are familiar with programming using [Rx](http://reactivex.io/) or [LINQ](http://msdn.microsoft.com/en-us/library/hh242983.aspx) you're good to go. After you've created your package just upload it to the [NuGet](http://www.nuget.org/) gallery and you will be sharing it with the whole BONSAI community using the integrated package manager.
+The Bonsai [documentation](https://bonsai-rx.org/docs/) is open to community contributions. If you are interested in helping us to improve it, please take a look at our [docs repo](https://github.com/bonsai-rx/docs).
