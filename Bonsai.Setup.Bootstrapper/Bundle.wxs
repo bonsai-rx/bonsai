@@ -5,7 +5,7 @@
   <?define ProductDisplayName="Bonsai"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
   <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
-  <?define VCRTRegistryKey="SOFTWARE\Microsoft\DevDiv\vc\Servicing\11.0\RuntimeMinimum"?>
+  <?define VCRTRegistryKey="SOFTWARE\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeMinimum"?>
   
 	<Bundle Name="$(var.ProductDisplayName)" Version="!(bind.PackageVersion.Bonsai)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
@@ -24,8 +24,8 @@
 
 		<Chain>
       <PackageGroupRef Id="NetFx472Web"/>
-      <ExePackage Id="VCRT" SourceFile="vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
-      <ExePackage Id="VCRT64" SourceFile="vcredist_x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
+      <ExePackage Id="VCRT" SourceFile="vc_redist.x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT64" SourceFile="vc_redist.x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
         <MsiProperty Name="INSTALLVSIX" Value="[InstallVsixCheckbox]"/>
