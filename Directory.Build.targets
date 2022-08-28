@@ -2,6 +2,6 @@
 <Project>
   <PropertyGroup>
     <DaysFromFirstRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse(2011/12/12))).Days)</DaysFromFirstRevision>
-    <FileVersion>$(Version).$(DaysFromFirstRevision)</FileVersion>
+    <FileVersion>$(VersionPrefix).$(DaysFromFirstRevision)</FileVersion>
   </PropertyGroup>
 </Project>
