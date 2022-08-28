@@ -13,6 +13,7 @@
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <RepositoryUrl>https://github.com/bonsai-rx/bonsai.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <VersionSuffix></VersionSuffix>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
   </PropertyGroup>

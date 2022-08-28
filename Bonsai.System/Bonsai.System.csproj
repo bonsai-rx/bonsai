@@ -5,7 +5,7 @@
     <Description>Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.7.0</Version>
+    <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />

@@ -5,7 +5,7 @@
     <Description>Bonsai Shaders Rendering Library containing modules for rendering complex 3D scenes.</Description>
     <PackageTags>Bonsai Rx Shaders Rendering Assets Graphics OpenGL</PackageTags>
     <TargetFramework>net462</TargetFramework>
-    <Version>0.3.0</Version>
+    <VersionPrefix>0.3.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />

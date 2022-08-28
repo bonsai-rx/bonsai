@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Scripting Iron Python Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.7.0</Version>
+    <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
