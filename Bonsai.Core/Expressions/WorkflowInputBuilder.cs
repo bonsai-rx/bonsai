@@ -8,7 +8,8 @@ using System;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents the expression that is used as the input source of an encapsulated workflow.
+    /// Represents an expression builder that generates an observable sequence to be
+    /// used as input to an encapsulated workflow.
     /// </summary>
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
@@ -58,10 +59,18 @@ namespace Bonsai.Expressions
         }
     }
 
+    /// <summary>
+    /// Represents an expression builder that generates an observable sequence of the
+    /// specified type to be used as input to an encapsulated workflow.
+    /// </summary>
+    /// <typeparam name="TSource">
+    /// The type of the elements in the generated observable sequence.
+    /// </typeparam>
     [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(WorkflowInputBuilder), nameof(WorkflowInputBuilder))]
     public class WorkflowInputBuilder<TSource> : WorkflowInputBuilder
     {
+        /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = Source;
