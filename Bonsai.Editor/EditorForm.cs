@@ -1207,10 +1207,10 @@ namespace Bonsai.Editor
                 running = Observable.Using(
                     () =>
                     {
-                        var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         var shutdown = ShutdownSequence();
                         try
                         {
+                            var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                             Invoke((Action)(() =>
                             {
                                 statusTextLabel.Text = Resources.RunningStatus;
@@ -1219,14 +1219,14 @@ namespace Bonsai.Editor
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
                                 Activate();
                             }));
+                            return new WorkflowDisposable(runtimeWorkflow, shutdown);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            HandleWorkflowError(ex);
                             shutdown.Dispose();
                             throw;
                         }
-
-                        return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
                         .InspectErrorsEx()
