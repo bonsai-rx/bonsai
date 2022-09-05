@@ -49,7 +49,7 @@ namespace Bonsai.Scripting
         /// <summary>
         /// Gets or sets the script that determines how each element is projected into a sequence of elements.
         /// </summary>
-        [Editor("Bonsai.Scripting.Python.Design.PythonScriptEditor, Bonsai.Scripting.Python.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.Scripting.IronPython.Design.PythonScriptEditor, Bonsai.Scripting.IronPython.Design", DesignTypes.UITypeEditor)]
         [Description("The script that determines how each element is projected into a sequence of elements.")]
         public string Script { get; set; }
 
