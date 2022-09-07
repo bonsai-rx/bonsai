@@ -793,6 +793,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
+            if (upgraded) WorkflowBuilder.ClearSerializerCache();
             return workflowBuilder;
         }
 

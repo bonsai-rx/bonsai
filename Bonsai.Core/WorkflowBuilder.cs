@@ -237,6 +237,19 @@ namespace Bonsai
         static readonly Type[] SerializerLegacyTypes = new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) };
 #pragma warning restore CS0612 // Type or member is obsolete
 
+        /// <summary>
+        /// Clears the serializer type cache. This method is provided for
+        /// compatibility tooling only and might be removed in a future version.
+        /// </summary>
+        public static void ClearSerializerCache()
+        {
+            lock (cacheLock)
+            {
+                serializerTypes = null;
+                serializerCache = null;
+            }
+        }
+
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
             var builderType = typeof(ExpressionBuilder);

@@ -10,6 +10,7 @@ namespace Bonsai.Editor
     static class UpgradeHelper
     {
         static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.7.0");
+        static readonly SemanticVersion RetargetReactiveTypesPackageVersion = SemanticVersion.Parse("2.7.0");
         static readonly SemanticVersion RetargetScriptingPackageVersion = SemanticVersion.Parse("2.7.0");
         static readonly SemanticVersion RemoveMemberSelectorPrefixVersion = SemanticVersion.Parse("2.4.0-preview");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
@@ -155,6 +156,31 @@ namespace Bonsai.Editor
                             element.Script = legacyElement.Script;
                             return element;
                         }
+                    }
+                }
+
+                if (elementType.IsGenericType && version < RetargetReactiveTypesPackageVersion &&
+                    elementType.GetGenericArguments()[0] is Type subscribeSubjectType &&
+                    subscribeSubjectType.Assembly.FullName.StartsWith("System.Reactive."))
+                {
+                    var typeReferenceReplaceQualifiedName = $"{subscribeSubjectType.FullName}, System.Reactive";
+                    var replacementType = Type.GetType(typeReferenceReplaceQualifiedName);
+                    if (replacementType != null)
+                    {
+                        replacementType = elementType.GetGenericTypeDefinition().MakeGenericType(replacementType);
+                        var replacementElement = (ExpressionBuilder)Activator.CreateInstance(replacementType);
+                        if (replacementElement is INamedElement namedElement)
+                        {
+                            if (replacementElement is SubjectExpressionBuilder subjectBuilder)
+                            {
+                                subjectBuilder.Name = namedElement.Name;
+                            }
+                            else if (replacementElement is SubscribeSubjectBuilder subscribeBuilder)
+                            {
+                                subscribeBuilder.Name = namedElement.Name;
+                            }
+                        }
+                        return replacementElement;
                     }
                 }
 
