@@ -10,7 +10,7 @@
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Rx-Linq" Version="2.2.5" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

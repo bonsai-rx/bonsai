@@ -1,5 +1,4 @@
-﻿using Bonsai.Design;
-using Bonsai.NuGet.Design.Properties;
+﻿using Bonsai.NuGet.Design.Properties;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;

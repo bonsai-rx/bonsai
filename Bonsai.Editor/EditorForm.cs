@@ -1162,7 +1162,7 @@ namespace Bonsai.Editor
 
         IDisposable ShutdownSequence()
         {
-            return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
+            return new ScheduledDisposable(new Design.ControlScheduler(this), Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 propertyGrid.BrowsableAttributes = DesignTimeAttributes;

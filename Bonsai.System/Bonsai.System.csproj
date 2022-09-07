@@ -8,9 +8,6 @@
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
   </ItemGroup>
 </Project>
