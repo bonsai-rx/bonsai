@@ -3,37 +3,36 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using Bonsai.Reactive;
+using Bonsai.Expressions;
 
-namespace Bonsai.Expressions
+namespace Bonsai.Reactive
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="TakeWhile"/> operator instead.
+    /// Represents an expression builder which returns elements from an observable sequence
+    /// as long as the condition specified by the encapsulated workflow is true.
     /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(TakeWhile))]
     [WorkflowElementCategory(ElementCategory.Combinator)]
-    [XmlType("TakeWhile", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
     [Description("Returns elements from an observable sequence as long as the condition specified by the encapsulated workflow is true.")]
-    public class TakeWhileBuilder : TakeWhile
+    public class TakeWhile : Condition
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TakeWhileBuilder"/> class.
+        /// Initializes a new instance of the <see cref="TakeWhile"/> class.
         /// </summary>
-        public TakeWhileBuilder()
+        public TakeWhile()
             : this(new ExpressionBuilderGraph())
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TakeWhileBuilder"/> class
+        /// Initializes a new instance of the <see cref="TakeWhile"/> class
         /// with the specified expression builder workflow.
         /// </summary>
         /// <param name="workflow">
         /// The expression builder workflow instance that will be used by this builder
         /// to generate the output expression tree.
         /// </param>
-        public TakeWhileBuilder(ExpressionBuilderGraph workflow)
+        public TakeWhile(ExpressionBuilderGraph workflow)
             : base(workflow)
         {
         }

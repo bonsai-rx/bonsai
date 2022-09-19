@@ -3,17 +3,19 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using Bonsai.Reactive;
 
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder which bypasses elements in an observable sequence
-    /// as long as the condition specified by the encapsulated workflow is true.
+    /// This type is obsolete. Please use the <see cref="SkipWhile"/> operator instead.
     /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(SkipWhile))]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("SkipWhile", Namespace = Constants.XmlNamespace)]
     [Description("Bypasses elements in an observable sequence as long as the condition specified by the encapsulated workflow is true.")]
-    public class SkipWhileBuilder : ConditionBuilder
+    public class SkipWhileBuilder : SkipWhile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SkipWhileBuilder"/> class.
