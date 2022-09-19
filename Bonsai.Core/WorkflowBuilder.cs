@@ -588,6 +588,7 @@ namespace Bonsai
         #region ReadXmlExtensions
 
         static readonly Dictionary<string, Type> TypeForwarding = GetDefaultXmlTypeForwarding();
+        static readonly Dictionary<Type, Type> ProxyTypes = GetDefaultXmlProxyTypes();
 
         static Dictionary<string, Type> GetDefaultXmlTypeForwarding()
         {
@@ -604,6 +605,21 @@ namespace Bonsai
                 var genericArguments = type.GetGenericArguments();
                 var forwardedTypeName = type.Namespace + "." + xmlTypeAttribute.TypeName + "`" + genericArguments.Length + "," + assemblyName;
                 typeMap.Add(forwardedTypeName, type);
+            }
+            return typeMap;
+        }
+
+        static Dictionary<Type, Type> GetDefaultXmlProxyTypes()
+        {
+            var builderType = typeof(ExpressionBuilder);
+            var typeMap = new Dictionary<Type, Type>();
+            var assemblyName = builderType.Assembly.GetName().Name;
+            foreach (var type in builderType.Assembly.GetTypes().Where(type =>
+                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false)))
+            {
+                var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
+                if (proxyTypeAttribute.Type == null) continue;
+                typeMap.Add(type, proxyTypeAttribute.Type);
             }
             return typeMap;
         }
@@ -780,6 +796,18 @@ namespace Bonsai
                                 var type = ResolveXmlExtension(reader, value, typeArguments);
                                 if (type != null)
                                 {
+                                    // resolve any xsi:type proxy types
+                                    if (ProxyTypes.TryGetValue(type, out Type proxyType))
+                                    {
+                                        var proxyNamespace = GetXmlNamespace(proxyType);
+                                        var proxyPrefix = namespaces.FirstOrDefault(name => name.Namespace == proxyNamespace);
+                                        if (proxyPrefix != null)
+                                        {
+                                            value = $"{proxyPrefix.Name}:{proxyType.Name}";
+                                            type = proxyType;
+                                        }
+                                    }
+
                                     types.Add(type);
                                     if (!string.IsNullOrEmpty(typeArguments))
                                     {
