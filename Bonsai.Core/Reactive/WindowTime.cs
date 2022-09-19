@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into zero or more windows based on timing information.")]
-    public class TimeSpanWindow : WindowCombinator
+    public class WindowTime : WindowCombinator
     {
         /// <summary>
         /// Gets or sets the length of each window.
@@ -79,5 +79,15 @@ namespace Bonsai.Reactive
             if (timeShift.HasValue) return source.Window(TimeSpan, timeShift.Value, HighResolutionScheduler.Default);
             else return source.Window(TimeSpan, HighResolutionScheduler.Default);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="WindowTime"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(WindowTime))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class TimeSpanWindow : WindowTime
+    {
     }
 }
