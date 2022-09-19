@@ -15,7 +15,7 @@ namespace Bonsai.Reactive
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into zero or more buffers created when the second sequence emits a notification.")]
-    public class TriggeredBuffer
+    public class BufferTrigger
     {
         /// <summary>
         /// Gets or sets the time length of each buffer.
@@ -91,5 +91,15 @@ namespace Bonsai.Reactive
             else if (count.HasValue) return source.Publish(ps => ps.Buffer(bufferOpenings, x => ps.Take(count.Value).Count()));
             else return source.Buffer(bufferOpenings);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="BufferTrigger"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(BufferTrigger))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class TriggeredBuffer : BufferTrigger
+    {
     }
 }

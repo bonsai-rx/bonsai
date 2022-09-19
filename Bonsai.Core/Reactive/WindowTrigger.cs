@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into zero or more windows created when the second sequence emits a notification.")]
-    public class TriggeredWindow
+    public class WindowTrigger
     {
         /// <summary>
         /// Gets or sets the time length of each window.
@@ -90,5 +90,15 @@ namespace Bonsai.Reactive
             else if (count.HasValue) return source.Publish(ps => ps.Window(windowOpenings, x => ps.Take(count.Value).Count()));
             else return source.Window(windowOpenings);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="WindowTrigger"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(WindowTrigger))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class TriggeredWindow : WindowTrigger
+    {
     }
 }

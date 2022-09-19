@@ -22,7 +22,7 @@ namespace Bonsai.Core.Tests
 #pragma warning disable CS0612 // Type or member is obsolete
             workflow.Workflow.Add(new ExternalizedTimeSpan<int>());
 #pragma warning restore CS0612 // Type or member is obsolete
-            workflow.Workflow.Add(new PropertySource<Bonsai.Reactive.ElementCountWindow, int>());
+            workflow.Workflow.Add(new PropertySource<Bonsai.Reactive.WindowCount, int>());
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<int, int>>() });
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<Tuple<int, int, int>>>() });
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<Tuple<int, int>, int>>() });

@@ -12,7 +12,7 @@ namespace Bonsai.Reactive
     [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into zero or more windows based on element count information.")]
-    public class ElementCountWindow : WindowCombinator
+    public class WindowCount : WindowCombinator
     {
         /// <summary>
         /// Gets or sets the maximum number of elements in each window.
@@ -46,5 +46,15 @@ namespace Bonsai.Reactive
             if (skip.HasValue) return source.Window(Count, skip.Value);
             else return source.Window(Count);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="WindowCount"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(WindowCount))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class ElementCountWindow : WindowCount
+    {
     }
 }
