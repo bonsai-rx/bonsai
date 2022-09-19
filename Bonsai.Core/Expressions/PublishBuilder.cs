@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using Bonsai.Reactive;
 
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder that shares a single subscription to an observable
-    /// sequence across the encapsulated workflow.
+    /// This type is obsolete. Please use the <see cref="Publish"/> operator instead.
     /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(Publish))]
     [XmlType("Publish", Namespace = Constants.XmlNamespace)]
     [Description("Shares a single subscription to an observable sequence across the encapsulated workflow.")]
-    public class PublishBuilder : MulticastBuilder
+    public class PublishBuilder : Publish
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PublishBuilder"/> class.
@@ -32,11 +33,6 @@ namespace Bonsai.Expressions
         public PublishBuilder(ExpressionBuilderGraph workflow)
             : base(workflow)
         {
-        }
-
-        internal override IObservable<TResult> Multicast<TSource, TResult>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TResult>> selector)
-        {
-            return source.Publish(selector);
         }
     }
 }
