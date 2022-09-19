@@ -146,7 +146,7 @@ namespace Bonsai.Expressions
                 VisualizerElement = BuildVisualizerElement(VisualizerElement, VisualizerMappings);
                 return source;
             }
-            else if (Builder.GetType() == typeof(VisualizerBuilder))
+            else if (Builder.GetType() == typeof(Reactive.Visualizer))
             {
                 var visualizerSource = GetInspectBuilder(((LambdaExpression)((MethodCallExpression)source).Arguments[1]).Body);
                 if (visualizerSource != null) VisualizerElement = BuildVisualizerElement(visualizerSource, VisualizerMappings);
