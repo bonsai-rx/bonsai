@@ -139,7 +139,7 @@ namespace Bonsai
                     var typeName = reader.ReadElementString();
                     var type = LookupType(typeName);
                     var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
-                    if (proxyTypeAttribute != null) type = proxyTypeAttribute.Type;
+                    if (proxyTypeAttribute != null) type = proxyTypeAttribute.Destination;
                     types.Add(type);
                 }
 
@@ -233,9 +233,7 @@ namespace Bonsai
         static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
-#pragma warning disable CS0612 // Type or member is obsolete
-        static readonly Type[] SerializerLegacyTypes = new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) };
-#pragma warning restore CS0612 // Type or member is obsolete
+        static readonly Type[] SerializerLegacyTypes = GetSerializerLegacyTypes().ToArray();
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -245,6 +243,20 @@ namespace Bonsai
                 type.Namespace == builderType.Namespace &&
                 Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
                 !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false));
+        }
+
+        static IEnumerable<Type> GetSerializerLegacyTypes()
+        {
+            var builderType = typeof(ExpressionBuilder);
+            return builderType.Assembly.GetTypes().Where(type =>
+                !type.IsGenericType && !type.IsAbstract &&
+                type.Namespace == builderType.Namespace &&
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
+                Attribute.IsDefined(type, typeof(ObsoleteAttribute), false) &&
+                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false))
+#pragma warning disable CS0612 // Type or member is obsolete
+                .Concat(new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) });
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         static string GetXmlNamespace(Type type)
@@ -303,6 +315,18 @@ namespace Bonsai
             return serializerNamespaces;
         }
 
+        static void AddTypeAttributeOverrides(XmlAttributeOverrides overrides, IEnumerable<Type> types)
+        {
+            foreach (var type in types)
+            {
+                var xmlTypeAttribute = (XmlTypeAttribute)type.GetCustomAttribute(typeof(XmlTypeAttribute));
+                if (xmlTypeAttribute != null)
+                {
+                    overrides.Add(type, new XmlAttributes { XmlType = xmlTypeAttribute });
+                }
+            }
+        }
+
         static XmlSerializer GetXmlSerializerLegacy(HashSet<Type> serializerTypes)
         {
             var overrides = new XmlAttributeOverrides();
@@ -323,11 +347,8 @@ namespace Bonsai
             }
 
             var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
+            AddTypeAttributeOverrides(overrides, SerializerLegacyTypes);
             overrides.Add(typeof(IndexBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute() { Namespace = Constants.XmlNamespace } });
-#pragma warning disable CS0612 // Type or member is obsolete
-            overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
-            overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
-#pragma warning restore CS0612 // Type or member is obsolete
             var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
             return new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
         }
@@ -375,7 +396,8 @@ namespace Bonsai
                         overrides.Add(type, attributes);
                     }
 
-                    var extraTypes = serializerTypes.Concat(SerializerExtraTypes).ToArray();
+                    var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
+                    AddTypeAttributeOverrides(overrides, SerializerLegacyTypes);
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
                 }
@@ -618,8 +640,8 @@ namespace Bonsai
                 Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false)))
             {
                 var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
-                if (proxyTypeAttribute.Type == null) continue;
-                typeMap.Add(type, proxyTypeAttribute.Type);
+                if (proxyTypeAttribute.Destination == null) continue;
+                typeMap.Add(type, proxyTypeAttribute.Destination);
             }
             return typeMap;
         }

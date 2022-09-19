@@ -209,6 +209,17 @@ namespace Bonsai.Editor
                     }
                 }
 
+                if (workflowElement is WorkflowExpressionBuilder workflowBuilder &&
+                    Attribute.IsDefined(elementType, typeof(ProxyTypeAttribute)) &&
+                    Attribute.GetCustomAttribute(elementType, typeof(ProxyTypeAttribute)) is ProxyTypeAttribute proxyType &&
+                    proxyType.Destination != null)
+                {
+                    var replacementBuilder = (WorkflowExpressionBuilder)Activator.CreateInstance(proxyType.Destination, workflowBuilder.Workflow);
+                    replacementBuilder.Name = workflowBuilder.Name;
+                    replacementBuilder.Description = workflowBuilder.Description;
+                    return replacementBuilder;
+                }
+
                 return builder;
             };
 
