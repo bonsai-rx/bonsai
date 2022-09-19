@@ -1,8 +1,8 @@
 ﻿using Bonsai.Editor.GraphModel;
 using SvgNet;
-using SvgNet.SvgElements;
-using SvgNet.SvgGdi;
-using SvgNet.SvgTypes;
+using SvgNet.Elements;
+using SvgNet.Interfaces;
+using SvgNet.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

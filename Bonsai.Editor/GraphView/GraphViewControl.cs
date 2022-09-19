@@ -8,8 +8,9 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
-using SvgNet.SvgGdi;
 using Bonsai.Editor.GraphModel;
+using SvgNet.Interfaces;
+using SvgNet;
 
 namespace Bonsai.Editor.GraphView
 {
