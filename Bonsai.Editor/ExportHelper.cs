@@ -40,7 +40,7 @@ namespace Bonsai.Editor
         public static string ExportSvg(GraphViewControl graphView)
         {
             var bounds = graphView.GetLayoutSize();
-            var graphics = new SvgNet.SvgGdi.SvgGraphics();
+            var graphics = new SvgNet.SvgGraphics();
             graphView.DrawGraphics(graphics);
             return graphics.WriteSVGString(bounds);
         }
@@ -57,7 +57,7 @@ namespace Bonsai.Editor
             var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height);
             using (var graphics = Graphics.FromImage(bitmap))
             {
-                var gdi = new SvgNet.SvgGdi.GdiGraphics(graphics);
+                var gdi = new SvgNet.GdiGraphics(graphics);
                 graphView.DrawGraphics(gdi);
                 return bitmap;
             }

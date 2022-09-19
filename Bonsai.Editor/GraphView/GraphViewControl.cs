@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Collections.ObjectModel;
-using System.Drawing.Drawing2D;
-using System.Reactive.Linq;
-using SvgNet.SvgGdi;
+
 using Bonsai.Editor.GraphModel;
 
-namespace Bonsai.Editor.GraphView
-{
+using SvgNet;
+using SvgNet.Interfaces;
+
+namespace Bonsai.Editor.GraphView {
     partial class GraphViewControl : UserControl, IGraphView
     {
         const float DefaultDpi = 96f;

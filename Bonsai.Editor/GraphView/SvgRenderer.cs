@@ -1,9 +1,4 @@
-﻿using Bonsai.Editor.GraphModel;
-using SvgNet;
-using SvgNet.SvgElements;
-using SvgNet.SvgGdi;
-using SvgNet.SvgTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,8 +8,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Xml;
 
-namespace Bonsai.Editor.GraphView
-{
+using Bonsai.Editor.GraphModel;
+
+using SvgNet;
+using SvgNet.Elements;
+using SvgNet.Interfaces;
+using SvgNet.Types;
+
+namespace Bonsai.Editor.GraphView {
     delegate void SvgRenderer(SvgRendererState state, IGraphics graphics);
 
     class SvgRendererState
