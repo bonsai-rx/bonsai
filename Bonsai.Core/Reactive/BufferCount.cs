@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     [DefaultProperty(nameof(Count))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into zero or more buffers based on element count information.")]
-    public class Buffer
+    public class BufferCount
     {
         /// <summary>
         /// Gets or sets the number of elements in each buffer.
@@ -48,5 +48,15 @@ namespace Bonsai.Reactive
             if (skip.HasValue) return source.Buffer(Count, skip.Value);
             else return source.Buffer(Count);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="BufferCount"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(BufferCount))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class Buffer : BufferCount
+    {
     }
 }
