@@ -121,7 +121,7 @@ namespace Bonsai
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
-                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration, assemblyLock: false);
                     return Launcher.LaunchPackageManager(
                         packageConfiguration,
                         editorRepositoryPath,

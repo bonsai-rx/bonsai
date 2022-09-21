@@ -101,7 +101,7 @@ namespace Bonsai.Configuration
             return null;
         }
 
-        public static void SetAssemblyResolve(PackageConfiguration configuration)
+        public static void SetAssemblyResolve(PackageConfiguration configuration, bool assemblyLock = true)
         {
             var platform = GetEnvironmentPlatform();
             var configurationRoot = GetConfigurationRoot(configuration);
@@ -144,7 +144,12 @@ namespace Bonsai.Configuration
 
                     if (File.Exists(assemblyLocation))
                     {
-                        return Assembly.LoadFrom(assemblyLocation);
+                        if (!assemblyLock)
+                        {
+                            var assemblyBytes = File.ReadAllBytes(assemblyLocation);
+                            return Assembly.Load(assemblyBytes);
+                        }
+                        else return Assembly.LoadFrom(assemblyLocation);
                     }
                 }
 
