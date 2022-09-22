@@ -5,12 +5,17 @@
     <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
     <RootNamespace>Bonsai</RootNamespace>
-    <TargetFramework>net462</TargetFramework>
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <PackageReference Include="Rx-Linq" Version="2.2.5" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
