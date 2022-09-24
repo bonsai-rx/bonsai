@@ -166,7 +166,8 @@ namespace Bonsai
         public static IObservable<TSource> Gate<TSource, TGateOpening, TGateClosing>(this IObservable<TSource> source, IObservable<TGateOpening> openGate, IObservable<TGateClosing> closeGate)
         {
             return source.Window(openGate, window => closeGate)
-                         .SelectMany(window => window.Take(1));
+                         .Select(window => window.Take(1))
+                         .Switch();
         }
 
         /// <summary>
