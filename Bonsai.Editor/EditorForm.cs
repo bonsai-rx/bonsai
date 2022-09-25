@@ -946,9 +946,9 @@ namespace Bonsai.Editor
             }
 
             groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
-            var serializerWorkflowBuilder = LayeredGraphExtensions.ToWorkflowBuilder(new[] { groupNode });
-            groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
-            serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
+            var selectedElements = LayeredGraphExtensions.ToWorkflow(new[] { groupNode });
+            groupBuilder = (GroupWorkflowBuilder)selectedElements.Single().Value;
+            var serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
             serializerWorkflowBuilder.Description = groupBuilder.Description;
             if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder) && model.CanEdit)
             {
@@ -1002,8 +1002,8 @@ namespace Bonsai.Editor
             var workflow = model.Workflow;
             if (model.GraphView.SelectedNodes.Count() > 0)
             {
-                var selectedElements = model.GraphView.SelectedNodes.ToWorkflowBuilder();
-                workflow = selectedElements.Workflow;
+                var selectedElements = model.GraphView.SelectedNodes.ToWorkflow();
+                workflow = selectedElements;
             }
 
             var extension = Path.GetExtension(fileName);

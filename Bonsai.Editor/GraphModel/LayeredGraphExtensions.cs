@@ -9,16 +9,15 @@ namespace Bonsai.Editor.GraphModel
 {
     static class LayeredGraphExtensions
     {
-        public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
+        public static ExpressionBuilderGraph ToWorkflow(this IEnumerable<GraphNode> source)
         {
-            return ToWorkflowBuilder(source, true);
+            return ToWorkflow(source, true);
         }
 
-        public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source, bool recurse)
+        public static ExpressionBuilderGraph ToWorkflow(this IEnumerable<GraphNode> source, bool recurse)
         {
-            var workflow = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag)
-                                 .FromInspectableGraph(recurse);
-            return new WorkflowBuilder(workflow);
+            return source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag)
+                         .FromInspectableGraph(recurse);
         }
 
         public static IEnumerable<GraphNode> LayeredNodes(this IEnumerable<GraphNodeGrouping> source)
