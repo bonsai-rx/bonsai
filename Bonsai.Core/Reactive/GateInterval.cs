@@ -39,31 +39,31 @@ namespace Bonsai.Reactive
         /// </summary>
         /// <remarks>
         /// If no value is specified, the gate stays open indefinitely until an element
-        /// arrives. If a maximum time span is specified, however, then if an element
-        /// from the first sequence arrives after this interval elapses, it will be
-        /// dropped from the result sequence.
+        /// arrives. If a maximum due time is specified, however, then if an element
+        /// from the first sequence arrives after this interval elapses, that element
+        /// will not be allowed through and will be dropped from the result sequence.
         /// </remarks>
         [XmlIgnore]
         [Description("The maximum time the gate stays open.")]
-        public TimeSpan? TimeSpan { get; set; }
+        public TimeSpan? DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets an XML representation of the gate time span for serialization.
+        /// Gets or sets an XML representation of the gate due time for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement(nameof(TimeSpan))]
-        public string TimeSpanXml
+        [XmlElement(nameof(DueTime))]
+        public string DueTimeXml
         {
             get
             {
-                var timeSpan = TimeSpan;
+                var timeSpan = DueTime;
                 if (timeSpan.HasValue) return XmlConvert.ToString(timeSpan.Value);
                 else return null;
             }
             set
             {
-                if (!string.IsNullOrEmpty(value)) TimeSpan = XmlConvert.ToTimeSpan(value);
-                else TimeSpan = null;
+                if (!string.IsNullOrEmpty(value)) DueTime = XmlConvert.ToTimeSpan(value);
+                else DueTime = null;
             }
         }
 
@@ -82,11 +82,11 @@ namespace Bonsai.Reactive
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var timeSpan = TimeSpan;
+            var dueTime = DueTime;
             var scheduler = HighResolutionScheduler.Default;
             var interval = Observable.Timer(Interval, scheduler);
-            return timeSpan.HasValue
-                ? source.Gate(interval, timeSpan.Value, scheduler)
+            return dueTime.HasValue
+                ? source.Gate(interval, dueTime.Value, scheduler)
                 : source.Gate(interval);
         }
     }
