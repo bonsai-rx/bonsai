@@ -267,8 +267,8 @@ namespace Bonsai.Editor
                 }
 
                 var successor = node.Successors.FirstOrDefault(edge => edge.Label.Index == 0 &&
-                                                                       (edge.Target.Value is SelectManyBuilder ||
 #pragma warning disable CS0612 // Type or member is obsolete
+                                                                       (edge.Target.Value is SelectManyBuilder ||
                                                                         edge.Target.Value is WindowWorkflowBuilder));
 #pragma warning restore CS0612 // Type or member is obsolete
                 if (successor != null)
