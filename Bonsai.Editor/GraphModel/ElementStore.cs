@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using Bonsai.Expressions;
 
 namespace Bonsai.Editor.GraphModel
 {
@@ -30,19 +31,20 @@ namespace Bonsai.Editor.GraphModel
             return (WorkflowBuilder)serializer.Deserialize(reader);
         }
 
-        public static string StoreWorkflowElements(WorkflowBuilder builder)
+        public static string StoreWorkflowElements(ExpressionBuilderGraph workflow)
         {
-            if (builder == null)
+            if (workflow == null)
             {
-                throw new ArgumentNullException(nameof(builder));
+                throw new ArgumentNullException(nameof(workflow));
             }
 
-            if (builder.Workflow.Count > 0)
+            if (workflow.Count > 0)
             {
                 var stringBuilder = new StringBuilder();
+                var workflowBuilder = new WorkflowBuilder(workflow);
                 using (var writer = XmlnsIndentedWriter.Create(stringBuilder, DefaultWriterSettings))
                 {
-                    WorkflowBuilder.Serializer.Serialize(writer, builder);
+                    WorkflowBuilder.Serializer.Serialize(writer, workflowBuilder);
                 }
 
                 return stringBuilder.ToString();
@@ -51,17 +53,17 @@ namespace Bonsai.Editor.GraphModel
             return string.Empty;
         }
 
-        public static WorkflowBuilder RetrieveWorkflowElements(string text)
+        public static ExpressionBuilderGraph RetrieveWorkflowElements(string text)
         {
             if (!string.IsNullOrEmpty(text))
             {
                 var stringReader = new StringReader(text);
                 using var reader = XmlReader.Create(stringReader);
-                try { return LoadWorkflow(reader, out _); }
+                try { return LoadWorkflow(reader, out _).Workflow; }
                 catch (XmlException) { }
             }
 
-            return new WorkflowBuilder();
+            return new ExpressionBuilderGraph();
         }
 
         public static void SaveElement(XmlSerializer serializer, string fileName, object element)

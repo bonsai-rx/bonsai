@@ -259,7 +259,7 @@ namespace Bonsai.Editor.GraphView
 
         private void StoreWorkflowElements()
         {
-            var text = ElementStore.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+            var text = ElementStore.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflow());
             if (!string.IsNullOrEmpty(text))
             {
                 Clipboard.SetText(text);
@@ -307,8 +307,8 @@ namespace Bonsai.Editor.GraphView
             {
                 if (Clipboard.ContainsText())
                 {
-                    var builder = ElementStore.RetrieveWorkflowElements(Clipboard.GetText());
-                    InsertWorkflow(builder.Workflow.ToInspectableGraph());
+                    var workflow = ElementStore.RetrieveWorkflowElements(Clipboard.GetText());
+                    InsertWorkflow(workflow.ToInspectableGraph());
                 }
             }
             catch (InvalidOperationException ex)
