@@ -120,60 +120,59 @@ namespace Bonsai
 
         /// <summary>
         /// Allows an element from an observable sequence to pass through if this element
-        /// is produced after a gate opening event and before the specified time interval
-        /// elapses.
+        /// is produced after a gate opening event and before the specified due time elapses.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the <paramref name="source"/> sequence.</typeparam>
         /// <typeparam name="TGateOpening">The type of the elements in the <paramref name="gateOpenings"/> sequence.</typeparam>
         /// <param name="source">The observable sequence to filter.</param>
         /// <param name="gateOpenings">The sequence of gate opening events.</param>
-        /// <param name="timeSpan">
-        /// After receiving a gate event, the maximum interval that can elapse before an
+        /// <param name="dueTime">
+        /// After receiving a gate event, the maximum time that can elapse before an
         /// element from the source sequence is produced. If the element arrives after the
-        /// interval elapsed, it is dropped from the result sequence.
+        /// due time elapses, that element is dropped from the result sequence.
         /// </param>
         /// <returns>
         /// The filtered observable sequence. Every time the <paramref name="gateOpenings"/>
         /// sequence produces a notification, the next element from the <paramref name="source"/>
-        /// sequence will be allowed through if it is emitted before the specified time interval
+        /// sequence will be allowed through if it is emitted before the specified due time
         /// elapses.
         /// </returns>
         public static IObservable<TSource> Gate<TSource, TGateOpening>(
             this IObservable<TSource> source,
             IObservable<TGateOpening> gateOpenings,
-            TimeSpan timeSpan)
+            TimeSpan dueTime)
         {
-            return Gate(source, gateOpenings, timeSpan, Scheduler.Default);
+            return Gate(source, gateOpenings, dueTime, Scheduler.Default);
         }
 
         /// <summary>
         /// Allows an element from an observable sequence to pass through if this element
-        /// is produced after a gate opening event and before the specified time interval
+        /// is produced after a gate opening event and before the specified due time
         /// elapses, using the specified scheduler to run gate closing timers.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the <paramref name="source"/> sequence.</typeparam>
         /// <typeparam name="TGateOpening">The type of the elements in the <paramref name="gateOpenings"/> sequence.</typeparam>
         /// <param name="source">The observable sequence to filter.</param>
         /// <param name="gateOpenings">The sequence of gate opening events.</param>
-        /// <param name="timeSpan">
-        /// After receiving a gate event, the maximum interval that can elapse before an
+        /// <param name="dueTime">
+        /// After receiving a gate event, the maximum time that can elapse before an
         /// element from the source sequence is produced. If the element arrives after the
-        /// interval elapsed, it is dropped from the result sequence.
+        /// due time elapses, that element is dropped from the result sequence.
         /// </param>
         /// <param name="scheduler">The scheduler to run the gate closing timer on.</param>
         /// <returns>
         /// The filtered observable sequence. Every time the <paramref name="gateOpenings"/>
         /// sequence produces a notification, the next element from the <paramref name="source"/>
-        /// sequence will be allowed through if it is emitted before the specified time interval
+        /// sequence will be allowed through if it is emitted before the specified due time
         /// elapses.
         /// </returns>
         public static IObservable<TSource> Gate<TSource, TGateOpening>(
             this IObservable<TSource> source,
             IObservable<TGateOpening> gateOpenings,
-            TimeSpan timeSpan,
+            TimeSpan dueTime,
             IScheduler scheduler)
         {
-            return Gate(source, gateOpenings, Observable.Timer(timeSpan, scheduler));
+            return Gate(source, gateOpenings, Observable.Timer(dueTime, scheduler));
         }
 
         /// <summary>
