@@ -11,6 +11,7 @@ namespace Bonsai.Reactive
     /// Represents an operator that projects each element of the sequence into zero or more
     /// buffers based on timing information.
     /// </summary>
+    [Combinator]
     [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into zero or more buffers based on timing information.")]
