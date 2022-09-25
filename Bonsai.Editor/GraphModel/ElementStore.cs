@@ -8,11 +8,27 @@ namespace Bonsai.Editor.GraphModel
 {
     static class ElementStore
     {
+        const string VersionAttributeName = "Version";
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
             NamespaceHandling = NamespaceHandling.OmitDuplicates,
             Indent = true
         };
+
+        public static WorkflowBuilder LoadWorkflow(string fileName, out SemanticVersion version)
+        {
+            using var reader = XmlReader.Create(fileName);
+            return LoadWorkflow(reader, out version);
+        }
+
+        public static WorkflowBuilder LoadWorkflow(XmlReader reader, out SemanticVersion version)
+        {
+            reader.MoveToContent();
+            var versionName = reader.GetAttribute(VersionAttributeName);
+            SemanticVersion.TryParse(versionName, out version);
+            var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
+            return (WorkflowBuilder)serializer.Deserialize(reader);
+        }
 
         public static string StoreWorkflowElements(WorkflowBuilder builder)
         {
@@ -41,15 +57,7 @@ namespace Bonsai.Editor.GraphModel
             {
                 var stringReader = new StringReader(text);
                 using var reader = XmlReader.Create(stringReader);
-                try
-                {
-                    reader.MoveToContent();
-                    var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                    if (serializer.CanDeserialize(reader))
-                    {
-                        return (WorkflowBuilder)serializer.Deserialize(reader);
-                    }
-                }
+                try { return LoadWorkflow(reader, out _); }
                 catch (XmlException) { }
             }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -36,7 +36,6 @@ namespace Bonsai.Editor
         const string DefinitionsDirectory = "Definitions";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
-        const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
         static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
         static readonly AttributeCollection RuntimeAttributes = AttributeCollection.FromExisting(DesignTimeAttributes, DesignOnlyAttribute.No);
@@ -764,19 +763,6 @@ namespace Bonsai.Editor
             return true;
         }
 
-        WorkflowBuilder LoadWorkflow(string fileName, out SemanticVersion version)
-        {
-            using (var reader = XmlReader.Create(fileName))
-            {
-                version = null;
-                reader.MoveToContent();
-                var versionName = reader.GetAttribute(VersionAttributeName);
-                SemanticVersion.TryParse(versionName, out version);
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                return (WorkflowBuilder)serializer.Deserialize(reader);
-            }
-        }
-
         WorkflowBuilder PrepareWorkflow(WorkflowBuilder workflowBuilder, SemanticVersion version, out bool upgraded)
         {
             upgraded = false;
@@ -815,7 +801,7 @@ namespace Bonsai.Editor
         bool OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
             SemanticVersion workflowVersion;
-            try { workflowBuilder = LoadWorkflow(fileName, out workflowVersion); }
+            try { workflowBuilder = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
             catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
             {
                 var activeException = ex.InnerException ?? ex;
@@ -2549,7 +2535,7 @@ namespace Bonsai.Editor
 
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
-                var workflow = siteForm.LoadWorkflow(fileName, out SemanticVersion version);
+                var workflow = ElementStore.LoadWorkflow(fileName, out SemanticVersion version);
                 return siteForm.PrepareWorkflow(workflow, version, out _);
             }
 
