@@ -2,6 +2,7 @@
 using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
+using Bonsai.Reactive;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -961,7 +962,7 @@ namespace Bonsai.Editor.GraphModel
             else inputCount = Math.Max(inputCount, selectedNodes.Sum(node => workflow.PredecessorEdges(node).Count()));
 
             // Limit number of inputs depending on nested operator argument range
-            if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder.GetType() == typeof(NestedWorkflowBuilder)))
+            if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder.GetType() == typeof(Defer)))
             {
                 inputCount = Math.Min(inputCount, workflowBuilder.ArgumentRange.UpperBound);
             }
