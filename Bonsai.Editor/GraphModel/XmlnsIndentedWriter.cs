@@ -28,8 +28,9 @@ namespace Bonsai.Editor.GraphModel
 
         public static new XmlWriter Create(StringBuilder output, XmlWriterSettings settings)
         {
-            var writer = XmlWriter.Create(output, settings);
-            return new XmlnsIndentedWriter(new StringWriter(output, CultureInfo.InvariantCulture), writer);
+            var textWriter = new UTF8StringWriter(output, CultureInfo.InvariantCulture);
+            var writer = Create(textWriter, settings);
+            return new XmlnsIndentedWriter(textWriter, writer);
         }
 
         public static new XmlWriter Create(Stream stream, XmlWriterSettings settings)
@@ -220,6 +221,19 @@ namespace Bonsai.Editor.GraphModel
         public override void WriteWhitespace(string ws)
         {
             writer.WriteWhitespace(ws);
+        }
+    }
+
+    class UTF8StringWriter : StringWriter
+    {
+        public UTF8StringWriter(StringBuilder sb, IFormatProvider formatProvider)
+            : base(sb, formatProvider)
+        {
+        }
+
+        public override Encoding Encoding
+        {
+            get { return Encoding.UTF8; }
         }
     }
 }
