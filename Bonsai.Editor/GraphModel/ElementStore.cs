@@ -55,14 +55,20 @@ namespace Bonsai.Editor.GraphModel
 
         public static ExpressionBuilderGraph RetrieveWorkflowElements(string text)
         {
+            return RetrieveWorkflowElements(text, out _);
+        }
+
+        public static ExpressionBuilderGraph RetrieveWorkflowElements(string text, out SemanticVersion version)
+        {
             if (!string.IsNullOrEmpty(text))
             {
                 var stringReader = new StringReader(text);
                 using var reader = XmlReader.Create(stringReader);
-                try { return LoadWorkflow(reader, out _).Workflow; }
+                try { return LoadWorkflow(reader, out version).Workflow; }
                 catch (XmlException) { }
             }
 
+            version = null;
             return new ExpressionBuilderGraph();
         }
 
