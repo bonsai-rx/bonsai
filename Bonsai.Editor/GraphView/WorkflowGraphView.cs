@@ -307,7 +307,10 @@ namespace Bonsai.Editor.GraphView
             {
                 if (Clipboard.ContainsText())
                 {
-                    var workflow = ElementStore.RetrieveWorkflowElements(Clipboard.GetText());
+                    var workflow = ElementStore.RetrieveWorkflowElements(
+                        Clipboard.GetText(),
+                        out SemanticVersion version);
+                    UpgradeHelper.TryUpgradeWorkflow(workflow, version, out workflow);
                     InsertWorkflow(workflow.ToInspectableGraph());
                 }
             }

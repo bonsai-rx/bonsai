@@ -59,7 +59,7 @@ namespace Bonsai.Editor
         {
             var upgraded = false;
             upgradedWorkflow = workflow;
-            if (version == null || IsDeprecated(version))
+            if (workflow.Count > 0 && (version == null || IsDeprecated(version)))
             {
                 upgraded |= TryUpgradeEnumerableUnfoldingRules(workflow, version);
                 upgraded |= TryUpgradeBuilderNodes(workflow, version, out upgradedWorkflow);
