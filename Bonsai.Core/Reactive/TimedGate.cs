@@ -6,10 +6,9 @@ using System.Xml;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents an operator that takes the next element from the sequence if this
-    /// element is produced within a specified time interval after the gate sequence
-    /// emits a notification.
+    /// This type is obsolete. Please use the <see cref="Gate"/> operator instead.
     /// </summary>
+    [Obsolete]
     [Combinator]
     [DefaultProperty(nameof(TimeSpan))]
     [XmlType(Namespace = Constants.XmlNamespace)]
