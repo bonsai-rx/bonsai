@@ -10,13 +10,12 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// This type is obsolete. Represents an expression builder that creates a single
-    /// value observable sequence from the result of the encapsulated workflow.
-    /// </summary>
+    /// This type is obsolete. Please use the <see cref="Reactive.Defer"/> operator or
+    /// <see cref="Reactive.AsyncSubjectBuilder"/> instead.
     [Obsolete]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("CreateAsync", Namespace = Constants.XmlNamespace)]
-    [Description("Creates and emits the last value of the observable sequence for each subscription using the encapsulated workflow.")]
+    [Description("This operator is obsolete. Please use the Defer operator or AsyncSubject instead.")]
     public class CreateAsyncBuilder : WorkflowExpressionBuilder
     {
         static readonly Expression UnitExpression = Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
