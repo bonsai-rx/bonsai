@@ -2292,7 +2292,10 @@ namespace Bonsai.Editor
                 if (typeNode != null && typeNode.Tag != null)
                 {
                     var type = Type.GetType(typeNode.Name);
-                    await OpenDocumentationAsync(type);
+                    if (type != null)
+                    {
+                        await OpenDocumentationAsync(type);
+                    }
                     return;
                 }
             }
