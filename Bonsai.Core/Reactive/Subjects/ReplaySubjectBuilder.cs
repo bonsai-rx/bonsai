@@ -4,15 +4,15 @@ using System.Linq.Expressions;
 using System.Reactive.Subjects;
 using System.Xml;
 using System.Xml.Serialization;
+using Bonsai.Expressions;
 
-namespace Bonsai.Expressions
+namespace Bonsai.Reactive
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubjectBuilder"/> operator instead.
+    /// Represents an expression builder that replays the values of an observable
+    /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(Reactive.ReplaySubjectBuilder))]
-    [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
+    [XmlType("ReplaySubject", Namespace = Constants.ReactiveXmlNamespace)]
     [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class ReplaySubjectBuilder : SubjectBuilder
@@ -50,16 +50,7 @@ namespace Bonsai.Expressions
             }
         }
 
-        /// <summary>
-        /// When overridden in a derived class, returns the expression
-        /// that creates the shared subject.
-        /// </summary>
-        /// <param name="expression">
-        /// The expression representing the observable input sequence.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Expression"/> that creates the shared subject.
-        /// </returns>
+        /// <inheritdoc/>
         protected override Expression BuildSubject(Expression expression)
         {
             var builderExpression = Expression.Constant(this);
@@ -85,12 +76,11 @@ namespace Bonsai.Expressions
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubjectBuilder"/> operator instead.
+    /// Represents an expression builder that replays the values of other observable
+    /// sequences to all subscribed and future observers.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
-    [Obsolete]
-    [ProxyType(typeof(Reactive.ReplaySubjectBuilder<>))]
-    [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
+    [XmlType("ReplaySubject", Namespace = Constants.ReactiveXmlNamespace)]
     [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of other observable sequences to all subscribed and future observers.")]
     public class ReplaySubjectBuilder<T> : SubjectBuilder<T>
