@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -159,12 +159,12 @@ namespace Bonsai
 
         #region IXmlSerializable Members
 
-        System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema()
+        XmlSchema IXmlSerializable.GetSchema()
         {
             return null;
         }
 
-        void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var metadata = ReadMetadata(reader);
             Description = metadata.Description;
@@ -177,7 +177,7 @@ namespace Bonsai
             reader.ReadEndElement();
         }
 
-        void IXmlSerializable.WriteXml(System.Xml.XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
             foreach (var type in types)
