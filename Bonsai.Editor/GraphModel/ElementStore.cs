@@ -24,11 +24,22 @@ namespace Bonsai.Editor.GraphModel
 
         public static WorkflowBuilder LoadWorkflow(XmlReader reader, out SemanticVersion version)
         {
+            ReadWorkflowVersion(reader, out version);
+            var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
+            return (WorkflowBuilder)serializer.Deserialize(reader);
+        }
+
+        public static void ReadWorkflowVersion(string fileName, out SemanticVersion version)
+        {
+            using var reader = XmlReader.Create(fileName);
+            ReadWorkflowVersion(reader, out version);
+        }
+
+        public static void ReadWorkflowVersion(XmlReader reader, out SemanticVersion version)
+        {
             reader.MoveToContent();
             var versionName = reader.GetAttribute(VersionAttributeName);
             SemanticVersion.TryParse(versionName, out version);
-            var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-            return (WorkflowBuilder)serializer.Deserialize(reader);
         }
 
         public static string StoreWorkflowElements(ExpressionBuilderGraph workflow)
