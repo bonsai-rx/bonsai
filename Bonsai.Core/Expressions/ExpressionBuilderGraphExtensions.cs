@@ -1062,12 +1062,14 @@ namespace Bonsai.Expressions
             foreach (var node in source)
             {
                 var builder = node.Value;
+                var instanceNumber = builder.InstanceNumber;
                 if (recurse)
                 {
                     builder = UnwrapConvert(builder, selector);
                 }
 
                 builder = selector(builder);
+                builder.InstanceNumber = instanceNumber;
                 var builderNode = workflow.Add(builder);
                 nodeMapping.Add(node, builderNode);
             }
