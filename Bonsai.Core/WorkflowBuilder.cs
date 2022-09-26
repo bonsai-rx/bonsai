@@ -620,7 +620,8 @@ namespace Bonsai
             foreach (var type in builderType.Assembly.GetTypes().Where(type =>
                 type.IsGenericType && !type.IsAbstract &&
                 Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
-                !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false)))
+                (!Attribute.IsDefined(type, typeof(ObsoleteAttribute), false) ||
+                  Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false))))
             {
                 var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
                 if (string.IsNullOrEmpty(xmlTypeAttribute.TypeName)) continue;
