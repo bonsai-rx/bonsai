@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System;
+using System.IO;
 
-namespace Bonsai.Editor
+namespace Bonsai.Editor.GraphModel
 {
     static class UpgradeHelper
     {
@@ -53,6 +54,25 @@ namespace Bonsai.Editor
                     GetArgumentCount(workflowExpression.Workflow, argumentCount);
                 }
             }
+        }
+
+        static bool IsEmbeddedResourcePath(string path)
+        {
+            const char AssemblySeparator = ':';
+            var separatorIndex = path.IndexOf(AssemblySeparator);
+            return separatorIndex >= 0 && !Path.IsPathRooted(path);
+        }
+
+        internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, string fileName, out ExpressionBuilderGraph upgradedWorkflow)
+        {
+            if (!IsEmbeddedResourcePath(fileName) && File.Exists(fileName))
+            {
+                ElementStore.ReadWorkflowVersion(fileName, out SemanticVersion version);
+                return TryUpgradeWorkflow(workflow, version, out upgradedWorkflow);
+            }
+
+            upgradedWorkflow = workflow;
+            return false;
         }
 
         internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, SemanticVersion version, out ExpressionBuilderGraph upgradedWorkflow)

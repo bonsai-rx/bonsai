@@ -1637,7 +1637,15 @@ namespace Bonsai.Editor.GraphModel
             var selectedNodeBuilder = node != null ? GetGraphNodeBuilder(node) : null;
             if (selectedNodeBuilder is IncludeWorkflowBuilder includeBuilder)
             {
-                var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
+                GroupWorkflowBuilder groupBuilder;
+                var workflow = includeBuilder.Workflow;
+                var path = includeBuilder.Path;
+                if (workflow != null && !string.IsNullOrEmpty(path))
+                {
+                    UpgradeHelper.TryUpgradeWorkflow(workflow, path, out workflow);
+                    groupBuilder = new GroupWorkflowBuilder(workflow);
+                }
+                else groupBuilder = new GroupWorkflowBuilder();
                 groupBuilder.Name = includeBuilder.Name;
                 groupBuilder.Description = includeBuilder.Description;
                 ReplaceNode(node, groupBuilder);
