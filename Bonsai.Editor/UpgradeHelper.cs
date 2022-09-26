@@ -210,13 +210,36 @@ namespace Bonsai.Editor
                 }
 
                 if (workflowElement is WorkflowExpressionBuilder workflowBuilder &&
-                    Attribute.IsDefined(elementType, typeof(ProxyTypeAttribute)) &&
-                    Attribute.GetCustomAttribute(elementType, typeof(ProxyTypeAttribute)) is ProxyTypeAttribute proxyType &&
-                    proxyType.Destination != null)
+                    Attribute.IsDefined(elementType, typeof(ProxyTypeAttribute)))
                 {
+                    var proxyType = Attribute.GetCustomAttribute(elementType, typeof(ProxyTypeAttribute)) as ProxyTypeAttribute;
                     var replacementBuilder = (WorkflowExpressionBuilder)Activator.CreateInstance(proxyType.Destination, workflowBuilder.Workflow);
                     replacementBuilder.Name = workflowBuilder.Name;
                     replacementBuilder.Description = workflowBuilder.Description;
+                    return replacementBuilder;
+                }
+
+                if (workflowElement is SubjectExpressionBuilder subjectBuilder &&
+                    Attribute.IsDefined(elementType, typeof(ProxyTypeAttribute)))
+                {
+                    SubjectExpressionBuilder replacementBuilder;
+                    var proxyType = ((ProxyTypeAttribute)Attribute.GetCustomAttribute(elementType, typeof(ProxyTypeAttribute)))?.Destination;
+                    if (elementType.IsGenericType)
+                    {
+                        var subjectType = elementType.GenericTypeArguments;
+                        proxyType = proxyType.MakeGenericType(subjectType);
+                    }
+                    replacementBuilder = (SubjectExpressionBuilder)Activator.CreateInstance(proxyType);
+                    replacementBuilder.Name = subjectBuilder.Name;
+#pragma warning disable CS0612 // Type or member is obsolete
+                    if (elementType.Name.StartsWith(nameof(ReplaySubjectBuilder)))
+                    {
+                        dynamic legacyElement = workflowElement;
+                        dynamic element = replacementBuilder;
+                        element.BufferSize = legacyElement.BufferSize;
+                        element.Window = legacyElement.Window;
+                    }
+#pragma warning restore CS0612 // Type or member is obsolete
                     return replacementBuilder;
                 }
 
