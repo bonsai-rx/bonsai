@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -255,7 +255,12 @@ namespace Bonsai
                 Attribute.IsDefined(type, typeof(ObsoleteAttribute), false) &&
                 Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false))
 #pragma warning disable CS0612 // Type or member is obsolete
-                .Concat(new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) });
+                .Concat(new[]
+                {
+                    typeof(SourceBuilder),
+                    typeof(CreateAsyncBuilder),
+                    typeof(WindowWorkflowBuilder)
+                });
 #pragma warning restore CS0612 // Type or member is obsolete
         }
 
