@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -2016,6 +2016,11 @@ namespace Bonsai.Editor
 
         private void renameSubjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (ModifierKeys != Keys.None)
+            {
+                return;
+            }
+
             if (!toolboxTreeView.Focused)
             {
                 var model = selectionModel.SelectedView;
@@ -2276,6 +2281,11 @@ namespace Bonsai.Editor
 
         private async void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (ModifierKeys != Keys.None)
+            {
+                return;
+            }
+
             if (toolboxTreeView.Focused || searchTextBox.Focused)
             {
                 var typeNode = toolboxTreeView.SelectedNode;
