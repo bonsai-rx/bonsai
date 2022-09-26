@@ -1,29 +1,34 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
+using Bonsai.Expressions;
 
-namespace Bonsai.Expressions
+namespace Bonsai.Reactive
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubjectBuilder"/> operator instead.
+    /// Represents an expression builder that broadcasts the values of an observable
+    /// sequence to multiple subscribers using a shared subject.
     /// </summary>
-    [Obsolete]
-    [ProxyType(typeof(Reactive.PublishSubjectBuilder))]
-    [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
+    [XmlType("PublishSubject", Namespace = Constants.ReactiveXmlNamespace)]
     [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values of an observable sequence to multiple subscribers using a shared subject.")]
-    public class PublishSubjectBuilder : Reactive.PublishSubjectBuilder
+    public class PublishSubjectBuilder : SubjectBuilder
     {
+        /// <inheritdoc/>
+        protected override Expression BuildSubject(Expression expression)
+        {
+            var parameterType = expression.Type.GetGenericArguments()[0];
+            return Expression.New(typeof(Subject<>).MakeGenericType(parameterType));
+        }
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubjectBuilder"/> operator instead.
+    /// Represents an expression builder that broadcasts the values from other observable
+    /// sequences to multiple subscribers.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
-    [Obsolete]
-    [ProxyType(typeof(Reactive.PublishSubjectBuilder<>))]
-    [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
+    [XmlType("PublishSubject", Namespace = Constants.ReactiveXmlNamespace)]
     [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values from other observable sequences to multiple subscribers.")]
     public class PublishSubjectBuilder<T> : SubjectBuilder<T>
