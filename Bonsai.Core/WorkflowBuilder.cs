@@ -436,7 +436,8 @@ namespace Bonsai
         {
             return workflow.SelectMany(node => GetWorkflowElements(node.Value))
                 .Select(element => element.GetType())
-                .Except(SerializerExtraTypes);
+                .Except(SerializerExtraTypes)
+                .Except(SerializerLegacyTypes);
         }
 
         #endregion
