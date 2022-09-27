@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
+using Rx = System.Reactive.Subjects;
 
 namespace Bonsai.Reactive
 {
@@ -12,10 +13,10 @@ namespace Bonsai.Reactive
     /// value of an observable sequence to all subscribed and future observers. The value
     /// is disposed when the containing context is closed.
     /// </summary>
-    [XmlType("ResourceSubject", Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
+    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
+    [WorkflowElementIcon(typeof(ResourceSubject), nameof(ResourceSubject))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
-    public class ResourceSubjectBuilder : SubjectBuilder
+    public class ResourceSubject : SubjectBuilder
     {
         /// <inheritdoc/>
         protected override Expression BuildSubject(Expression expression)
@@ -25,9 +26,9 @@ namespace Bonsai.Reactive
             return Expression.Call(builderExpression, nameof(CreateSubject), new[] { parameterType });
         }
 
-        ResourceSubjectBuilder<TSource>.ResourceSubject CreateSubject<TSource>() where TSource : class, IDisposable
+        ResourceSubject<TSource>.Subject CreateSubject<TSource>() where TSource : class, IDisposable
         {
-            return new ResourceSubjectBuilder<TSource>.ResourceSubject();
+            return new ResourceSubject<TSource>.Subject();
         }
     }
 
@@ -37,10 +38,10 @@ namespace Bonsai.Reactive
     /// is disposed when the containing context is closed.
     /// </summary>
     /// <typeparam name="T">The type of the disposable resource stored by the subject.</typeparam>
-    [XmlType("ResourceSubject", Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
+    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
+    [WorkflowElementIcon(typeof(ResourceSubject), nameof(ResourceSubject))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
-    public class ResourceSubjectBuilder<T> : SubjectBuilder<T> where T : class, IDisposable
+    public class ResourceSubject<T> : SubjectBuilder<T> where T : class, IDisposable
     {
         /// <summary>
         /// Creates a shared subject that stores and broadcasts the last disposable
@@ -50,12 +51,12 @@ namespace Bonsai.Reactive
         /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
         protected override ISubject<T> CreateSubject()
         {
-            return new ResourceSubject();
+            return new Subject();
         }
 
-        internal class ResourceSubject : ISubject<T>, IDisposable
+        internal class Subject : ISubject<T>, IDisposable
         {
-            readonly AsyncSubject<T> subject = new AsyncSubject<T>();
+            readonly Rx.AsyncSubject<T> subject = new Rx.AsyncSubject<T>();
 
             public void OnCompleted()
             {
