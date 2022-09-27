@@ -82,10 +82,10 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that generates a sequence of values
     /// by subscribing to a shared subject of the specified type.
     /// </summary>
-    /// <typeparam name="TSource">The type of the elements processed by the subject.</typeparam>
+    /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(SubscribeSubject), nameof(SubscribeSubject))]
-    public class SubscribeSubject<TSource> : SubscribeSubject
+    public class SubscribeSubject<T> : SubscribeSubject
     {
         /// <summary>
         /// Gets or sets the name of the shared subject.
@@ -99,7 +99,7 @@ namespace Bonsai.Expressions
             set { base.Name = value; }
         }
 
-        static IObservable<TSource> Process(IObservable<TSource> subject)
+        static IObservable<T> Process(IObservable<T> subject)
         {
             return subject;
         }
