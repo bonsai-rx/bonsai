@@ -630,7 +630,7 @@ namespace Bonsai.Expressions
         static DependencyElement FindCyclicalDependency(ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             return (from dependency in SelectDependencyElements(source, buildContext)
-                    where dependency.Element is SubscribeSubjectBuilder
+                    where dependency.Element is SubscribeSubject
                     from successor in dependency.Node.Successors
                     where successor.Target.DepthFirstSearch().Contains(dependency.Node)
                     select dependency)
@@ -715,7 +715,7 @@ namespace Bonsai.Expressions
             {
                 var cyclicalDependency = FindCyclicalDependency(source, buildContext);
                 if (cyclicalDependency == null) throw new WorkflowBuildException("The workflow contains unspecified cyclical build dependencies.");
-                var name = ((SubscribeSubjectBuilder)cyclicalDependency.Element).Name;
+                var name = ((SubscribeSubject)cyclicalDependency.Element).Name;
                 var message = string.Format("The specified variable '{0}' is defined in terms of itself.", name);
                 throw CreateDependencyException(message, cyclicalDependency);
             }

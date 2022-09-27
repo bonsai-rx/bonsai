@@ -1465,7 +1465,7 @@ namespace Bonsai.Editor.GraphView
 
         private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, Type memberType, GraphNode selectedNode)
         {
-            if (inspectBuilder.Builder is SubscribeSubjectBuilder subscribeBuilder)
+            if (inspectBuilder.Builder is SubscribeSubject subscribeBuilder)
             {
                 ownerItem.Text = Resources.SubjectTypeAction;
                 var subscribeBuilderType = subscribeBuilder.GetType();
@@ -1512,7 +1512,7 @@ namespace Bonsai.Editor.GraphView
 
         private ToolStripMenuItem CreateSubjectTypeMenuItem(
             Type memberType,
-            SubscribeSubjectBuilder subscribeSubject,
+            SubscribeSubject subscribeSubject,
             GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
@@ -1523,8 +1523,8 @@ namespace Bonsai.Editor.GraphView
                 {
                     var subscribeSubjectType = memberType != null
                         ? typeof(SubscribeSubject<>).MakeGenericType(memberType)
-                        : typeof(SubscribeSubjectBuilder);
-                    var builder = (SubscribeSubjectBuilder)Activator.CreateInstance(subscribeSubjectType);
+                        : typeof(SubscribeSubject);
+                    var builder = (SubscribeSubject)Activator.CreateInstance(subscribeSubjectType);
                     builder.Name = subscribeSubject.Name;
                     Editor.ReplaceGraphNode(selectedNode, builder);
                     contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);

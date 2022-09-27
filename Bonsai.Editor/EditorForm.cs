@@ -446,7 +446,7 @@ namespace Bonsai.Editor
                     var isEmpty = subjectCategory.Nodes.Count == 0;
                     subjectCategory.Nodes.Clear();
 
-                    var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))[nameof(SubscribeSubjectBuilder.Name)];
+                    var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubject))[nameof(SubscribeSubject.Name)];
                     var subjects = nameProperty.Converter.GetStandardValues(new TypeDescriptorContext(workflowBuilder, nameProperty, editorSite));
                     if (subjects != null && subjects.Count > 0)
                     {
@@ -1545,7 +1545,7 @@ namespace Bonsai.Editor
                 if (operandType.IsGenericType) operandType = operandType.GetGenericArguments()[0];
                 return name + " (" + ExpressionBuilder.GetElementDisplayName(operandType) + ")";
             }
-            else if (component is SubscribeSubjectBuilder subscribeSubject && componentType.IsGenericType)
+            else if (component is SubscribeSubject subscribeSubject && componentType.IsGenericType)
             {
                 componentType = componentType.GetGenericArguments()[0];
                 if (string.IsNullOrWhiteSpace(subscribeSubject.Name))
@@ -2029,8 +2029,8 @@ namespace Bonsai.Editor
                 var selection = selectionModel.SelectedNodes.ToArray();
                 var selectedBuilder = selection?.Length == 1 && selection?[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.Builder : null;
                 if (selectedBuilder is SubjectExpressionBuilder ||
-                    selectedBuilder is SubscribeSubjectBuilder ||
-                    selectedBuilder is MulticastSubjectBuilder)
+                    selectedBuilder is SubscribeSubject ||
+                    selectedBuilder is MulticastSubject)
                 {
                     var subjectName = ((INamedElement)selectedBuilder).Name;
                     SelectTreeViewSubjectNode(subjectName);
@@ -2642,7 +2642,7 @@ namespace Bonsai.Editor
             public void ShowDefinition(object component)
             {
                 if (component is INamedElement namedElement &&
-                   (namedElement is SubscribeSubjectBuilder || namedElement is MulticastSubjectBuilder))
+                   (namedElement is SubscribeSubject || namedElement is MulticastSubject))
                 {
                     var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
                     var definition = siteForm.workflowBuilder.GetSubjectDefinition(model.Workflow, namedElement.Name);

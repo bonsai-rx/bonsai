@@ -67,7 +67,7 @@ namespace Bonsai.Expressions
                 {
                     Type targetType;
                     var componentType = context.PropertyDescriptor.ComponentType;
-                    var multicast = componentType == typeof(MulticastSubjectBuilder);
+                    var multicast = componentType == typeof(MulticastSubject);
                     if (multicast)
                     {
                         var subjectTargetAttribute = (SubjectTargetAttribute)context.PropertyDescriptor.Attributes[typeof(SubjectTargetAttribute)];
