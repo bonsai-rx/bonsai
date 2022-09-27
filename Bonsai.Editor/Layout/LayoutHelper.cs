@@ -273,16 +273,13 @@ namespace Bonsai.Design
             foreach (var source in mashupVisualizer.MashupSources)
             {
                 var sourceIndex = GetMashupSourceIndex(source, topologicalOrder);
-                if (sourceIndex.HasValue)
-                {
-                    var mashupSource = SerializeMashupSource(sourceIndex.Value, source.Visualizer, topologicalOrder);
-                    root.Add(mashupSource);
-                }
+                var mashupSource = SerializeMashupSource(sourceIndex, source.Visualizer, topologicalOrder);
+                root.Add(mashupSource);
             }
         }
 
         static XElement SerializeMashupSource(
-            int sourceIndex,
+            int? sourceIndex,
             DialogTypeVisualizer visualizer,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> topologicalOrder)
         {
@@ -301,7 +298,7 @@ namespace Bonsai.Design
 
             visualizerSettings = new XDocument(
                 new XElement(MashupSettingsElement,
-                new XElement(MashupSourceElement, sourceIndex),
+                sourceIndex.HasValue ? new XElement(MashupSourceElement, sourceIndex.Value) : null,
                 new XElement(nameof(VisualizerDialogSettings.VisualizerTypeName), visualizerType.FullName),
                 new XElement(nameof(VisualizerDialogSettings.VisualizerSettings), visualizerSettings.Root)));
             return visualizerSettings.Root;
