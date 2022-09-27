@@ -776,8 +776,8 @@ namespace Bonsai.Editor.GraphModel
             }
             else if (elementCategory == ~ElementCategory.Source)
             {
-                if (group) return new MulticastSubjectBuilder { Name = typeName };
-                else return new SubscribeSubjectBuilder { Name = typeName };
+                if (group) return new MulticastSubject { Name = typeName };
+                else return new SubscribeSubject { Name = typeName };
             }
 
             var type = Type.GetType(typeName);
@@ -1545,19 +1545,19 @@ namespace Bonsai.Editor.GraphModel
 
                 if (selectedBuilder is INamedElement namedBuilder &&
                    (namedBuilder is SubjectExpressionBuilder ||
-                    namedBuilder is SubscribeSubjectBuilder ||
-                    namedBuilder is MulticastSubjectBuilder))
+                    namedBuilder is SubscribeSubject ||
+                    namedBuilder is MulticastSubject))
                 {
                     if (builder is SubjectExpressionBuilder subjectBuilder)
                     {
                         subjectBuilder.Name = namedBuilder.Name;
                     }
-                    else if (builder is SubscribeSubjectBuilder subscribeBuilder &&
+                    else if (builder is SubscribeSubject subscribeBuilder &&
                         string.IsNullOrEmpty(subscribeBuilder.Name))
                     {
                         subscribeBuilder.Name = namedBuilder.Name;
                     }
-                    else if (builder is MulticastSubjectBuilder multicastBuilder &&
+                    else if (builder is MulticastSubject multicastBuilder &&
                         string.IsNullOrEmpty(multicastBuilder.Name))
                     {
                         multicastBuilder.Name = namedBuilder.Name;
@@ -1762,19 +1762,19 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var currentName = definition.Subject.Name;
-            var subscribeDependents = new List<SubscribeSubjectBuilder>();
-            var multicastDependents = new List<MulticastSubjectBuilder>();
+            var subscribeDependents = new List<SubscribeSubject>();
+            var multicastDependents = new List<MulticastSubject>();
             foreach (var dependent in definition.GetDependentExpressions()
                                                 .SelectMany(context => context)
                                                 .Where(element => element.Builder is INamedElement namedElement &&
                                                     namedElement.Name == definition.Subject.Name))
             {
                 if (dependent.IsReadOnly) continue;
-                else if (dependent.Builder is SubscribeSubjectBuilder subscribeSubject)
+                else if (dependent.Builder is SubscribeSubject subscribeSubject)
                 {
                     subscribeDependents.Add(subscribeSubject);
                 }
-                else if (dependent.Builder is MulticastSubjectBuilder multicastSubject)
+                else if (dependent.Builder is MulticastSubject multicastSubject)
                 {
                     multicastDependents.Add(multicastSubject);
                 }

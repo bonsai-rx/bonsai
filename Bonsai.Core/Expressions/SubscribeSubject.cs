@@ -13,10 +13,10 @@ namespace Bonsai.Expressions
     /// by subscribing to a shared subject.
     /// </summary>
     [DefaultProperty(nameof(Name))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Source)]
-    [XmlType("SubscribeSubject", Namespace = Constants.XmlNamespace)]
     [Description("Generates a sequence of values by subscribing to a shared subject.")]
-    public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, IRequireSubject
+    public class SubscribeSubject : ZeroArgumentExpressionBuilder, IRequireSubject
     {
         IBuildContext buildContext;
 
@@ -84,8 +84,8 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="TSource">The type of the elements processed by the subject.</typeparam>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(SubscribeSubjectBuilder), nameof(SubscribeSubjectBuilder))]
-    public class SubscribeSubject<TSource> : SubscribeSubjectBuilder
+    [WorkflowElementIcon(typeof(SubscribeSubject), nameof(SubscribeSubject))]
+    public class SubscribeSubject<TSource> : SubscribeSubject
     {
         /// <summary>
         /// Gets or sets the name of the shared subject.
@@ -103,5 +103,11 @@ namespace Bonsai.Expressions
         {
             return subject;
         }
+    }
+
+    [Obsolete]
+    [ProxyType(typeof(SubscribeSubject))]
+    public class SubscribeSubjectBuilder : SubscribeSubject
+    {
     }
 }

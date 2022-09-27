@@ -13,11 +13,11 @@ namespace Bonsai.Expressions
     /// into a shared subject.
     /// </summary>
     [DefaultProperty(nameof(Name))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [XmlType("MulticastSubject", Namespace = Constants.XmlNamespace)]
     [Description("Pushes a sequence of values into a shared subject.")]
     [TypeDescriptionProvider(typeof(MulticastSubjectTypeDescriptionProvider))]
-    public class MulticastSubjectBuilder : SingleArgumentExpressionBuilder, IRequireSubject
+    public class MulticastSubject : SingleArgumentExpressionBuilder, IRequireSubject
     {
         Type observableType;
         IBuildContext buildContext;
@@ -64,7 +64,7 @@ namespace Bonsai.Expressions
                 observableType = subjectType;
             }
 
-            return Expression.Call(typeof(MulticastSubjectBuilder), nameof(Process), new[] { observableType }, source, subjectExpression);
+            return Expression.Call(typeof(MulticastSubject), nameof(Process), new[] { observableType }, source, subjectExpression);
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObserver<TSource> subject)
@@ -84,14 +84,14 @@ namespace Bonsai.Expressions
 
         class MulticastSubjectTypeDescriptor : CustomTypeDescriptor
         {
-            readonly MulticastSubjectBuilder builder;
-            static readonly ICustomTypeDescriptor baseDescriptor = TypeDescriptor.GetProvider(typeof(MulticastSubjectBuilder))
-                                                                                 .GetTypeDescriptor(typeof(MulticastSubjectBuilder));
+            readonly MulticastSubject builder;
+            static readonly ICustomTypeDescriptor baseDescriptor = TypeDescriptor.GetProvider(typeof(MulticastSubject))
+                                                                                 .GetTypeDescriptor(typeof(MulticastSubject));
 
             public MulticastSubjectTypeDescriptor(object instance)
                 : base(baseDescriptor)
             {
-                builder = (MulticastSubjectBuilder)instance;
+                builder = (MulticastSubject)instance;
             }
 
             public override PropertyDescriptorCollection GetProperties()
@@ -119,5 +119,11 @@ namespace Bonsai.Expressions
                 return result;
             }
         }
+    }
+
+    [Obsolete]
+    [ProxyType(typeof(MulticastSubject))]
+    public class MulticastSubjectBuilder : MulticastSubject
+    {
     }
 }
