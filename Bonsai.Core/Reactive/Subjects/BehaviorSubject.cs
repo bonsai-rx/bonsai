@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
+using Rx = System.Reactive.Subjects;
 
 namespace Bonsai.Reactive
 {
@@ -11,10 +12,10 @@ namespace Bonsai.Reactive
     /// Represents an expression builder that broadcasts the latest value of an observable
     /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
-    [XmlType("BehaviorSubject", Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(BehaviorSubjectBuilder), nameof(BehaviorSubjectBuilder))]
+    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
+    [WorkflowElementIcon(typeof(BehaviorSubject), nameof(BehaviorSubject))]
     [Description("Broadcasts the latest value of an observable sequence to all subscribed and future observers using a shared subject.")]
-    public class BehaviorSubjectBuilder : SubjectBuilder
+    public class BehaviorSubject : SubjectBuilder
     {
         /// <inheritdoc/>
         protected override Expression BuildSubject(Expression expression)
@@ -24,9 +25,9 @@ namespace Bonsai.Reactive
             return Expression.Call(builderExpression, nameof(CreateSubject), new[] { parameterType });
         }
 
-        BehaviorSubjectBuilder<TSource>.BehaviorSubject CreateSubject<TSource>()
+        BehaviorSubject<TSource>.Subject CreateSubject<TSource>()
         {
-            return new BehaviorSubjectBuilder<TSource>.BehaviorSubject();
+            return new BehaviorSubject<TSource>.Subject();
         }
     }
 
@@ -35,10 +36,10 @@ namespace Bonsai.Reactive
     /// sequences to all subscribed and future observers.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
-    [XmlType("BehaviorSubject", Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(BehaviorSubjectBuilder), nameof(BehaviorSubjectBuilder))]
+    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
+    [WorkflowElementIcon(typeof(BehaviorSubject), nameof(BehaviorSubject))]
     [Description("Broadcasts the latest value from other observable sequences to all subscribed and future observers.")]
-    public class BehaviorSubjectBuilder<T> : SubjectBuilder<T>
+    public class BehaviorSubject<T> : SubjectBuilder<T>
     {
         /// <summary>
         /// Creates a shared subject that broadcasts the latest value from other observable
@@ -47,12 +48,12 @@ namespace Bonsai.Reactive
         /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
         protected override ISubject<T> CreateSubject()
         {
-            return new BehaviorSubject();
+            return new Subject();
         }
 
-        internal class BehaviorSubject : ISubject<T>, IDisposable
+        internal class Subject : ISubject<T>, IDisposable
         {
-            readonly ReplaySubject<T> subject = new ReplaySubject<T>(1);
+            readonly Rx.ReplaySubject<T> subject = new Rx.ReplaySubject<T>(1);
 
             public void OnCompleted()
             {

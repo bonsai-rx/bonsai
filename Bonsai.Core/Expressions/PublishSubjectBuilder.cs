@@ -9,11 +9,11 @@ namespace Bonsai.Expressions
     /// This type is obsolete. Please use the <see cref="Reactive.PublishSubjectBuilder"/> operator instead.
     /// </summary>
     [Obsolete]
-    [ProxyType(typeof(Reactive.PublishSubjectBuilder))]
+    [ProxyType(typeof(Reactive.PublishSubject))]
     [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values of an observable sequence to multiple subscribers using a shared subject.")]
-    public class PublishSubjectBuilder : Reactive.PublishSubjectBuilder
+    public class PublishSubjectBuilder : Reactive.PublishSubject
     {
     }
 
@@ -22,7 +22,7 @@ namespace Bonsai.Expressions
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [Obsolete]
-    [ProxyType(typeof(Reactive.PublishSubjectBuilder<>))]
+    [ProxyType(typeof(Reactive.PublishSubject<>))]
     [XmlType("PublishSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(PublishSubjectBuilder), nameof(PublishSubjectBuilder))]
     [Description("Broadcasts the values from other observable sequences to multiple subscribers.")]

@@ -6,14 +6,14 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.AsyncSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.AsyncSubject"/> operator instead.
     /// </summary>
     [Obsolete]
-    [ProxyType(typeof(Reactive.AsyncSubjectBuilder))]
+    [ProxyType(typeof(Reactive.AsyncSubject))]
     [XmlType("AsyncSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(AsyncSubjectBuilder), nameof(AsyncSubjectBuilder))]
     [Description("Broadcasts the last value of an observable sequence to all subscribed and future observers using a shared subject.")]
-    public class AsyncSubjectBuilder : Reactive.AsyncSubjectBuilder
+    public class AsyncSubjectBuilder : Reactive.AsyncSubject
     {
         AsyncSubject<TSource> CreateSubject<TSource>()
         {
@@ -22,11 +22,11 @@ namespace Bonsai.Expressions
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.AsyncSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.AsyncSubject"/> operator instead.
     /// </summary>
     /// <typeparam name="T">The type of the result stored by the subject.</typeparam>
     [Obsolete]
-    [ProxyType(typeof(Reactive.AsyncSubjectBuilder<>))]
+    [ProxyType(typeof(Reactive.AsyncSubject<>))]
     [XmlType("AsyncSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(AsyncSubjectBuilder), nameof(AsyncSubjectBuilder))]
     [Description("Broadcasts the result of the first observable sequence to complete to all subscribed and future observers.")]

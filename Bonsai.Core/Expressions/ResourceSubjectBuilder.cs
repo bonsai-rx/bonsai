@@ -6,27 +6,27 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ResourceSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.ResourceSubject"/> operator instead.
     /// </summary>
     [Obsolete]
-    [ProxyType(typeof(Reactive.ResourceSubjectBuilder))]
+    [ProxyType(typeof(Reactive.ResourceSubject))]
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
-    public class ResourceSubjectBuilder : Reactive.ResourceSubjectBuilder
+    public class ResourceSubjectBuilder : Reactive.ResourceSubject
     {
-        Reactive.ResourceSubjectBuilder<TSource>.ResourceSubject CreateSubject<TSource>() where TSource : class, IDisposable
+        Reactive.ResourceSubject<TSource>.Subject CreateSubject<TSource>() where TSource : class, IDisposable
         {
-            return new Reactive.ResourceSubjectBuilder<TSource>.ResourceSubject();
+            return new Reactive.ResourceSubject<TSource>.Subject();
         }
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ResourceSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.ResourceSubject"/> operator instead.
     /// </summary>
     /// <typeparam name="T">The type of the disposable resource stored by the subject.</typeparam>
     [Obsolete]
-    [ProxyType(typeof(Reactive.ResourceSubjectBuilder<>))]
+    [ProxyType(typeof(Reactive.ResourceSubject<>))]
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
@@ -40,7 +40,7 @@ namespace Bonsai.Expressions
         /// <returns>A new instance of <see cref="ISubject{T}"/>.</returns>
         protected override ISubject<T> CreateSubject()
         {
-            return new Reactive.ResourceSubjectBuilder<T>.ResourceSubject();
+            return new Reactive.ResourceSubject<T>.Subject();
         }
     }
 }

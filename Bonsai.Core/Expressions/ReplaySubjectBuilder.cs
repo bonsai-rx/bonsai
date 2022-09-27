@@ -8,10 +8,10 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubject"/> operator instead.
     /// </summary>
     [Obsolete]
-    [ProxyType(typeof(Reactive.ReplaySubjectBuilder))]
+    [ProxyType(typeof(Reactive.ReplaySubject))]
     [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of an observable sequence to all subscribed and future observers using a shared subject.")]
@@ -85,11 +85,11 @@ namespace Bonsai.Expressions
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.ReplaySubject"/> operator instead.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [Obsolete]
-    [ProxyType(typeof(Reactive.ReplaySubjectBuilder<>))]
+    [ProxyType(typeof(Reactive.ReplaySubject<>))]
     [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
     [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of other observable sequences to all subscribed and future observers.")]
