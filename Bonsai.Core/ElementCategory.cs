@@ -1,4 +1,6 @@
-﻿namespace Bonsai
+﻿using System;
+
+namespace Bonsai
 {
     /// <summary>
     /// Specifies the category of a workflow element.
@@ -14,6 +16,7 @@
         /// A combinator that propagates only the elements of an observable sequence
         /// matching some specific condition.
         /// </summary>
+        [Obsolete]
         Condition,
 
         /// <summary>

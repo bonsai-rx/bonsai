@@ -11,7 +11,6 @@ namespace Bonsai.Scripting
     /// </summary>
     [Obsolete]
     [DefaultProperty(nameof(Script))]
-    [WorkflowElementCategory(ElementCategory.Condition)]
     [Description("A Python script used to determine which elements of the input sequence are accepted.")]
     public class PythonCondition : Combinator
     {

@@ -68,8 +68,6 @@ namespace Bonsai.Design
                 {
                     case ElementCategory.Source:
                         return disabled ? HatchBrushes.DiagonalViolet : obsolete ? HatchBrushes.CrossViolet : Brushes.Violet;
-                    case ElementCategory.Condition:
-                        return disabled ? HatchBrushes.DiagonalLightGreen : obsolete ? HatchBrushes.CrossLightGreen : Brushes.LightGreen;
                     case ElementCategory.Transform:
                         return disabled ? HatchBrushes.DiagonalWhite : obsolete ? HatchBrushes.CrossWhite : Brushes.White;
                     case ElementCategory.Sink:

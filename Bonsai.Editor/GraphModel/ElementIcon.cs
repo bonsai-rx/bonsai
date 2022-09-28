@@ -11,7 +11,6 @@ namespace Bonsai.Editor.GraphModel
     class ElementIcon
     {
         static readonly ElementIcon Source = new ElementIcon(ElementCategory.Source);
-        static readonly ElementIcon Condition = new ElementIcon(ElementCategory.Condition);
         static readonly ElementIcon Transform = new ElementIcon(ElementCategory.Transform);
         static readonly ElementIcon Sink = new ElementIcon(ElementCategory.Sink);
         static readonly ElementIcon Nested = new ElementIcon(ElementCategory.Nested);
@@ -274,11 +273,13 @@ namespace Bonsai.Editor.GraphModel
             switch (category)
             {
                 case ElementCategory.Source: return Source;
-                case ElementCategory.Condition: return Condition;
                 case ElementCategory.Transform: return Transform;
                 case ElementCategory.Sink: return Sink;
                 case ElementCategory.Nested: return Nested;
                 case ElementCategory.Property: return Property;
+#pragma warning disable CS0612 // Type or member is obsolete
+                case ElementCategory.Condition:
+#pragma warning restore CS0612 // Type or member is obsolete
                 case ElementCategory.Combinator: return Combinator;
                 case ElementCategory.Workflow: return Workflow;
                 default: throw new ArgumentException("Invalid category.");

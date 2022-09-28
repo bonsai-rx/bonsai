@@ -15,7 +15,6 @@ namespace Bonsai.Scripting
     /// </summary>
     [Obsolete]
     [DefaultProperty(nameof(Expression))]
-    [WorkflowElementCategory(ElementCategory.Condition)]
     [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
     [Description("An expression script used to filter the elements of the sequence.")]
     public class ExpressionCondition : SingleArgumentExpressionBuilder, IScriptingElement

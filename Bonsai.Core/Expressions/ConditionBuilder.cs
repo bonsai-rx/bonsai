@@ -11,7 +11,6 @@ namespace Bonsai.Expressions
     /// </summary>
     [Obsolete]
     [ProxyType(typeof(Condition))]
-    [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
     [Description("Filters the elements of an observable sequence according to a condition specified by the encapsulated workflow.")]
     public class ConditionBuilder : Condition

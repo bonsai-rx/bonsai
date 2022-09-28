@@ -13,7 +13,6 @@ namespace Bonsai.Reactive
     /// Represents an expression builder which filters the elements of an observable
     /// sequence according to a condition specified by the encapsulated workflow.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
     [Description("Filters the elements of an observable sequence according to a condition specified by the encapsulated workflow.")]
     public class Condition : SingleArgumentWorkflowExpressionBuilder

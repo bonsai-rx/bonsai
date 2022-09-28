@@ -663,7 +663,9 @@ namespace Bonsai.Editor
                     }
 
                     if (typeCategory == ElementCategory.Workflow ||
+#pragma warning disable CS0612 // Type or member is obsolete
                         typeCategory == ElementCategory.Condition ||
+#pragma warning restore CS0612 // Type or member is obsolete
                         typeCategory == ElementCategory.Property)
                     {
                         typeCategory = ElementCategory.Combinator;
