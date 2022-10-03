@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
@@ -44,17 +44,43 @@ namespace Bonsai.Reactive
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             var start = Start;
+            if (start < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(start));
+            }
+
             var step = Step;
+            if (step <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(step));
+            }
+
             var stop = Stop;
-            return Observable.Defer(() =>
+            if (stop < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(stop));
+            }
+
+            return (stop - start) <= 0 ? Observable.Empty<TSource>() : Observable.Create<TSource>(observer =>
             {
                 int i = 0;
-                var slice = source.Where(_ =>
-                {
-                    var index = i++;
-                    return index >= start && (index - start) % step == 0;
-                });
-                return stop.HasValue ? slice.TakeWhile(_ => i < stop) : slice;
+                var sliceObserver = Observer.Create<TSource>(
+                    value =>
+                    {
+                        var index = i++;
+                        if (index >= start && (index - start) % step == 0)
+                        {
+                            observer.OnNext(value);
+                        }
+
+                        if (i >= stop)
+                        {
+                            observer.OnCompleted();
+                        }
+                    },
+                    observer.OnError,
+                    observer.OnCompleted);
+                return source.SubscribeSafe(sliceObserver);
             });
         }
     }
