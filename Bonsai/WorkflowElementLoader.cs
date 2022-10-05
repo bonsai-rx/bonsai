@@ -24,7 +24,9 @@ namespace Bonsai
         {
             return type.IsSubclassOf(typeof(ExpressionBuilder)) ||
                 type.IsDefined(typeof(CombinatorAttribute), true) ||
+#pragma warning disable CS0612 // Type or member is obsolete
                 type.IsDefined(typeof(SourceAttribute), true);
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         static bool IsVisibleElement(Type type)

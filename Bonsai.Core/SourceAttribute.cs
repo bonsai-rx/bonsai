@@ -5,6 +5,7 @@ namespace Bonsai
     /// <summary>
     /// Specifies that a class provides a parameterless method that can generate observable sequences.
     /// </summary>
+    [Obsolete]
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class SourceAttribute : Attribute
     {

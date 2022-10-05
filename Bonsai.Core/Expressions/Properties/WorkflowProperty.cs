@@ -9,7 +9,6 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents a workflow property.
     /// </summary>
-    [Source]
     [DefaultProperty("Value")]
     [Combinator(MethodName = "Generate")]
     [XmlType(Namespace = Constants.XmlNamespace)]

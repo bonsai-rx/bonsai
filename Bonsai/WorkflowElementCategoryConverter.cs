@@ -29,7 +29,9 @@ namespace Bonsai
 
             if (type.IsSubclassOf(typeof(ExpressionBuilder)) ||
                 MatchAttributeType(type, typeof(CombinatorAttribute)) ||
+#pragma warning disable CS0612 // Type or member is obsolete
                 MatchAttributeType(type, typeof(SourceAttribute)))
+#pragma warning restore CS0612 // Type or member is obsolete
             {
                 if (type.IsSubclassOf(typeof(WorkflowExpressionBuilder)))
                 {

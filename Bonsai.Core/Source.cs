@@ -6,7 +6,6 @@ namespace Bonsai
     /// Represents a generator of observable sequences of data elements.
     /// </summary>
     /// <typeparam name="TSource">The type of the elements emitted by the generator.</typeparam>
-    [Source]
     [Combinator(MethodName = nameof(Generate))]
     [WorkflowElementCategory(ElementCategory.Source)]
     public abstract class Source<TSource>
