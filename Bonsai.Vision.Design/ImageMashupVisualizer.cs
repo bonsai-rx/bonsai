@@ -14,7 +14,9 @@ namespace Bonsai.Vision.Design
     /// Provides an abstract base class for type visualizers that overlay multiple
     /// values into a single image display.
     /// </summary>
-    public abstract class ImageMashupVisualizer : MashupVisualizer
+#pragma warning disable CS0612 // Type or member is obsolete
+    public abstract class ImageMashupVisualizer : DialogMashupVisualizer
+#pragma warning restore CS0612 // Type or member is obsolete
     {
         const int TargetInterval = 16;
         IObserver<IList<object>> activeObserver;
