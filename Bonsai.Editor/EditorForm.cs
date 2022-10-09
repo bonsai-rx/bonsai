@@ -1762,6 +1762,7 @@ namespace Bonsai.Editor
                         e.Handled = true;
                         break;
                     case Keys.F2:
+                    case Keys.F3:
                         toolboxTreeView_KeyDown(sender, e);
                         break;
                     case Keys.Return:
@@ -1863,6 +1864,26 @@ namespace Bonsai.Editor
                 e.SuppressKeyPress = true;
             }
 
+            if (e.KeyCode == Keys.F3 && selectedNode?.Tag != null)
+            {
+                var findPrevious = e.Modifiers == Keys.Shift;
+                var currentNode = selectionModel.SelectedNodes.FirstOrDefault();
+                var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
+                Func<ExpressionBuilder, bool> predicate = elementCategory switch
+                {
+                    ~ElementCategory.Workflow => builder => builder.MatchIncludeWorkflow(selectedNode.Name),
+                    ~ElementCategory.Source => builder => builder.MatchSubjectReference(selectedNode.Name),
+                    _ => builder => builder.MatchElementType(selectedNode.Name),
+                };
+
+                var match = workflowBuilder.Find(predicate, currentNode?.Value, findPrevious);
+                if (match != null)
+                {
+                    var scope = workflowBuilder.GetExpressionScope(match);
+                    HighlightExpression(editorControl.WorkflowGraphView, scope);
+                }
+            }
+
             var rename = e.KeyCode == Keys.F2;
             var goToDefinition = e.KeyCode == Keys.F12;
             if ((rename || goToDefinition) && selectedNode?.Tag != null)
@@ -1956,6 +1977,8 @@ namespace Bonsai.Editor
                             renameSubjectToolStripMenuItem.Visible = true;
                             goToDefinitionToolStripMenuItem.Visible = true;
                             replaceToolStripMenuItem.Visible = true;
+                            findNextToolStripMenuItem.Visible = true;
+                            findPreviousToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -2040,6 +2063,16 @@ namespace Bonsai.Editor
             }
 
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F2));
+        }
+
+        private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(findNextToolStripMenuItem.ShortcutKeys));
+        }
+
+        private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(findPreviousToolStripMenuItem.ShortcutKeys));
         }
 
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2489,6 +2522,8 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.restartToolStripMenuItem, siteForm.restartToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.stopToolStripMenuItem, siteForm.stopToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.renameSubjectToolStripMenuItem, siteForm.renameSubjectToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.findNextToolStripMenuItem, siteForm.findNextToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.findPreviousToolStripMenuItem, siteForm.findPreviousToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.docsToolStripMenuItem, siteForm.docsToolStripMenuItem_Click);
             }
 

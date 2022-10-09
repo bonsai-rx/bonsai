@@ -142,6 +142,8 @@
             this.multicastSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameSubjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findNextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findPreviousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.workflowFileWatcher = new System.IO.FileSystemWatcher();
@@ -1169,9 +1171,11 @@
             this.multicastSubjectToolStripMenuItem,
             this.replaceToolStripMenuItem,
             this.renameSubjectToolStripMenuItem,
+            this.findNextToolStripMenuItem,
+            this.findPreviousToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 246);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 290);
             // 
             // toolboxDocsToolStripMenuItem
             // 
@@ -1246,6 +1250,22 @@
             this.renameSubjectToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.renameSubjectToolStripMenuItem.Text = "Rename";
             this.renameSubjectToolStripMenuItem.Click += new System.EventHandler(this.renameSubjectToolStripMenuItem_Click);
+            // 
+            // findNextToolStripMenuItem
+            // 
+            this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
+            this.findNextToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
+            this.findNextToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.findNextToolStripMenuItem.Text = "Find Next";
+            this.findNextToolStripMenuItem.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
+            // 
+            // findPreviousToolStripMenuItem
+            // 
+            this.findPreviousToolStripMenuItem.Name = "findPreviousToolStripMenuItem";
+            this.findPreviousToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F3)));
+            this.findPreviousToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.findPreviousToolStripMenuItem.Text = "Find Previous";
+            this.findPreviousToolStripMenuItem.Click += new System.EventHandler(this.findPreviousToolStripMenuItem_Click);
             // 
             // goToDefinitionToolStripMenuItem
             // 
@@ -1414,6 +1434,8 @@
         private System.Windows.Forms.ToolStripMenuItem multicastSubjectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameSubjectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem goToDefinitionToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
