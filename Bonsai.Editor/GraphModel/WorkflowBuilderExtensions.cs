@@ -92,27 +92,27 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        public static ExpressionDeclaration GetDeclaration(this WorkflowBuilder source, ExpressionBuilder target)
+        public static ExpressionScope GetExpressionScope(this WorkflowBuilder source, ExpressionBuilder target)
         {
-            return GetDeclaration(source.Workflow, target);
+            return GetExpressionScope(source.Workflow, target);
         }
 
-        static ExpressionDeclaration GetDeclaration(ExpressionBuilderGraph source, ExpressionBuilder target)
+        static ExpressionScope GetExpressionScope(ExpressionBuilderGraph source, ExpressionBuilder target)
         {
             foreach (var node in source)
             {
                 var builder = ExpressionBuilder.Unwrap(node.Value);
                 if (builder == target)
                 {
-                    return new ExpressionDeclaration(node.Value, innerDeclaration: null);
+                    return new ExpressionScope(node.Value, innerScope: null);
                 }
 
                 if (builder is IWorkflowExpressionBuilder workflowBuilder)
                 {
-                    var innerDeclaration = GetDeclaration(workflowBuilder.Workflow, target);
-                    if (innerDeclaration != null)
+                    var innerScope = GetExpressionScope(workflowBuilder.Workflow, target);
+                    if (innerScope != null)
                     {
-                        return new ExpressionDeclaration(node.Value, innerDeclaration);
+                        return new ExpressionScope(node.Value, innerScope);
                     }
                 }
             }
@@ -121,17 +121,17 @@ namespace Bonsai.Editor.GraphModel
         }
     }
 
-    class ExpressionDeclaration
+    class ExpressionScope
     {
-        public ExpressionDeclaration(ExpressionBuilder value, ExpressionDeclaration innerDeclaration)
+        public ExpressionScope(ExpressionBuilder value, ExpressionScope innerScope)
         {
             Value = value;
-            InnerDeclaration = innerDeclaration;
+            InnerScope = innerScope;
         }
 
         public ExpressionBuilder Value { get; }
 
-        public ExpressionDeclaration InnerDeclaration { get; }
+        public ExpressionScope InnerScope { get; }
     }
 
     class SubjectDefinition

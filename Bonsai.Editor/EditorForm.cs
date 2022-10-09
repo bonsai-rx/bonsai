@@ -1412,25 +1412,25 @@ namespace Bonsai.Editor
             else clearErrors();
         }
 
-        void HighlightDeclaration(WorkflowGraphView workflowView, ExpressionDeclaration declaration)
+        void HighlightExpression(WorkflowGraphView workflowView, ExpressionScope scope)
         {
             if (workflowView == null)
             {
                 throw new ArgumentNullException(nameof(workflowView));
             }
 
-            var graphNode = workflowView.FindGraphNode(declaration.Value);
+            var graphNode = workflowView.FindGraphNode(scope.Value);
             if (graphNode != null)
             {
                 workflowView.GraphView.SelectedNode = graphNode;
-                var nestedDeclaration = declaration.InnerDeclaration;
-                if (nestedDeclaration != null)
+                var innerScope = scope.InnerScope;
+                if (innerScope != null)
                 {
                     workflowView.LaunchWorkflowView(graphNode);
                     var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
                     if (editorLauncher != null)
                     {
-                        HighlightDeclaration(editorLauncher.WorkflowGraphView, nestedDeclaration);
+                        HighlightExpression(editorLauncher.WorkflowGraphView, innerScope);
                     }
                 }
                 else
@@ -1889,8 +1889,8 @@ namespace Bonsai.Editor
                     }
                     else
                     {
-                        var declaration = workflowBuilder.GetDeclaration(definition.Subject);
-                        HighlightDeclaration(editorControl.WorkflowGraphView, declaration);
+                        var scope = workflowBuilder.GetExpressionScope(definition.Subject);
+                        HighlightExpression(editorControl.WorkflowGraphView, scope);
                     }
                 }
             }
@@ -2650,8 +2650,8 @@ namespace Bonsai.Editor
                     var definition = siteForm.workflowBuilder.GetSubjectDefinition(model.Workflow, namedElement.Name);
                     if (definition != null)
                     {
-                        var declaration = siteForm.workflowBuilder.GetDeclaration(definition.Subject);
-                        siteForm.HighlightDeclaration(siteForm.editorControl.WorkflowGraphView, declaration);
+                        var scope = siteForm.workflowBuilder.GetExpressionScope(definition.Subject);
+                        siteForm.HighlightExpression(siteForm.editorControl.WorkflowGraphView, scope);
                         return;
                     }
                 }
