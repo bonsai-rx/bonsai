@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1985,8 +1985,7 @@ namespace Bonsai.Editor
         {
             if (e.Button == MouseButtons.Left && e.Node.Tag != null)
             {
-                var typeNode = e.Node;
-                CreateGraphNode(typeNode, Control.ModifierKeys);
+                toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Return | ModifierKeys));
             }
         }
 
