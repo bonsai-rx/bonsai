@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -2103,7 +2103,7 @@ namespace Bonsai.Editor
                 }
             }
 
-            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F2));
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(renameSubjectToolStripMenuItem.ShortcutKeys));
         }
 
         private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2126,7 +2126,7 @@ namespace Bonsai.Editor
 
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.F12));
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(goToDefinitionToolStripMenuItem.ShortcutKeys));
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
