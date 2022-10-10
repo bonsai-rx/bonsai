@@ -1253,6 +1253,8 @@
             // 
             // findNextToolStripMenuItem
             // 
+            this.findNextToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findNextToolStripButton.Image")));
+            this.findNextToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
             this.findNextToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
             this.findNextToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
@@ -1261,6 +1263,8 @@
             // 
             // findPreviousToolStripMenuItem
             // 
+            this.findPreviousToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findPreviousToolStripButton.Image")));
+            this.findPreviousToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findPreviousToolStripMenuItem.Name = "findPreviousToolStripMenuItem";
             this.findPreviousToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F3)));
             this.findPreviousToolStripMenuItem.Size = new System.Drawing.Size(206, 22);

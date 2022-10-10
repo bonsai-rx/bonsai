@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -505,12 +505,30 @@
         aOjyK1i3CKfQFkWxtygATHpPHswSHCZulirUsqyH0rsw5h/GwnbQ7xsxswAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="findNextToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAACtSURBVDhPrZAxDsMgDEU5Us/AztS152FtDlCpN2FnSm9C
+        KgGrq49sidLQUpQvfVk4ft8EJUop3XPO1Bp9HvktCbksjtT5VupwSL11KgRDAPY8FHJIQO32FxpfGXtX
+        7xGdc2SMIa11qd77zxCB9wxoXR+0hWepOKPP6HdhEJsBi3EeCogxniTg7xswHKy1JUDcfYNaLYyKjZX7
+        MFQHMBzQ489jkpApWARwGh6TUi+094VDG1XAPQAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="findPreviousToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAACpSURBVDhPtZKxDcMgEEUZKTPQU6XNPLT2AJmFnsrZhERC
+        tJd8dKcQYmNsy1/6OoHu/QOEqhVjvKSUwsdUOGCfW5Yl8G10pK53Qj0K/5hb/1XDcz43AOq5QuWB0a9a
+        Ic45MsaQ1jpX7307REAxoGl60DO8csUa+4y1hUZMBizGuiuAT5SBzSeQ61hrc4C4+QaiGkbFxMLLMFQG
+        MNz3pUtJyC5YBHA3vC6l3rDsg62jiRAoAAAAAElFTkSuQmCC
+</value>
+  </data>
   <data name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>1018, 17</value>
   </data>
-  <metadata name="statusContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <data name="statusContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>17, 56</value>
-  </metadata>
+  </data>
   <data name="propertyGridContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>1127, 17</value>
   </data>
