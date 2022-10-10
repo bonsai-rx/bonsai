@@ -1,19 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai - Core Library</Title>
     <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net6.0</TargetFrameworks>
     <RootNamespace>Bonsai</RootNamespace>
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <PackageReference Include="Rx-Linq" Version="2.2.5" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="System.Reactive" Version="5.0.0" />
-    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
