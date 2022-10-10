@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor
+namespace Bonsai.Editor
 {
     partial class EditorForm
     {
@@ -95,6 +95,9 @@
             this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.saveToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.fileToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.findNextToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.findPreviousToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.findToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.undoToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.redoToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.editToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -659,6 +662,9 @@
             this.openToolStripButton,
             this.saveToolStripButton,
             this.fileToolStripSeparator,
+            this.findNextToolStripButton,
+            this.findPreviousToolStripButton,
+            this.findToolStripSeparator,
             this.undoToolStripButton,
             this.redoToolStripButton,
             this.editToolStripSeparator,
@@ -711,6 +717,31 @@
             // 
             this.fileToolStripSeparator.Name = "fileToolStripSeparator";
             this.fileToolStripSeparator.Size = new System.Drawing.Size(6, 25);
+            // 
+            // findNextToolStripButton
+            // 
+            this.findNextToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.findNextToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("findNextToolStripButton.Image")));
+            this.findNextToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.findNextToolStripButton.Name = "findNextToolStripButton";
+            this.findNextToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.findNextToolStripButton.Text = "Find Next (F3)";
+            this.findNextToolStripButton.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
+            // 
+            // findPreviousToolStripButton
+            // 
+            this.findPreviousToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.findPreviousToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("findPreviousToolStripButton.Image")));
+            this.findPreviousToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.findPreviousToolStripButton.Name = "findPreviousToolStripButton";
+            this.findPreviousToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.findPreviousToolStripButton.Text = "Find Previous (Shift+F3)";
+            this.findPreviousToolStripButton.Click += new System.EventHandler(this.findPreviousToolStripMenuItem_Click);
+            // 
+            // findToolStripSeparator
+            // 
+            this.findToolStripSeparator.Name = "findToolStripSeparator";
+            this.findToolStripSeparator.Size = new System.Drawing.Size(6, 25);
             // 
             // undoToolStripButton
             // 
@@ -1409,6 +1440,9 @@
         private Bonsai.Editor.CueBannerTextBox searchTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem groupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton findNextToolStripButton;
+        private System.Windows.Forms.ToolStripButton findPreviousToolStripButton;
+        private System.Windows.Forms.ToolStripSeparator findToolStripSeparator;
         private System.Windows.Forms.ToolStripButton undoToolStripButton;
         private System.Windows.Forms.ToolStripButton redoToolStripButton;
         private System.Windows.Forms.ToolStripButton stopToolStripButton;
