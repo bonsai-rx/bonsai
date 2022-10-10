@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1854,6 +1854,61 @@ namespace Bonsai.Editor
             }
         }
 
+        void FindNextTypeMatch(TreeNode typeNode, bool findPrevious)
+        {
+            var currentNode = selectionModel.SelectedNodes.FirstOrDefault();
+            var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+            Func<ExpressionBuilder, bool> predicate = elementCategory switch
+            {
+                ~ElementCategory.Workflow => builder => builder.MatchIncludeWorkflow(typeNode.Name),
+                ~ElementCategory.Source => builder => builder.MatchSubjectReference(typeNode.Name),
+                _ => builder => builder.MatchElementType(typeNode.Name),
+            };
+
+            FindNextMatch(predicate, currentNode?.Value, findPrevious);
+        }
+
+        void FindNextGraphNode(bool findPrevious)
+        {
+            var model = selectionModel.SelectedView;
+            if (!model.GraphView.Focused) return;
+
+            var selection = selectionModel.SelectedNodes.ToArray();
+            if (selection.Length == 0) return;
+
+            Func<ExpressionBuilder, bool> predicate;
+            var currentBuilder = ExpressionBuilder.Unwrap(selection[0].Value);
+            if (currentBuilder is SubjectExpressionBuilder ||
+                currentBuilder is SubscribeSubject ||
+                currentBuilder is MulticastSubject)
+            {
+                var subjectName = ((INamedElement)currentBuilder).Name;
+                predicate = builder => builder.MatchSubjectReference(subjectName);
+            }
+            else if (currentBuilder is IncludeWorkflowBuilder includeBuilder)
+            {
+                predicate = builder => builder.MatchIncludeWorkflow(includeBuilder.Path);
+            }
+            else
+            {
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(currentBuilder);
+                var typeName = workflowElement.GetType().AssemblyQualifiedName;
+                predicate = builder => builder.MatchElementType(typeName);
+            }
+
+            FindNextMatch(predicate, currentBuilder, findPrevious);
+        }
+
+        void FindNextMatch(Func<ExpressionBuilder, bool> predicate, ExpressionBuilder current, bool findPrevious)
+        {
+            var match = workflowBuilder.Find(predicate, current, findPrevious);
+            if (match != null)
+            {
+                var scope = workflowBuilder.GetExpressionScope(match);
+                HighlightExpression(editorControl.WorkflowGraphView, scope);
+            }
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             var selectedNode = toolboxTreeView.SelectedNode;
@@ -1867,21 +1922,7 @@ namespace Bonsai.Editor
             if (e.KeyCode == Keys.F3 && selectedNode?.Tag != null)
             {
                 var findPrevious = e.Modifiers == Keys.Shift;
-                var currentNode = selectionModel.SelectedNodes.FirstOrDefault();
-                var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
-                Func<ExpressionBuilder, bool> predicate = elementCategory switch
-                {
-                    ~ElementCategory.Workflow => builder => builder.MatchIncludeWorkflow(selectedNode.Name),
-                    ~ElementCategory.Source => builder => builder.MatchSubjectReference(selectedNode.Name),
-                    _ => builder => builder.MatchElementType(selectedNode.Name),
-                };
-
-                var match = workflowBuilder.Find(predicate, currentNode?.Value, findPrevious);
-                if (match != null)
-                {
-                    var scope = workflowBuilder.GetExpressionScope(match);
-                    HighlightExpression(editorControl.WorkflowGraphView, scope);
-                }
+                FindNextTypeMatch(selectedNode, findPrevious);
             }
 
             var rename = e.KeyCode == Keys.F2;
@@ -2067,12 +2108,20 @@ namespace Bonsai.Editor
 
         private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            toolboxTreeView_KeyDown(sender, new KeyEventArgs(findNextToolStripMenuItem.ShortcutKeys));
+            if (toolboxTreeView.Focused || searchTextBox.Focused)
+            {
+                toolboxTreeView_KeyDown(sender, new KeyEventArgs(findNextToolStripMenuItem.ShortcutKeys));
+            }
+            else FindNextGraphNode(findPrevious: false);
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            toolboxTreeView_KeyDown(sender, new KeyEventArgs(findPreviousToolStripMenuItem.ShortcutKeys));
+            if (toolboxTreeView.Focused || searchTextBox.Focused)
+            {
+                toolboxTreeView_KeyDown(sender, new KeyEventArgs(findPreviousToolStripMenuItem.ShortcutKeys));
+            }
+            else FindNextGraphNode(findPrevious: true);
         }
 
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
