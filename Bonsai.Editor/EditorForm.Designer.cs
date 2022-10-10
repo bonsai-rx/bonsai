@@ -1,4 +1,4 @@
-namespace Bonsai.Editor
+﻿namespace Bonsai.Editor
 {
     partial class EditorForm
     {
@@ -690,7 +690,7 @@ namespace Bonsai.Editor
             this.newToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripButton.Name = "newToolStripButton";
             this.newToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.newToolStripButton.Text = "&New";
+            this.newToolStripButton.Text = "&New (Ctrl+N)";
             this.newToolStripButton.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripButton
@@ -700,7 +700,7 @@ namespace Bonsai.Editor
             this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripButton.Name = "openToolStripButton";
             this.openToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.openToolStripButton.Text = "&Open";
+            this.openToolStripButton.Text = "&Open (Ctrl+O)";
             this.openToolStripButton.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripButton
@@ -710,7 +710,7 @@ namespace Bonsai.Editor
             this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripButton.Name = "saveToolStripButton";
             this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.saveToolStripButton.Text = "&Save";
+            this.saveToolStripButton.Text = "&Save (Ctrl+S)";
             this.saveToolStripButton.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // fileToolStripSeparator
@@ -750,7 +750,7 @@ namespace Bonsai.Editor
             this.undoToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.undoToolStripButton.Name = "undoToolStripButton";
             this.undoToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.undoToolStripButton.Text = "&Undo";
+            this.undoToolStripButton.Text = "&Undo (Ctrl+Z)";
             this.undoToolStripButton.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
             // 
             // redoToolStripButton
@@ -760,7 +760,7 @@ namespace Bonsai.Editor
             this.redoToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.redoToolStripButton.Name = "redoToolStripButton";
             this.redoToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.redoToolStripButton.Text = "&Redo";
+            this.redoToolStripButton.Text = "&Redo (Ctrl+Y)";
             this.redoToolStripButton.Click += new System.EventHandler(this.redoToolStripMenuItem_Click);
             // 
             // editToolStripSeparator
@@ -779,6 +779,7 @@ namespace Bonsai.Editor
             this.startToolStripSplitButton.Name = "startToolStripSplitButton";
             this.startToolStripSplitButton.Size = new System.Drawing.Size(63, 22);
             this.startToolStripSplitButton.Text = "Start";
+            this.startToolStripSplitButton.ToolTipText = "Start (F5)";
             this.startToolStripSplitButton.ButtonClick += new System.EventHandler(this.startToolStripMenuItem_Click);
             // 
             // startToolStripButtonMenuItem
@@ -805,7 +806,7 @@ namespace Bonsai.Editor
             this.stopToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopToolStripButton.Name = "stopToolStripButton";
             this.stopToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.stopToolStripButton.Text = "S&top";
+            this.stopToolStripButton.Text = "S&top (Shift+F5)";
             this.stopToolStripButton.Visible = false;
             this.stopToolStripButton.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
@@ -817,7 +818,7 @@ namespace Bonsai.Editor
             this.restartToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.restartToolStripButton.Name = "restartToolStripButton";
             this.restartToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.restartToolStripButton.Text = "Restart";
+            this.restartToolStripButton.Text = "Restart (Ctrl+Shift+F5)";
             this.restartToolStripButton.Visible = false;
             this.restartToolStripButton.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
             // 
