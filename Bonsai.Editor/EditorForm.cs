@@ -2092,7 +2092,7 @@ namespace Bonsai.Editor
                 if (!model.GraphView.Focused) return;
 
                 var selection = selectionModel.SelectedNodes.ToArray();
-                var selectedBuilder = selection?.Length == 1 && selection?[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.Builder : null;
+                var selectedBuilder = selection.Length == 1 && selection[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.Builder : null;
                 if (selectedBuilder is SubjectExpressionBuilder ||
                     selectedBuilder is SubscribeSubject ||
                     selectedBuilder is MulticastSubject)
