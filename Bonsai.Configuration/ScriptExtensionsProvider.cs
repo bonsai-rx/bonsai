@@ -58,7 +58,7 @@ namespace Bonsai.Configuration
                             while (propertyReader.ReadToFollowing(ReferenceElement))
                             {
                                 var assemblyName = propertyReader.GetAttribute(IncludeAttribute);
-                                yield return Path.ChangeExtension(assemblyName, DllExtension);
+                                yield return assemblyName + DllExtension;
                             }
                         }
                     }
@@ -113,7 +113,7 @@ namespace Bonsai.Configuration
                 assemblyNames.AddRange(projectReferences);
             }
 
-            var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
+            var assemblyFile = Path.Combine(assemblyDirectory, OutputAssemblyName + DllExtension);
             var assemblyReferences = (from fileName in assemblyNames
                                       let assemblyName = Path.GetFileNameWithoutExtension(fileName)
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
