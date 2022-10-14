@@ -105,6 +105,9 @@ namespace Bonsai.Expressions
         }
     }
 
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="SubscribeSubject"/> operator instead.
+    /// </summary>
     [Obsolete]
     [ProxyType(typeof(SubscribeSubject))]
     public class SubscribeSubjectBuilder : SubscribeSubject

@@ -121,6 +121,9 @@ namespace Bonsai.Expressions
         }
     }
 
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="MulticastSubject"/> operator instead.
+    /// </summary>
     [Obsolete]
     [ProxyType(typeof(MulticastSubject))]
     public class MulticastSubjectBuilder : MulticastSubject

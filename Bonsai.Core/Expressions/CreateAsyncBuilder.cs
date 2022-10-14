@@ -12,6 +12,7 @@ namespace Bonsai.Expressions
     /// <summary>
     /// This type is obsolete. Please use the <see cref="Reactive.Defer"/> operator or
     /// <see cref="Reactive.AsyncSubject"/> instead.
+    /// </summary>
     [Obsolete]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("CreateAsync", Namespace = Constants.XmlNamespace)]

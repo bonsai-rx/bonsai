@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubject"/> operator instead.
     /// </summary>
     [Obsolete]
     [ProxyType(typeof(Reactive.PublishSubject))]
@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     }
 
     /// <summary>
-    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubjectBuilder"/> operator instead.
+    /// This type is obsolete. Please use the <see cref="Reactive.PublishSubject"/> operator instead.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [Obsolete]
