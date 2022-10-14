@@ -1348,11 +1348,14 @@ namespace Bonsai
             public static ClrNamespace FromType(Type type)
             {
                 var assemblyName = type.Assembly.GetName();
+#if NET462_OR_GREATER
                 if (type.Assembly.GlobalAssemblyCache && !FrameworkAssemblyNames.ContainsKey(assemblyName.Name))
                 {
                     return new ClrNamespace(type.Namespace, assemblyName.FullName);
                 }
-                else return new ClrNamespace(type.Namespace, assemblyName.Name.Replace(DynamicAssemblyPrefix, string.Empty));
+                else
+#endif
+                    return new ClrNamespace(type.Namespace, assemblyName.Name.Replace(DynamicAssemblyPrefix, string.Empty));
             }
 
             public static ClrNamespace FromUri(string clrNamespace)
@@ -1409,6 +1412,6 @@ namespace Bonsai
             }
         }
 
-        #endregion
+#endregion
     }
 }
