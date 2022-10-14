@@ -7,9 +7,6 @@
     <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
