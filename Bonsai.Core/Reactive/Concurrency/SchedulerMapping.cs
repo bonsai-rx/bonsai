@@ -31,7 +31,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the scheduler object assigned to the mapping.
         /// </summary>
         [XmlIgnore]
-        public IScheduler Instance { get; set; }
+        public IScheduler Instance { get; private set; }
 
         /// <summary>
         /// Gets or sets an XML representation of the scheduler instance for serialization.
