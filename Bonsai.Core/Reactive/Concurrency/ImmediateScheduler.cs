@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Reactive.Linq;
 using Rx = System.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
@@ -8,14 +10,19 @@ namespace Bonsai.Reactive
     /// to run immediately on the current thread.
     /// </summary>
     [Description("Returns an object that schedules units of work to run immediately on the current thread.")]
-    public sealed class ImmediateScheduler : SchedulerSource<Rx.ImmediateScheduler>
+    public sealed class ImmediateScheduler : Source<Rx.ImmediateScheduler>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImmediateScheduler"/> class.
+        /// Generates an observable sequence that returns the singleton
+        /// <see cref="Rx.ImmediateScheduler"/> object.
         /// </summary>
-        public ImmediateScheduler()
-            : base(Rx.ImmediateScheduler.Instance)
+        /// <returns>
+        /// A sequence containing the singleton <see cref="Rx.ImmediateScheduler"/>
+        /// object.
+        /// </returns>
+        public override IObservable<Rx.ImmediateScheduler> Generate()
         {
+            return Observable.Return(Rx.ImmediateScheduler.Instance);
         }
     }
 }

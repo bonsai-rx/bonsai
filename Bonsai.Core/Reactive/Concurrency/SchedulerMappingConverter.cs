@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using Rx = System.Reactive.Concurrency;
 
 namespace Bonsai.Reactive.Concurrency
 {
@@ -8,12 +9,13 @@ namespace Bonsai.Reactive.Concurrency
     {
         static readonly SchedulerMapping[] DefaultSchedulers = new SchedulerMapping[]
         {
-            new DefaultScheduler(),
-            new CurrentThreadScheduler(),
-            new ImmediateScheduler(),
-            new NewThreadScheduler(),
-            new TaskPoolScheduler(),
-            new ThreadPoolScheduler()
+            new SchedulerMapping(),
+            new SchedulerMapping { Instance = Rx.DefaultScheduler.Instance },
+            new SchedulerMapping { Instance = Rx.CurrentThreadScheduler.Instance },
+            new SchedulerMapping { Instance = Rx.ImmediateScheduler.Instance },
+            new SchedulerMapping { Instance = Rx.ThreadPoolScheduler.Instance },
+            new SchedulerMapping { Instance = Rx.NewThreadScheduler.Default },
+            new SchedulerMapping { Instance = Rx.TaskPoolScheduler.Default },
         };
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
@@ -25,10 +27,7 @@ namespace Bonsai.Reactive.Concurrency
         {
             if (value is string name)
             {
-                var scheduler = Array.Find(DefaultSchedulers, x => x?.GetType().Name == (string)value);
-                return scheduler ?? throw new ArgumentException(
-                    "The specified string does not identify a well-known scheduler type.",
-                    nameof(value));
+                return new SchedulerMapping { InstanceXml = name };
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -36,16 +35,9 @@ namespace Bonsai.Reactive.Concurrency
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (value != null && destinationType == typeof(string))
+            if (value is SchedulerMapping mapping && destinationType == typeof(string))
             {
-                var scheduler = Array.Find(DefaultSchedulers, x => x != null && x.Equals(value));
-                if (scheduler == null)
-                {
-                    return "(" + nameof(SchedulerMapping) + ")";
-                }
-
-                var sourceType = value.GetType();
-                return sourceType.Name;
+                return mapping.InstanceXml;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

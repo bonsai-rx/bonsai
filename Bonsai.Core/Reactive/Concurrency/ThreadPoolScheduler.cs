@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Reactive.Linq;
 using Rx = System.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
@@ -8,14 +10,19 @@ namespace Bonsai.Reactive
     /// on the CLR thread pool.
     /// </summary>
     [Description("Returns an object that schedules units of work on the CLR thread pool.")]
-    public sealed class ThreadPoolScheduler : SchedulerSource<Rx.ThreadPoolScheduler>
+    public sealed class ThreadPoolScheduler : Source<Rx.ThreadPoolScheduler>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ThreadPoolScheduler"/> class.
+        /// Generates an observable sequence that returns the singleton
+        /// <see cref="Rx.ThreadPoolScheduler"/> object.
         /// </summary>
-        public ThreadPoolScheduler()
-            : base(Rx.ThreadPoolScheduler.Instance)
+        /// <returns>
+        /// A sequence containing the singleton <see cref="Rx.ThreadPoolScheduler"/>
+        /// object.
+        /// </returns>
+        public override IObservable<Rx.ThreadPoolScheduler> Generate()
         {
+            return Observable.Return(Rx.ThreadPoolScheduler.Instance);
         }
     }
 }

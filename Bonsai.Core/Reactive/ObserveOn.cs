@@ -2,7 +2,6 @@
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
-using Bonsai.Expressions;
 using Bonsai.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
@@ -13,31 +12,14 @@ namespace Bonsai.Reactive
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Sends all notifications in the sequence to the specified scheduler.")]
-    public class ObserveOn : Combinator, ISerializableElement
+    public class ObserveOn : Combinator
     {
         /// <summary>
         /// Gets or sets a value specifying the scheduler on which to observe notifications.
         /// </summary>
-        [XmlElement(Namespace = Constants.XmlNamespace)]
         [TypeConverter(typeof(SchedulerMappingConverter))]
         [Description("Specifies the scheduler on which to observe notifications.")]
-        public SchedulerMapping Scheduler { get; set; } = SchedulerMapping.Default;
-
-        object ISerializableElement.Element => Scheduler;
-
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="Scheduler"/> property should be serialized.
-        /// </summary>
-        [Browsable(false)]
-        public bool SchedulerSpecified
-        {
-            get
-            {
-                var scheduler = Scheduler;
-                return scheduler != SchedulerMapping.Default &&
-                    scheduler?.GetType() != typeof(SchedulerMapping);
-            }
-        }
+        public SchedulerMapping Scheduler { get; set; }
 
         /// <summary>
         /// Sends all notifications in an observable sequence to the specified scheduler.
@@ -52,7 +34,7 @@ namespace Bonsai.Reactive
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.ObserveOn(Scheduler?.Instance);
+            return source.ObserveOn(Scheduler.Instance);
         }
     }
 }
