@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Reactive.Linq;
 using Rx = System.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
@@ -8,14 +10,19 @@ namespace Bonsai.Reactive
     /// on the Task Parallel Library (TPL) task pool.
     /// </summary>
     [Description("Returns an object that schedules units of work on the Task Parallel Library (TPL) task pool.")]
-    public sealed class TaskPoolScheduler : SchedulerSource<Rx.TaskPoolScheduler>
+    public sealed class TaskPoolScheduler : Source<Rx.TaskPoolScheduler>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TaskPoolScheduler"/> class.
+        /// Generates an observable sequence that returns the default
+        /// <see cref="Rx.TaskPoolScheduler"/> object.
         /// </summary>
-        public TaskPoolScheduler()
-            : base(Rx.TaskPoolScheduler.Default)
+        /// <returns>
+        /// A sequence containing the default <see cref="Rx.TaskPoolScheduler"/>
+        /// object.
+        /// </returns>
+        public override IObservable<Rx.TaskPoolScheduler> Generate()
         {
+            return Observable.Return(Rx.TaskPoolScheduler.Default);
         }
     }
 }

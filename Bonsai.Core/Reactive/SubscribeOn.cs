@@ -2,7 +2,6 @@
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
-using Bonsai.Expressions;
 using Bonsai.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
@@ -15,31 +14,15 @@ namespace Bonsai.Reactive
     /// <seealso cref="ObserveOn"/>
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
     [Description("Wraps the source sequence in order to run its subscription and unsubscription logic on the specified scheduler.")]
-    public class SubscribeOn : Combinator, ISerializableElement
+    public class SubscribeOn : Combinator
     {
         /// <summary>
         /// Gets or sets a value specifying the scheduler on which to run subscription and
         /// unsubscription actions.
         /// </summary>
-        [XmlElement(Namespace = Constants.XmlNamespace)]
         [TypeConverter(typeof(SchedulerMappingConverter))]
-        public SchedulerMapping Scheduler { get; set; } = SchedulerMapping.Default;
-
-        object ISerializableElement.Element => Scheduler;
-
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="Scheduler"/> property should be serialized.
-        /// </summary>
-        [Browsable(false)]
-        public bool SchedulerSpecified
-        {
-            get
-            {
-                var scheduler = Scheduler;
-                return scheduler != SchedulerMapping.Default &&
-                    scheduler?.GetType() != typeof(SchedulerMapping);
-            }
-        }
+        [Description("Specifies the scheduler on which to run subscription and unsubscription actions.")]
+        public SchedulerMapping Scheduler { get; set; }
 
         /// <summary>
         /// Wraps the source sequence in order to run its subscription and
@@ -55,7 +38,7 @@ namespace Bonsai.Reactive
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.SubscribeOn(Scheduler?.Instance);
+            return source.SubscribeOn(Scheduler.Instance);
         }
     }
 }

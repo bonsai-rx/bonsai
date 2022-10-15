@@ -1,28 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Xml.Serialization;
+using Rx = System.Reactive.Concurrency;
 
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents an object that specifies a scheduler to be used when handling
+    /// Represents a value specifying the scheduler to be used when handling
     /// concurrency in a reactive operator.
     /// </summary>
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    public class SchedulerMapping
+    public struct SchedulerMapping : IEquatable<SchedulerMapping>
     {
-        internal static readonly SchedulerMapping Default = new DefaultScheduler();
-
-        internal SchedulerMapping()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SchedulerMapping"/> class
         /// using the specified scheduler.
         /// </summary>
-        /// <param name="scheduler">The scheduler to be assigned to the mapping.</param>
+        /// <param name="scheduler">The scheduler assigned to the mapping.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="scheduler"/> is <see langword="null"/>.
         /// </exception>
@@ -31,44 +27,69 @@ namespace Bonsai.Reactive
             Instance = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         }
 
-        internal IScheduler Instance { get; }
-    }
+        /// <summary>
+        /// Gets or sets the scheduler object assigned to the mapping.
+        /// </summary>
+        [XmlIgnore]
+        public IScheduler Instance { get; set; }
 
-    /// <summary>
-    /// Represents an operator that returns a scheduler object.
-    /// </summary>
-    /// <typeparam name="TScheduler">The type of the scheduler object.</typeparam>
-    [Combinator(MethodName = nameof(Generate))]
-    [WorkflowElementCategory(ElementCategory.Source)]
-    [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    public abstract class SchedulerSource<TScheduler> : SchedulerMapping where TScheduler : IScheduler
-    {
-        internal SchedulerSource(TScheduler defaultScheduler)
-            : base(defaultScheduler)
+        /// <summary>
+        /// Gets or sets an XML representation of the scheduler instance for serialization.
+        /// </summary>
+        [XmlText]
+        [Browsable(false)]
+        public string InstanceXml
         {
+            get
+            {
+                var instance = Instance;
+                if (instance == Rx.DefaultScheduler.Instance) return nameof(DefaultScheduler);
+                if (instance == Rx.CurrentThreadScheduler.Instance) return nameof(CurrentThreadScheduler);
+                if (instance == Rx.ImmediateScheduler.Instance) return nameof(ImmediateScheduler);
+                if (instance == Rx.NewThreadScheduler.Default) return nameof(NewThreadScheduler);
+                if (instance == Rx.TaskPoolScheduler.Default) return nameof(TaskPoolScheduler);
+                if (instance == Rx.ThreadPoolScheduler.Instance) return nameof(ThreadPoolScheduler);
+                return null;
+            }
+            set
+            {
+                Instance = value switch
+                {
+                    nameof(DefaultScheduler) => Rx.DefaultScheduler.Instance,
+                    nameof(CurrentThreadScheduler) => Rx.CurrentThreadScheduler.Instance,
+                    nameof(ImmediateScheduler) => Rx.ImmediateScheduler.Instance,
+                    nameof(NewThreadScheduler) => Rx.NewThreadScheduler.Default,
+                    nameof(TaskPoolScheduler) => Rx.TaskPoolScheduler.Default,
+                    nameof(ThreadPoolScheduler) => Rx.ThreadPoolScheduler.Instance,
+                    _ => null,
+                };
+            }
         }
 
         /// <summary>
-        /// Generates an observable sequence that returns the scheduler instance.
+        /// Returns a value indicating whether this object has the same scheduler
+        /// instance as a specified <see cref="SchedulerMapping"/> value.
         /// </summary>
+        /// <param name="other">The <see cref="SchedulerMapping"/> value to compare to this object.</param>
         /// <returns>
-        /// A sequence containing the <see cref="IScheduler"/> object.
+        /// <see langword="true"/> if <paramref name="other"/> has the same scheduler instance
+        /// as this object; otherwise, <see langword="false"/>.
         /// </returns>
-        public IObservable<TScheduler> Generate()
+        public bool Equals(SchedulerMapping other)
         {
-            return Observable.Return((TScheduler)Instance);
+            return Instance == other.Instance;
         }
 
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return obj is SchedulerSource<TScheduler> scheduler && scheduler.Instance == Instance;
+            return obj is SchedulerMapping mapping && Instance == mapping.Instance;
         }
 
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            return Instance.GetHashCode();
+            return EqualityComparer<IScheduler>.Default.GetHashCode(Instance);
         }
     }
 }
