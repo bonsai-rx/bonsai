@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using Rx = System.Reactive.Concurrency;
@@ -10,12 +10,12 @@ namespace Bonsai.Reactive.Concurrency
         static readonly SchedulerMapping[] DefaultSchedulers = new SchedulerMapping[]
         {
             new SchedulerMapping(),
-            new SchedulerMapping { Instance = Rx.DefaultScheduler.Instance },
-            new SchedulerMapping { Instance = Rx.CurrentThreadScheduler.Instance },
-            new SchedulerMapping { Instance = Rx.ImmediateScheduler.Instance },
-            new SchedulerMapping { Instance = Rx.ThreadPoolScheduler.Instance },
-            new SchedulerMapping { Instance = Rx.NewThreadScheduler.Default },
-            new SchedulerMapping { Instance = Rx.TaskPoolScheduler.Default },
+            new SchedulerMapping(Rx.DefaultScheduler.Instance),
+            new SchedulerMapping(Rx.CurrentThreadScheduler.Instance),
+            new SchedulerMapping(Rx.ImmediateScheduler.Instance),
+            new SchedulerMapping(Rx.ThreadPoolScheduler.Instance),
+            new SchedulerMapping(Rx.NewThreadScheduler.Default),
+            new SchedulerMapping(Rx.TaskPoolScheduler.Default),
         };
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
