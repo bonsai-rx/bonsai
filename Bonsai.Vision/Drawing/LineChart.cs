@@ -9,6 +9,7 @@ namespace Bonsai.Vision.Drawing
     /// Represents an operator that specifies drawing a line chart by plotting
     /// each row of a matrix as a polyline element.
     /// </summary>
+    [ResetCombinator]
     [Description("Draws a line chart by plotting each row of a matrix as a polyline element.")]
     public class LineChart : CanvasElement
     {
