@@ -1394,13 +1394,19 @@ namespace Bonsai.Editor.GraphView
             return properties;
         }
 
+        static bool IsBrowsableMember(MemberInfo member)
+        {
+            return !member.IsDefined(typeof(ObsoleteAttribute)) &&
+                   !member.GetCustomAttributes<BrowsableAttribute>().Contains(BrowsableAttribute.No);
+        }
+
         private IDisposable CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
             if (type.IsEnum) return Disposable.Empty;
             var root = string.IsNullOrEmpty(ownerItem.Name);
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
-                                      .Where(member => !member.IsDefined(typeof(ObsoleteAttribute)))
+                                      .Where(IsBrowsableMember)
                                       .OrderBy(member => member.MetadataToken))
             {
                 var memberSelector = root ? field.Name : string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
@@ -1409,7 +1415,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             foreach (var property in GetProperties(type, BindingFlags.Instance | BindingFlags.Public)
-                                         .Where(member => !member.IsDefined(typeof(ObsoleteAttribute)))
+                                         .Where(IsBrowsableMember)
                                          .Distinct(PropertyInfoComparer.Default)
                                          .OrderBy(member => member.MetadataToken))
             {
