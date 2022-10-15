@@ -9,6 +9,7 @@ namespace Bonsai.Vision.Drawing
     /// <summary>
     /// Represents an operator that specifies drawing a path from an array of vertices.
     /// </summary>
+    [ResetCombinator]
     [Description("Draws a path from an array of vertices.")]
     public class Path : CanvasElement
     {

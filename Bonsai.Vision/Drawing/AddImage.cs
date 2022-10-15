@@ -8,6 +8,7 @@ namespace Bonsai.Vision.Drawing
     /// <summary>
     /// Represents an operator that specifies drawing the specified image to the canvas.
     /// </summary>
+    [ResetCombinator]
     [Description("Draws the specified image to the canvas.")]
     public class AddImage : CanvasElement
     {

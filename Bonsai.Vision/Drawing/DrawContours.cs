@@ -9,6 +9,7 @@ namespace Bonsai.Vision.Drawing
     /// Represents an operator that specifies drawing contour outlines or filled
     /// interiors in an image.
     /// </summary>
+    [ResetCombinator]
     [Description("Draws contour outlines or filled interiors in an image.")]
     public class DrawContours : CanvasElement
     {

@@ -77,6 +77,11 @@ namespace Bonsai.Expressions
 
         static Delegate BuildResetCombinator(Type combinatorType)
         {
+            if (!combinatorType.IsDefined(typeof(ResetCombinatorAttribute)))
+            {
+                return null;
+            }
+
             List<PropertyInfo> resetProperties = null;
             var combinatorProperties = combinatorType.GetProperties();
             for (int i = 0; i < combinatorProperties.Length; i++)

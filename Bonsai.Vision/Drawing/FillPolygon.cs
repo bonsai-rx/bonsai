@@ -9,6 +9,7 @@ namespace Bonsai.Vision.Drawing
     /// Represents an operator that specifies filling an area bounded by several
     /// polygonal contours.
     /// </summary>
+    [ResetCombinator]
     [Description("Fills an area bounded by several polygonal contours.")]
     public class FillPolygon : CanvasElement
     {

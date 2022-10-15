@@ -8,6 +8,7 @@ namespace Bonsai.Vision.Drawing
     /// <summary>
     /// Represents an operator that specifies drawing one or more polygonal curves.
     /// </summary>
+    [ResetCombinator]
     [Description("Draws one or more polygonal curves.")]
     public class PolyLine : CanvasElement
     {
