@@ -25,6 +25,15 @@ namespace Bonsai.Reactive
         public SchedulerMapping Scheduler { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the <see cref="Scheduler"/> property should be serialized.
+        /// </summary>
+        [Browsable(false)]
+        public bool SchedulerSpecified
+        {
+            get { return !string.IsNullOrEmpty(Scheduler.InstanceXml); }
+        }
+
+        /// <summary>
         /// Wraps the source sequence in order to run its subscription and
         /// unsubscription logic on the specified scheduler.
         /// </summary>
