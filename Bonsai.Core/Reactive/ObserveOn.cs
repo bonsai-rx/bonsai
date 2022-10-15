@@ -7,18 +7,18 @@ using Bonsai.Reactive.Concurrency;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents an operator that sends all notifications in the sequence to
+    /// Represents an operator that sends all notifications in the sequence through
     /// the specified scheduler.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Sends all notifications in the sequence to the specified scheduler.")]
+    [Description("Sends all notifications in the sequence through the specified scheduler.")]
     public class ObserveOn : Combinator
     {
         /// <summary>
-        /// Gets or sets a value specifying the scheduler on which to observe notifications.
+        /// Gets or sets a value specifying the scheduler on which to emit notifications.
         /// </summary>
         [TypeConverter(typeof(SchedulerMappingConverter))]
-        [Description("Specifies the scheduler on which to observe notifications.")]
+        [Description("Specifies the scheduler on which to emit notifications.")]
         public SchedulerMapping Scheduler { get; set; }
 
         /// <summary>
@@ -31,14 +31,14 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Sends all notifications in an observable sequence to the specified scheduler.
+        /// Sends all notifications in an observable sequence through the specified scheduler.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.
         /// </typeparam>
         /// <param name="source">The source sequence to schedule notifications for.</param>
         /// <returns>
-        /// An observable sequence where all notifications are sent to the specified
+        /// An observable sequence where all notifications are sent on the specified
         /// scheduler.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

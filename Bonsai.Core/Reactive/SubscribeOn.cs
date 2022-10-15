@@ -43,7 +43,7 @@ namespace Bonsai.Reactive
         /// <param name="source">The observable sequence to wrap.</param>
         /// <returns>
         /// An observable sequence where subscription and unsubscription logic
-        /// run on the specified scheduler.
+        /// are run on the specified scheduler.
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
