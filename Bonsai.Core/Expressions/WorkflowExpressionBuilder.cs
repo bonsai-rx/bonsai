@@ -79,7 +79,7 @@ namespace Bonsai.Expressions
         /// Gets the XML serializable representation of the encapsulated workflow.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Workflow")]
+        [XmlElement(nameof(Workflow))]
         public ExpressionBuilderGraphDescriptor WorkflowDescriptor
         {
             get { return workflow.ToDescriptor(); }

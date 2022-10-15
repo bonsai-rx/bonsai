@@ -4,7 +4,7 @@ namespace Bonsai.Design
 {
     public class VisualizerLayout
     {
-        [XmlElement("DialogSettings")]
+        [XmlElement(nameof(DialogSettings))]
         public VisualizerDialogSettingsCollection DialogSettings { get; } = new VisualizerDialogSettingsCollection();
 
         public static XmlSerializer Serializer

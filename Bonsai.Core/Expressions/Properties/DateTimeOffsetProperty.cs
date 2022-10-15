@@ -42,7 +42,7 @@ namespace Bonsai.Expressions
         /// Gets or sets an XML representation of the property value for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Value")]
+        [XmlElement(nameof(Value))]
         public string ValueXml
         {
             get { return Value.ToString("o"); }

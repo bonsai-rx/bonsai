@@ -37,7 +37,7 @@ namespace Bonsai.Dsp
         /// Gets or sets an XML representation of the feedforward coefficients for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("FeedforwardCoefficients")]
+        [XmlElement(nameof(FeedforwardCoefficients))]
         public string FeedforwardCoefficientsXml
         {
             get { return ArrayConvert.ToString(FeedforwardCoefficients, CultureInfo.InvariantCulture); }
@@ -48,7 +48,7 @@ namespace Bonsai.Dsp
         /// Gets or sets an XML representation of the feedback coefficients for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("FeedbackCoefficients")]
+        [XmlElement(nameof(FeedbackCoefficients))]
         public string FeedbackCoefficientsXml
         {
             get { return ArrayConvert.ToString(FeedbackCoefficients, CultureInfo.InvariantCulture); }

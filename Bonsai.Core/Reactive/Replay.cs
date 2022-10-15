@@ -58,7 +58,7 @@ namespace Bonsai.Reactive
         /// Gets or sets the XML serializable representation of the replay window interval.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Window")]
+        [XmlElement(nameof(Window))]
         public string WindowXml
         {
             get

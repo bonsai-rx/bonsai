@@ -35,7 +35,7 @@ namespace Bonsai.Dsp
         /// Gets or sets an XML representation of the kernel value for serialization.
         /// </summary>
         [Browsable(false)]
-        [XmlElement("Kernel")]
+        [XmlElement(nameof(Kernel))]
         public string KernelXml
         {
             get { return ArrayConvert.ToString(Kernel, CultureInfo.InvariantCulture); }
