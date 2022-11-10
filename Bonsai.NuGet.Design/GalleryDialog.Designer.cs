@@ -125,7 +125,9 @@
             // 
             // prereleaseCheckBox
             // 
+            this.prereleaseCheckBox.AutoSize = true;
             this.prereleaseCheckBox.Location = new System.Drawing.Point(341, 3);
+            this.prereleaseCheckBox.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.prereleaseCheckBox.Name = "prereleaseCheckBox";
             this.prereleaseCheckBox.Size = new System.Drawing.Size(147, 26);
             this.prereleaseCheckBox.TabIndex = 3;
