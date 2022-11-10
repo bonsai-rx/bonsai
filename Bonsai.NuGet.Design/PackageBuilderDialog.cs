@@ -402,7 +402,9 @@ namespace Bonsai.NuGet.Design
                                            property.Name != nameof(PackageBuilder.Serviceable) &&
                                            property.Name != nameof(PackageBuilder.TargetFrameworks) &&
                                            property.Name != nameof(PackageBuilder.Icon) &&
-                                           property.Name != nameof(PackageBuilder.LicenseMetadata)
+                                           property.Name != nameof(PackageBuilder.LicenseMetadata) &&
+                                           property.Name != nameof(PackageBuilder.EmitRequireLicenseAcceptance) &&
+                                           property.Name != nameof(PackageBuilder.Readme)
                                      select ConvertPropertyDescriptor(property);
                     var output = new PropertyDescriptorCollection(properties.ToArray()).Sort(SortOrder);
                     return output;

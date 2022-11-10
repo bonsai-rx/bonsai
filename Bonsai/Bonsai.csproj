@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.7.0</VersionPrefix>
+    <VersionPrefix>2.7.1</VersionPrefix>
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
