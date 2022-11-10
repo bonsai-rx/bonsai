@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.7.0</VersionPrefix>
+    <VersionPrefix>2.7.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
