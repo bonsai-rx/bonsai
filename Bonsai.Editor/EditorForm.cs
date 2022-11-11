@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -780,8 +780,10 @@ namespace Bonsai.Editor
                     MessageBoxIcon.Warning);
             }
 
-            workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
-            return workflowBuilder;
+            return new WorkflowBuilder(workflow.ToInspectableGraph())
+            {
+                Description = workflowBuilder.Description
+            };
         }
 
         void ClearWorkflow()
