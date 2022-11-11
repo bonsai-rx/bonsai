@@ -5,6 +5,7 @@ using System.Linq;
 using System.ComponentModel;
 using System;
 using System.IO;
+using System.Xml;
 
 namespace Bonsai.Editor.GraphModel
 {
@@ -56,18 +57,32 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        static bool IsEmbeddedResourcePath(string path)
+        static Stream GetWorkflowStream(string path)
         {
+            //TODO: Consider refactoring into core API
             const char AssemblySeparator = ':';
             var separatorIndex = path.IndexOf(AssemblySeparator);
-            return separatorIndex >= 0 && !Path.IsPathRooted(path);
+            var embeddedResource = separatorIndex >= 0 && !Path.IsPathRooted(path);
+            if (embeddedResource)
+            {
+                var nameElements = path.Split(new[] { AssemblySeparator }, 2);
+                if (string.IsNullOrEmpty(nameElements[0])) return null;
+
+                var assembly = System.Reflection.Assembly.Load(nameElements[0]);
+                var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                var workflowStream = assembly.GetManifestResourceStream(resourceName);
+                return workflowStream;
+            }
+            else return File.Exists(path) ? File.OpenRead(path) : null;
         }
 
         internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, string fileName, out ExpressionBuilderGraph upgradedWorkflow)
         {
-            if (!IsEmbeddedResourcePath(fileName) && File.Exists(fileName))
+            var workflowStream = GetWorkflowStream(fileName);
+            if (workflowStream != null)
             {
-                ElementStore.ReadWorkflowVersion(fileName, out SemanticVersion version);
+                using var reader = XmlReader.Create(workflowStream);
+                ElementStore.ReadWorkflowVersion(reader, out SemanticVersion version);
                 return TryUpgradeWorkflow(workflow, version, out upgradedWorkflow);
             }
 
