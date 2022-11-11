@@ -980,7 +980,7 @@ namespace Bonsai.Editor.GraphView
                             groupBuilder.Description = workflowBuilder.Description;
                             elements.Add(groupBuilder);
                         }
-                        InsertWorkflow(elements, nodeType, branch);
+                        InsertWorkflow(elements.ToInspectableGraph(recurse: false), nodeType, branch);
                     }
                     else
                     {
