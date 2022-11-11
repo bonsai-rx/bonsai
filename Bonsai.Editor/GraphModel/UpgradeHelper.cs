@@ -78,7 +78,10 @@ namespace Bonsai.Editor.GraphModel
 
         internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, string fileName, out ExpressionBuilderGraph upgradedWorkflow)
         {
-            var workflowStream = GetWorkflowStream(fileName);
+            Stream workflowStream;
+            try { workflowStream = GetWorkflowStream(fileName); }
+            catch (SystemException) { workflowStream = null; }
+
             if (workflowStream != null)
             {
                 using var reader = XmlReader.Create(workflowStream);
