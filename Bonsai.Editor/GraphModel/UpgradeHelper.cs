@@ -63,6 +63,14 @@ namespace Bonsai.Editor.GraphModel
             return separatorIndex >= 0 && !Path.IsPathRooted(path);
         }
 
+        static ExpressionBuilder ConvertBuilder(ExpressionBuilder builder, Func<ExpressionBuilder, ExpressionBuilder> selector)
+        {
+            //TODO: Remove this workaround for ensuring workflow node order (refactor core conversion API)
+            var set = new[] { new Node<ExpressionBuilder, ExpressionBuilderArgument>(builder) };
+            var result = set.Convert(selector, recurse: false);
+            return result.First().Value;
+        }
+
         internal static bool TryUpgradeWorkflow(ExpressionBuilderGraph workflow, string fileName, out ExpressionBuilderGraph upgradedWorkflow)
         {
             if (!IsEmbeddedResourcePath(fileName) && File.Exists(fileName))
@@ -95,6 +103,18 @@ namespace Bonsai.Editor.GraphModel
             GetArgumentCount(workflow, argumentCount);
             ExpressionBuilder UpgradeBuilder(ExpressionBuilder builder)
             {
+                if (builder is DisableBuilder disableBuilder)
+                {
+                    var upgradedBuilder = UpgradeBuilder(disableBuilder.Builder);
+                    if (upgradedBuilder != disableBuilder.Builder)
+                    {
+                        upgradedBuilder = ConvertBuilder(disableBuilder, builder => upgradedBuilder);
+                        return new DisableBuilder(upgradedBuilder);
+                    }
+
+                    return builder;
+                }
+
 #pragma warning disable CS0612 // Type or member is obsolete
                 if (builder is SourceBuilder sourceBuilder)
                 {
