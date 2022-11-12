@@ -67,15 +67,23 @@ namespace Bonsai
 
             const char AssemblySeparator = ':';
             const string BonsaiExtension = ".bonsai";
+            var assemblyName = assembly.GetName().Name;
             var embeddedResources = assembly.GetManifestResourceNames();
             for (int i = 0; i < embeddedResources.Length; i++)
             {
                 if (Path.GetExtension(embeddedResources[i]) == BonsaiExtension)
                 {
                     var description = string.Empty;
+                    var name = Path.GetFileNameWithoutExtension(embeddedResources[i]);
                     var resourceStream = assembly.GetManifestResourceStream(embeddedResources[i]);
                     try
                     {
+                        var metadataType = assembly.GetType(name);
+                        if (metadataType != null && metadataType.IsDefined(typeof(ObsoleteAttribute)))
+                        {
+                            continue;
+                        }
+
                         using (var reader = XmlReader.Create(resourceStream, new XmlReaderSettings { IgnoreWhitespace = true }))
                         {
                             reader.ReadStartElement(typeof(WorkflowBuilder).Name);
@@ -92,8 +100,6 @@ namespace Bonsai
                         continue;
                     }
 
-                    var assemblyName = assembly.GetName().Name;
-                    var name = Path.GetFileNameWithoutExtension(embeddedResources[i]);
                     var nameSeparator = name.LastIndexOf(ExpressionHelper.MemberSeparator);
                     yield return new WorkflowElementDescriptor
                     {
