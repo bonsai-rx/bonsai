@@ -109,7 +109,8 @@ namespace Bonsai.Configuration
             var libraryPaths = from folder in configuration.LibraryFolders
                                where folder.Platform == platform
                                select folder.Path;
-            foreach (var libraryPath in libraryPaths.Concat(configuration.ExtensionFolders))
+            var extensionPaths = configuration.ExtensionFolders.Reverse();
+            foreach (var libraryPath in libraryPaths.Concat(extensionPaths))
             {
                 var path = libraryPath;
                 if (!Path.IsPathRooted(path))
