@@ -19,7 +19,7 @@ namespace Bonsai.Shaders.Rendering
         /// </summary>
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor(DesignTypes.OpenFileNameEditor, DesignTypes.UITypeEditor)]
-        [FileNameFilter("Blender Files (*.blend)|*.blend|OBJ Files (*.obj)|*.obj|All Files|*.*")]
+        [FileNameFilter("COLLADA Files (*.dae)|*.dae|Blender Files (*.blend)|*.blend|FBX Files (*.fbx)|*.fbx|OBJ Files (*.obj)|*.obj|STL Files (*.stl)|*.stl|All Files|*.*")]
         [Description("The name of the file from which to load the scene.")]
         public string FileName { get; set; }
 
