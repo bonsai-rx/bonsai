@@ -10,6 +10,7 @@ namespace Bonsai.Configuration
         readonly AssemblyReferenceCollection assemblyReferences = new AssemblyReferenceCollection();
         readonly AssemblyLocationCollection assemblyLocations = new AssemblyLocationCollection();
         readonly LibraryFolderCollection libraryFolders = new LibraryFolderCollection();
+        readonly ExtensionFolderCollection extensionFolders = new ExtensionFolderCollection();
 
         [XmlIgnore]
         public string ConfigurationFile { get; internal set; }
@@ -33,6 +34,12 @@ namespace Bonsai.Configuration
         public LibraryFolderCollection LibraryFolders
         {
             get { return libraryFolders; }
+        }
+
+        [XmlIgnore]
+        public ExtensionFolderCollection ExtensionFolders
+        {
+            get { return extensionFolders; }
         }
     }
 }

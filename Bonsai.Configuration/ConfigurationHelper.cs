@@ -4,6 +4,7 @@ using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
@@ -105,17 +106,17 @@ namespace Bonsai.Configuration
         {
             var platform = GetEnvironmentPlatform();
             var configurationRoot = GetConfigurationRoot(configuration);
-            foreach (var libraryFolder in configuration.LibraryFolders)
+            var libraryPaths = from folder in configuration.LibraryFolders
+                               where folder.Platform == platform
+                               select folder.Path;
+            foreach (var libraryPath in libraryPaths.Concat(configuration.ExtensionFolders))
             {
-                if (libraryFolder.Platform == platform)
+                var path = libraryPath;
+                if (!Path.IsPathRooted(path))
                 {
-                    var libraryPath = libraryFolder.Path;
-                    if (!Path.IsPathRooted(libraryPath))
-                    {
-                        libraryPath = Path.Combine(configurationRoot, libraryPath);
-                    }
-                    AddLibraryPath(libraryPath);
+                    path = Path.Combine(configurationRoot, path);
                 }
+                AddLibraryPath(path);
             }
 
             Dictionary<string, Assembly> assemblyLoadCache = null;
@@ -192,16 +193,7 @@ namespace Bonsai.Configuration
         public static void RegisterPath(this PackageConfiguration configuration, string path)
         {
             if (!Directory.Exists(path)) return;
-            var platform = GetEnvironmentPlatform();
-            if (!configuration.LibraryFolders.Contains(path))
-            {
-                configuration.LibraryFolders.Add(path, platform);
-            }
-            else if (configuration.LibraryFolders[path].Platform != platform)
-            {
-                var message = string.Format("The library path '{0}' is already registered for a different platform.", path);
-                throw new InvalidOperationException(message);
-            }
+            configuration.ExtensionFolders.Add(path);
 
             foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
             {
