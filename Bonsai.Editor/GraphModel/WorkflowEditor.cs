@@ -1642,8 +1642,8 @@ namespace Bonsai.Editor.GraphModel
                 var path = includeBuilder.Path;
                 if (workflow != null && !string.IsNullOrEmpty(path))
                 {
-                    UpgradeHelper.TryUpgradeWorkflow(workflow, path, out workflow);
-                    groupBuilder = new GroupWorkflowBuilder(workflow);
+                    UpgradeHelper.TryUpgradeWorkflow(workflow.FromInspectableGraph(), path, out workflow);
+                    groupBuilder = new GroupWorkflowBuilder(workflow.ToInspectableGraph());
                 }
                 else groupBuilder = new GroupWorkflowBuilder();
                 groupBuilder.Name = includeBuilder.Name;
