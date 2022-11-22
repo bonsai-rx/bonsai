@@ -309,6 +309,7 @@ namespace Bonsai.Editor
             }
 
             directoryToolStripItem.Text = currentDirectory;
+            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = currentDirectory;
             extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, ExtensionsDirectory));
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
@@ -980,7 +981,6 @@ namespace Bonsai.Editor
         void UpdateWorkflowDirectory(string fileName, bool setWorkingDirectory)
         {
             var workflowDirectory = Path.GetDirectoryName(fileName);
-            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (setWorkingDirectory && directoryToolStripItem.Text != workflowDirectory)
             {
                 Environment.CurrentDirectory = workflowDirectory;
