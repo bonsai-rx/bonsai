@@ -179,13 +179,15 @@ namespace Bonsai
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
-            var types = new HashSet<Type>(GetExtensionTypes(workflow));
-            foreach (var type in types)
+            var types = new HashSet<Type>();
+            foreach (var type in GetExtensionTypes(workflow))
             {
                 if (!type.IsPublic)
                 {
                     throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
                 }
+
+                AddExtensionType(types, type);
             }
 
             var serializer = GetXmlSerializer(types, out Dictionary<string, GenericTypeCode> genericTypes);
@@ -438,6 +440,19 @@ namespace Bonsai
                 .Select(element => element.GetType())
                 .Except(SerializerExtraTypes)
                 .Except(SerializerLegacyTypes);
+        }
+
+        static void AddExtensionType(HashSet<Type> types, Type type)
+        {
+            if (types.Add(type))
+            {
+                // resolve any extra include types
+                var xmlInclude = (XmlIncludeAttribute[])type.GetCustomAttributes(typeof(XmlIncludeAttribute), inherit: true);
+                for (int i = 0; i < xmlInclude.Length; i++)
+                {
+                    types.Add(xmlInclude[i].Type);
+                }
+            }
         }
 
         #endregion
@@ -837,7 +852,7 @@ namespace Bonsai
                                         }
                                     }
 
-                                    types.Add(type);
+                                    AddExtensionType(types, type);
                                     if (!string.IsNullOrEmpty(typeArguments))
                                     {
                                         var typeRef = new CodeTypeReference(type);
