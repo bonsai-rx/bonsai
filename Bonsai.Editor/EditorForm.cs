@@ -282,6 +282,13 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
+                handler => FormClosed += handler,
+                handler => FormClosed -= handler);
+            InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
+            InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
+            updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
+
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
@@ -291,13 +298,6 @@ namespace Bonsai.Editor
                 var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
                 currentDirectoryRestricted |= currentDirectory == systemPath || currentDirectory == systemX86Path;
             }
-            var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
-                handler => FormClosed += handler,
-                handler => FormClosed -= handler);
-
-            InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
-            InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
-            updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
 
             var workflowBaseDirectory = validFileName
                 ? Path.GetDirectoryName(initialFileName)
