@@ -92,7 +92,7 @@ namespace Bonsai.Editor.GraphModel
 
             if (workflowStream != null)
             {
-                using var reader = XmlReader.Create(workflowStream);
+                using var reader = XmlReader.Create(workflowStream, new XmlReaderSettings { CloseInput = true });
                 ElementStore.ReadWorkflowVersion(reader, out SemanticVersion version);
                 return TryUpgradeWorkflow(workflow, version, out upgradedWorkflow);
             }
