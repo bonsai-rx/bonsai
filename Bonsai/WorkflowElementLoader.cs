@@ -75,7 +75,7 @@ namespace Bonsai
                 {
                     var description = string.Empty;
                     var name = Path.GetFileNameWithoutExtension(embeddedResources[i]);
-                    var resourceStream = assembly.GetManifestResourceStream(embeddedResources[i]);
+                    using var resourceStream = assembly.GetManifestResourceStream(embeddedResources[i]);
                     try
                     {
                         var metadataType = assembly.GetType(name);
