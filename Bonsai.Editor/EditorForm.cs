@@ -72,6 +72,7 @@ namespace Bonsai.Editor
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
         readonly string definitionsPath;
+        AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
         WorkflowBuilder workflowBuilder;
         WorkflowException workflowError;
@@ -169,7 +170,7 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorControl.Dock = DockStyle.Fill;
             workflowSplitContainer.Panel1.Controls.Add(editorControl);
-            propertyGrid.BrowsableAttributes = DesignTimeAttributes;
+            propertyGrid.BrowsableAttributes = browsableAttributes = DesignTimeAttributes;
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
@@ -1155,7 +1156,6 @@ namespace Bonsai.Editor
             return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
-                propertyGrid.BrowsableAttributes = DesignTimeAttributes;
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
                 redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
                 toolboxTreeView.Enabled = true;
@@ -1205,7 +1205,6 @@ namespace Bonsai.Editor
                             {
                                 statusTextLabel.Text = Resources.RunningStatus;
                                 statusImageLabel.Image = statusRunningImage;
-                                propertyGrid.BrowsableAttributes = RuntimeAttributes;
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
                                 Activate();
                             }));
@@ -1631,6 +1630,13 @@ namespace Bonsai.Editor
             ungroupToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             enableToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             disableToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
+
+            var selectionBrowsableAttributes = canEdit ? DesignTimeAttributes : RuntimeAttributes;
+            if (browsableAttributes != selectionBrowsableAttributes)
+            {
+                browsableAttributes = selectionBrowsableAttributes;
+                propertyGrid.BrowsableAttributes = browsableAttributes;
+            }
 
             string displayName, description;
             if (!hasSelectedObjects && selectedView != null)
