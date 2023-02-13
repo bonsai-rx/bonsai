@@ -1,7 +1,8 @@
 {
     "$schema": "http://json.schemastore.org/template",
-    "author": "Gonçalo Lopes",
-    "classifications": [ "Common", "Bonsai", "Package" ],
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Package" ],
+    "description": "A project for creating a C# Bonsai package (.dll)",
     "identity": "Bonsai.PackageTemplate",
     "name": "Bonsai Package",
     "tags": {
@@ -57,6 +58,6 @@
         }
     },
     "sourceName": "$projectname$",
-    "shortName": "bonsai-package",
+    "shortName": "bonsaipackage",
     "preferNameDirectory": true
 }

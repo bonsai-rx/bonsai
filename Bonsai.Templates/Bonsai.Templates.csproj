@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
     <PackageVersion>2.7.0</PackageVersion>
     <PackageId>Bonsai.Templates</PackageId>
     <Title>Bonsai Templates</Title>
-    <Authors>Gonçalo Lopes</Authors>
+    <Authors>Bonsai</Authors>
     <Description>Templates for creating a C# Bonsai package (.nupkg)</Description>
     <PackageTags>Bonsai Rx Package Templates</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
