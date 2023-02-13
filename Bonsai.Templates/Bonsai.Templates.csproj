@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Bonsai.EnvironmentTemplate\**\*" />
     <Content Include="Bonsai.PackageTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.PackageTemplate.csproj" />
     <Compile Remove="**\*" />
   </ItemGroup>
