@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Environment" ],
+    "description": "A template for bootstrapping a Bonsai environment",
+    "identity": "Bonsai.EnvironmentTemplate",
+    "name": "Bonsai Environment",
+    "tags": {
+        "type": "project"
+    },
+    "postActions": [{
+        "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+        "description": "Initializes the bonsai environment.",
+        "manualInstructions": [{
+            "text": "Run the 'Setup.ps1' or 'Setup.cmd' scripts."
+        }],
+        "args": {
+            "executable": "powershell",
+            "args": "-File Setup.ps1",
+            "redirectStandardOutput": false
+        }
+          
+    }],
+    "shortName": "bonsaienv",
+    "preferNameDirectory": true
+}
