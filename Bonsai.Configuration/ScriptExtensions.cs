@@ -108,6 +108,7 @@ namespace Bonsai.Configuration
             yield return "System.Reactive.Linq.dll";
             yield return "System.Xml.dll";
             yield return "Bonsai.Core.dll";
+            yield return "Microsoft.CSharp.dll";
 
             if (!File.Exists(ProjectFileName)) yield break;
             using var stream = File.OpenRead(ProjectFileName);
