@@ -25,6 +25,7 @@ namespace Bonsai.IO
     public class CsvWriter : CombinatorExpressionBuilder
     {
         string delimiter;
+        static readonly Expression InvariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
         static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == nameof(string.Join) &&
                                                                                              m.GetParameters().Length == 2 &&
                                                                                              m.GetParameters()[1].ParameterType == typeof(string[]));
@@ -184,23 +185,31 @@ namespace Bonsai.IO
         static Expression GetDataString(Expression expression)
         {
             if (expression.Type == typeof(string)) return expression;
+            if (expression.Type == typeof(float))
+            {
+                return Expression.Call(expression, nameof(ToString), null, Expression.Constant("G9"), InvariantCulture);
+            }
+            else if (expression.Type == typeof(double))
+            {
+                return Expression.Call(expression, nameof(ToString), null, Expression.Constant("G17"), InvariantCulture);
+            }
             else if (expression.Type == typeof(DateTime) || expression.Type == typeof(DateTimeOffset))
             {
-                return Expression.Call(expression, "ToString", null, Expression.Constant("o"));
+                return Expression.Call(expression, nameof(ToString), null, Expression.Constant("o"));
             }
             else if (expression.Type == typeof(IntPtr) || expression.Type == typeof(TimeSpan))
             {
-                return Expression.Call(expression, "ToString", null);
+                return Expression.Call(expression, nameof(ToString), null);
             }
             else if (IsNullable(expression.Type))
             {
-                var hasValue = Expression.Property(expression, "HasValue");
-                var value = Expression.Property(expression, "Value");
+                var hasValue = Expression.Property(expression, nameof(Nullable<int>.HasValue));
+                var value = Expression.Property(expression, nameof(Nullable<int>.Value));
                 return Expression.Condition(hasValue, GetDataString(value), Expression.Constant(string.Empty));
             }
             else
             {
-                return Expression.Call(expression, "ToString", null, Expression.Constant(CultureInfo.InvariantCulture));
+                return Expression.Call(expression, nameof(ToString), null, InvariantCulture);
             }
         }
 
@@ -254,7 +263,7 @@ namespace Bonsai.IO
                 var converterExpression = Expression.Lambda(lineExpression, dataParameter);
                 lineExpression = Expression.Call(
                     typeof(CsvWriter),
-                    "ListJoin",
+                    nameof(ListJoin),
                     new[] { dataType },
                     inputParameter,
                     converterExpression,
@@ -281,7 +290,7 @@ namespace Bonsai.IO
 
             var csvWriter = Expression.Constant(this);
             var headerExpression = Expression.Constant(header);
-            return Expression.Call(csvWriter, "Process", new[] { parameterType }, source, headerExpression, writeAction);
+            return Expression.Call(csvWriter, nameof(Process), new[] { parameterType }, source, headerExpression, writeAction);
         }
 
         static string ListJoin<TSource>(IList<TSource> source, Func<TSource, string> converter, string separator)
