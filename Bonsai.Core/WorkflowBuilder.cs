@@ -243,8 +243,8 @@ namespace Bonsai
             return builderType.Assembly.GetTypes().Where(type =>
                 !type.IsGenericType && !type.IsAbstract &&
                 type.Namespace == builderType.Namespace &&
-                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
-                !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false));
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false) &&
+                !Attribute.IsDefined(type, typeof(ObsoleteAttribute), inherit: false));
         }
 
         static IEnumerable<Type> GetSerializerLegacyTypes()
@@ -378,7 +378,7 @@ namespace Bonsai
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in serializerTypes)
                     {
-                        var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
+                        var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false);
                         var attributes = new XmlAttributes();
                         attributes.XmlType = xmlTypeDefined
                             ? (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute))
@@ -456,7 +456,7 @@ namespace Bonsai
                 while (type.BaseType != null)
                 {
                     type = type.BaseType;
-                    if (Attribute.IsDefined(type, typeof(XmlTypeAttribute)))
+                    if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false))
                     {
                         AddExtensionType(types, type);
                     }
