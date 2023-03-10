@@ -241,8 +241,8 @@ namespace Bonsai
         {
             var builderType = typeof(ExpressionBuilder);
             return builderType.Assembly.GetTypes().Where(type =>
-                !type.IsGenericType && !type.IsAbstract &&
-                type.Namespace == builderType.Namespace &&
+                !type.IsGenericType &&
+                (type.Namespace == builderType.Namespace || type.Namespace == nameof(Bonsai)) &&
                 Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false) &&
                 !Attribute.IsDefined(type, typeof(ObsoleteAttribute), inherit: false));
         }
@@ -453,7 +453,7 @@ namespace Bonsai
                     types.Add(xmlInclude[i].Type);
                 }
 
-                while (type.BaseType != null)
+                while (type.BaseType != null && !SerializerExtraTypes.Contains(type.BaseType))
                 {
                     type = type.BaseType;
                     if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false))
