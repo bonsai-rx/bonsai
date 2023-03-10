@@ -452,6 +452,15 @@ namespace Bonsai
                 {
                     types.Add(xmlInclude[i].Type);
                 }
+
+                while (type.BaseType != null)
+                {
+                    type = type.BaseType;
+                    if (Attribute.IsDefined(type, typeof(XmlTypeAttribute)))
+                    {
+                        AddExtensionType(types, type);
+                    }
+                }
             }
         }
 
