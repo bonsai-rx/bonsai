@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
-using Bonsai.Reactive;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bonsai.Core.Tests
@@ -14,12 +12,12 @@ namespace Bonsai.Core.Tests
     public class WorkflowBuilderTests
     {
         [TestMethod]
-        public void Serialize_DerivedXmlType_BasePropertiesShouldSerializeWithBaseXmlNamespace()
+        public void Serialize_MultipleDerivedXmlTypes_UniqueBaseXmlTypeDeclaration()
         {
             var builder = new StringBuilder();
             var workflow = new WorkflowBuilder();
-            var derivedClass = new DerivedClassWithProperty();
-            derivedClass.DueTime = TimeSpan.FromSeconds(10);
+            var derivedClass = new DerivedNamespace.DerivedClassWithProperty();
+            derivedClass.BaseProperty = 10;
             workflow.Workflow.Add(new CombinatorBuilder { Combinator = derivedClass });
             workflow.Workflow.Add(new CombinatorBuilder { Combinator = new DerivedXmlTypeWithProperty() });
 
@@ -29,21 +27,37 @@ namespace Bonsai.Core.Tests
             }
 
             var xml = builder.ToString();
-            var document = XDocument.Parse(xml);
-            var element = document.Descendants(XName.Get(nameof(Combinator), document.Root.Name.NamespaceName)).FirstOrDefault();
-            var property = element.Descendants().FirstOrDefault(descendant => descendant.Name.LocalName == nameof(Timer.DueTime));
-            Assert.IsNotNull(property);
-            Assert.AreNotEqual(document.Root.Name.NamespaceName, property.Name.NamespaceName);
+            var baseNamespaceDeclarations = Regex.Matches(xml, Regex.Escape(BaseNamespace.BaseClassWithProperty.XmlNamespace));
+            Assert.AreEqual(1, baseNamespaceDeclarations.Count);
         }
     }
 
-    public class DerivedClassWithProperty : Timer
+    namespace BaseNamespace
     {
-        public int NewProperty { get; set; }
+        [XmlType(Namespace = XmlNamespace)]
+        public class BaseClassWithProperty : Combinator
+        {
+            internal const string XmlNamespace = "clr-namespace:Bonsai.Core.Tests.BaseNamespace;assembly=Bonsai.Core.Tests";
+
+            public int BaseProperty { get; set; }
+
+            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+    namespace DerivedNamespace
+    {
+        public class DerivedClassWithProperty : BaseNamespace.BaseClassWithProperty
+        {
+            public int NewProperty { get; set; }
+        }
     }
 
     [XmlType(Namespace = Constants.XmlNamespace)]
-    public class DerivedXmlTypeWithProperty : Timer
+    public class DerivedXmlTypeWithProperty : BaseNamespace.BaseClassWithProperty
     {
         public int NewProperty { get; set; }
     }
