@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -11,24 +15,60 @@ namespace Bonsai.Core.Tests
     [TestClass]
     public class WorkflowBuilderTests
     {
+        private string SerializeWorkflow(WorkflowBuilder workflow)
+        {
+            var builder = new StringBuilder();
+            using (var writer = XmlWriter.Create(builder, new XmlWriterSettings { Indent = true }))
+            {
+                WorkflowBuilder.Serializer.Serialize(writer, workflow);
+            }
+            return builder.ToString();
+        }
+
+        private WorkflowBuilder DeserializeWorkflow(string xml)
+        {
+            using (var stringReader = new StringReader(xml))
+            using (var reader = XmlReader.Create(stringReader))
+            {
+                reader.MoveToContent();
+                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+            }
+        }
+
         [TestMethod]
         public void Serialize_MultipleDerivedXmlTypes_UniqueBaseXmlTypeDeclaration()
         {
-            var builder = new StringBuilder();
             var workflow = new WorkflowBuilder();
             var derivedClass = new DerivedNamespace.DerivedClassWithProperty();
             derivedClass.BaseProperty = 10;
             workflow.Workflow.Add(new CombinatorBuilder { Combinator = derivedClass });
             workflow.Workflow.Add(new CombinatorBuilder { Combinator = new DerivedXmlTypeWithProperty() });
-
-            using (var writer = XmlWriter.Create(builder, new XmlWriterSettings { Indent = true }))
-            {
-                WorkflowBuilder.Serializer.Serialize(writer, workflow);
-            }
-
-            var xml = builder.ToString();
+            var xml = SerializeWorkflow(workflow);
             var baseNamespaceDeclarations = Regex.Matches(xml, Regex.Escape(BaseNamespace.BaseClassWithProperty.XmlNamespace));
             Assert.AreEqual(1, baseNamespaceDeclarations.Count);
+        }
+
+        [TestMethod]
+        public void Serialize_DerivedTypeWithTypeMappingProperty_RoundTripSuccessful()
+        {
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new CombinatorWithMapping { TypeMapping = new TypeMapping<int>() });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var builder = roundTrip.Workflow.First().Value as CombinatorWithMapping;
+            Assert.IsNotNull(builder);
+            Assert.AreEqual(typeof(TypeMapping<int>), builder.TypeMapping.GetType());
+        }
+    }
+
+    [XmlInclude(typeof(TypeMapping<int>))]
+    public class CombinatorWithMapping : SingleArgumentExpressionBuilder
+    {
+        public TypeMapping TypeMapping { get; set; }
+
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            return arguments.First();
         }
     }
 
