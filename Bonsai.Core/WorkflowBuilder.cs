@@ -844,9 +844,9 @@ namespace Bonsai
                             if (!string.IsNullOrEmpty(xsiType) && lookupTypes && !includeWorkflow)
                             {
                                 // ensure xsi:type attributes nested inside include workflow properties are ignored
-                                includeWorkflow = value == IncludeWorkflowTypeName;
+                                includeWorkflow = xsiType == IncludeWorkflowTypeName;
                                 var typeArguments = reader.GetAttribute(TypeArgumentsAttributeName);
-                                var type = ResolveXmlExtension(reader, value, typeArguments);
+                                var type = ResolveXmlExtension(reader, xsiType, typeArguments);
                                 if (type != null)
                                 {
                                     // resolve any xsi:type proxy types
