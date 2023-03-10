@@ -841,7 +841,7 @@ namespace Bonsai
                             }
 
                             // ensure xsi:type attributes are resolved only for workflow element types
-                            if (!string.IsNullOrEmpty(xsiType) && lookupTypes && !includeWorkflow)
+                            if (!string.IsNullOrEmpty(xsiType) && (lookupTypes || xsiType == nameof(TypeMapping)) && !includeWorkflow)
                             {
                                 // ensure xsi:type attributes nested inside include workflow properties are ignored
                                 includeWorkflow = xsiType == IncludeWorkflowTypeName;
