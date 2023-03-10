@@ -253,9 +253,9 @@ namespace Bonsai
             return builderType.Assembly.GetTypes().Where(type =>
                 !type.IsGenericType && !type.IsAbstract &&
                 type.Namespace == builderType.Namespace &&
-                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
-                Attribute.IsDefined(type, typeof(ObsoleteAttribute), false) &&
-                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false))
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false) &&
+                Attribute.IsDefined(type, typeof(ObsoleteAttribute), inherit: false) &&
+                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), inherit: false))
 #pragma warning disable CS0612 // Type or member is obsolete
                 .Concat(new[]
                 {
@@ -339,8 +339,8 @@ namespace Bonsai
             var overrides = new XmlAttributeOverrides();
             foreach (var type in serializerTypes)
             {
-                var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
-                var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
+                var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), inherit: false);
+                var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false);
                 if (xmlTypeDefined && !obsolete) continue;
 
                 var attributes = new XmlAttributes();
@@ -649,9 +649,9 @@ namespace Bonsai
             var assemblyName = builderType.Assembly.GetName().Name;
             foreach (var type in builderType.Assembly.GetTypes().Where(type =>
                 type.IsGenericType && !type.IsAbstract &&
-                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
-                (!Attribute.IsDefined(type, typeof(ObsoleteAttribute), false) ||
-                  Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false))))
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false) &&
+                (!Attribute.IsDefined(type, typeof(ObsoleteAttribute), inherit: false) ||
+                  Attribute.IsDefined(type, typeof(ProxyTypeAttribute), inherit: false))))
             {
                 var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
                 if (string.IsNullOrEmpty(xmlTypeAttribute.TypeName)) continue;
@@ -668,7 +668,7 @@ namespace Bonsai
             var typeMap = new Dictionary<Type, Type>();
             var assemblyName = builderType.Assembly.GetName().Name;
             foreach (var type in builderType.Assembly.GetTypes().Where(type =>
-                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), false)))
+                Attribute.IsDefined(type, typeof(ProxyTypeAttribute), inherit: false)))
             {
                 var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
                 if (proxyTypeAttribute.Destination == null) continue;
