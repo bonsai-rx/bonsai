@@ -50,7 +50,7 @@ namespace Bonsai.Core.Tests
 
     namespace DerivedNamespace
     {
-        public class DerivedClassWithProperty : BaseNamespace.BaseClassWithProperty
+        public class DerivedClassWithProperty : IntermediateTypeWithProperty
         {
             public int NewProperty { get; set; }
         }
@@ -60,5 +60,10 @@ namespace Bonsai.Core.Tests
     public class DerivedXmlTypeWithProperty : BaseNamespace.BaseClassWithProperty
     {
         public int NewProperty { get; set; }
+    }
+
+    public class IntermediateTypeWithProperty : BaseNamespace.BaseClassWithProperty
+    {
+        public int IntermediateProperty { get; set; }
     }
 }
