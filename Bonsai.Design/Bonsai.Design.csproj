@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.7.0</VersionPrefix>
+    <VersionPrefix>2.7.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />

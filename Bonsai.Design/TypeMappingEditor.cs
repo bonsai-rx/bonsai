@@ -51,10 +51,16 @@ namespace Bonsai.Design
                         var intersection = default(HashSet<Type>);
                         foreach (var successor in builderNode.Successors)
                         {
-                            var combinatorBuilder = ExpressionBuilder.Unwrap(successor.Target.Value) as CombinatorBuilder;
-                            if (combinatorBuilder == null || combinatorBuilder.Combinator == null) continue;
+                            var combinator = ExpressionBuilder.Unwrap(successor.Target.Value) switch
+                            {
+                                CombinatorBuilder combinatorBuilder => combinatorBuilder.Combinator,
+                                ICustomTypeDescriptor typeDescriptor =>
+                                    TypeDescriptor.GetDefaultProperty(typeDescriptor.GetType())?.GetValue(typeDescriptor),
+                                _ => null
+                            };
 
-                            var inputTypes = from method in GetProcessMethods(combinatorBuilder.Combinator.GetType())
+                            if (combinator == null) continue;
+                            var inputTypes = from method in GetProcessMethods(combinator.GetType())
                                              where !method.IsGenericMethod
                                              let parameters = method.GetParameters()
                                              where parameters.Length > successor.Label.Index &&
