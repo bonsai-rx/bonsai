@@ -7,8 +7,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
+using Bonsai;
 using Bonsai.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[assembly: XmlNamespacePrefix(Bonsai.Core.Tests.BaseNamespace.BaseClassWithProperty.XmlNamespace, "pre")]
+[assembly: XmlNamespacePrefix(Bonsai.Core.Tests.NamespaceWithPrefixClash.ClassWithProperty.XmlNamespace, "pre")]
 
 namespace Bonsai.Core.Tests
 {
@@ -59,6 +63,20 @@ namespace Bonsai.Core.Tests
             Assert.IsNotNull(builder);
             Assert.AreEqual(typeof(TypeMapping<int>), builder.TypeMapping.GetType());
         }
+
+        [TestMethod]
+        public void Serialize_NamespacePrefixClash_RoundTripSuccessful()
+        {
+            var value = 10;
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new NamespaceWithPrefixClash.ClassWithProperty { Property = value });
+            workflow.Workflow.Add(new CombinatorBuilder { Combinator = new BaseNamespace.BaseClassWithProperty { BaseProperty = 1 } });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var builder = roundTrip.Workflow.First().Value as NamespaceWithPrefixClash.ClassWithProperty;
+            Assert.IsNotNull(builder);
+            Assert.AreEqual(value, builder.Property);
+        }
     }
 
     [XmlInclude(typeof(TypeMapping<int>))]
@@ -84,6 +102,22 @@ namespace Bonsai.Core.Tests
             public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
             {
                 throw new NotImplementedException();
+            }
+        }
+    }
+
+    namespace NamespaceWithPrefixClash
+    {
+        [XmlType(Namespace = XmlNamespace)]
+        public class ClassWithProperty : SelectBuilder
+        {
+            internal const string XmlNamespace = "clr-namespace:Bonsai.Core.Tests.NamespaceWithPrefixClash;assembly=Bonsai.Core.Tests";
+
+            public int Property { get; set; }
+
+            protected override Expression BuildSelector(Expression expression)
+            {
+                return expression;
             }
         }
     }
