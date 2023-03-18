@@ -82,11 +82,15 @@ namespace Bonsai.Reactive
             {
                 if (subject.IsCompleted)
                 {
-                    var disposable = subject.GetResult();
-                    if (disposable != null)
+                    try
                     {
-                        disposable.Dispose();
+                        var disposable = subject.GetResult();
+                        if (disposable != null)
+                        {
+                            disposable.Dispose();
+                        }
                     }
+                    catch { /* source terminated exceptionally */ }
                 }
 
                 subject.Dispose();
