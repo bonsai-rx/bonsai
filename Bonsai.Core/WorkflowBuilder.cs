@@ -296,6 +296,7 @@ namespace Bonsai
             var clrNamespaces = new Dictionary<ClrNamespace, Assembly>();
             foreach (var type in types) GetClrNamespaces(type, clrNamespaces);
 
+            var prefixCounts = new Dictionary<string, int>();
             var serializerNamespaces = new SerializerNamespaces();
             serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
             foreach (var item in clrNamespaces)
@@ -314,7 +315,13 @@ namespace Bonsai
                                   where attributeNamespace.Namespace == clrNamespace.Namespace
                                   select attribute.Prefix)
                                   .FirstOrDefault();
-                    if (prefix == null) prefix = "p" + namespaceIndex++;
+                    if (string.IsNullOrEmpty(prefix)) prefix = "p" + namespaceIndex++;
+                    else
+                    {
+                        prefixCounts.TryGetValue(prefix, out int count);
+                        prefixCounts[prefix] = ++count;
+                        if (count > 1) prefix += count;
+                    }
                     serializerNamespaces.Add(prefix, xmlNamespace);
                 }
             }
