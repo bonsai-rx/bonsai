@@ -25,6 +25,7 @@ namespace Bonsai.Design
         {
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(CombinatorAttribute), true);
+            if (combinatorAttributes.Length != 1) return Enumerable.Empty<MethodInfo>();
             var methodName = ((CombinatorAttribute)combinatorAttributes.Single()).MethodName;
             return combinatorType.GetMethods(bindingAttributes).Where(m => m.Name == methodName);
         }
