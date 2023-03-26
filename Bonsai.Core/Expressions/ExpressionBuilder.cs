@@ -1033,6 +1033,7 @@ namespace Bonsai.Expressions
                 return argument;
             }
 
+            MemberExpression property = default;
             if (element is ICustomTypeDescriptor typeDescriptor)
             {
                 var propertyInfo = instance.Type.GetProperty(propertyName);
@@ -1044,9 +1045,10 @@ namespace Bonsai.Expressions
                         instance = Expression.Constant(propertyOwner);
                     }
                 }
+                else property = Expression.Property(instance, propertyInfo);
             }
 
-            var property = Expression.Property(instance, propertyName);
+            property ??= Expression.Property(instance, propertyName);
             if (source == EmptyExpression.Instance) return source;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
