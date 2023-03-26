@@ -1035,10 +1035,14 @@ namespace Bonsai.Expressions
 
             if (element is ICustomTypeDescriptor typeDescriptor)
             {
-                var propertyOwner = typeDescriptor.GetPropertyOwner(null);
-                if (propertyOwner != instance.Value)
+                var propertyInfo = instance.Type.GetProperty(propertyName);
+                if (propertyInfo == null)
                 {
-                    instance = Expression.Constant(propertyOwner);
+                    var propertyOwner = typeDescriptor.GetPropertyOwner(null);
+                    if (propertyOwner != instance.Value)
+                    {
+                        instance = Expression.Constant(propertyOwner);
+                    }
                 }
             }
 
