@@ -884,8 +884,11 @@ namespace Bonsai.Editor.GraphModel
             
             builder = CreateBuilder(typeName, elementCategory, group);
             ConfigureBuilder(builder, selectedNode, arguments);
-            var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-            if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
+            if (typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName ||
+                typeName == typeof(AnnotationBuilder).AssemblyQualifiedName)
+            {
+                nodeType = CreateGraphNodeType.Predecessor;
+            }
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, commands.Item2.Undo);
