@@ -256,7 +256,7 @@ namespace Bonsai.Editor.GraphModel
                     index++;
                 }
             }
-            else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0)
+            else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0 || targetNodes.All(node => node.Value.IsBuildDependency()))
             {
                 var index = 0;
                 foreach (var node in targetNodes)
