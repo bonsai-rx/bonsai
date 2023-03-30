@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -786,7 +786,7 @@ namespace Bonsai.Editor.GraphView
 
         private void UpdateGraphLayout(bool validateWorkflow)
         {
-            graphView.Nodes = workflow.ConnectedComponentLayering().ToList();
+            graphView.Nodes = workflow.ConnectedComponentLayering();
             graphView.Invalidate();
             if (validateWorkflow)
             {
