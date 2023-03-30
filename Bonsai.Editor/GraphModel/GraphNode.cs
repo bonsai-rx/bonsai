@@ -42,7 +42,7 @@ namespace Bonsai.Editor.GraphModel
 
                 if (obsolete) Flags |= NodeFlags.Obsolete;
                 Category = elementCategoryAttribute.Category;
-                BuildDependency = expressionBuilder.IsBuildDependency();
+                IsBuildDependency = expressionBuilder.IsBuildDependency();
                 Icon = new ElementIcon(workflowElement);
                 if (workflowElement is IWorkflowExpressionBuilder)
                 {
@@ -64,7 +64,7 @@ namespace Bonsai.Editor.GraphModel
             {
                 if (successor.Node.Value == null)
                 {
-                    successor.Node.BuildDependency = BuildDependency;
+                    successor.Node.IsBuildDependency = IsBuildDependency;
                     successor.Node.InitializeDummySuccessors();
                 }
             }
@@ -131,7 +131,7 @@ namespace Bonsai.Editor.GraphModel
 
         public ElementIcon Icon { get; private set; }
 
-        public bool BuildDependency { get; private set; }
+        public bool IsBuildDependency { get; private set; }
 
         public string Text
         {
