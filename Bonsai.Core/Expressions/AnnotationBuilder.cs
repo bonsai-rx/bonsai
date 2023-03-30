@@ -22,6 +22,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the name of the annotation node in the workflow.
         /// </summary>
+        [Externalizable(false)]
         [Category(nameof(CategoryAttribute.Design))]
         [Description("The name of the annotation node in the workflow.")]
         public string Name { get; set; }
@@ -30,6 +31,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the text associated with this annotation.
         /// </summary>
         [XmlIgnore]
+        [Externalizable(false)]
         [Category(nameof(CategoryAttribute.Design))]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         [Description("The text associated with this annotation.")]
