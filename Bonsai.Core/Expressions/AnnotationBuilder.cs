@@ -10,7 +10,7 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents a written explanation or critical comment added to the workflow.
     /// </summary>
-    [DefaultProperty(nameof(Text))]
+    [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("Annotation", Namespace = Constants.XmlNamespace)]
     [Description("Represents a written explanation or critical comment added to the workflow.")]
