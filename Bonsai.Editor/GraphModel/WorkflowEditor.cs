@@ -1018,13 +1018,21 @@ namespace Bonsai.Editor.GraphModel
                 ConfigureWorkflowBuilder(workflowBuilder, targetNodes, workflow, nodeType);
             }
 
-            var validateInsert = validate && !(nodeType == CreateGraphNodeType.Predecessor && builder.IsBuildDependency());
             if (validate && !branch && targetNodes.Length > 1 &&
                ((nodeType == CreateGraphNodeType.Successor && targetNodes.Skip(1).Any(node => targetNodes[0].DepthFirstSearch().Contains(node))) ||
                 (nodeType == CreateGraphNodeType.Predecessor && targetNodes.Skip(1).Any(node => node.DepthFirstSearch().Contains(targetNodes[0])))))
             {
                 throw new InvalidOperationException(Resources.InsertValidation_Error);
             }
+
+            var validateInsert = validate && !(
+                nodeType == CreateGraphNodeType.Predecessor &&
+                builder.IsBuildDependency() &&
+                !targetNodes.Any(node => ExpressionBuilder.Unwrap(node.Value) switch
+                {
+                    AnnotationBuilder or ExternalizedMappingBuilder => true,
+                    _ => false
+                }));
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
