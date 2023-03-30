@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
+using Microsoft.Web.WebView2.WinForms;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -13,6 +14,7 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly TabPageController workflowTab;
         Padding? adjustMargin;
+        bool webViewInitialized;
 
         public WorkflowEditorControl(IServiceProvider provider)
             : this(provider, false)
@@ -21,14 +23,10 @@ namespace Bonsai.Editor.GraphView
 
         public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
             InitializeComponent();
-            serviceProvider = provider;
+            serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            webView.CoreWebView2InitializationCompleted += (sender, e) => webViewInitialized = true;
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
         }
@@ -36,6 +34,16 @@ namespace Bonsai.Editor.GraphView
         public WorkflowGraphView WorkflowGraphView
         {
             get { return workflowTab.WorkflowGraphView; }
+        }
+
+        public WebView2 WebView
+        {
+            get { return webView; }
+        }
+
+        public bool WebViewInitialized
+        {
+            get { return webViewInitialized; }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -53,6 +61,12 @@ namespace Bonsai.Editor.GraphView
         public void UpdateVisualizerLayout()
         {
             WorkflowGraphView.UpdateVisualizerLayout();
+        }
+
+        public bool ExpandAnnotations
+        {
+            get { return !splitContainer.Panel2Collapsed; }
+            set { splitContainer.Panel2Collapsed = !value; }
         }
 
         public TabPageController ActiveTab { get; private set; }
@@ -215,6 +229,7 @@ namespace Bonsai.Editor.GraphView
         protected override void OnLoad(EventArgs e)
         {
             ActivateTab(workflowTabPage);
+            webView.EnsureCoreWebView2Async();
             base.OnLoad(e);
         }
 

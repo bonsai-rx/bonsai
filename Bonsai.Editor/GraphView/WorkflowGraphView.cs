@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -414,6 +414,16 @@ namespace Bonsai.Editor.GraphView
         private void LaunchDefaultEditor(GraphNode node)
         {
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
+            if (builder is AnnotationBuilder annotationBuilder)
+            {
+                if (EditorControl.WebViewInitialized)
+                {
+                    var html = MarkdownConvert.ToHtml(Font, annotationBuilder.Text);
+                    EditorControl.WebView.NavigateToString(html);
+                    EditorControl.ExpandAnnotations = true;
+                }
+            }
+
             var disableBuilder = builder as DisableBuilder;
             var workflowBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowBuilder != null && workflowBuilder.Workflow != null)
