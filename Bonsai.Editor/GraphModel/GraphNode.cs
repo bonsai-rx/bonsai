@@ -26,6 +26,7 @@ namespace Bonsai.Editor.GraphModel
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
                 if (expressionBuilder is DisableBuilder) Flags |= NodeFlags.Disabled;
+                if (expressionBuilder is AnnotationBuilder) Flags |= NodeFlags.Annotation;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -133,6 +134,8 @@ namespace Bonsai.Editor.GraphModel
 
         public bool IsBuildDependency { get; private set; }
 
+        public bool IsAnnotation => (Flags & NodeFlags.Annotation) != 0;
+
         public string Text
         {
             get { return Value != null ? ExpressionBuilder.GetElementDisplayName(Value) : string.Empty; }
@@ -168,7 +171,8 @@ namespace Bonsai.Editor.GraphModel
             Obsolete = 0x2,
             Disabled = 0x4,
             NestedScope = 0x8,
-            NestedGroup = 0x10
+            NestedGroup = 0x10,
+            Annotation = 0x20
         }
 
         static class CategoryColors

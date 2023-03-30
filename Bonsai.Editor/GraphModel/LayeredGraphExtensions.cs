@@ -285,11 +285,13 @@ namespace Bonsai.Editor.GraphModel
                     .ToList();
                 if (component.Count == 1)
                 {
-                    if (singletonLayer == null) singletonLayer = layeredComponent[0];
+                    var layer = layeredComponent[0];
+                    if (singletonLayer == null) singletonLayer = layer;
+                    else if (!layer[0].IsAnnotation) singletonLayer.Add(layer[0]);
                     else
                     {
-                        var layer = layeredComponent[0];
-                        singletonLayer.Add(layer[0]);
+                        MergeSingletonComponentLayers(ref singletonLayer, layers, ref layerOffset);
+                        singletonLayer = layer;
                     }
                     continue;
                 }
