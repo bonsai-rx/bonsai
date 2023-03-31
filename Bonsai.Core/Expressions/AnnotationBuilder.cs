@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     [DefaultProperty(nameof(Name))]
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("Annotation", Namespace = Constants.XmlNamespace)]
+    [Editor("Bonsai.Design.AnnotationBuilderEditor, Bonsai.Design", typeof(ComponentEditor))]
     [Description("Represents a written explanation or critical comment added to the workflow.")]
     public class AnnotationBuilder : ExpressionBuilder, INamedElement, IArgumentBuilder
     {
@@ -33,7 +34,6 @@ namespace Bonsai.Expressions
         [XmlIgnore]
         [Externalizable(false)]
         [Category(nameof(CategoryAttribute.Design))]
-        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         [Description("The text associated with this annotation.")]
         public string Text { get; set; }
 
