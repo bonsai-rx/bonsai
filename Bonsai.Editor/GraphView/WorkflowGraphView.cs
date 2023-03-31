@@ -420,6 +420,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     var html = MarkdownConvert.ToHtml(Font, annotationBuilder.Text);
                     EditorControl.WebView.NavigateToString(html);
+                    EditorControl.WebView.Tag = builder;
                     EditorControl.ExpandWebView();
                 }
             }
@@ -804,7 +805,18 @@ namespace Bonsai.Editor.GraphView
             }
 
             UpdateVisualizerLayout();
-            if (validateWorkflow) EditorControl.SelectTab(this);
+            if (validateWorkflow)
+            {
+                EditorControl.SelectTab(this);
+                if (EditorControl.WebView.Tag is ExpressionBuilder builder)
+                {
+                    if (!EditorControl.Workflow.Descendants().Contains(builder))
+                    {
+                        EditorControl.WebView.NavigateToString(string.Empty);
+                        EditorControl.WebView.Tag = null;
+                    }
+                }
+            }
             UpdateSelection();
         }
 

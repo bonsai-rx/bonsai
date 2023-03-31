@@ -76,6 +76,7 @@ namespace Bonsai.Editor.GraphView
         public void CollapseWebView()
         {
             splitContainer.Panel2Collapsed = true;
+            webView.Tag = null;
         }
 
         public void UpdateVisualizerLayout()
