@@ -33,6 +33,10 @@ namespace Bonsai.Editor.GraphView
             {
                 webViewInitialized = true;
                 webView.CoreWebView2.ContextMenuRequested += CoreWebView2_ContextMenuRequested;
+                webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    MarkdownConvert.DefaultUrl,
+                    Environment.CurrentDirectory,
+                    CoreWebView2HostResourceAccessKind.Allow);
             };
         }
 
