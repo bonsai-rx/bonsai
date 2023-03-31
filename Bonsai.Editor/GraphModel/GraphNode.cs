@@ -26,6 +26,7 @@ namespace Bonsai.Editor.GraphModel
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
                 if (expressionBuilder is DisableBuilder) Flags |= NodeFlags.Disabled;
+                if (expressionBuilder is AnnotationBuilder) Flags |= NodeFlags.Annotation;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -42,7 +43,7 @@ namespace Bonsai.Editor.GraphModel
 
                 if (obsolete) Flags |= NodeFlags.Obsolete;
                 Category = elementCategoryAttribute.Category;
-                BuildDependency = expressionBuilder.IsBuildDependency();
+                IsBuildDependency = expressionBuilder.IsBuildDependency();
                 Icon = new ElementIcon(workflowElement);
                 if (workflowElement is IWorkflowExpressionBuilder)
                 {
@@ -64,7 +65,7 @@ namespace Bonsai.Editor.GraphModel
             {
                 if (successor.Node.Value == null)
                 {
-                    successor.Node.BuildDependency = BuildDependency;
+                    successor.Node.IsBuildDependency = IsBuildDependency;
                     successor.Node.InitializeDummySuccessors();
                 }
             }
@@ -131,7 +132,9 @@ namespace Bonsai.Editor.GraphModel
 
         public ElementIcon Icon { get; private set; }
 
-        public bool BuildDependency { get; private set; }
+        public bool IsBuildDependency { get; private set; }
+
+        public bool IsAnnotation => (Flags & NodeFlags.Annotation) != 0;
 
         public string Text
         {
@@ -168,7 +171,8 @@ namespace Bonsai.Editor.GraphModel
             Obsolete = 0x2,
             Disabled = 0x4,
             NestedScope = 0x8,
-            NestedGroup = 0x10
+            NestedGroup = 0x10,
+            Annotation = 0x20
         }
 
         static class CategoryColors

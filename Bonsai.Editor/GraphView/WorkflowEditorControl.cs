@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
+using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Core;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -13,6 +15,7 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly TabPageController workflowTab;
         Padding? adjustMargin;
+        bool webViewInitialized;
 
         public WorkflowEditorControl(IServiceProvider provider)
             : this(provider, false)
@@ -21,21 +24,40 @@ namespace Bonsai.Editor.GraphView
 
         public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
             InitializeComponent();
-            serviceProvider = provider;
+            serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
+            webView.CoreWebView2InitializationCompleted += (sender, e) =>
+            {
+                webViewInitialized = true;
+                webView.CoreWebView2.ContextMenuRequested += CoreWebView2_ContextMenuRequested;
+                webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    MarkdownConvert.DefaultUrl,
+                    Environment.CurrentDirectory,
+                    CoreWebView2HostResourceAccessKind.Allow);
+            };
         }
 
         public WorkflowGraphView WorkflowGraphView
         {
             get { return workflowTab.WorkflowGraphView; }
+        }
+
+        public WebView2 WebView
+        {
+            get { return webView; }
+        }
+
+        public bool WebViewInitialized
+        {
+            get { return webViewInitialized; }
+        }
+
+        public bool WebViewCollapsed
+        {
+            get { return splitContainer.Panel2Collapsed; }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -48,6 +70,17 @@ namespace Bonsai.Editor.GraphView
         {
             get { return WorkflowGraphView.Workflow; }
             set { WorkflowGraphView.Workflow = value; }
+        }
+
+        public void ExpandWebView()
+        {
+            splitContainer.Panel2Collapsed = false;
+        }
+
+        public void CollapseWebView()
+        {
+            splitContainer.Panel2Collapsed = true;
+            webView.Tag = null;
         }
 
         public void UpdateVisualizerLayout()
@@ -215,6 +248,7 @@ namespace Bonsai.Editor.GraphView
         protected override void OnLoad(EventArgs e)
         {
             ActivateTab(workflowTabPage);
+            webView.EnsureCoreWebView2Async();
             base.OnLoad(e);
         }
 
@@ -403,6 +437,31 @@ namespace Bonsai.Editor.GraphView
             }
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;
+        }
+
+        private void CoreWebView2_ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e)
+        {
+            var closeMenuItem = webView.CoreWebView2.Environment.CreateContextMenuItem(
+                "Close",
+                iconStream: null,
+                CoreWebView2ContextMenuItemKind.Command);
+            closeMenuItem.CustomItemSelected += delegate { CollapseWebView(); };
+            e.MenuItems.Add(closeMenuItem);
+        }
+
+        private void webView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (ModifierKeys == Keys.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.F4: CollapseWebView(); break;
+                    case Keys.Back:
+                        e.Handled = true;
+                        ActiveTab.WorkflowGraphView.Focus();
+                        break;
+                }
+            }
         }
     }
 }

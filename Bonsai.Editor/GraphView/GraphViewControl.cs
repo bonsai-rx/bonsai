@@ -1121,7 +1121,7 @@ namespace Bonsai.Editor.GraphView
             if (layout.Node.Tag != null)
             {
                 graphics.DrawLine(
-                    layout.Node.BuildDependency ? DashPen : SolidPen,
+                    layout.Node.IsBuildDependency ? DashPen : SolidPen,
                     PointF.Add(layout.EntryPoint, offset),
                     PointF.Add(layout.ExitPoint, offset));
             }
@@ -1135,7 +1135,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     var successorLayout = layoutNodes[successor.Node];
                     graphics.DrawLine(
-                        layout.Node.BuildDependency ? DashPen : SolidPen,
+                        layout.Node.IsBuildDependency ? DashPen : SolidPen,
                         PointF.Add(layout.ExitPoint, offset),
                         PointF.Add(successorLayout.EntryPoint, offset));
                 }

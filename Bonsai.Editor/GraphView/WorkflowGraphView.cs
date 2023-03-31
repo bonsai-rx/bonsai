@@ -411,6 +411,23 @@ namespace Bonsai.Editor.GraphView
             return false;
         }
 
+        private static bool IsAnnotation(GraphNode node)
+        {
+            return node != null && node.IsAnnotation;
+        }
+
+        private void LaunchDefaultAction(GraphNode node)
+        {
+            if (!editorState.WorkflowRunning && !IsAnnotation(node) || ModifierKeys == Keys.Control)
+            {
+                LaunchDefaultEditor(node);
+            }
+            else
+            {
+                LaunchVisualizer(node);
+            }
+        }
+
         private void LaunchDefaultEditor(GraphNode node)
         {
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
@@ -462,6 +479,17 @@ namespace Bonsai.Editor.GraphView
 
         private void LaunchVisualizer(GraphNode node)
         {
+            if (IsAnnotation(node) &&
+                EditorControl.WebViewInitialized &&
+                WorkflowEditor.GetGraphNodeBuilder(node) is AnnotationBuilder annotationBuilder)
+            {
+                var html = MarkdownConvert.ToHtml(Font, annotationBuilder.Text);
+                EditorControl.WebView.NavigateToString(html);
+                EditorControl.WebView.Tag = annotationBuilder;
+                EditorControl.ExpandWebView();
+                return;
+            }
+
             var visualizerLauncher = GetVisualizerDialogLauncher(node);
             if (visualizerLauncher != null)
             {
@@ -786,7 +814,7 @@ namespace Bonsai.Editor.GraphView
 
         private void UpdateGraphLayout(bool validateWorkflow)
         {
-            graphView.Nodes = workflow.ConnectedComponentLayering().ToList();
+            graphView.Nodes = workflow.ConnectedComponentLayering();
             graphView.Invalidate();
             if (validateWorkflow)
             {
@@ -794,7 +822,18 @@ namespace Bonsai.Editor.GraphView
             }
 
             UpdateVisualizerLayout();
-            if (validateWorkflow) EditorControl.SelectTab(this);
+            if (validateWorkflow)
+            {
+                EditorControl.SelectTab(this);
+                if (EditorControl.WebView.Tag is ExpressionBuilder builder)
+                {
+                    if (!EditorControl.Workflow.Descendants().Contains(builder))
+                    {
+                        EditorControl.WebView.NavigateToString(string.Empty);
+                        EditorControl.WebView.Tag = null;
+                    }
+                }
+            }
             UpdateSelection();
         }
 
@@ -1056,16 +1095,9 @@ namespace Bonsai.Editor.GraphView
                 LaunchDefinition(graphView.SelectedNode);
             }
 
-            if (e.KeyCode == Keys.Return && editorState.WorkflowRunning)
+            if (e.KeyCode == Keys.Return && !CanEdit)
             {
-                if (e.Modifiers == Keys.Control)
-                {
-                    LaunchDefaultEditor(graphView.SelectedNode);
-                }
-                else
-                {
-                    LaunchVisualizer(graphView.SelectedNode);
-                }
+                LaunchDefaultAction(graphView.SelectedNode);
             }
 
             if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
@@ -1125,7 +1157,7 @@ namespace Bonsai.Editor.GraphView
                             else Editor.ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
                         }
                     }
-                    else LaunchDefaultEditor(graphView.SelectedNode);
+                    else LaunchDefaultAction(graphView.SelectedNode);
                 }
 
                 if (e.KeyCode == Keys.Delete)
@@ -1177,14 +1209,7 @@ namespace Bonsai.Editor.GraphView
 
         private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
         {
-            if (!editorState.WorkflowRunning || Control.ModifierKeys == Keys.Control)
-            {
-                LaunchDefaultEditor(e.Node);
-            }
-            else
-            {
-                LaunchVisualizer(e.Node);
-            }
+            LaunchDefaultAction(e.Node);
         }
 
         private void graphView_MouseDown(object sender, MouseEventArgs e)

@@ -19,7 +19,7 @@ namespace Bonsai.Editor
             SvgRendererFactory iconRenderer,
             Image graphicsProvider)
         {
-            var selectedLayout = workflow.ConnectedComponentLayering().ToList();
+            var selectedLayout = workflow.ConnectedComponentLayering();
             return new GraphViewControl
             {
                 GraphicsProvider = graphicsProvider,

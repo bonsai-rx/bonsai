@@ -256,7 +256,7 @@ namespace Bonsai.Editor.GraphModel
                     index++;
                 }
             }
-            else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0)
+            else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0 || targetNodes.All(node => node.Value.IsBuildDependency()))
             {
                 var index = 0;
                 foreach (var node in targetNodes)
@@ -884,8 +884,11 @@ namespace Bonsai.Editor.GraphModel
             
             builder = CreateBuilder(typeName, elementCategory, group);
             ConfigureBuilder(builder, selectedNode, arguments);
-            var externalizedMapping = typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-            if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
+            if (typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName ||
+                typeName == typeof(AnnotationBuilder).AssemblyQualifiedName)
+            {
+                nodeType = CreateGraphNodeType.Predecessor;
+            }
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, commands.Item2.Undo);
@@ -1015,13 +1018,21 @@ namespace Bonsai.Editor.GraphModel
                 ConfigureWorkflowBuilder(workflowBuilder, targetNodes, workflow, nodeType);
             }
 
-            var validateInsert = validate && !(nodeType == CreateGraphNodeType.Predecessor && builder.IsBuildDependency());
             if (validate && !branch && targetNodes.Length > 1 &&
                ((nodeType == CreateGraphNodeType.Successor && targetNodes.Skip(1).Any(node => targetNodes[0].DepthFirstSearch().Contains(node))) ||
                 (nodeType == CreateGraphNodeType.Predecessor && targetNodes.Skip(1).Any(node => node.DepthFirstSearch().Contains(targetNodes[0])))))
             {
                 throw new InvalidOperationException(Resources.InsertValidation_Error);
             }
+
+            var validateInsert = validate && !(
+                nodeType == CreateGraphNodeType.Predecessor &&
+                builder.IsBuildDependency() &&
+                !targetNodes.Any(node => ExpressionBuilder.Unwrap(node.Value) switch
+                {
+                    AnnotationBuilder or ExternalizedMappingBuilder => true,
+                    _ => false
+                }));
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);

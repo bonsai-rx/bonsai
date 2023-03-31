@@ -32,14 +32,22 @@
             this.tabContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.tabControl = new Bonsai.Editor.GraphView.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
             this.tabContextMenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
+            this.splitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).BeginInit();
             this.tabControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabContextMenuStrip
             // 
+            this.tabContextMenuStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.tabContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.closeToolStripMenuItem,
             this.closeAllToolStripMenuItem});
@@ -62,8 +70,44 @@
             this.closeAllToolStripMenuItem.Text = "Close All";
             this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.closeAllToolStripMenuItem_Click);
             // 
+            // splitContainer
+            // 
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer.Margin = new System.Windows.Forms.Padding(2);
+            this.splitContainer.Name = "splitContainer";
+            this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer.Panel1
+            // 
+            this.splitContainer.Panel1.Controls.Add(this.tabControl);
+            // 
+            // splitContainer.Panel2
+            // 
+            this.splitContainer.Panel2.Controls.Add(this.webView);
+            this.splitContainer.Panel2Collapsed = true;
+            this.splitContainer.Size = new System.Drawing.Size(300, 200);
+            this.splitContainer.SplitterDistance = 100;
+            this.splitContainer.SplitterWidth = 3;
+            this.splitContainer.TabIndex = 1;
+            // 
+            // webView
+            // 
+            this.webView.AllowExternalDrop = true;
+            this.webView.CreationProperties = null;
+            this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
+            this.webView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webView.Location = new System.Drawing.Point(0, 0);
+            this.webView.Margin = new System.Windows.Forms.Padding(2);
+            this.webView.Name = "webView";
+            this.webView.Size = new System.Drawing.Size(300, 97);
+            this.webView.TabIndex = 0;
+            this.webView.ZoomFactor = 1D;
+            this.webView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.webView_KeyDown);
+            // 
             // tabControl
             // 
+            this.tabControl.AdjustRectangle = new System.Windows.Forms.Padding(0);
             this.tabControl.Controls.Add(this.workflowTabPage);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
@@ -72,17 +116,17 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(300, 200);
             this.tabControl.TabIndex = 0;
-            this.tabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl_Selected);
             this.tabControl.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl_Selecting);
+            this.tabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl_Selected);
             this.tabControl.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tabControl_KeyDown);
             this.tabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseUp);
             // 
             // workflowTabPage
             // 
-            this.workflowTabPage.Location = new System.Drawing.Point(-1, 24);
+            this.workflowTabPage.Location = new System.Drawing.Point(4, 28);
             this.workflowTabPage.Name = "workflowTabPage";
             this.workflowTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.workflowTabPage.Size = new System.Drawing.Size(301, 176);
+            this.workflowTabPage.Size = new System.Drawing.Size(292, 168);
             this.workflowTabPage.TabIndex = 0;
             this.workflowTabPage.Text = "Workflow";
             this.workflowTabPage.UseVisualStyleBackColor = true;
@@ -91,11 +135,16 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.splitContainer);
             this.MinimumSize = new System.Drawing.Size(250, 125);
             this.Name = "WorkflowEditorControl";
             this.Size = new System.Drawing.Size(300, 200);
             this.tabContextMenuStrip.ResumeLayout(false);
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
             this.tabControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -108,5 +157,7 @@
         private System.Windows.Forms.ContextMenuStrip tabContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webView;
     }
 }

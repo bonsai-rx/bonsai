@@ -8,13 +8,13 @@
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
     <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
-    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <RepositoryUrl>https://github.com/bonsai-rx/bonsai.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <VersionSuffix></VersionSuffix>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Features>strict</Features>
   </PropertyGroup>
 </Project>

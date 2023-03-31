@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.7.2</VersionPrefix>
+    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.svg" />
@@ -15,6 +15,8 @@
   <ItemGroup>
     <PackageReference Include="SvgNet" Version="3.2.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.2" />
+    <PackageReference Include="Markdig" Version="0.18.1" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1587.40" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
