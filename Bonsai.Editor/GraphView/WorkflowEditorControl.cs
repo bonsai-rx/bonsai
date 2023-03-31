@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
 using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Core;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -26,9 +27,13 @@ namespace Bonsai.Editor.GraphView
             InitializeComponent();
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
-            webView.CoreWebView2InitializationCompleted += (sender, e) => webViewInitialized = true;
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
+            webView.CoreWebView2InitializationCompleted += (sender, e) =>
+            {
+                webViewInitialized = true;
+                webView.CoreWebView2.ContextMenuRequested += CoreWebView2_ContextMenuRequested;
+            };
         }
 
         public WorkflowGraphView WorkflowGraphView
@@ -46,6 +51,11 @@ namespace Bonsai.Editor.GraphView
             get { return webViewInitialized; }
         }
 
+        public bool WebViewCollapsed
+        {
+            get { return splitContainer.Panel2Collapsed; }
+        }
+
         public VisualizerLayout VisualizerLayout
         {
             get { return WorkflowGraphView.VisualizerLayout; }
@@ -58,15 +68,19 @@ namespace Bonsai.Editor.GraphView
             set { WorkflowGraphView.Workflow = value; }
         }
 
+        public void ExpandWebView()
+        {
+            splitContainer.Panel2Collapsed = false;
+        }
+
+        public void CollapseWebView()
+        {
+            splitContainer.Panel2Collapsed = true;
+        }
+
         public void UpdateVisualizerLayout()
         {
             WorkflowGraphView.UpdateVisualizerLayout();
-        }
-
-        public bool ExpandAnnotations
-        {
-            get { return !splitContainer.Panel2Collapsed; }
-            set { splitContainer.Panel2Collapsed = !value; }
         }
 
         public TabPageController ActiveTab { get; private set; }
@@ -418,6 +432,31 @@ namespace Bonsai.Editor.GraphView
             }
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;
+        }
+
+        private void CoreWebView2_ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e)
+        {
+            var closeMenuItem = webView.CoreWebView2.Environment.CreateContextMenuItem(
+                "Close",
+                iconStream: null,
+                CoreWebView2ContextMenuItemKind.Command);
+            closeMenuItem.CustomItemSelected += delegate { CollapseWebView(); };
+            e.MenuItems.Add(closeMenuItem);
+        }
+
+        private void webView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (ModifierKeys == Keys.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.F4: CollapseWebView(); break;
+                    case Keys.Back:
+                        e.Handled = true;
+                        ActiveTab.WorkflowGraphView.Focus();
+                        break;
+                }
+            }
         }
     }
 }

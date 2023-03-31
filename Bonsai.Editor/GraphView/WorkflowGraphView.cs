@@ -420,7 +420,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     var html = MarkdownConvert.ToHtml(Font, annotationBuilder.Text);
                     EditorControl.WebView.NavigateToString(html);
-                    EditorControl.ExpandAnnotations = true;
+                    EditorControl.ExpandWebView();
                 }
             }
 
