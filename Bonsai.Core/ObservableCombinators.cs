@@ -114,7 +114,7 @@ namespace Bonsai
             this IObservable<TSource> source,
             IObservable<TGateOpening> gateOpenings)
         {
-            return source.Window(() => gateOpenings)
+            return source.Window(gateOpenings)
                          .SelectMany(window => window.Take(1));
         }
 
