@@ -682,6 +682,41 @@ namespace Bonsai.Editor.GraphView
             return layoutNodes[node].Location;
         }
 
+        GraphNode GetClosestNode(Point point)
+        {
+            point.X += canvas.HorizontalScroll.Value;
+            point.Y += canvas.VerticalScroll.Value;
+
+            var rightMost = PointF.Empty;
+            var closestNode = default(GraphNode);
+            foreach (var layout in layoutNodes)
+            {
+                if (layout.Node.Value == null) continue;
+
+                var boundingRectangle = new RectangleF(
+                    layout.BoundingRectangle.Location,
+                    new SizeF(NodeAirspace, NodeAirspace));
+                if (boundingRectangle.Contains(point))
+                {
+                    return layout.Node;
+                }
+                else if (point.Y > boundingRectangle.Top &&
+                         (boundingRectangle.Bottom > rightMost.Y ||
+                          boundingRectangle.Right > rightMost.X))
+                {
+                    rightMost = new PointF(boundingRectangle.Right, boundingRectangle.Bottom);
+                    closestNode = layout.Node;
+                }
+            }
+
+            while (closestNode?.Successors.FirstOrDefault() is GraphEdge successor)
+            {
+                closestNode = successor.Node;
+            }
+
+            return closestNode;
+        }
+
         public GraphNode GetNodeAt(Point point)
         {
             point.X += canvas.HorizontalScroll.Value;
@@ -1276,9 +1311,14 @@ namespace Bonsai.Editor.GraphView
                     else SelectNode(hot, false);
                 }
             }
-            else if (ModifierKeys == Keys.None)
+            else
             {
-                ClearSelection();
+                var cursorNode = GetClosestNode(e.Location);
+                if (cursorNode != null) SetCursor(cursorNode);
+                if (ModifierKeys == Keys.None)
+                {
+                    ClearSelection();
+                }
             }
 
             mouseDownHandled = false;
