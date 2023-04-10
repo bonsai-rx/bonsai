@@ -1,74 +1,11 @@
 ﻿using Bonsai.Dag;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bonsai.Core.Tests
 {
     [TestClass]
-    public class TopologicalSortTests
+    public class TopologicalSortTests : TestGraphExtensions
     {
-        class TestGraph : IEnumerable<Node<string, int>>
-        {
-            readonly Dictionary<char, Node<string, int>> nodes;
-            readonly DirectedGraph<string, int> graph;
-
-            public TestGraph(int count)
-            {
-                nodes = new Dictionary<char, Node<string, int>>(count);
-                graph = new DirectedGraph<string, int>();
-                for (int i = 0; i < count; i++)
-                {
-                    var key = (char)('A' + i);
-                    nodes.Add(key, graph.Add(key.ToString()));
-                }
-            }
-
-            public void Add(char from, char to)
-            {
-                graph.AddEdge(nodes[from], nodes[to], 0);
-            }
-
-            public void Add(int label, char from, char to)
-            {
-                graph.AddEdge(nodes[from], nodes[to], label);
-            }
-
-            public void Add(params char[] chain)
-            {
-                Add(0, chain);
-            }
-
-            public void Add(int label, params char[] chain)
-            {
-                for (int i = 1; i < chain.Length; i++)
-                {
-                    graph.AddEdge(nodes[chain[i - 1]], nodes[chain[i]], label);
-                }
-            }
-
-            public IEnumerable<Node<string, int>> TopologicalSort()
-            {
-                return graph.TopologicalSort();
-            }
-
-            public IEnumerator<Node<string, int>> GetEnumerator()
-            {
-                return graph.GetEnumerator();
-            }
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        static void AssertOrder(IEnumerable<Node<string, int>> order, string expected)
-        {
-            var actual = string.Concat(order.Select(node => node.Value));
-            Assert.AreEqual(expected, actual);
-        }
-
         static void AssertOrder(TestGraph graph, string expected)
         {
             var order = graph.TopologicalSort();
