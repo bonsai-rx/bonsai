@@ -165,22 +165,18 @@ namespace Bonsai.Dag
 
         static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, HashSet<Node<TNodeValue, TEdgeLabel>> visited, Stack<Node<TNodeValue, TEdgeLabel>> stack)
         {
-            if (visited.Contains(node)) yield break;
             stack.Push(node);
-
             while (stack.Count > 0)
             {
-                var current = stack.Peek();
-                if (!visited.Contains(current))
+                var current = stack.Pop();
+                if (visited.Add(current))
                 {
-                    visited.Add(current);
+                    yield return current;
                     for (int i = current.Successors.Count - 1; i >= 0; i--)
                     {
-                        if (visited.Contains(current.Successors[i].Target)) continue;
                         stack.Push(current.Successors[i].Target);
                     }
                 }
-                else yield return stack.Pop();
             }
         }
 
