@@ -219,6 +219,11 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(source));
             }
 
+            return DepthFirstSearch((IEnumerable<Node<TNodeValue, TEdgeLabel>>)source);
+        }
+
+        internal static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(this IEnumerable<Node<TNodeValue, TEdgeLabel>> source)
+        {
             var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
             var stack = new Stack<Node<TNodeValue, TEdgeLabel>>();
             return from root in source
