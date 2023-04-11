@@ -537,9 +537,7 @@ namespace Bonsai.Editor.GraphModel
 
         void ReorderGraphNode(
             Node<ExpressionBuilder, ExpressionBuilderArgument> source,
-            ref Node<ExpressionBuilder, ExpressionBuilderArgument> target,
-            List<Node<ExpressionBuilder, ExpressionBuilderArgument>> reorderCommands,
-            HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedElements)
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
             var workflow = this.Workflow;
             var reorderConnection = EmptyAction;
@@ -593,10 +591,9 @@ namespace Bonsai.Editor.GraphModel
             }
             else
             {
-                var targetNode = target;
                 var components = workflow.FindConnectedComponents();
                 var sourceComponent = components.First(component => component.Contains(source));
-                var targetComponent = components.First(component => component.Contains(targetNode));
+                var targetComponent = components.First(component => component.Contains(target));
                 if (sourceComponent == targetComponent) // reorder branches
                 {
                     // find common ancestor
@@ -637,44 +634,20 @@ namespace Bonsai.Editor.GraphModel
                 }
                 else // reorder connected components
                 {
-                    var shiftedNodes = from index in Enumerable.Range(targetComponent.Index, components.Count - targetComponent.Index)
-                                       let component = components[index]
-                                       where component != sourceComponent
-                                       from node in component
-                                       select node;
-                    var sourceBuilder = CloneWorkflowElements(sourceComponent);
-                    var shiftedBuilder = CloneWorkflowElements(shiftedNodes);
-                    foreach (var node in shiftedBuilder) sourceBuilder.Add(node);
-                    foreach (var node in sourceComponent) DeleteGraphNode(node, true);
-                    foreach (var node in shiftedNodes) DeleteGraphNode(node, true);
-                    InsertGraphElements(sourceBuilder, new GraphNode[0], CreateGraphNodeType.Successor, false, EmptyAction, EmptyAction);
-
-                    foreach (var pair in sourceComponent
-                        .Concat(shiftedNodes)
-                        .Zip(sourceBuilder, (element, clone) => new { element, clone }))
+                    var targetIndex = workflow.IndexOf(targetComponent[0]);
+                    var restoreComponentIndex = components.IndexOf(sourceComponent) + 1;
+                    var restoreAnchor = restoreComponentIndex < components.Count
+                        ? components[restoreComponentIndex][0]
+                        : null;
+                    commandExecutor.Execute(
+                    () => workflow.InsertRange(targetIndex, sourceComponent),
+                    () =>
                     {
-                        if (target == pair.element) target = pair.clone;
-                        var index = reorderCommands.IndexOf(pair.element);
-                        if (index >= 0)
-                        {
-                            reorderCommands[index] = pair.clone;
-                        }
-
-                        if (selectedElements.Contains(pair.element))
-                        {
-                            selectedElements.Remove(pair.element);
-                            selectedElements.Add(pair.clone);
-                        }
-                    }
+                        var restoreIndex = restoreAnchor != null ? workflow.IndexOf(restoreAnchor) : workflow.Count;
+                        workflow.InsertRange(restoreIndex, sourceComponent);
+                    });
                 }
             }
-        }
-
-        ExpressionBuilderGraph CloneWorkflowElements(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
-        {
-            var workflow = nodes.FromInspectableGraph(true);
-            var markup = ElementStore.StoreWorkflowElements(workflow);
-            return ElementStore.RetrieveWorkflowElements(markup).ToInspectableGraph();
         }
 
         IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> SortReorderCommands(IEnumerable<GraphNode> nodes, Node<ExpressionBuilder, ExpressionBuilderArgument> target)
@@ -752,7 +725,7 @@ namespace Bonsai.Editor.GraphModel
             for (int i = 0; i < reorderCommands.Count; i++)
             {
                 var node = reorderCommands[i];
-                try { ReorderGraphNode(node, ref targetNode, reorderCommands, selectedNodes); }
+                try { ReorderGraphNode(node, targetNode); }
                 catch (InvalidOperationException ex)
                 {
                     var message = string.Format(Resources.ReorderGraphNodes_Error, ex.InnerException);
