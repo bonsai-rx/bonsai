@@ -43,7 +43,7 @@ namespace Bonsai.Dag
         /// the order of the values in the directed graph.
         /// </summary>
         [Obsolete]
-        public IComparer<TNodeValue> Comparer
+        public virtual IComparer<TNodeValue> Comparer
         {
             get { return valueComparer; }
         }

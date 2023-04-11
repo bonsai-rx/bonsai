@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Bonsai.Dag;
 using System.ComponentModel;
+using System;
 
 namespace Bonsai.Expressions
 {
@@ -18,8 +19,18 @@ namespace Bonsai.Expressions
         /// Initializes a new instance of the <see cref="ExpressionBuilderGraph"/> class.
         /// </summary>
         public ExpressionBuilderGraph()
-            : base(InstanceComparer)
         {
+        }
+
+        /// <summary>
+        /// This read-only property is deprecated and should not be used. The getter is
+        /// implemented for backward compatibility with legacy clients only.
+        /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override IComparer<ExpressionBuilder> Comparer
+        {
+            get { return InstanceComparer; }
         }
 
         class ExpressionBuilderComparer : IComparer<ExpressionBuilder>
