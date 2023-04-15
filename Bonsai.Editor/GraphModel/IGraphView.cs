@@ -7,5 +7,7 @@ namespace Bonsai.Editor.GraphModel
         IEnumerable<GraphNodeGrouping> Nodes { get; }
 
         IEnumerable<GraphNode> SelectedNodes { get; }
+
+        GraphNode CursorNode { get; }
     }
 }

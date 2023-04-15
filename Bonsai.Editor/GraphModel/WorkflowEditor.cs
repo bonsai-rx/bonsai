@@ -57,6 +57,13 @@ namespace Bonsai.Editor.GraphModel
             return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
         }
 
+        private int GetInsertIndex(ExpressionBuilderGraph workflow, CreateGraphNodeType nodeType)
+        {
+            var cursorNode = GetGraphNodeTag(graphView.CursorNode);
+            var insertOffset = cursorNode == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
+            return workflow.IndexOf(cursorNode) + insertOffset;
+        }
+
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
             workflow.Add(node);
@@ -979,9 +986,18 @@ namespace Bonsai.Editor.GraphModel
             var inspectBuilder = builder.AsInspectBuilder();
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
-            Action addNode = () => { AddWorkflowNode(workflow, inspectNode); };
-            Action removeNode = () => { RemoveWorkflowNode(workflow, inspectNode); };
+
+            var insertIndex = GetInsertIndex(workflow, nodeType);
             builder = inspectBuilder.Builder;
+            Action addNode = () =>
+            {
+                workflow.Insert(insertIndex, inspectNode);
+                AddWorkflowNode(workflow, inspectNode);
+            };
+            Action removeNode = () =>
+            {
+                RemoveWorkflowNode(workflow, inspectNode);
+            };
 
             var targetNodes = selectedNodes.ToArray();
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
@@ -1086,9 +1102,11 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
 
+            var insertIndex = GetInsertIndex(Workflow, nodeType);
             commandExecutor.Execute(
             () =>
             {
+                Workflow.InsertRange(insertIndex, elements);
                 foreach (var node in elements)
                 {
                     AddWorkflowNode(Workflow, node);
@@ -1172,6 +1190,7 @@ namespace Bonsai.Editor.GraphModel
                 };
             }
 
+            var insertIndex = workflow.IndexOf(workflowNode);
             Action removeNode = () =>
             {
                 RemoveWorkflowNode(workflow, workflowNode);
@@ -1186,6 +1205,7 @@ namespace Bonsai.Editor.GraphModel
 
             Action addNode = () =>
             {
+                workflow.Insert(insertIndex, workflowNode);
                 AddWorkflowNode(workflow, workflowNode);
                 foreach (var edge in predecessorEdges)
                 {
