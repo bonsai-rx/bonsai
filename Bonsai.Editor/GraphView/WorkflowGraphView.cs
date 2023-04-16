@@ -1304,7 +1304,7 @@ namespace Bonsai.Editor.GraphView
                     .Where(node =>
                     {
                         var nodeBuilder = WorkflowEditor.GetGraphNodeBuilder(node);
-                        return selection.Any(builder => workflow.Comparer.Compare(builder, nodeBuilder) == 0);
+                        return selection.Any(builder => ExpressionBuilder.Unwrap(builder) == nodeBuilder);
                     });
             });
         }
