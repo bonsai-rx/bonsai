@@ -324,7 +324,7 @@ namespace Bonsai.Dag
                 throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
             }
 
-            InsertInternal(index, node.DepthFirstSearch());
+            InsertInternal(index, new[] { node });
         }
 
         /// <summary>
@@ -356,17 +356,31 @@ namespace Bonsai.Dag
                 throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
             }
 
-            InsertInternal(index, collection.DepthFirstSearch());
+            InsertInternal(index, collection);
         }
 
         void InsertInternal(int index, IEnumerable<Node<TNodeValue, TEdgeLabel>> collection)
         {
             var nodeIndex = 0;
             var insertionIndex = index;
-            var reachable = new HashSet<Node<TNodeValue, TEdgeLabel>>(collection);
+            var inserted = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            var stack = new Stack<Node<TNodeValue, TEdgeLabel>>();
+            foreach (var node in collection)
+            {
+                inserted.Add(node);
+                foreach (var successor in node.DepthFirstSearch(visited, stack))
+                {
+                    if (!Contains(successor))
+                    {
+                        inserted.Add(successor);
+                    }
+                }
+            }
+
             nodes.RemoveAll(node =>
             {
-                var remove = reachable.Contains(node);
+                var remove = inserted.Contains(node);
                 if (remove && nodeIndex <= index)
                 {
                     insertionIndex--;
@@ -375,8 +389,8 @@ namespace Bonsai.Dag
                 nodeIndex++;
                 return remove;
             });
-            nodes.InsertRange(insertionIndex, reachable);
-            nodeLookup.UnionWith(reachable);
+            nodes.InsertRange(insertionIndex, inserted);
+            nodeLookup.UnionWith(inserted);
         }
 
         /// <summary>

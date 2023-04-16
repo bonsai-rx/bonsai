@@ -390,7 +390,7 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Insert_ExistingNodes_ReorderNodeIndices()
+        public void Insert_NodeWithExistingSuccessors_ReorderNodeIndex()
         {
             var graph = CreateGraph(0, 1, 2, 3, 4, 5);
             graph.AddEdge(graph[4], graph[0], label: 0);
@@ -399,7 +399,7 @@ namespace Bonsai.Core.Tests
             Assert.AreEqual(expected: 4, graph.IndexOf(graph[4]));
             graph.Insert(3, node: graph[4]);
             Assert.AreEqual(
-                FormatSequence(new[] { 4, 0, 1, 2, 3, 5 }),
+                FormatSequence(new[] { 0, 1, 2, 4, 3, 5 }),
                 FormatNodeSequence(graph));
         }
 
@@ -440,9 +440,9 @@ namespace Bonsai.Core.Tests
             graph.AddEdge(graph[2], graph[5], label: 0);
             graph.AddEdge(graph[5], graph[4], label: 0);
             Assert.AreEqual(expected: 4, graph.IndexOf(graph[4]));
-            graph.InsertRange(1, new[] { graph[2], graph[4] });
+            graph.InsertRange(1, new[] { graph[2], graph[4], graph[0] });
             Assert.AreEqual(
-                FormatSequence(new[] { 2, 5, 4, 0, 1, 3 }),
+                FormatSequence(new[] { 2, 4, 0, 1, 3, 5 }),
                 FormatNodeSequence(graph));
         }
 
