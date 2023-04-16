@@ -57,11 +57,11 @@ namespace Bonsai.Editor.GraphModel
             return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
         }
 
-        private int GetInsertIndex(ExpressionBuilderGraph workflow, CreateGraphNodeType nodeType)
+        private int GetInsertIndex(ExpressionBuilderGraph workflow, GraphNode target, CreateGraphNodeType nodeType)
         {
-            var cursorNode = GetGraphNodeTag(graphView.CursorNode);
-            var insertOffset = cursorNode == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
-            return workflow.IndexOf(cursorNode) + insertOffset;
+            var insertNode = GetGraphNodeTag(target);
+            var insertOffset = insertNode == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
+            return workflow.IndexOf(insertNode) + insertOffset;
         }
 
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
@@ -987,7 +987,7 @@ namespace Bonsai.Editor.GraphModel
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
 
-            var insertIndex = GetInsertIndex(workflow, nodeType);
+            var insertIndex = GetInsertIndex(workflow, graphView.CursorNode, nodeType);
             builder = inspectBuilder.Builder;
             Action addNode = () =>
             {
@@ -1066,6 +1066,12 @@ namespace Bonsai.Editor.GraphModel
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
+            var insertIndex = GetInsertIndex(Workflow, graphView.CursorNode, nodeType);
+            InsertGraphElements(insertIndex, elements, nodeType, branch);
+        }
+
+        public void InsertGraphElements(int index, ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
+        {
             if (elements == null)
             {
                 throw new ArgumentNullException("elements");
@@ -1077,11 +1083,12 @@ namespace Bonsai.Editor.GraphModel
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
 
             commandExecutor.Execute(EmptyAction, updateGraphLayout + restoreSelectedNodes);
-            InsertGraphElements(elements, selectedNodes, nodeType, branch, EmptyAction, EmptyAction);
+            InsertGraphElements(index, elements, selectedNodes, nodeType, branch, EmptyAction, EmptyAction);
             commandExecutor.Execute(updateGraphLayout + updateSelectedNodes, EmptyAction);
         }
 
         private void InsertGraphElements(
+            int index,
             ExpressionBuilderGraph elements,
             GraphNode[] selectedNodes,
             CreateGraphNodeType nodeType,
@@ -1102,11 +1109,10 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
 
-            var insertIndex = GetInsertIndex(Workflow, nodeType);
             commandExecutor.Execute(
             () =>
             {
-                Workflow.InsertRange(insertIndex, elements);
+                Workflow.InsertRange(index, elements);
                 foreach (var node in elements)
                 {
                     AddWorkflowNode(Workflow, node);
@@ -1269,8 +1275,7 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
 
             var elements = nodes.ToWorkflow().ToInspectableGraph();
-            var sortedNodes = nodes.OrderBy(n => n.Value, elements.Comparer).ToList();
-            var buildDependencies = (from item in sortedNodes.Zip(elements, (node, element) => new { node, element })
+            var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
                                      from predecessor in Workflow.PredecessorEdges(GetGraphNodeTag(Workflow, item.node))
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
                                      orderby predecessor.Item3
@@ -1284,9 +1289,10 @@ namespace Bonsai.Editor.GraphModel
                 DeleteGraphNode(node);
             }
 
+            var insertIndex = GetInsertIndex(Workflow, target, nodeType);
             Action addConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.AddEdge(dependency.predecessor.Item1, dependency.edge));
             Action removeConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.RemoveEdge(dependency.predecessor.Item1, dependency.edge));
-            InsertGraphElements(elements, new[] { target }, nodeType, branch, addConnection, removeConnection);
+            InsertGraphElements(insertIndex, elements, new[] { target }, nodeType, branch, addConnection, removeConnection);
             commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
@@ -1694,8 +1700,9 @@ namespace Bonsai.Editor.GraphModel
                 groupWorkflow.Remove(terminal);
             }
 
+            var insertIndex = GetInsertIndex(Workflow, node, CreateGraphNodeType.Predecessor);
             DeleteGraphNode(node, replaceEdges: false);
-            InsertGraphElements(groupWorkflow, CreateGraphNodeType.Successor, false);
+            InsertGraphElements(insertIndex, groupWorkflow, CreateGraphNodeType.Successor, false);
 
             // Connect incoming nodes to internal targets
             var mainSink = groupSinks.FirstOrDefault();
