@@ -446,6 +446,21 @@ namespace Bonsai.Core.Tests
                 FormatNodeSequence(graph));
         }
 
+        [TestMethod]
+        public void InsertRange_NodeCollectionWithSuccessors_SuccessorNodesInsertedAtEnd()
+        {
+            var graph = CreateGraph(2, 3);
+            var node = new Node<int, int>(0);
+            var node2 = new Node<int, int>(4);
+            var successor = new Node<int, int>(1);
+            node.Successors.Add(Edge.Create(successor, label: 0));
+            Assert.AreEqual(expected: 2, graph.Count);
+            graph.InsertRange(1, new[] { node, node2 });
+            Assert.AreEqual(
+                FormatSequence(new[] { 2, 0, 4, 1, 3 }),
+                FormatNodeSequence(graph));
+        }
+
         #endregion
 
         #region Remove

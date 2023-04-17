@@ -363,19 +363,25 @@ namespace Bonsai.Dag
         {
             var nodeIndex = 0;
             var insertionIndex = index;
-            var inserted = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            var inserted = new HashSet<Node<TNodeValue, TEdgeLabel>>(collection);
+            var additionalNodes = default(List<Node<TNodeValue, TEdgeLabel>>);
             var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
             var stack = new Stack<Node<TNodeValue, TEdgeLabel>>();
-            foreach (var node in collection)
+            foreach (var node in inserted)
             {
-                inserted.Add(node);
                 foreach (var successor in node.DepthFirstSearch(visited, stack))
                 {
-                    if (!Contains(successor))
+                    if (!inserted.Contains(successor) && !Contains(successor))
                     {
-                        inserted.Add(successor);
+                        additionalNodes ??= new();
+                        additionalNodes.Add(successor);
                     }
                 }
+            }
+
+            if (additionalNodes != null)
+            {
+                inserted.UnionWith(additionalNodes);
             }
 
             nodes.RemoveAll(node =>
