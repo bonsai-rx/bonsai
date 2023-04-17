@@ -259,7 +259,8 @@ namespace Bonsai.Editor.GraphView
 
         private void StoreWorkflowElements()
         {
-            var text = ElementStore.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflow());
+            var selection = selectionModel.SelectedNodes.SortSelection(Workflow);
+            var text = ElementStore.StoreWorkflowElements(selection.ToWorkflow());
             if (!string.IsNullOrEmpty(text))
             {
                 Clipboard.SetText(text);
@@ -358,9 +359,7 @@ namespace Bonsai.Editor.GraphView
 
         public void SelectAllGraphNodes()
         {
-            var graphNodes = graphView.Nodes
-                .SelectMany(layer => layer)
-                .Where(node => node.Value != null);
+            var graphNodes = graphView.Nodes.LayeredNodes();
             graphView.SelectedNodes = graphNodes;
         }
 

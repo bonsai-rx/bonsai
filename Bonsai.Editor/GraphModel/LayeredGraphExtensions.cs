@@ -20,6 +20,18 @@ namespace Bonsai.Editor.GraphModel
                          .FromInspectableGraph(recurse);
         }
 
+        public static IEnumerable<GraphNode> SortSelection(this IEnumerable<GraphNode> source, ExpressionBuilderGraph workflow)
+        {
+            var nodeMap = source.ToDictionary(node => node.Value);
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                if (nodeMap.TryGetValue(workflow[i].Value, out GraphNode node))
+                {
+                    yield return node;
+                }
+            }
+        }
+
         public static IEnumerable<GraphNode> LayeredNodes(this IEnumerable<GraphNodeGrouping> source)
         {
             return source.SelectMany(layer => layer).Where(node => node.Value != null);

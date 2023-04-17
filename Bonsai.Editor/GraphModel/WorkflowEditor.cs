@@ -1274,7 +1274,7 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
 
-            var elements = nodes.ToWorkflow().ToInspectableGraph();
+            var elements = nodes.SortSelection(Workflow).ToWorkflow().ToInspectableGraph();
             var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
                                      from predecessor in Workflow.PredecessorEdges(GetGraphNodeTag(Workflow, item.node))
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
@@ -1352,7 +1352,7 @@ namespace Bonsai.Editor.GraphModel
             var workflow = this.Workflow;
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
-            var selectedElements = nodes.ToWorkflow(recurse: false);
+            var selectedElements = nodes.SortSelection(workflow).ToWorkflow(recurse: false);
             if (!CanGroup(nodes, selectedElements))
             {
                 error.OnNext(new InvalidOperationException(Resources.GroupBrokenBranches_Error));
