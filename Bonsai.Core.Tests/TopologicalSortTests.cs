@@ -244,5 +244,16 @@ namespace Bonsai.Core.Tests
                      { 'C', 'D', 'A' },
             }, "BCDA");
         }
+
+        [TestMethod]
+        public void TopologicalSort_CyclicGraph_ReturnsEmptySequence()
+        {
+            AssertOrder(new TestGraph(4)
+            {
+                { 'B',           'A' },
+                { 'B', 'C',      'A' },
+                     { 'C', 'D', 'B' },
+            }, string.Empty);
+        }
     }
 }
