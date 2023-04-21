@@ -387,7 +387,7 @@ namespace Bonsai.Dag
             nodes.RemoveAll(node =>
             {
                 var remove = inserted.Contains(node);
-                if (remove && nodeIndex <= index)
+                if (remove && nodeIndex < index)
                 {
                     insertionIndex--;
                 }

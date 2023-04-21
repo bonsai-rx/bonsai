@@ -403,6 +403,16 @@ namespace Bonsai.Core.Tests
                 FormatNodeSequence(graph));
         }
 
+        [TestMethod]
+        public void Insert_ExistingNodeAtSamePosition_KeepSameNodeIndex()
+        {
+            var graph = CreateGraph(0, 1, 2);
+            var node = graph[1];
+            Assert.AreEqual(expected: 1, graph.IndexOf(node));
+            graph.Insert(1, node);
+            Assert.AreEqual(expected: 1, graph.IndexOf(node));
+        }
+
         #endregion
 
         #region InsertRange
