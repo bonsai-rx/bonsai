@@ -12,7 +12,7 @@ namespace Bonsai.Core.Tests
             AssertOrder(order, expected);
 
             var orderedGraph = new DirectedGraph<string, int>();
-            foreach (var node in order) orderedGraph.Add(node);
+            orderedGraph.InsertRange(0, order);
             var secondOrder = orderedGraph.TopologicalSort();
             AssertOrder(secondOrder, expected);
         }
@@ -53,7 +53,7 @@ namespace Bonsai.Core.Tests
             {
                 { 'E', 'C', 'D' },
                 { 'E', 'A', 'B' },
-            }, "ECDAB");
+            }, "EABCD");
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Bonsai.Core.Tests
                 { 'F', 'B', 'E' },
                      { 'B', 'A' },
                 { 'F', 'C', 'D' },
-            }, "FBEACD");
+            }, "FBACDE");
         }
 
         [TestMethod]
@@ -134,14 +134,12 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void TopologicalSort_MergeDanglingBranch_InsertionOrder()
         {
-            // C comes after D, because C has a dependency on
-            // the second branch of A
             AssertOrder(new TestGraph(4)
             {
                 { 'A', 'B', 'C' },
                 { 'A',      'C' },
                 {      'B', 'D' }
-            }, "ABDC");
+            }, "ABCD");
         }
 
         [TestMethod]
@@ -165,7 +163,7 @@ namespace Bonsai.Core.Tests
                 { 'A', 'C' },
                 { 'F', 'B' },
                 { 'D', 'E' }
-            }, "ACFBDE");
+            }, "FBACDE");
         }
 
         [TestMethod]
@@ -178,7 +176,7 @@ namespace Bonsai.Core.Tests
                 { 'E', 'F' },
                 { 'G', 'E' },
                 { 'G', 'A' }
-            }, "CDGEFAB");
+            }, "GABCDEF");
         }
 
         [TestMethod]
@@ -197,7 +195,7 @@ namespace Bonsai.Core.Tests
                 { 'L', 'K' },
                 { 'L', 'I' },
                 { 'L', 'A' },
-            }, "LGHKCDEFIJAB");
+            }, "LABKCDEFGHIJ");
         }
 
         [TestMethod]
@@ -220,7 +218,7 @@ namespace Bonsai.Core.Tests
                 { 'D', 'E', 'A' },
                      { 'E', 'B', 'A' },
                      { 'C', 'A' }
-            }, "CDEBA");
+            }, "DEBCA");
         }
 
         [TestMethod]
