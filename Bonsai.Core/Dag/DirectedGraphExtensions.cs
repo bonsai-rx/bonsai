@@ -128,9 +128,18 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(source));
             }
 
+            var successorSet = new HashSet<Node<TNodeValue, TEdgeLabel>>();
             foreach (var node in source)
             {
-                if (!source.Predecessors(node).Any())
+                foreach (var successor in node.Successors)
+                {
+                    successorSet.Add(successor.Target);
+                }
+            }
+
+            foreach (var node in source)
+            {
+                if (!successorSet.Contains(node))
                 {
                     yield return node;
                 }
