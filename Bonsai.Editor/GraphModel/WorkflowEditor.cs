@@ -57,11 +57,65 @@ namespace Bonsai.Editor.GraphModel
             return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
         }
 
+        private int IndexOfComponentNode(ExpressionBuilderGraph workflow, ExpressionBuilderGraph component)
+        {
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                if (component.Contains(workflow[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private int LastIndexOfComponentNode(ExpressionBuilderGraph workflow, ExpressionBuilderGraph component)
+        {
+            var insertIndex = 0;
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                if (component.Contains(workflow[i]))
+                {
+                    insertIndex = i;
+                }
+            }
+
+            return insertIndex;
+        }
+
+        private int GetInsertIndexFromCursor(ExpressionBuilderGraph workflow, ExpressionBuilder builder, CreateGraphNodeType nodeType, bool branch)
+        {
+            var allowConnection = builder != null && GetBuilderMaxConnectionCount(builder) > 0;
+            var insertComponent = branch || graphView.SelectedNodes.Count() == 0 || !allowConnection;
+
+            var target = graphView.CursorNode;
+            if (insertComponent && target != null)
+            {
+                var targetNode = GetGraphNodeTag(workflow, target);
+                var components = workflow.FindConnectedComponents();
+                var targetComponent = components.First(component => component.Contains(targetNode));
+                return nodeType == CreateGraphNodeType.Successor
+                    ? LastIndexOfComponentNode(workflow, targetComponent) + 1
+                    : IndexOfComponentNode(workflow, targetComponent);
+            }
+
+            return GetInsertIndex(workflow, target, nodeType);
+        }
+
         private int GetInsertIndex(ExpressionBuilderGraph workflow, GraphNode target, CreateGraphNodeType nodeType)
         {
             var insertNode = GetGraphNodeTag(target);
-            var insertOffset = insertNode == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
-            return workflow.IndexOf(insertNode) + insertOffset;
+            return GetInsertIndex(workflow, insertNode, nodeType);
+        }
+
+        private int GetInsertIndex(
+            ExpressionBuilderGraph workflow,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target,
+            CreateGraphNodeType nodeType)
+        {
+            var insertOffset = target == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
+            return workflow.IndexOf(target) + insertOffset;
         }
 
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
@@ -213,6 +267,12 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
+        static int GetBuilderMaxConnectionCount(ExpressionBuilder builder)
+        {
+            var mappingBuilder = ExpressionBuilder.Unwrap(builder) as ExternalizedMappingBuilder;
+            return mappingBuilder != null ? 1 : builder.ArgumentRange.UpperBound;
+        }
+
         GraphCommand GetInsertGraphNodeCommands(
             Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
             Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
@@ -230,8 +290,7 @@ namespace Bonsai.Editor.GraphModel
                 foreach (var node in targetNodes)
                 {
                     // Ensure we can connect to the selected node
-                    var mappingBuilder = ExpressionBuilder.Unwrap(node.Value) as ExternalizedMappingBuilder;
-                    var maxConnectionCount = mappingBuilder != null ? 1 : node.Value.ArgumentRange.UpperBound;
+                    var maxConnectionCount = GetBuilderMaxConnectionCount(node.Value);
                     if (!validate || maxConnectionCount > 0)
                     {
                         var parameter = new ExpressionBuilderArgument();
@@ -987,7 +1046,7 @@ namespace Bonsai.Editor.GraphModel
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
 
-            var insertIndex = GetInsertIndex(workflow, graphView.CursorNode, nodeType);
+            var insertIndex = GetInsertIndexFromCursor(workflow, inspectBuilder, nodeType, branch);
             builder = inspectBuilder.Builder;
             Action addNode = () =>
             {
@@ -1066,7 +1125,13 @@ namespace Bonsai.Editor.GraphModel
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
-            var insertIndex = GetInsertIndex(Workflow, graphView.CursorNode, nodeType);
+            if (elements == null)
+            {
+                throw new ArgumentNullException(nameof(elements));
+            }
+
+            var sourceBuilder = elements.Sources().FirstOrDefault()?.Value;
+            var insertIndex = GetInsertIndexFromCursor(Workflow, sourceBuilder, nodeType, branch);
             InsertGraphElements(insertIndex, elements, nodeType, branch);
         }
 
@@ -1074,7 +1139,7 @@ namespace Bonsai.Editor.GraphModel
         {
             if (elements == null)
             {
-                throw new ArgumentNullException("elements");
+                throw new ArgumentNullException(nameof(elements));
             }
 
             var selectedNodes = graphView.SelectedNodes.ToArray();
