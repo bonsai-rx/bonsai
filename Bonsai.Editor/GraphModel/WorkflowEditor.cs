@@ -308,8 +308,11 @@ namespace Bonsai.Editor.GraphModel
                                 var predecessorEdge = predecessor.Item2;
                                 var predecessorNode = predecessor.Item1;
                                 var edgeIndex = predecessor.Item3;
-                                addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
-                                removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
+                                if (!predecessorNode.Value.IsBuildDependency())
+                                {
+                                    addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
+                                    removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
+                                }
                             }
                         }
 
