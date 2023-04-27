@@ -7,7 +7,7 @@
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.7.1</VersionPrefix>
+    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
