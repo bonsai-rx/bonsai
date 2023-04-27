@@ -78,7 +78,7 @@ namespace Bonsai.Editor.GraphView
         readonly LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         readonly HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         readonly SvgRendererState iconRendererState = new SvgRendererState();
-        IEnumerable<GraphNodeGrouping> nodes;
+        IReadOnlyList<GraphNodeGrouping> nodes;
         GraphNode pivot;
         GraphNode hot;
 
@@ -240,7 +240,7 @@ namespace Bonsai.Editor.GraphView
 
         public Image GraphicsProvider { get; set; }
 
-        public IEnumerable<GraphNodeGrouping> Nodes
+        public IReadOnlyList<GraphNodeGrouping> Nodes
         {
             get { return nodes; }
             set
@@ -866,7 +866,7 @@ namespace Bonsai.Editor.GraphView
             {
                 using (var graphics = CreateVectorGraphics())
                 {
-                    var layerCount = model.Count();
+                    var layerCount = model.Count;
                     foreach (var layer in model)
                     {
                         var maxRow = 0;

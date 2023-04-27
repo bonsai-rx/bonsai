@@ -258,7 +258,7 @@ namespace Bonsai.Editor.GraphModel
             return connectedComponents;
         }
 
-        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
+        public static IReadOnlyList<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
         {
             int layerOffset = 0;
             GraphNodeGrouping singletonLayer = null;
