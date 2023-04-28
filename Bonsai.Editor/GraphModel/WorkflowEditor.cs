@@ -87,7 +87,8 @@ namespace Bonsai.Editor.GraphModel
         private int GetInsertIndexFromCursor(ExpressionBuilderGraph workflow, ExpressionBuilder builder, CreateGraphNodeType nodeType, bool branch)
         {
             var allowConnection = builder != null && GetBuilderMaxConnectionCount(builder) > 0;
-            var insertComponent = branch || graphView.SelectedNodes.Count() == 0 || !allowConnection;
+            var forwardBranch = branch && nodeType == CreateGraphNodeType.Successor;
+            var insertComponent = forwardBranch || graphView.SelectedNodes.Count() == 0 || !allowConnection;
 
             var target = graphView.CursorNode;
             if (insertComponent && target != null)
