@@ -974,15 +974,27 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        public void CreateGraphNode(
+            ExpressionBuilder builder,
+            GraphNode selectedNode,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool validate = true,
+            int insertIndex = -1)
         {
-            CreateGraphNode(builder, GetGraphNodeTag(selectedNode), nodeType, branch, validate);
+            CreateGraphNode(builder, GetGraphNodeTag(selectedNode), nodeType, branch, validate, insertIndex);
         }
 
-        void CreateGraphNode(ExpressionBuilder builder, Node<ExpressionBuilder, ExpressionBuilderArgument> selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        void CreateGraphNode(
+            ExpressionBuilder builder,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> selectedNode,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool validate = true,
+            int insertIndex = -1)
         {
             var selection = selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
-            var commands = GetCreateGraphNodeCommands(builder, selection, nodeType, branch, validate);
+            var commands = GetCreateGraphNodeCommands(builder, selection, nodeType, branch, validate, insertIndex);
             commandExecutor.Execute(
             () =>
             {
@@ -1033,7 +1045,8 @@ namespace Bonsai.Editor.GraphModel
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedNodes,
             CreateGraphNodeType nodeType,
             bool branch,
-            bool validate = true)
+            bool validate = true,
+            int insertIndex = -1)
         {
             if (builder == null)
             {
@@ -1050,7 +1063,7 @@ namespace Bonsai.Editor.GraphModel
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
 
-            var insertIndex = GetInsertIndexFromCursor(workflow, inspectBuilder, nodeType, branch);
+            insertIndex = insertIndex < 0 ? GetInsertIndexFromCursor(workflow, inspectBuilder, nodeType, branch) : insertIndex;
             builder = inspectBuilder.Builder;
             Action addNode = () =>
             {
@@ -1479,6 +1492,12 @@ namespace Bonsai.Editor.GraphModel
             var updateSelectedNode = CreateUpdateSelectionDelegate(workflowExpressionBuilder);
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(nodes.ToArray());
 
+            var components = workflow.FindConnectedComponents();
+            var groupedSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(nodes.Select(GetGraphNodeTag));
+            var targetComponent = components.Last(component => groupedSet.Overlaps(component));
+            var insertIndex = LastIndexOfComponentNode(workflow, targetComponent) + 1;
+            var insertNode = insertIndex < workflow.Count ? workflow[insertIndex] : null;
+
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, () =>
             {
@@ -1491,11 +1510,13 @@ namespace Bonsai.Editor.GraphModel
                 DeleteGraphNode(node, replaceEdges: false);
             }
 
+            insertIndex = insertNode != null ? workflow.IndexOf(insertNode) : workflow.Count;
             CreateGraphNode(workflowExpressionBuilder,
                             replacementNode,
                             nodeType,
                             branch: false,
-                            validate: false);
+                            validate: false,
+                            insertIndex);
 
             // Connect grouped node predecessors and successors
             var predecessorEdges = new List<Tuple<Node<ExpressionBuilder, ExpressionBuilderArgument>, Edge<ExpressionBuilder, ExpressionBuilderArgument>>>();
