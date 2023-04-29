@@ -505,11 +505,11 @@ namespace Bonsai.Core.Tests
         public void Remove_NodeWithExistingLinks_ReturnsTrueAndRemovesLinks()
         {
             var graph = CreateGraph(0, 1, 2);
-            var node = graph[1];
-            graph.AddEdge(graph[0], node, label: 0);
+            graph.AddEdge(graph[0], graph[1], label: 0);
+            graph.AddEdge(graph[0], graph[2], label: 0);
+            Assert.AreEqual(expected: 2, graph[0].Successors.Count);
+            Assert.IsTrue(graph.Remove(graph[1]));
             Assert.AreEqual(expected: 1, graph[0].Successors.Count);
-            Assert.IsTrue(graph.Remove(node));
-            Assert.AreEqual(expected: 0, graph[0].Successors.Count);
         }
 
         #endregion
@@ -533,7 +533,7 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void RemoveAt_NodeAtValidIndex_ReorderIndexOfExistingNodes()
+        public void RemoveAt_NodeAtValidIndex_ReorderIndexOfRemainingNodes()
         {
             var graph = CreateGraph(0, 1, 2);
             graph.AddEdge(graph[0], graph[1], label: 0);

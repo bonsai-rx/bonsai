@@ -424,12 +424,14 @@ namespace Bonsai.Dag
                         return true;
                     }
 
-                    for (int i = 0; i < n.Successors.Count; i++)
+                    for (int i = 0; i < n.Successors.Count;)
                     {
                         if (n.Successors[i].Target == node)
                         {
                             n.Successors.RemoveAt(i);
+                            continue;
                         }
+                        i++;
                     }
                     return false;
                 });
