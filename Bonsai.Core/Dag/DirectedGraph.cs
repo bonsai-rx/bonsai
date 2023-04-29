@@ -455,6 +455,97 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
+        /// Removes all nodes that match the conditions defined by the specified
+        /// predicate from the directed graph.
+        /// </summary>
+        /// <param name="match">
+        /// The <see cref="Predicate{T}"/> delegate that defines the conditions
+        /// of the nodes to remove.
+        /// </param>
+        /// <returns>The number of nodes that were removed from the directed graph.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int RemoveWhere(Predicate<Node<TNodeValue, TEdgeLabel>> match)
+        {
+            if (match == null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
+            var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            nodeLookup.RemoveWhere(node =>
+            {
+                if (match(node))
+                {
+                    removed.Add(node);
+                    return true;
+                }
+
+                return false;
+            });
+
+            return RemoveInternal(removed);
+        }
+
+        /// <summary>
+        /// Removes a range of nodes from the directed graph.
+        /// </summary>
+        /// <param name="index">The zero-based starting index of the range of nodes to remove.</param>
+        /// <param name="count">The number of nodes to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="index"/> and <paramref name="count"/> were out of bounds for
+        /// the node list or <paramref name="count"/> is greater than the number of nodes
+        /// from <paramref name="index"/> to the end of the node list.
+        /// </exception>
+        public void RemoveRange(int index, int count)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is less than zero.", nameof(index));
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("The count of elements to remove is less than zero.", nameof(count));
+            }
+
+            if (nodes.Count - index < count)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "The index and count were out of bounds or count is greater than the number of nodes from index.",
+                    nameof(count));
+            }
+
+            var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            for (int i = index; i < index + count; i++)
+            {
+                removed.Add(nodes[i]);
+            }
+            RemoveInternal(removed);
+        }
+
+        int RemoveInternal(HashSet<Node<TNodeValue, TEdgeLabel>> removed)
+        {
+            return nodes.RemoveAll(node =>
+            {
+                if (removed.Contains(node))
+                {
+                    return true;
+                }
+
+                for (int i = 0; i < node.Successors.Count;)
+                {
+                    if (removed.Contains(node.Successors[i].Target))
+                    {
+                        node.Successors.RemoveAt(i);
+                        continue;
+                    }
+                    i++;
+                }
+                return false;
+            });
+        }
+
+        /// <summary>
         /// Removes the specified edge from the directed graph.
         /// </summary>
         /// <param name="from">The node that is the source of the edge.</param>

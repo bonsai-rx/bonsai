@@ -546,6 +546,84 @@ namespace Bonsai.Core.Tests
 
         #endregion
 
+        #region RemoveWhere
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void RemoveWhere_NullDelegate_ArgumentNullException()
+        {
+            var graph = CreateGraph();
+            graph.RemoveWhere(null);
+        }
+
+        [TestMethod]
+        public void RemoveWhere_NodeMatches_ReorderIndexOfRemainingNodes()
+        {
+            var graph = CreateGraph(0, 1, 2, 3);
+            graph.AddEdge(graph[0], graph[1], label: 0);
+            graph.AddEdge(graph[0], graph[2], label: 0);
+            graph.AddEdge(graph[0], graph[3], label: 0);
+            graph.AddEdge(graph[1], graph[2], label: 0);
+            graph.AddEdge(graph[1], graph[3], label: 0);
+            graph.AddEdge(graph[2], graph[3], label: 0);
+            Assert.AreEqual(expected: 1, graph[1].Value);
+            Assert.AreEqual(expected: 3, graph[0].Successors.Count);
+            Assert.AreEqual(expected: 1, graph[2].Successors.Count);
+            graph.RemoveWhere(node => node.Value % 2 != 0);
+            Assert.AreEqual(expected: 2, graph[1].Value);
+            Assert.AreEqual(expected: 1, graph[0].Successors.Count);
+            Assert.AreEqual(expected: 0, graph[1].Successors.Count);
+        }
+
+        #endregion
+
+        #region RemoveRange
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void RemoveRange_NegativeIndex_ArgumentOutOfRangeException()
+        {
+            var graph = CreateGraph(0);
+            graph.RemoveRange(index: -1, count: 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void RemoveRange_NegativeCount_ArgumentOutOfRangeException()
+        {
+            var graph = CreateGraph(0);
+            graph.RemoveRange(index: 0, count: -1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void RemoveRange_CountExceedsNumberOfElements_ArgumentOutOfRangeException()
+        {
+            var graph = CreateGraph(0);
+            graph.RemoveRange(index: 0, count: 2);
+        }
+
+        [TestMethod]
+        public void RemoveRange_ValidRange_ReorderIndexOfRemainingNodes()
+        {
+            var graph = CreateGraph(0, 1, 2, 3);
+            graph.AddEdge(graph[0], graph[1], label: 0);
+            graph.AddEdge(graph[0], graph[2], label: 0);
+            graph.AddEdge(graph[0], graph[3], label: 0);
+            graph.AddEdge(graph[1], graph[2], label: 0);
+            graph.AddEdge(graph[1], graph[3], label: 0);
+            graph.AddEdge(graph[2], graph[3], label: 0);
+            Assert.AreEqual(expected: 1, graph[1].Value);
+            Assert.AreEqual(expected: 3, graph[0].Successors.Count);
+            Assert.AreEqual(expected: 1, graph[2].Successors.Count);
+            graph.RemoveRange(index: 1, count: 2);
+            Assert.AreEqual(expected: 3, graph[1].Value);
+            Assert.AreEqual(expected: 1, graph[0].Successors.Count);
+            Assert.AreEqual(expected: 0, graph[1].Successors.Count);
+        }
+
+        #endregion
+
         #region RemoveEdge
 
         [TestMethod]
