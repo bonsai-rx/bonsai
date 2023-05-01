@@ -560,6 +560,7 @@ namespace Bonsai.Core.Tests
         public void RemoveWhere_NodeMatches_ReorderIndexOfRemainingNodes()
         {
             var graph = CreateGraph(0, 1, 2, 3);
+            var removedNode = graph[3];
             graph.AddEdge(graph[0], graph[1], label: 0);
             graph.AddEdge(graph[0], graph[2], label: 0);
             graph.AddEdge(graph[0], graph[3], label: 0);
@@ -570,6 +571,7 @@ namespace Bonsai.Core.Tests
             Assert.AreEqual(expected: 3, graph[0].Successors.Count);
             Assert.AreEqual(expected: 1, graph[2].Successors.Count);
             graph.RemoveWhere(node => node.Value % 2 != 0);
+            Assert.IsFalse(graph.Contains(removedNode));
             Assert.AreEqual(expected: 2, graph[1].Value);
             Assert.AreEqual(expected: 1, graph[0].Successors.Count);
             Assert.AreEqual(expected: 0, graph[1].Successors.Count);
@@ -607,6 +609,7 @@ namespace Bonsai.Core.Tests
         public void RemoveRange_ValidRange_ReorderIndexOfRemainingNodes()
         {
             var graph = CreateGraph(0, 1, 2, 3);
+            var removedNode = graph[2];
             graph.AddEdge(graph[0], graph[1], label: 0);
             graph.AddEdge(graph[0], graph[2], label: 0);
             graph.AddEdge(graph[0], graph[3], label: 0);
@@ -617,6 +620,7 @@ namespace Bonsai.Core.Tests
             Assert.AreEqual(expected: 3, graph[0].Successors.Count);
             Assert.AreEqual(expected: 1, graph[2].Successors.Count);
             graph.RemoveRange(index: 1, count: 2);
+            Assert.IsFalse(graph.Contains(removedNode));
             Assert.AreEqual(expected: 3, graph[1].Value);
             Assert.AreEqual(expected: 1, graph[0].Successors.Count);
             Assert.AreEqual(expected: 0, graph[1].Successors.Count);

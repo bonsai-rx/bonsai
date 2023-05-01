@@ -520,6 +520,7 @@ namespace Bonsai.Dag
             var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();
             for (int i = index; i < index + count; i++)
             {
+                nodeLookup.Remove(nodes[i]);
                 removed.Add(nodes[i]);
             }
             RemoveInternal(removed);
