@@ -683,18 +683,20 @@ namespace Bonsai.Editor.GraphModel
                                 // common ancestor
                                 var ancestor = GetGraphNodeTag(workflow, sourceTrace.node);
                                 var sourceEdge = ancestor.Successors[sourceTrace.index];
+                                var targetEdge = ancestor.Successors[targetTrace.index];
+                                var sourceBranch = sourceEdge.Target.DepthFirstSearch().ToArray();
+                                var elements = sourceBranch.Convert(builder => builder);
+                                var reorderedEdge = Edge.Create(elements[0], sourceEdge.Label);
+                                MoveNodesInternal(
+                                    elements,
+                                    sourceBranch,
+                                    targetEdge.Target,
+                                    Array.Empty<GraphNode>(),
+                                    CreateGraphNodeType.Predecessor,
+                                    branch: false);
                                 commandExecutor.Execute(
-                                () =>
-                                {
-                                    ancestor.Successors[sourceTrace.index] = null;
-                                    ancestor.Successors.Insert(targetTrace.index, sourceEdge);
-                                    ancestor.Successors.Remove(null);
-                                },
-                                () =>
-                                {
-                                    ancestor.Successors.RemoveAt(targetTrace.index);
-                                    ancestor.Successors.Insert(sourceTrace.index, sourceEdge);
-                                });
+                                () => ancestor.Successors.Insert(targetTrace.index, reorderedEdge),
+                                () => ancestor.Successors.RemoveAt(targetTrace.index));
                                 return;
                             }
                         }
@@ -1359,10 +1361,23 @@ namespace Bonsai.Editor.GraphModel
             updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
+            var insertedNodes = nodes.SortSelection(Workflow).Select(GetGraphNodeTag).ToArray();
+            var elements = insertedNodes.Convert(builder => builder);
+            MoveNodesInternal(elements, insertedNodes, GetGraphNodeTag(target), new[] { target }, nodeType, branch);
+            commandExecutor.Execute(updateGraphLayout, EmptyAction);
+            commandExecutor.EndCompositeCommand();
+        }
 
-            var elements = nodes.SortSelection(Workflow).ToWorkflow().ToInspectableGraph();
+        private void MoveNodesInternal(
+            ExpressionBuilderGraph elements,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target,
+            GraphNode[] selectedNodes,
+            CreateGraphNodeType nodeType,
+            bool branch)
+        {
             var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
-                                     from predecessor in Workflow.PredecessorEdges(GetGraphNodeTag(Workflow, item.node))
+                                     from predecessor in Workflow.PredecessorEdges(item.node)
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
                                      orderby predecessor.Item3
                                      select new { predecessor, edge = Edge.Create(item.element, predecessor.Item2.Label) }).ToArray();
@@ -1372,15 +1387,13 @@ namespace Bonsai.Editor.GraphModel
 
             foreach (var node in nodes)
             {
-                DeleteGraphNode(node);
+                DeleteGraphNode(node, replaceEdges: true);
             }
 
             var insertIndex = GetInsertIndex(Workflow, target, nodeType);
             Action addConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.AddEdge(dependency.predecessor.Item1, dependency.edge));
             Action removeConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.RemoveEdge(dependency.predecessor.Item1, dependency.edge));
-            InsertGraphElements(insertIndex, elements, new[] { target }, nodeType, branch, addConnection, removeConnection);
-            commandExecutor.Execute(updateGraphLayout, EmptyAction);
-            commandExecutor.EndCompositeCommand();
+            InsertGraphElements(insertIndex, elements, selectedNodes, nodeType, branch, addConnection, removeConnection);
         }
 
         private void ReplaceNode(GraphNode node, ExpressionBuilder builder)
