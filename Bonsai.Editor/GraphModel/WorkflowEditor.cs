@@ -119,9 +119,8 @@ namespace Bonsai.Editor.GraphModel
             return workflow.IndexOf(target) + insertOffset;
         }
 
-        private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+        private void AddWorkflowInput(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
-            workflow.Add(node);
             if (ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder workflowInput)
             {
                 foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
@@ -137,9 +136,8 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        private void RemoveWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+        private void RemoveWorkflowInput(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
-            workflow.Remove(node);
             if (ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder workflowInput)
             {
                 foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
@@ -924,7 +922,7 @@ namespace Bonsai.Editor.GraphModel
                     return;
                 }
             }
-            
+
             builder = CreateBuilder(typeName, elementCategory, group);
             ConfigureBuilder(builder, selectedNode, arguments);
             if (typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName ||
@@ -1068,11 +1066,12 @@ namespace Bonsai.Editor.GraphModel
             Action addNode = () =>
             {
                 workflow.Insert(insertIndex, inspectNode);
-                AddWorkflowNode(workflow, inspectNode);
+                AddWorkflowInput(workflow, inspectNode);
             };
             Action removeNode = () =>
             {
-                RemoveWorkflowNode(workflow, inspectNode);
+                workflow.Remove(inspectNode);
+                RemoveWorkflowInput(workflow, inspectNode);
             };
 
             var targetNodes = selectedNodes.ToArray();
@@ -1197,16 +1196,17 @@ namespace Bonsai.Editor.GraphModel
                 Workflow.InsertRange(index, elements);
                 foreach (var node in elements)
                 {
-                    AddWorkflowNode(Workflow, node);
+                    AddWorkflowInput(Workflow, node);
                 }
                 addConnection();
             },
             () =>
             {
                 removeConnection();
-                foreach (var node in elements.TopologicalSort())
+                Workflow.RemoveRange(index, elements.Count);
+                foreach (var node in elements)
                 {
-                    RemoveWorkflowNode(Workflow, node);
+                    RemoveWorkflowInput(Workflow, node);
                 }
             });
             ReplaceExternalizedMappings(nodeType, selectedNodes);
@@ -1281,7 +1281,8 @@ namespace Bonsai.Editor.GraphModel
             var insertIndex = workflow.IndexOf(workflowNode);
             Action removeNode = () =>
             {
-                RemoveWorkflowNode(workflow, workflowNode);
+                workflow.Remove(workflowNode);
+                RemoveWorkflowInput(workflow, workflowNode);
                 if (!replaceEdges)
                 {
                     foreach (var sibling in siblingEdgesAfter)
@@ -1294,7 +1295,7 @@ namespace Bonsai.Editor.GraphModel
             Action addNode = () =>
             {
                 workflow.Insert(insertIndex, workflowNode);
-                AddWorkflowNode(workflow, workflowNode);
+                AddWorkflowInput(workflow, workflowNode);
                 foreach (var edge in predecessorEdges)
                 {
                     edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
@@ -1919,7 +1920,7 @@ namespace Bonsai.Editor.GraphModel
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
     }
-    
+
     enum CreateGraphNodeType
     {
         Successor,
