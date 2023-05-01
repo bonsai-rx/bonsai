@@ -703,17 +703,20 @@ namespace Bonsai.Editor.GraphModel
                 else // reorder connected components
                 {
                     var targetIndex = workflow.IndexOf(targetComponent[0]);
-                    var restoreComponentIndex = components.IndexOf(sourceComponent) + 1;
-                    var restoreAnchor = restoreComponentIndex < components.Count
-                        ? components[restoreComponentIndex][0]
-                        : null;
-                    commandExecutor.Execute(
-                    () => workflow.InsertRange(targetIndex, sourceComponent),
-                    () =>
+                    var reorderedComponents = sourceComponent.Convert(builder => builder, recurse: false);
+                    foreach (var node in sourceComponent)
                     {
-                        var restoreIndex = restoreAnchor != null ? workflow.IndexOf(restoreAnchor) : workflow.Count;
-                        workflow.InsertRange(restoreIndex, sourceComponent);
-                    });
+                        DeleteGraphNode(node, replaceEdges: true);
+                    }
+
+                    InsertGraphElements(
+                        targetIndex,
+                        reorderedComponents,
+                        selectedNodes: Array.Empty<GraphNode>(),
+                        CreateGraphNodeType.Successor,
+                        branch: false,
+                        EmptyAction,
+                        EmptyAction);
                 }
             }
         }
