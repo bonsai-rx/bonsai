@@ -814,6 +814,7 @@ namespace Bonsai.Editor.GraphModel
             for (int i = 0; i < reorderCommands.Count; i++)
             {
                 var node = reorderCommands[i];
+                if (!Workflow.Contains(node)) continue;
                 try { ReorderGraphNode(node, targetNode); }
                 catch (InvalidOperationException ex)
                 {
