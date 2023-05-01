@@ -86,16 +86,32 @@ namespace Bonsai.Editor.GraphModel
 
         private int GetInsertIndexFromCursor(ExpressionBuilderGraph workflow, ExpressionBuilder builder, CreateGraphNodeType nodeType, bool branch)
         {
+            var target = graphView.CursorNode;
+            var targetNode = target != null ? GetGraphNodeTag(workflow, target) : null;
+            return GetInsertIndexFromCursor(workflow, builder, targetNode, nodeType, branch);
+        }
+
+        private int GetInsertIndexFromCursor(
+            ExpressionBuilderGraph workflow,
+            ExpressionBuilder builder,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target,
+            CreateGraphNodeType nodeType,
+            bool branch)
+        {
             var allowConnection = builder != null && GetBuilderMaxConnectionCount(builder) > 0;
             var forwardBranch = branch && nodeType == CreateGraphNodeType.Successor;
             var insertComponent = forwardBranch || graphView.SelectedNodes.Count() == 0 || !allowConnection;
 
-            var target = graphView.CursorNode;
             if (insertComponent && target != null)
             {
-                var targetNode = GetGraphNodeTag(workflow, target);
+                if (forwardBranch && allowConnection)
+                {
+                    var lastSuccessor = target.DepthFirstSearch().Last();
+                    return workflow.IndexOf(lastSuccessor) + 1;
+                }
+
                 var components = workflow.FindConnectedComponents();
-                var targetComponent = components.First(component => component.Contains(targetNode));
+                var targetComponent = components.First(component => component.Contains(target));
                 return nodeType == CreateGraphNodeType.Successor
                     ? LastIndexOfComponentNode(workflow, targetComponent) + 1
                     : IndexOfComponentNode(workflow, targetComponent);
@@ -1376,6 +1392,7 @@ namespace Bonsai.Editor.GraphModel
             CreateGraphNodeType nodeType,
             bool branch)
         {
+            if (elements.Count == 0) return;
             var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
                                      from predecessor in Workflow.PredecessorEdges(item.node)
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
@@ -1390,7 +1407,8 @@ namespace Bonsai.Editor.GraphModel
                 DeleteGraphNode(node, replaceEdges: true);
             }
 
-            var insertIndex = GetInsertIndex(Workflow, target, nodeType);
+            var sourceBuilder = elements[0].Value;
+            var insertIndex = GetInsertIndexFromCursor(Workflow, sourceBuilder, target, nodeType, branch);
             Action addConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.AddEdge(dependency.predecessor.Item1, dependency.edge));
             Action removeConnection = () => Array.ForEach(buildDependencies, dependency => Workflow.RemoveEdge(dependency.predecessor.Item1, dependency.edge));
             InsertGraphElements(insertIndex, elements, selectedNodes, nodeType, branch, addConnection, removeConnection);
