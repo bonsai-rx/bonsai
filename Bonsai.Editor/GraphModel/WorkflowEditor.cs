@@ -1527,11 +1527,16 @@ namespace Bonsai.Editor.GraphModel
             var updateSelectedNode = CreateUpdateSelectionDelegate(workflowExpressionBuilder);
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(nodes.ToArray());
 
-            var components = workflow.FindConnectedComponents();
-            var groupedSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(nodes.Select(GetGraphNodeTag));
-            var targetComponent = components.Last(component => groupedSet.Overlaps(component));
-            var insertIndex = LastIndexOfComponentNode(workflow, targetComponent) + 1;
-            var insertNode = insertIndex < workflow.Count ? workflow[insertIndex] : null;
+            var insertNode = default(Node<ExpressionBuilder, ExpressionBuilderArgument>);
+            if (successors.Length > 0) insertNode = successors[0].Key;
+            else
+            {
+                var components = workflow.FindConnectedComponents();
+                var groupedSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(nodes.Select(GetGraphNodeTag));
+                var targetComponent = components.Last(component => groupedSet.Overlaps(component));
+                var lastNodeIndex = LastIndexOfComponentNode(workflow, targetComponent) + 1;
+                insertNode = lastNodeIndex < workflow.Count ? workflow[lastNodeIndex] : null;
+            }
 
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, () =>
@@ -1545,7 +1550,7 @@ namespace Bonsai.Editor.GraphModel
                 DeleteGraphNode(node, replaceEdges: false);
             }
 
-            insertIndex = insertNode != null ? workflow.IndexOf(insertNode) : workflow.Count;
+            var insertIndex = insertNode != null ? workflow.IndexOf(insertNode) : workflow.Count;
             CreateGraphNode(workflowExpressionBuilder,
                             replacementNode,
                             nodeType,
