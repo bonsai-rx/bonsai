@@ -24,7 +24,7 @@ namespace Bonsai.Dag
         {
             var stack = new CallStack();
             var marks = new MarkDictionary(source.Count);
-            var orderedRoots = new SortedList<int, SortedNode>();
+            var orderedRoots = new List<SortedNode>();
             var rootIndices = new Dictionary<Node<TNodeValue, TEdgeLabel>, int>();
             for (int i = 0; i < source.Count; i++)
             {
@@ -54,7 +54,10 @@ namespace Bonsai.Dag
                             var nodeMark = marks.Add(current.Node, successors.Count);
                             if (nodeMark.Flag == 0)
                             {
-                                orderedRoots.Add(source.Count - rootIndices[current.Node], nodeMark);
+                                var rank = source.Count - rootIndices[current.Node];
+                                nodeMark.Rank = rank;
+                                nodeMark.Component = new ConnectedComponent(rank) { nodeMark };
+                                orderedRoots.Add(nodeMark);
                             }
                             else
                             {
@@ -82,14 +85,20 @@ namespace Bonsai.Dag
                 }
             }
 
-            topologicalOrder = ResultIterator(orderedRoots.Values);
+            orderedRoots.Sort((x, y) =>
+            {
+                var comparison = Comparer<int>.Default.Compare(x.Component.Rank, y.Component.Rank);
+                if (comparison == 0) comparison = Comparer<int>.Default.Compare(x.Rank, y.Rank);
+                return comparison;
+            });
+            topologicalOrder = ResultIterator(orderedRoots);
             return true;
         }
 
-        static IEnumerable<Node<TNodeValue, TEdgeLabel>> ResultIterator(IList<SortedNode> source)
+        static IEnumerable<Node<TNodeValue, TEdgeLabel>> ResultIterator(IReadOnlyList<SortedNode> source)
         {
             var stack = new Stack<SortedNode>();
-            var result = new List<Node<TNodeValue, TEdgeLabel>>(source.Count);
+            var result = new Stack<Node<TNodeValue, TEdgeLabel>>(source.Count);
             foreach (var root in source)
             {
                 stack.Push(root);
@@ -98,7 +107,7 @@ namespace Bonsai.Dag
                     var current = stack.Pop();
                     if (--current.Flag <= 0)
                     {
-                        result.Add(current.Node);
+                        result.Push(current.Node);
                         foreach (var dependency in current.GetDependencies())
                         {
                             stack.Push(dependency);
@@ -107,22 +116,16 @@ namespace Bonsai.Dag
                 }
             }
 
-            return ReverseIterator(result);
-        }
-
-        static IEnumerable<TSource> ReverseIterator<TSource>(List<TSource> source)
-        {
-            for (int i = source.Count - 1; i >= 0; i--)
-            {
-                yield return source[i];
-            }
+            return result;
         }
 
         [DebuggerDisplay("({Node}, Flag:{Flag})")]
         class SortedNode
         {
             List<NodeDependency> dependencies;
+            public ConnectedComponent Component;
             public Node<TNodeValue, TEdgeLabel> Node;
+            public int Rank = -1;
             public int Flag;
 
             public void AddDependency(TEdgeLabel key, SortedNode dependency)
@@ -132,6 +135,32 @@ namespace Bonsai.Dag
                 nodeDependency.Dependency = dependency;
                 dependencies ??= new List<NodeDependency>();
                 dependencies.Add(nodeDependency);
+                if (dependency.Component == null)
+                {
+                    dependency.Component = Component;
+                }
+                else if (Component != dependency.Component)
+                {
+                    ConnectedComponent high, low;
+                    if (Component.Rank > dependency.Component.Rank)
+                    {
+                        high = Component;
+                        low = dependency.Component;
+                    }
+                    else
+                    {
+                        high = dependency.Component;
+                        low = Component;
+                    }
+
+                    foreach (var root in low)
+                    {
+                        high.Add(root);
+                        root.Component = high;
+                    }
+
+                    Component = dependency.Component = high;
+                }
             }
 
             public IEnumerable<SortedNode> GetDependencies()
@@ -189,6 +218,16 @@ namespace Bonsai.Dag
         {
             public Node<TNodeValue, TEdgeLabel> Node;
             public int Index;
+        }
+
+        class ConnectedComponent : HashSet<SortedNode>
+        {
+            internal ConnectedComponent(int rank)
+            {
+                Rank = rank;
+            }
+
+            internal int Rank { get; }
         }
     }
 }

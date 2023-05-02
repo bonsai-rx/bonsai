@@ -167,7 +167,7 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void TopologicalSort_DeferredConnectedComponents_InsertionOrder()
+        public void TopologicalSort_DeferredConnectedComponents_ConnectedComponentOrder()
         {
             AssertOrder(new TestGraph(7)
             {
@@ -176,7 +176,7 @@ namespace Bonsai.Core.Tests
                 { 'E', 'F' },
                 { 'G', 'E' },
                 { 'G', 'A' }
-            }, "GABCDEF");
+            }, "GABEFCD");
         }
 
         [TestMethod]
