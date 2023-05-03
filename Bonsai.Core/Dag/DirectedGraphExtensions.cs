@@ -252,11 +252,11 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (!Dag.TopologicalSort.TrySort(source, out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder))
+            if (!Dag.TopologicalSort.TrySort(source, out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder))
             {
                 return Enumerable.Empty<Node<TNodeValue, TEdgeLabel>>();
             }
-            return topologicalOrder;
+            return topologicalOrder.SelectMany(component => component);
         }
 
         /// <summary>

@@ -898,6 +898,11 @@ namespace Bonsai.Expressions
             return expression.NodeType != ExpressionType.Extension || expression.CanReduce;
         }
 
+        static IObservable<Unit> IgnoreConnection(IObservable<Unit> source)
+        {
+            return source.IgnoreElements();
+        }
+
         static IObservable<Unit> IgnoreConnection<TSource>(IObservable<TSource> source)
         {
             return source.IgnoreElements().Select(xs => Unit.Default);
@@ -913,6 +918,17 @@ namespace Bonsai.Expressions
             return MergeDependencies(source, Observable.Merge(connections).Select(xs => default(TSource)));
         }
 
+        internal static Expression MergeOutput(Expression output, IEnumerable<Expression> connections)
+        {
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), connections);
+            if (output != null)
+            {
+                var outputType = output.Type.GetGenericArguments()[0];
+                return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), new[] { outputType }, output, connectionArrayExpression);
+            }
+            else return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), null, connectionArrayExpression);
+        }
+
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
         {
             var ignoredConnections = (from connection in connections.Where(IsReducible)
@@ -920,20 +936,21 @@ namespace Bonsai.Expressions
                                       select Expression.Call(
                                           typeof(ExpressionBuilder),
                                           nameof(IgnoreConnection),
-                                          new[] { observableType }, connection))
+                                          observableType != typeof(Unit)
+                                            ? new[] { observableType }
+                                            : Type.EmptyTypes,
+                                          connection))
                                       .ToArray();
             if (output != null && ignoredConnections.Length == 0)
             {
                 return output;
             }
-
-            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections);
-            if (output != null)
+            else if (output == null && ignoredConnections.Length == 1)
             {
-                var outputType = output.Type.GetGenericArguments()[0];
-                return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), new[] { outputType }, output, connectionArrayExpression);
+                return ignoredConnections[0];
             }
-            else return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), null, connectionArrayExpression);
+
+            return MergeOutput(output, ignoredConnections);
         }
 
         #endregion

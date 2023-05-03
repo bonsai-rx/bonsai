@@ -8,7 +8,7 @@ namespace Bonsai.Dag
     {
         public static bool TrySort<TNodeValue, TEdgeLabel>(
             DirectedGraph<TNodeValue, TEdgeLabel> source,
-            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
+            out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             return TopologicalSort<TNodeValue, TEdgeLabel>.TrySort(source, out topologicalOrder);
         }
@@ -20,7 +20,7 @@ namespace Bonsai.Dag
 
         public static bool TrySort(
             DirectedGraph<TNodeValue, TEdgeLabel> source,
-            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
+            out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             var stack = new CallStack();
             var marks = new MarkDictionary(source.Count);
@@ -95,19 +95,38 @@ namespace Bonsai.Dag
             return true;
         }
 
-        static IEnumerable<Node<TNodeValue, TEdgeLabel>> ResultIterator(IReadOnlyList<SortedNode> source)
+        static IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> ResultIterator(IReadOnlyList<SortedNode> source)
         {
             var stack = new Stack<SortedNode>();
-            var result = new Stack<Node<TNodeValue, TEdgeLabel>>(source.Count);
+            var result = new Stack<DirectedGraph<TNodeValue, TEdgeLabel>>();
+            var componentSort = new Stack<Node<TNodeValue, TEdgeLabel>>(source.Count);
+            var currentComponent = default(ConnectedComponent);
+            void AddConnectedComponent()
+            {
+                if (currentComponent != null)
+                {
+                    var connectedComponent = new DirectedGraph<TNodeValue, TEdgeLabel>();
+                    connectedComponent.InsertRange(0, componentSort);
+                    result.Push(connectedComponent);
+                    componentSort.Clear();
+                }
+            }
+
             foreach (var root in source)
             {
+                if (root.Component != currentComponent)
+                {
+                    AddConnectedComponent();
+                    currentComponent = root.Component;
+                }
+
                 stack.Push(root);
                 while (stack.Count > 0)
                 {
                     var current = stack.Pop();
                     if (--current.Flag <= 0)
                     {
-                        result.Push(current.Node);
+                        componentSort.Push(current.Node);
                         foreach (var dependency in current.GetDependencies())
                         {
                             stack.Push(dependency);
@@ -116,6 +135,7 @@ namespace Bonsai.Dag
                 }
             }
 
+            AddConnectedComponent();
             return result;
         }
 
