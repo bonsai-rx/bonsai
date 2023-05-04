@@ -100,6 +100,28 @@ namespace Bonsai.Dag
             }
         }
 
+        /// <summary>
+        /// Adds the nodes in a collection to the end of the directed graph.
+        /// </summary>
+        /// <param name="collection">
+        /// The collection of nodes to insert into the directed graph.
+        /// </param>
+        /// <remarks>
+        /// If any of the nodes in the collection are already in the directed graph,
+        /// they will be moved into the new index position. Any successor nodes which
+        /// are not in the graph will also be added in depth-first order.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddRange(IEnumerable<Node<TNodeValue, TEdgeLabel>> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            InsertInternal(nodes.Count, collection);
+        }
+
         void ThrowIfEdgeVerticesNullOrNotInGraph(Node<TNodeValue, TEdgeLabel> from, Node<TNodeValue, TEdgeLabel> to, string targetParamName)
         {
             if (from == null)
@@ -301,17 +323,17 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Inserts a node and all its successors into the directed graph at the
-        /// specified index.
+        /// Inserts a node into the directed graph at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which the node should be inserted.</param>
         /// <param name="node">The node to insert into the directed graph.</param>
+        /// <remarks>
+        /// If the node is already in the directed graph, it will be moved into the
+        /// new index position. Any successor nodes which are not in the graph will
+        /// also be added in depth-first order.
+        /// </remarks>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <remarks>
-        /// If the node or any of its successors are already in the directed graph,
-        /// they will be moved into the new position, in depth-first order.
-        /// </remarks>
         public void Insert(int index, Node<TNodeValue, TEdgeLabel> node)
         {
             if (node == null)
@@ -328,8 +350,8 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Inserts all the nodes in a collection and their successors into the
-        /// directed graph at the specified index.
+        /// Inserts the nodes in a collection into the directed graph at the
+        /// specified index.
         /// </summary>
         /// <param name="index">
         /// The zero-based index at which the node collection should be inserted.
@@ -338,9 +360,9 @@ namespace Bonsai.Dag
         /// The collection of nodes to insert into the directed graph.
         /// </param>
         /// <remarks>
-        /// If any of the nodes in the collection, or their successors, are already
-        /// in the directed graph, they will be moved into the new index position,
-        /// in depth-first order.
+        /// If any of the nodes in the collection are already in the directed graph,
+        /// they will be moved into the new index position. Any successor nodes which
+        /// are not in the graph will also be added in depth-first order.
         /// </remarks>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>

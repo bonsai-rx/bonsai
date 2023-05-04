@@ -71,6 +71,33 @@ namespace Bonsai.Core.Tests
 
         #endregion
 
+        #region AddRange
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void AddRange_NullCollection_ArgumentNullException()
+        {
+            var graph = CreateGraph();
+            graph.AddRange(null);
+        }
+
+        [TestMethod]
+        public void AddRange_NodeCollection_SuccessorNodesInsertedAtEnd()
+        {
+            var graph = CreateGraph();
+            var node = new Node<int, int>(0);
+            var node2 = new Node<int, int>(4);
+            var successor = new Node<int, int>(1);
+            node.Successors.Add(Edge.Create(successor, label: 0));
+            Assert.AreEqual(expected: 0, graph.Count);
+            graph.AddRange(new[] { node, node2 });
+            Assert.AreEqual(
+                FormatSequence(new[] { 0, 4, 1 }),
+                FormatNodeSequence(graph));
+        }
+
+        #endregion
+
         #region AddEdge
 
         [TestMethod]
