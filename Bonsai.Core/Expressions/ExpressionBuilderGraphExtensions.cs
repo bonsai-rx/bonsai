@@ -905,7 +905,7 @@ namespace Bonsai.Expressions
                             throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
                         }
 
-                        if (workflowOutput != null)
+                        if (workflowOutput != null || output != null)
                         {
                             throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
                         }
@@ -973,7 +973,7 @@ namespace Bonsai.Expressions
                         if (connection is MulticastBranchExpression branchExpression &&
                             branchExpression == scope.MulticastBuilder.BranchExpression)
                         {
-                            if (argumentIndex == null) argumentIndex = index;
+                            argumentIndex ??= index;
                             return true;
                         }
 
