@@ -21,6 +21,24 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_SimpleGroup_ReturnsExpression()
+        {
+            var workflow = new ExpressionBuilderGraph();
+            workflow.Add(new GroupWorkflowBuilder());
+            var expression = workflow.Build();
+            Assert.AreEqual(expected: typeof(IObservable<Unit>), expression.Type);
+        }
+
+        [TestMethod]
+        public void Build_SimpleInspectBuilderGroup_ReturnsExpression()
+        {
+            var workflow = new ExpressionBuilderGraph();
+            workflow.Add(new InspectBuilder(new GroupWorkflowBuilder()));
+            var expression = workflow.Build();
+            Assert.AreEqual(expected: typeof(IObservable<Unit>), expression.Type);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(WorkflowBuildException))]
         public void Build_CyclicGraph_WorkflowBuildException()
         {

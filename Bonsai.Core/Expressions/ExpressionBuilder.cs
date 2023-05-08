@@ -923,7 +923,7 @@ namespace Bonsai.Expressions
             var mergedConnections = connections.ToArray();
             if (mergedConnections.Length == 0)
             {
-                return output ?? Expression.Constant(Observable.Empty<Unit>());
+                return output ?? Expression.Constant(Observable.Empty<Unit>(), typeof(IObservable<Unit>));
             }
             else if (mergedConnections.Length == 1 && output == null)
             {
