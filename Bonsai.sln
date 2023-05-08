@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai", "Bonsai\Bonsai.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Editor", "Bonsai.Editor\Bonsai.Editor.csproj", "{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Editor.Tests", "Bonsai.Editor.Tests\Bonsai.Editor.Tests.csproj", "{AA001CB8-FB7C-4D4A-8710-47363CA39016}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Vision", "Bonsai.Vision\Bonsai.Vision.csproj", "{C226E461-6A82-49A7-9CAF-0CF872A1C91B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Design", "Bonsai.Design\Bonsai.Design.csproj", "{765D928A-B147-46FF-8A59-BDE73F88A844}"
@@ -102,6 +104,18 @@ Global
 		{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}.Release|x64.ActiveCfg = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Debug|x64.Build.0 = Debug|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|x64.ActiveCfg = Release|Any CPU
+		{AA001CB8-FB7C-4D4A-8710-47363CA39016}.Release|x64.Build.0 = Release|Any CPU
 		{C226E461-6A82-49A7-9CAF-0CF872A1C91B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C226E461-6A82-49A7-9CAF-0CF872A1C91B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C226E461-6A82-49A7-9CAF-0CF872A1C91B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
