@@ -68,15 +68,18 @@ namespace Bonsai.Editor.Tests
             var workflowBuilder = LoadEmbeddedWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
             var nodeSequence = workflowBuilder.Workflow.ToArray();
             var (editor, executor) = CreateMockEditor(workflowBuilder.Workflow);
-            var source = editor.Workflow[2];
-            Assert.AreEqual(expected: 1, source.Successors.Count);
 
-            var nodes = new[] { editor.FindGraphNode(editor.Workflow[4].Value) };
+            var branchLead = editor.Workflow[2];
+            var sourceNode = editor.Workflow[5];
+            var nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
             var target = editor.FindGraphNode(editor.Workflow[1].Value);
             editor.ReorderGraphNodes(nodes, target);
+            Assert.AreEqual(expected: 1, branchLead.Successors.Count);
 
-            source = editor.FindGraphNodeTag(source.Value);
-            Assert.AreEqual(expected: 1, source.Successors.Count);
+            Assert.AreSame(branchLead, editor.FindGraphNodeTag(branchLead.Value));
+            Assert.AreEqual(expected: 1, branchLead.Successors.Count);
+            Assert.AreEqual(expected: 1, editor.Workflow.IndexOf(branchLead));
+            Assert.AreEqual(expected: 3, editor.Workflow.IndexOf(sourceNode));
 
             executor.Undo();
             AssertIsSequenceEqual(nodeSequence, editor.Workflow);

@@ -721,10 +721,18 @@ namespace Bonsai.Editor.GraphModel
                             {
                                 // common ancestor
                                 var ancestor = GetGraphNodeTag(workflow, sourceTrace.node);
-                                var sourceEdge = ancestor.Successors[sourceTrace.index];
                                 var targetEdge = ancestor.Successors[targetTrace.index];
-                                var sourceBranch = RangeIndices(workflow, sourceEdge.Target.DepthFirstSearch());
                                 var targetIndex = workflow.IndexOf(targetEdge.Target);
+                                var successorSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+                                foreach (var successorEdge in ancestor.Successors)
+                                {
+                                    if (successorEdge == targetEdge) continue;
+                                    var successorBranch = successorEdge.Target.DepthFirstSearch().ToHashSet();
+                                    if (!successorBranch.Contains(source)) continue;
+                                    successorSet.UnionWith(successorBranch);
+                                }
+
+                                var sourceBranch = RangeIndices(workflow, successorSet);
                                 var ancestorEdges = ancestor.Successors
                                     .Select((edge, index) => (edge, index))
                                     .Where(x => sourceBranch.ContainsKey(x.edge.Target))
