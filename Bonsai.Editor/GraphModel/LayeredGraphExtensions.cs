@@ -230,7 +230,7 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        public static IList<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
+        public static IReadOnlyList<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
         {
             var connectedComponents = new List<ConnectedComponent>();
             var connectedSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
