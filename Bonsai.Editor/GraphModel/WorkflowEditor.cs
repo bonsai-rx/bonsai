@@ -57,6 +57,24 @@ namespace Bonsai.Editor.GraphModel
             return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
         }
 
+        private static Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, int> RangeIndices(
+            ExpressionBuilderGraph workflow,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source)
+        {
+            var sourceNodes = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(source);
+            var nodeMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, int>(sourceNodes.Count);
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                var node = workflow[i];
+                if (sourceNodes.Contains(node))
+                {
+                    nodeMap[node] = i;
+                }
+            }
+
+            return nodeMap;
+        }
+
         private int IndexOfComponentNode(ExpressionBuilderGraph workflow, ExpressionBuilderGraph component)
         {
             for (int i = 0; i < workflow.Count; i++)
@@ -705,19 +723,51 @@ namespace Bonsai.Editor.GraphModel
                                 var ancestor = GetGraphNodeTag(workflow, sourceTrace.node);
                                 var sourceEdge = ancestor.Successors[sourceTrace.index];
                                 var targetEdge = ancestor.Successors[targetTrace.index];
-                                var sourceBranch = sourceEdge.Target.DepthFirstSearch().ToArray();
-                                var elements = sourceBranch.Convert(builder => builder);
-                                var reorderedEdge = Edge.Create(elements[0], sourceEdge.Label);
-                                MoveNodesInternal(
-                                    elements,
-                                    sourceBranch,
-                                    targetEdge.Target,
-                                    Array.Empty<GraphNode>(),
-                                    CreateGraphNodeType.Predecessor,
-                                    branch: false);
+                                var sourceBranch = RangeIndices(workflow, sourceEdge.Target.DepthFirstSearch());
+                                var targetIndex = workflow.IndexOf(targetEdge.Target);
+                                var ancestorEdges = ancestor.Successors
+                                    .Select((edge, index) => (edge, index))
+                                    .Where(x => sourceBranch.ContainsKey(x.edge.Target))
+                                    .ToArray();
                                 commandExecutor.Execute(
-                                () => ancestor.Successors.Insert(targetTrace.index, reorderedEdge),
-                                () => ancestor.Successors.RemoveAt(targetTrace.index));
+                                () =>
+                                {
+                                    var edgeIndex = targetTrace.index;
+                                    workflow.InsertRange(targetIndex, sourceBranch.Keys);
+                                    for (int i = ancestorEdges.Length - 1; i >= 0; i--)
+                                    {
+                                        var index = ancestorEdges[i].index;
+                                        if (index < targetTrace.index) edgeIndex--;
+                                        ancestor.Successors.RemoveAt(index);
+                                    }
+
+                                    foreach (var (edge, _) in ancestorEdges)
+                                    {
+                                        ancestor.Successors.Insert(edgeIndex++, edge);
+                                    }
+                                },
+                                () =>
+                                {
+                                    var edgeIndex = ancestor.Successors.IndexOf(ancestorEdges[0].edge);
+                                    var insertOffset = sourceBranch.Count(item => item.Value > targetIndex);
+                                    foreach (var restore in sourceBranch)
+                                    {
+                                        var insertIndex = restore.Value > targetIndex
+                                            ? restore.Value + insertOffset--
+                                            : restore.Value;
+                                        workflow.Insert(insertIndex, restore.Key);
+                                    }
+
+                                    foreach (var _ in ancestorEdges)
+                                    {
+                                        ancestor.Successors.RemoveAt(edgeIndex);
+                                    }
+
+                                    foreach (var (edge, index) in ancestorEdges)
+                                    {
+                                        ancestor.Successors.Insert(index, edge);
+                                    }
+                                });
                                 return;
                             }
                         }
