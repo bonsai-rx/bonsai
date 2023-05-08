@@ -783,13 +783,13 @@ namespace Bonsai.Editor.GraphModel
                 }
                 else // reorder connected components
                 {
-                    var targetIndex = workflow.IndexOf(targetComponent[0]);
                     var reorderedComponents = sourceComponent.Convert(builder => builder, recurse: false);
                     foreach (var node in sourceComponent)
                     {
                         DeleteGraphNode(node, replaceEdges: true);
                     }
 
+                    var targetIndex = workflow.IndexOf(targetComponent[0]);
                     InsertGraphElements(
                         targetIndex,
                         reorderedComponents,
