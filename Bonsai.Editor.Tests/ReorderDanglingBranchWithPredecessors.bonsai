@@ -6,10 +6,6 @@
     <Nodes>
       <Expression xsi:type="GroupWorkflow">
         <Name>A</Name>
-        <Workflow>
-          <Nodes />
-          <Edges />
-        </Workflow>
       </Expression>
       <Expression xsi:type="GroupWorkflow">
         <Name>B</Name>
@@ -35,10 +31,6 @@
       </Expression>
       <Expression xsi:type="GroupWorkflow">
         <Name>F</Name>
-        <Workflow>
-          <Nodes />
-          <Edges />
-        </Workflow>
       </Expression>
       <Expression xsi:type="GroupWorkflow">
         <Name>D</Name>

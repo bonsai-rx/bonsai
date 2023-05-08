@@ -49,7 +49,7 @@ namespace Bonsai.Editor.Tests
             }
         }
 
-        (WorkflowEditor, CommandExecutor) CreateMockEditor(ExpressionBuilderGraph workflow = null)
+        (WorkflowEditor editor, Action assertIsReversible) CreateMockEditor(ExpressionBuilderGraph workflow = null)
         {
             var executor = new CommandExecutor();
             var serviceProvider = new ServiceContainer();
@@ -59,15 +59,25 @@ namespace Bonsai.Editor.Tests
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
             editor.UpdateSelection.Subscribe(graphView.UpdateSelection);
             editor.Workflow = graphView.Workflow;
-            return (editor, executor);
+
+            var nodeSequence = editor.Workflow.ToArray();
+            return (editor, assertIsReversible: () =>
+            {
+                while (executor.CanUndo)
+                {
+                    executor.Undo();
+                }
+
+                AssertIsSequenceEqual(nodeSequence, editor.Workflow);
+            });
         }
 
         [TestMethod]
-        public void ReorderGraphNode_ReorderDanglingBranchWithPredecessors_KeepPredecessorEdges()
+        public void ReorderGraphNode_DanglingBranchWithPredecessors_KeepPredecessorEdges()
         {
             var workflowBuilder = LoadEmbeddedWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
             var nodeSequence = workflowBuilder.Workflow.ToArray();
-            var (editor, executor) = CreateMockEditor(workflowBuilder.Workflow);
+            var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             var branchLead = editor.Workflow[2];
             var sourceNode = editor.Workflow[5];
@@ -80,9 +90,30 @@ namespace Bonsai.Editor.Tests
             Assert.AreEqual(expected: 1, branchLead.Successors.Count);
             Assert.AreEqual(expected: 1, editor.Workflow.IndexOf(branchLead));
             Assert.AreEqual(expected: 3, editor.Workflow.IndexOf(sourceNode));
+            assertIsReversible();
+        }
 
-            executor.Undo();
-            AssertIsSequenceEqual(nodeSequence, editor.Workflow);
+        [TestMethod]
+        public void ReorderGraphNode_ComponentWithHigherIndexIntoLowerIndex_ReorderComponentNodes()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("ReorderComponentWithHigherIndexIntoLowerIndex.bonsai");
+            var nodeSequence = workflowBuilder.Workflow.ToArray();
+            var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
+
+            // disconnect C from D
+            var sourceNode = editor.Workflow[3];
+            var targetNode = editor.Workflow[2];
+            var nodes = new[] { editor.FindGraphNode(targetNode.Value) };
+            var target = editor.FindGraphNode(sourceNode.Value);
+            editor.DisconnectGraphNodes(nodes, target);
+
+            // reorder D into C
+            nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
+            target = editor.FindGraphNode(targetNode.Value);
+            editor.ReorderGraphNodes(nodes, target);
+
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.Workflow.IndexOf(targetNode));
+            assertIsReversible();
         }
     }
 
