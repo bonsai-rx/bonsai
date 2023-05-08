@@ -179,11 +179,6 @@ namespace Bonsai.Editor.GraphModel
             return () => invalidateLayout.OnNext(true);
         }
 
-        private Action CreateUpdateSelectionDelegate()
-        {
-            return CreateUpdateSelectionDelegate(Enumerable.Empty<ExpressionBuilder>());
-        }
-
         private Action CreateUpdateSelectionDelegate(GraphNode selection)
         {
             var selectedNodes = selection == null ? Enumerable.Empty<GraphNode>() : new[] { selection };
@@ -501,7 +496,9 @@ namespace Bonsai.Editor.GraphModel
             else ConnectGraphNodes(graphViewSources, graphViewTarget, validate: true);
         }
 
-        private void ConnectInternalNodes(GraphNode source, GraphNode target)
+        private void ConnectInternalNodes(
+            Node<ExpressionBuilder, ExpressionBuilderArgument> source,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
             ConnectGraphNodes(new[] { source }, target, validate: false);
         }
@@ -516,20 +513,28 @@ namespace Bonsai.Editor.GraphModel
 
         private void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget, bool validate)
         {
+            var target = GetGraphNodeTag(Workflow, graphViewTarget);
+            var sourceNodes = graphViewSources.Select(node => GetGraphNodeTag(Workflow, node)).ToArray();
+            ConnectGraphNodes(sourceNodes, target, validate);
+        }
+
+        private void ConnectGraphNodes(
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sourceNodes,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target,
+            bool validate)
+        {
             var workflow = this.Workflow;
             var addConnection = EmptyAction;
             var removeConnection = EmptyAction;
-            var target = GetGraphNodeTag(workflow, graphViewTarget);
             var sortedPredecessors = workflow.PredecessorEdges(target)
                 .Select(edge => edge.Item2.Label.Index)
                 .OrderBy(idx => idx).ToArray();
 
             var offset = 0;
             var connectionIndex = 0;
-            foreach (var graphViewSource in graphViewSources)
+            foreach (var source in sourceNodes)
             {
                 FindNextIndex(ref connectionIndex, ref offset, sortedPredecessors);
-                var source = GetGraphNodeTag(workflow, graphViewSource);
                 var parameter = new ExpressionBuilderArgument(connectionIndex);
                 var edge = Edge.Create(target, parameter);
                 addConnection += () => workflow.AddEdge(source, edge);
@@ -541,8 +546,8 @@ namespace Bonsai.Editor.GraphModel
             if (!validate) restoreSelectedNodes = updateSelectedNode = updateGraphLayout = null;
             else
             {
-                restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
-                updateSelectedNode = CreateUpdateSelectionDelegate(graphViewTarget);
+                restoreSelectedNodes = CreateUpdateSelectionDelegate(sourceNodes);
+                updateSelectedNode = CreateUpdateSelectionDelegate(target);
                 updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             }
 
@@ -1753,12 +1758,11 @@ namespace Bonsai.Editor.GraphModel
             if (!nodes.Any()) return;
             var selectedNodes = nodes.ToArray();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var updateSelectedNode = CreateUpdateSelectionDelegate();
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
 
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, restoreSelectedNodes);
-            commandExecutor.Execute(updateSelectedNode, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout);
             foreach (var node in selectedNodes)
             {
                 action(node);
@@ -1808,8 +1812,8 @@ namespace Bonsai.Editor.GraphModel
                 return;
             }
 
-            var predecessors = workflow.PredecessorEdges(workflowNode).OrderBy(edge => edge.Item2.Label.Index).Select(xs => xs.Item1.Value).ToArray();
-            var successors = workflowNode.Successors.Select(xs => xs.Target.Value).ToArray();
+            var predecessors = workflow.PredecessorEdges(workflowNode).OrderBy(edge => edge.Item2.Label.Index).Select(xs => xs.Item1).ToArray();
+            var successors = workflowNode.Successors.Select(xs => xs.Target).ToArray();
             var groupWorkflow = new ExpressionBuilderGraph();
             groupWorkflow.AddDescriptor(workflowBuilder.Workflow.ToDescriptor());
 
@@ -1833,16 +1837,22 @@ namespace Bonsai.Editor.GraphModel
 
             var insertIndex = GetInsertIndex(Workflow, node, CreateGraphNodeType.Predecessor);
             DeleteGraphNode(node, replaceEdges: false);
-            InsertGraphElements(insertIndex, groupWorkflow, CreateGraphNodeType.Successor, false);
+            InsertGraphElements(
+                insertIndex,
+                groupWorkflow,
+                Array.Empty<GraphNode>(),
+                CreateGraphNodeType.Successor,
+                false,
+                EmptyAction,
+                EmptyAction);
 
             // Connect incoming nodes to internal targets
             var mainSink = groupSinks.FirstOrDefault();
             var inputConnections = predecessors
-                .Select(xs => FindGraphNode(xs))
                 .Zip(groupSources, (xs, ys) =>
                     ys.Successors.SelectMany(zs => zs.Target != mainSink
-                                     ? Enumerable.Repeat(Tuple.Create(xs, FindGraphNode(zs.Target.Value)), 1)
-                                     : successors.Select(ss => Tuple.Create(xs, FindGraphNode(ss)))));
+                                     ? Enumerable.Repeat(Tuple.Create(xs, zs.Target), 1)
+                                     : successors.Select(ss => Tuple.Create(xs, ss))));
             foreach (var input in inputConnections.SelectMany(xs => xs))
             {
                 ConnectInternalNodes(input.Item1, input.Item2);
@@ -1850,10 +1860,10 @@ namespace Bonsai.Editor.GraphModel
 
             // Connect output sources to external targets
             var outputConnections = groupOutputs
-                .Select(edge => FindGraphNode(edge.Item1.Value))
+                .Select(edge => edge.Item1)
                 .Where(xs => xs != null)
-                .SelectMany(xs => successors.Select(edge =>
-                    Tuple.Create(xs, FindGraphNode(edge))));
+                .SelectMany(xs => successors.Select(successor =>
+                    Tuple.Create(xs, successor)));
             foreach (var output in outputConnections)
             {
                 ConnectInternalNodes(output.Item1, output.Item2);
