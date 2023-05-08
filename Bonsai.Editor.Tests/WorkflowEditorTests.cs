@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Bonsai.Dag;
 using Bonsai.Design;
@@ -28,7 +30,26 @@ namespace Bonsai.Editor.Tests
             return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
         }
 
-        WorkflowEditor CreateMockEditor(ExpressionBuilderGraph workflow = null)
+        static void AssertIsSequenceEqual(
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> expected,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> actual)
+        {
+            expected = expected.ToArray();
+            actual = actual.ToArray();
+            if (!expected.SequenceEqual(actual))
+            {
+                string ToString(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sequence)
+                {
+                    return string.Join(",", sequence.Select(
+                        node => ExpressionBuilder.GetElementDisplayName(node.Value)));
+                }
+                var expectedString = ToString(expected);
+                var actualString = ToString(actual);
+                Assert.Fail($"Sequence is not equal. Expected: {expectedString}. Actual: {actualString}");
+            }
+        }
+
+        (WorkflowEditor, CommandExecutor) CreateMockEditor(ExpressionBuilderGraph workflow = null)
         {
             var executor = new CommandExecutor();
             var serviceProvider = new ServiceContainer();
@@ -38,14 +59,15 @@ namespace Bonsai.Editor.Tests
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
             editor.UpdateSelection.Subscribe(graphView.UpdateSelection);
             editor.Workflow = graphView.Workflow;
-            return editor;
+            return (editor, executor);
         }
 
         [TestMethod]
         public void ReorderGraphNode_ReorderDanglingBranchWithPredecessors_KeepPredecessorEdges()
         {
             var workflowBuilder = LoadEmbeddedWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
-            var editor = CreateMockEditor(workflowBuilder.Workflow);
+            var nodeSequence = workflowBuilder.Workflow.ToArray();
+            var (editor, executor) = CreateMockEditor(workflowBuilder.Workflow);
             var source = editor.Workflow[2];
             Assert.AreEqual(expected: 1, source.Successors.Count);
 
@@ -55,6 +77,9 @@ namespace Bonsai.Editor.Tests
 
             source = editor.FindGraphNodeTag(source.Value);
             Assert.AreEqual(expected: 1, source.Successors.Count);
+
+            executor.Undo();
+            AssertIsSequenceEqual(nodeSequence, editor.Workflow);
         }
     }
 
