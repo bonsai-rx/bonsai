@@ -732,16 +732,15 @@ namespace Bonsai.Editor.GraphModel
                                     successorSet.UnionWith(successorBranch);
                                 }
 
-                                var sourceBranch = RangeIndices(workflow, successorSet);
                                 var ancestorEdges = ancestor.Successors
                                     .Select((edge, index) => (edge, index))
-                                    .Where(x => sourceBranch.ContainsKey(x.edge.Target))
+                                    .Where(x => successorSet.Contains(x.edge.Target))
                                     .ToArray();
+                                ReorderNodeRange(targetIndex, successorSet);
                                 commandExecutor.Execute(
                                 () =>
                                 {
                                     var edgeIndex = targetTrace.index;
-                                    workflow.InsertRange(targetIndex, sourceBranch.Keys);
                                     for (int i = ancestorEdges.Length - 1; i >= 0; i--)
                                     {
                                         var index = ancestorEdges[i].index;
@@ -757,15 +756,6 @@ namespace Bonsai.Editor.GraphModel
                                 () =>
                                 {
                                     var edgeIndex = ancestor.Successors.IndexOf(ancestorEdges[0].edge);
-                                    var insertOffset = sourceBranch.Count(item => item.Value > targetIndex);
-                                    foreach (var restore in sourceBranch)
-                                    {
-                                        var insertIndex = restore.Value > targetIndex
-                                            ? restore.Value + insertOffset--
-                                            : restore.Value;
-                                        workflow.Insert(insertIndex, restore.Key);
-                                    }
-
                                     foreach (var _ in ancestorEdges)
                                     {
                                         ancestor.Successors.RemoveAt(edgeIndex);
@@ -783,23 +773,29 @@ namespace Bonsai.Editor.GraphModel
                 }
                 else // reorder connected components
                 {
-                    var reorderedComponents = sourceComponent.Convert(builder => builder, recurse: false);
-                    foreach (var node in sourceComponent)
-                    {
-                        DeleteGraphNode(node, replaceEdges: true);
-                    }
-
-                    var targetIndex = workflow.IndexOf(targetComponent[0]);
-                    InsertGraphElements(
-                        targetIndex,
-                        reorderedComponents,
-                        selectedNodes: Array.Empty<GraphNode>(),
-                        CreateGraphNodeType.Successor,
-                        branch: false,
-                        EmptyAction,
-                        EmptyAction);
+                    var targetIndex = IndexOfComponentNode(workflow, targetComponent);
+                    ReorderNodeRange(targetIndex, sourceComponent);
                 }
             }
+        }
+
+        void ReorderNodeRange(int index, IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
+        {
+            var workflow = Workflow;
+            var indexMap = RangeIndices(workflow, nodes);
+            commandExecutor.Execute(
+            () => workflow.InsertRange(index, indexMap.Keys),
+            () =>
+            {
+                var insertOffset = indexMap.Count(item => item.Value > index);
+                foreach (var restore in indexMap)
+                {
+                    var insertIndex = restore.Value > index
+                        ? restore.Value + insertOffset--
+                        : restore.Value;
+                    workflow.Insert(insertIndex, restore.Key);
+                }
+            });
         }
 
         IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> SortReorderCommands(IEnumerable<GraphNode> nodes, Node<ExpressionBuilder, ExpressionBuilderArgument> target)
