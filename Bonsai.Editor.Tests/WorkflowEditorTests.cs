@@ -76,7 +76,6 @@ namespace Bonsai.Editor.Tests
         public void ReorderGraphNode_DanglingBranchWithPredecessors_KeepPredecessorEdges()
         {
             var workflowBuilder = LoadEmbeddedWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
-            var nodeSequence = workflowBuilder.Workflow.ToArray();
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             var branchLead = editor.Workflow[2];
@@ -97,22 +96,38 @@ namespace Bonsai.Editor.Tests
         public void ReorderGraphNode_ComponentWithHigherIndexIntoLowerIndex_ReorderComponentNodes()
         {
             var workflowBuilder = LoadEmbeddedWorkflow("ReorderComponentWithHigherIndexIntoLowerIndex.bonsai");
-            var nodeSequence = workflowBuilder.Workflow.ToArray();
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
-            // disconnect C from D
+            // reorder D onto C
             var sourceNode = editor.Workflow[3];
             var targetNode = editor.Workflow[2];
-            var nodes = new[] { editor.FindGraphNode(targetNode.Value) };
-            var target = editor.FindGraphNode(sourceNode.Value);
-            editor.DisconnectGraphNodes(nodes, target);
-
-            // reorder D into C
-            nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
-            target = editor.FindGraphNode(targetNode.Value);
+            var nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
+            var target = editor.FindGraphNode(targetNode.Value);
             editor.ReorderGraphNodes(nodes, target);
 
             Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.Workflow.IndexOf(targetNode));
+            assertIsReversible();
+        }
+
+        [TestMethod]
+        public void ConnectGraphNode_ComponentWithHigherIndexIntoLowerIndex_ReorderComponentNodes()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("ConnectComponentWithHigherIndexIntoLowerIndex.bonsai");
+            var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
+
+            // connect D onto C
+            var sourceNode = editor.Workflow[3];
+            var targetNode = editor.Workflow[2];
+            var nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
+            var target = editor.FindGraphNode(targetNode.Value);
+
+            editor.ConnectGraphNodes(nodes, target);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.Workflow.IndexOf(targetNode));
+
+            // ensure disconnect is consistent
+            editor.DisconnectGraphNodes(nodes, target);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.Workflow.IndexOf(sourceNode));
+
             assertIsReversible();
         }
     }

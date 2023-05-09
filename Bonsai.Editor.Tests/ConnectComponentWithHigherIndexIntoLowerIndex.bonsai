@@ -20,9 +20,6 @@
       </Expression>
       <Expression xsi:type="GroupWorkflow">
         <Name>C</Name>
-      </Expression>
-      <Expression xsi:type="GroupWorkflow">
-        <Name>D</Name>
         <Workflow>
           <Nodes>
             <Expression xsi:type="WorkflowInput">
@@ -35,10 +32,13 @@
           <Edges />
         </Workflow>
       </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>D</Name>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
-      <Edge From="1" To="3" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
