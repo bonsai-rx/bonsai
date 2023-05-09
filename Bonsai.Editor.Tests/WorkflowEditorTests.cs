@@ -72,6 +72,40 @@ namespace Bonsai.Editor.Tests
             });
         }
 
+        [DataTestMethod]
+        [DataRow(CreateGraphNodeType.Successor, false)]
+        [DataRow(CreateGraphNodeType.Successor, true)]
+        [DataRow(CreateGraphNodeType.Predecessor, false)]
+        [DataRow(CreateGraphNodeType.Predecessor, true)]
+        public void CreateGraphNode_EmptyWorkflow_SingleNode(object nodeType, bool branch)
+        {
+            var (editor, assertIsReversible) = CreateMockEditor();
+            Assert.AreEqual(expected: 0, editor.Workflow.Count);
+            editor.CreateGraphNode(new UnitBuilder(), default, (CreateGraphNodeType)nodeType, branch);
+            Assert.AreEqual(expected: 1, editor.Workflow.Count);
+            assertIsReversible();
+        }
+
+        [DataTestMethod]
+        [DataRow(CreateGraphNodeType.Successor, false)]
+        [DataRow(CreateGraphNodeType.Successor, true)]
+        [DataRow(CreateGraphNodeType.Predecessor, false)]
+        [DataRow(CreateGraphNodeType.Predecessor, true)]
+        public void CreateGraphNode_SingleSelectedNode_ChainNode(object nodeType, bool branch)
+        {
+            var workflow = new ExpressionBuilderGraph();
+            var target = workflow.Add(new UnitBuilder());
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            Assert.AreEqual(expected: 1, editor.Workflow.Count);
+            var selectedNode = editor.FindGraphNode(target.Value);
+            var createNodeType = (CreateGraphNodeType)nodeType;
+            editor.CreateGraphNode(new UnitBuilder(), selectedNode, createNodeType, branch);
+            Assert.AreEqual(expected: 2, editor.Workflow.Count);
+            var expectedTargetIndex = createNodeType == CreateGraphNodeType.Successor ? 0 : 1;
+            Assert.AreEqual(expected: expectedTargetIndex, editor.Workflow.IndexOf(target));
+            assertIsReversible();
+        }
+
         [TestMethod]
         public void ReorderGraphNode_DanglingBranchWithPredecessors_KeepPredecessorEdges()
         {

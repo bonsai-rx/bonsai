@@ -102,9 +102,13 @@ namespace Bonsai.Editor.GraphModel
             return insertIndex;
         }
 
-        private int GetInsertIndexFromCursor(ExpressionBuilderGraph workflow, ExpressionBuilder builder, CreateGraphNodeType nodeType, bool branch)
+        private int GetInsertIndexFromCursor(
+            ExpressionBuilderGraph workflow,
+            ExpressionBuilder builder,
+            GraphNode target,
+            CreateGraphNodeType nodeType,
+            bool branch)
         {
-            var target = graphView.CursorNode;
             var targetNode = target != null ? GetGraphNodeTag(workflow, target) : null;
             return GetInsertIndexFromCursor(workflow, builder, targetNode, nodeType, branch);
         }
@@ -1177,7 +1181,16 @@ namespace Bonsai.Editor.GraphModel
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
 
-            insertIndex = insertIndex < 0 ? GetInsertIndexFromCursor(workflow, inspectBuilder, nodeType, branch) : insertIndex;
+            var targetNodes = selectedNodes.ToArray();
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
+            if (insertIndex < 0)
+            {
+                var cursor = targetNodes.Length > 0
+                    ? targetNodes[targetNodes.Length - 1]
+                    : GetGraphNodeTag(graphView.CursorNode);
+                insertIndex = GetInsertIndexFromCursor(workflow, inspectBuilder, cursor, nodeType, branch);
+            }
+
             builder = inspectBuilder.Builder;
             Action addNode = () =>
             {
@@ -1189,9 +1202,6 @@ namespace Bonsai.Editor.GraphModel
                 workflow.Remove(inspectNode);
                 RemoveWorkflowInput(workflow, inspectNode);
             };
-
-            var targetNodes = selectedNodes.ToArray();
-            var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
 
             if (builder is WorkflowExpressionBuilder workflowBuilder && validate)
             {
@@ -1263,7 +1273,7 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var sourceBuilder = elements.Sources().FirstOrDefault()?.Value;
-            var insertIndex = GetInsertIndexFromCursor(Workflow, sourceBuilder, nodeType, branch);
+            var insertIndex = GetInsertIndexFromCursor(Workflow, sourceBuilder, graphView.CursorNode, nodeType, branch);
             InsertGraphElements(insertIndex, elements, nodeType, branch);
         }
 
