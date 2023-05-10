@@ -26,8 +26,7 @@ namespace Bonsai.Editor.Tests
         {
             using var workflowStream = LoadEmbeddedResource(name);
             using var reader = XmlReader.Create(workflowStream);
-            reader.MoveToContent();
-            return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+            return ElementStore.LoadWorkflow(reader);
         }
 
         static void AssertIsSequenceEqual(

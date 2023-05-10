@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Serialization;
+using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.GraphView;
 
 namespace Bonsai.Editor
@@ -26,14 +25,7 @@ namespace Bonsai.Editor
                 throw new ArgumentException("No output image file is specified.", nameof(imageFileName));
             }
 
-            WorkflowBuilder workflowBuilder;
-            using (var reader = XmlReader.Create(fileName))
-            {
-                reader.MoveToContent();
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-            }
-
+            var workflowBuilder = ElementStore.LoadWorkflow(fileName);
             var iconRenderer = new SvgRendererFactory();
             var extension = Path.GetExtension(imageFileName);
             if (extension == ".svg")

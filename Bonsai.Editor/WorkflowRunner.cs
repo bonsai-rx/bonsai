@@ -1,4 +1,5 @@
-using Bonsai.Design;
+﻿using Bonsai.Design;
+using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace Bonsai.Editor
 {
@@ -128,14 +128,7 @@ namespace Bonsai.Editor
                 throw new ArgumentException("Specified workflow file does not exist.", nameof(fileName));
             }
 
-            WorkflowBuilder workflowBuilder;
-            using (var reader = XmlReader.Create(fileName))
-            {
-                reader.MoveToContent();
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-            }
-
+            var workflowBuilder = ElementStore.LoadWorkflow(fileName);
             layoutPath ??= LayoutHelper.GetLayoutPath(fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {

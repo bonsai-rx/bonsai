@@ -16,6 +16,16 @@ namespace Bonsai.Editor.GraphModel
             Indent = true
         };
 
+        public static WorkflowBuilder LoadWorkflow(string fileName)
+        {
+            return LoadWorkflow(fileName, out _);
+        }
+
+        public static WorkflowBuilder LoadWorkflow(XmlReader reader)
+        {
+            return LoadWorkflow(reader, out _);
+        }
+
         public static WorkflowBuilder LoadWorkflow(string fileName, out SemanticVersion version)
         {
             using var reader = XmlReader.Create(fileName);
