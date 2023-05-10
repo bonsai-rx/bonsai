@@ -7,7 +7,7 @@ namespace Bonsai.Dag
     static class TopologicalSort
     {
         public static bool TrySort<TNodeValue, TEdgeLabel>(
-            DirectedGraph<TNodeValue, TEdgeLabel> source,
+            IReadOnlyList<Node<TNodeValue, TEdgeLabel>> source,
             out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             return TopologicalSort<TNodeValue, TEdgeLabel>.TrySort(source, out topologicalOrder);
@@ -19,7 +19,7 @@ namespace Bonsai.Dag
         const int TemporaryMark = -1;
 
         public static bool TrySort(
-            DirectedGraph<TNodeValue, TEdgeLabel> source,
+            IReadOnlyList<Node<TNodeValue, TEdgeLabel>> source,
             out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             var stack = new CallStack();

@@ -132,8 +132,8 @@ namespace Bonsai.Editor.Tests
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             // reorder D onto C
-            var sourceNode = editor.Workflow[3];
-            var targetNode = editor.Workflow[2];
+            var sourceNode = editor.Workflow[2];
+            var targetNode = editor.Workflow[0];
             var nodes = new[] { editor.FindGraphNode(sourceNode.Value) };
             var target = editor.FindGraphNode(targetNode.Value);
             editor.ReorderGraphNodes(nodes, target);

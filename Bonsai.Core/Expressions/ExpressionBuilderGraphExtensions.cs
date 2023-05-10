@@ -1241,12 +1241,12 @@ namespace Bonsai.Expressions
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (!TopologicalSort.TrySort(source, out IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
             {
-                throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", "source");
+                throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", nameof(source));
             }
 
             var nodes = buildOrder.SelectMany(component => component).ToArray();
@@ -1284,19 +1284,29 @@ namespace Bonsai.Expressions
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (descriptor == null)
             {
-                throw new ArgumentNullException("descriptor");
+                throw new ArgumentNullException(nameof(descriptor));
             }
 
-            var nodes = descriptor.Nodes.Select(value => source.Add(value)).ToArray();
+            var nodes = descriptor.Nodes
+                .Select(value => new Node<ExpressionBuilder, ExpressionBuilderArgument>(value))
+                .ToArray();
             foreach (var edge in descriptor.Edges)
             {
-                source.AddEdge(nodes[edge.From], nodes[edge.To], new ExpressionBuilderArgument(edge.Label));
+                var label = new ExpressionBuilderArgument(edge.Label);
+                nodes[edge.From].Successors.Add(Edge.Create(nodes[edge.To], label));
             }
+
+            if (!TopologicalSort.TrySort(nodes, out IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
+            {
+                throw new ArgumentException("Cannot deserialize a workflow with cyclical dependencies.", nameof(source));
+            }
+
+            source.AddRange(buildOrder.SelectMany(component => component));
         }
 
         #endregion
