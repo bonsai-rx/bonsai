@@ -775,77 +775,11 @@ namespace Bonsai.Editor.GraphModel
                 var targetComponent = components.First(component => component.Contains(target));
                 if (sourceComponent == targetComponent) // reorder branches
                 {
-                    // find common ancestor
-                    var sourceTrace = new { node = default(GraphNode), index = 0 };
-                    var targetTrace = new { node = default(GraphNode), index = 0 };
-                    var layering = sourceComponent.LongestPathLayering();
-                    foreach (var node in layering.SelectMany(layer => layer))
-                    {
-                        var i = -1;
-                        if (sourceTrace.node == null && node.Value == source.Value) sourceTrace = new { node, index = i };
-                        if (targetTrace.node == null && node.Value == target.Value) targetTrace = new { node, index = i };
-                        foreach (var successor in node.Successors)
-                        {
-                            i += 1;
-                            if (successor.Node == sourceTrace.node) sourceTrace = new { node, index = i };
-                            if (successor.Node == targetTrace.node) targetTrace = new { node, index = i };
-                            if (sourceTrace.node != null && sourceTrace.node == targetTrace.node)
-                            {
-                                // common ancestor
-                                var ancestor = GetGraphNodeTag(workflow, sourceTrace.node);
-                                var targetEdge = ancestor.Successors[targetTrace.index];
-                                var targetIndex = workflow.IndexOf(targetEdge.Target);
-                                var successorSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
-                                foreach (var successorEdge in ancestor.Successors)
-                                {
-                                    if (successorEdge == targetEdge) continue;
-                                    var successorBranch = successorEdge.Target.DepthFirstSearch().ToHashSet();
-                                    if (!successorBranch.Contains(source)) continue;
-                                    successorSet.UnionWith(successorBranch);
-                                }
-
-                                var successorSinks = successorSet.Where(node => node.Successors.Count == 0).ToArray();
-                                var ancestorEdges = ancestor.Successors
-                                    .Select((edge, index) => (edge, index))
-                                    .Where(x => successorSet.Contains(x.edge.Target))
-                                    .ToArray();
-                                var reorder = GetReversibleSort();
-                                commandExecutor.Execute(EmptyAction, reorder.Undo);
-                                commandExecutor.Execute(() => Workflow.InsertRange(targetIndex, successorSinks), EmptyAction);
-                                commandExecutor.Execute(reorder.Command, EmptyAction);
-                                commandExecutor.Execute(
-                                () =>
-                                {
-                                    var edgeIndex = targetTrace.index;
-                                    for (int i = ancestorEdges.Length - 1; i >= 0; i--)
-                                    {
-                                        var index = ancestorEdges[i].index;
-                                        if (index < targetTrace.index) edgeIndex--;
-                                        ancestor.Successors.RemoveAt(index);
-                                    }
-
-                                    foreach (var (edge, _) in ancestorEdges)
-                                    {
-                                        ancestor.Successors.Insert(edgeIndex++, edge);
-                                    }
-                                },
-                                () =>
-                                {
-                                    var edgeIndex = ancestor.Successors.IndexOf(ancestorEdges[0].edge);
-                                    foreach (var _ in ancestorEdges)
-                                    {
-                                        ancestor.Successors.RemoveAt(edgeIndex);
-                                    }
-
-                                    foreach (var (edge, index) in ancestorEdges)
-                                    {
-                                        ancestor.Successors.Insert(index, edge);
-                                    }
-                                });
-                                return;
-                            }
-                        }
-                    }
+                    var reorder = GetReversibleSort();
+                    var insertIndex = workflow.IndexOf(target);
+                    commandExecutor.Execute(EmptyAction, reorder.Undo);
+                    commandExecutor.Execute(() => workflow.Insert(insertIndex, source), EmptyAction);
+                    commandExecutor.Execute(reorder.Command, EmptyAction);
                 }
                 else // reorder connected components
                 {

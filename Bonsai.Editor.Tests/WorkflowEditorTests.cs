@@ -121,7 +121,7 @@ namespace Bonsai.Editor.Tests
             Assert.AreSame(branchLead, editor.FindGraphNodeTag(branchLead.Value));
             Assert.AreEqual(expected: 1, branchLead.Successors.Count);
             Assert.AreEqual(expected: 1, editor.Workflow.IndexOf(branchLead));
-            Assert.AreEqual(expected: 3, editor.Workflow.IndexOf(sourceNode));
+            Assert.AreEqual(expected: 4, editor.Workflow.IndexOf(sourceNode));
             assertIsReversible();
         }
 
