@@ -1024,10 +1024,10 @@ namespace Bonsai.Editor.GraphModel
             }
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(EmptyAction, commands.Item2.Undo);
-            commandExecutor.Execute(commands.Item1.Command, commands.Item1.Undo);
+            commandExecutor.Execute(EmptyAction, commands.updateLayout.Undo);
+            commandExecutor.Execute(commands.createNode.Command, commands.createNode.Undo);
             ReplaceExternalizedMappings(nodeType, selectedNodes);
-            commandExecutor.Execute(commands.Item2.Command, EmptyAction);
+            commandExecutor.Execute(commands.updateLayout.Command, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1088,13 +1088,13 @@ namespace Bonsai.Editor.GraphModel
             commandExecutor.Execute(
             () =>
             {
-                commands.Item1.Command();
-                commands.Item2.Command();
+                commands.createNode.Command();
+                commands.updateLayout.Command();
             },
             () =>
             {
-                commands.Item1.Undo();
-                commands.Item2.Undo();
+                commands.createNode.Undo();
+                commands.updateLayout.Undo();
             });
         }
 
@@ -1130,7 +1130,7 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        Tuple<GraphCommand, GraphCommand> GetCreateGraphNodeCommands(
+        (GraphCommand createNode, GraphCommand updateLayout) GetCreateGraphNodeCommands(
             ExpressionBuilder builder,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedNodes,
             CreateGraphNodeType nodeType,
@@ -1237,7 +1237,7 @@ namespace Bonsai.Editor.GraphModel
                 updateLayout.Undo = EmptyAction;
             }
 
-            return Tuple.Create(createNode, updateLayout);
+            return (createNode, updateLayout);
         }
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
@@ -1649,8 +1649,8 @@ namespace Bonsai.Editor.GraphModel
                             insertIndex);
 
             // Connect grouped node predecessors and successors
-            var predecessorEdges = new List<Tuple<Node<ExpressionBuilder, ExpressionBuilderArgument>, Edge<ExpressionBuilder, ExpressionBuilderArgument>>>();
-            var successorEdges = new List<Tuple<Node<ExpressionBuilder, ExpressionBuilderArgument>, Edge<ExpressionBuilder, ExpressionBuilderArgument>>>();
+            var predecessorEdges = new List<(Node<ExpressionBuilder, ExpressionBuilderArgument> from, Edge<ExpressionBuilder, ExpressionBuilderArgument> edge)>();
+            var successorEdges = new List<(Node<ExpressionBuilder, ExpressionBuilderArgument> from, Edge<ExpressionBuilder, ExpressionBuilderArgument> edge)>();
             commandExecutor.Execute(() =>
             {
                 var linkIndex = 0;
@@ -1662,7 +1662,7 @@ namespace Bonsai.Editor.GraphModel
                     if (predecessorEdge == null)
                     {
                         var edge = workflow.AddEdge(predecessor.Key, groupNode, new ExpressionBuilderArgument { Index = linkIndex });
-                        predecessorEdges.Add(Tuple.Create(predecessor.Key, edge));
+                        predecessorEdges.Add((predecessor.Key, edge));
                     }
 
                     linkIndex++;
@@ -1676,20 +1676,20 @@ namespace Bonsai.Editor.GraphModel
                     if (successorEdge == null)
                     {
                         var edge = workflow.AddEdge(sinkNode, successor.Key, new ExpressionBuilderArgument { Index = linkIndex });
-                        successorEdges.Add(Tuple.Create(groupNode, edge));
+                        successorEdges.Add((groupNode, edge));
                     }
                 }
             },
             () =>
             {
-                foreach (var edge in predecessorEdges)
+                foreach (var (from, edge) in predecessorEdges)
                 {
-                    workflow.RemoveEdge(edge.Item1, edge.Item2);
+                    workflow.RemoveEdge(from, edge);
                 }
 
-                foreach (var edge in successorEdges)
+                foreach (var (from, edge) in successorEdges)
                 {
-                    workflow.RemoveEdge(edge.Item1, edge.Item2);
+                    workflow.RemoveEdge(from, edge);
                 }
             });
 
@@ -1936,11 +1936,11 @@ namespace Bonsai.Editor.GraphModel
             var inputConnections = predecessors
                 .Zip(groupSources, (xs, ys) =>
                     ys.Successors.SelectMany(zs => zs.Target != mainSink
-                                     ? Enumerable.Repeat(Tuple.Create(xs, zs.Target), 1)
-                                     : successors.Select(ss => Tuple.Create(xs, ss))));
-            foreach (var input in inputConnections.SelectMany(xs => xs))
+                                     ? Enumerable.Repeat((source: xs, target: zs.Target), 1)
+                                     : successors.Select(ss => (source: xs, target: ss))));
+            foreach (var (source, target) in inputConnections.SelectMany(xs => xs))
             {
-                ConnectInternalNodes(input.Item1, input.Item2);
+                ConnectInternalNodes(source, target);
             }
 
             // Connect output sources to external targets
@@ -1948,10 +1948,10 @@ namespace Bonsai.Editor.GraphModel
                 .Select(edge => edge.Item1)
                 .Where(xs => xs != null)
                 .SelectMany(xs => successors.Select(successor =>
-                    Tuple.Create(xs, successor)));
-            foreach (var output in outputConnections)
+                    (source: xs, target: successor)));
+            foreach (var (source, target) in outputConnections)
             {
-                ConnectInternalNodes(output.Item1, output.Item2);
+                ConnectInternalNodes(source, target);
             }
         }
 
