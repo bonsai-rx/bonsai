@@ -191,6 +191,33 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
+        private void SortWorkflow()
+        {
+            SortWorkflow(Workflow);
+        }
+
+        private void SortWorkflow(ExpressionBuilderGraph workflow)
+        {
+            Workflow.InsertRange(0, Workflow.TopologicalSort());
+        }
+
+        private GraphCommand GetSimpleSort()
+        {
+            return new GraphCommand(SortWorkflow, SortWorkflow);
+        }
+
+        private GraphCommand GetReversibleSort()
+        {
+            var rootOrder = Workflow.Sinks().ToArray();
+            return new GraphCommand(
+                SortWorkflow,
+                () =>
+                {
+                    Workflow.InsertRange(0, rootOrder);
+                    SortWorkflow();
+                });
+        }
+
         private Action CreateUpdateGraphLayoutDelegate()
         {
             return () => updateLayout.OnNext(true);
@@ -555,7 +582,6 @@ namespace Bonsai.Editor.GraphModel
             var offset = 0;
             var connectionIndex = 0;
             var sinkNodes = default(List<Node<ExpressionBuilder, ExpressionBuilderArgument>>);
-            var targetIndex = workflow.IndexOf(target);
             foreach (var source in sourceNodes)
             {
                 if (source.Successors.Count == 0)
@@ -581,13 +607,17 @@ namespace Bonsai.Editor.GraphModel
                 updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             }
 
+            GraphCommand reorder;
+            var targetIndex = workflow.IndexOf(target);
             if (sinkNodes != null)
             {
-                var reorder = GetReorderNodeRangeCommand(targetIndex, sinkNodes);
-                addConnection += reorder.Command;
-                removeConnection += reorder.Undo;
+                reorder = GetReversibleSort();
+                addConnection += () => workflow.InsertRange(targetIndex, sinkNodes);
             }
+            else reorder = GetSimpleSort();
 
+            addConnection += reorder.Command;
+            removeConnection += reorder.Undo;
             commandExecutor.Execute(
             () =>
             {
@@ -617,7 +647,6 @@ namespace Bonsai.Editor.GraphModel
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var predecessorEdges = workflow.PredecessorEdges(target).ToArray();
             var sinkNodes = default(List<Node<ExpressionBuilder, ExpressionBuilderArgument>>);
-            var targetIndex = workflow.IndexOf(target) + 1;
             var totalRemoved = 0;
             foreach (var graphViewSource in graphViewSources)
             {
@@ -658,13 +687,17 @@ namespace Bonsai.Editor.GraphModel
                 totalRemoved++;
             }
 
-            if (sinkNodes != null && totalRemoved < predecessorEdges.Length)
+            GraphCommand reorder;
+            var targetIndex = workflow.IndexOf(target) + 1;
+            if (sinkNodes != null)
             {
-                var reorder = GetReorderNodeRangeCommand(targetIndex, sinkNodes);
-                removeConnection += reorder.Command;
-                addConnection += reorder.Undo;
+                reorder = GetReversibleSort();
+                removeConnection += () => workflow.InsertRange(targetIndex, sinkNodes);
             }
+            else reorder = GetSimpleSort();
 
+            removeConnection += reorder.Command;
+            addConnection += reorder.Undo;
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             commandExecutor.Execute(
             () =>
@@ -731,7 +764,9 @@ namespace Bonsai.Editor.GraphModel
             if (reorderConnection != EmptyAction)
             {
                 // reorder node connections
+                commandExecutor.Execute(EmptyAction, SortWorkflow);
                 commandExecutor.Execute(reorderConnection, restoreConnection);
+                commandExecutor.Execute(SortWorkflow, EmptyAction);
             }
             else
             {
@@ -769,12 +804,15 @@ namespace Bonsai.Editor.GraphModel
                                     successorSet.UnionWith(successorBranch);
                                 }
 
+                                var successorSinks = successorSet.Where(node => node.Successors.Count == 0).ToArray();
                                 var ancestorEdges = ancestor.Successors
                                     .Select((edge, index) => (edge, index))
                                     .Where(x => successorSet.Contains(x.edge.Target))
                                     .ToArray();
-                                var reorder = GetReorderNodeRangeCommand(targetIndex, successorSet);
-                                commandExecutor.Execute(reorder.Command, reorder.Undo);
+                                var reorder = GetReversibleSort();
+                                commandExecutor.Execute(EmptyAction, reorder.Undo);
+                                commandExecutor.Execute(() => Workflow.InsertRange(targetIndex, successorSinks), EmptyAction);
+                                commandExecutor.Execute(reorder.Command, EmptyAction);
                                 commandExecutor.Execute(
                                 () =>
                                 {
@@ -1224,6 +1262,7 @@ namespace Bonsai.Editor.GraphModel
                     _ => false
                 }));
 
+            var reorder = GetSimpleSort();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
@@ -1235,11 +1274,13 @@ namespace Bonsai.Editor.GraphModel
             {
                 addNode();
                 addConnection();
+                reorder.Command();
             };
             createNode.Undo = () =>
             {
                 removeConnection();
                 removeNode();
+                reorder.Undo();
             };
 
             GraphCommand updateLayout;
@@ -1343,13 +1384,16 @@ namespace Bonsai.Editor.GraphModel
             DeleteGraphNode(node, true);
         }
 
-        void DeleteGraphNode(GraphNode node, bool replaceEdges)
+        void DeleteGraphNode(GraphNode node, bool replaceEdges, int index = -1)
         {
             var workflowNode = GetGraphNodeTag(Workflow, node);
-            DeleteGraphNode(workflowNode, replaceEdges);
+            DeleteGraphNode(workflowNode, replaceEdges, index);
         }
 
-        void DeleteGraphNode(Node<ExpressionBuilder, ExpressionBuilderArgument> workflowNode, bool replaceEdges)
+        void DeleteGraphNode(
+            Node<ExpressionBuilder, ExpressionBuilderArgument> workflowNode,
+            bool replaceEdges,
+            int index = -1)
         {
             var workflow = this.Workflow;
             if (workflowNode == null)
@@ -1404,7 +1448,6 @@ namespace Bonsai.Editor.GraphModel
                 };
             }
 
-            var insertIndex = workflow.IndexOf(workflowNode);
             Action removeNode = () =>
             {
                 workflow.Remove(workflowNode);
@@ -1420,7 +1463,8 @@ namespace Bonsai.Editor.GraphModel
 
             Action addNode = () =>
             {
-                workflow.Insert(insertIndex, workflowNode);
+                if (index < 0) workflow.Add(workflowNode);
+                else workflow.Insert(index, workflowNode);
                 AddWorkflowInput(workflow, workflowNode);
                 foreach (var edge in predecessorEdges)
                 {
@@ -1464,15 +1508,16 @@ namespace Bonsai.Editor.GraphModel
             }
 
             if (!nodes.Any()) return;
+            var reorder = GetReversibleSort();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(EmptyAction, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, reorder.Undo + updateGraphLayout);
             foreach (var node in nodes)
             {
                 DeleteGraphNode(node);
             }
 
-            commandExecutor.Execute(updateGraphLayout, EmptyAction);
+            commandExecutor.Execute(reorder.Command + updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1507,10 +1552,13 @@ namespace Bonsai.Editor.GraphModel
                 () => Array.ForEach(buildDependencies, dependency => Workflow.RemoveEdge(dependency.predecessor.Item1, dependency.predecessor.Item2)),
                 () => Array.ForEach(buildDependencies, dependency => Workflow.InsertEdge(dependency.predecessor.Item1, dependency.predecessor.Item3, dependency.predecessor.Item2)));
 
+            var reorder = GetReversibleSort();
+            commandExecutor.Execute(EmptyAction, reorder.Undo);
             foreach (var node in nodes)
             {
                 DeleteGraphNode(node, replaceEdges: true);
             }
+            commandExecutor.Execute(reorder.Command, EmptyAction);
 
             var sourceBuilder = elements[0].Value;
             var insertIndex = GetInsertIndexFromCursor(Workflow, sourceBuilder, target, nodeType, branch);
@@ -1521,14 +1569,14 @@ namespace Bonsai.Editor.GraphModel
 
         private void ReplaceNode(GraphNode node, ExpressionBuilder builder)
         {
-            CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
-            DeleteGraphNode(node);
+            ReplaceNode(GetGraphNodeTag(node), builder);
         }
 
         private void ReplaceNode(Node<ExpressionBuilder, ExpressionBuilderArgument> node, ExpressionBuilder builder)
         {
+            var index = Workflow.IndexOf(node);
             CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
-            DeleteGraphNode(node, replaceEdges: true);
+            DeleteGraphNode(node, replaceEdges: true, index);
         }
 
         private bool CanGroup(IEnumerable<GraphNode> nodes, ExpressionBuilderGraph selectedElements)
@@ -1627,6 +1675,7 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
 
+            SortWorkflow(selectedElements);
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var workflowExpressionBuilder = groupFactory(selectedElements.ToInspectableGraph(recurse: false));
             var updateSelectedNode = CreateUpdateSelectionDelegate(workflowExpressionBuilder);
@@ -1650,6 +1699,8 @@ namespace Bonsai.Editor.GraphModel
                 restoreSelectedNodes();
             });
 
+            var reorder = GetReversibleSort();
+            commandExecutor.Execute(EmptyAction, reorder.Undo);
             foreach (var node in nodes.Where(n => n != replacementNode))
             {
                 DeleteGraphNode(node, replaceEdges: false);
@@ -1724,6 +1775,7 @@ namespace Bonsai.Editor.GraphModel
                     throw;
                 }
             }
+            commandExecutor.Execute(reorder.Command, EmptyAction);
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
@@ -1935,7 +1987,7 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var insertIndex = GetInsertIndex(Workflow, node, CreateGraphNodeType.Predecessor);
-            DeleteGraphNode(node, replaceEdges: false);
+            DeleteGraphNode(node, replaceEdges: false, insertIndex);
             InsertGraphElements(
                 insertIndex,
                 groupWorkflow,
