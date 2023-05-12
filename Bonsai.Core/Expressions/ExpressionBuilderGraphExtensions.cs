@@ -1249,26 +1249,32 @@ namespace Bonsai.Expressions
                 throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", nameof(source));
             }
 
-            var nodes = buildOrder.SelectMany(component => component).ToArray();
-            var descriptor = new ExpressionBuilderGraphDescriptor();
+            int index = 0;
+            var nodeMap = buildOrder
+                .SelectMany(component => component)
+                .ToDictionary(node => node, node => index++);
 
-            foreach (var node in nodes)
-            {
-                descriptor.Nodes.Add(node.Value);
-            }
+            var nodes = new List<ExpressionBuilder>(nodeMap.Count);
+            nodes.AddRange(nodeMap.Keys.Select(node => node.Value));
 
-            var from = 0;
-            foreach (var node in nodes)
+            var edges = new List<ExpressionBuilderArgumentDescriptor>();
+            foreach (var entry in nodeMap)
             {
-                foreach (var successor in node.Successors)
+                var from = entry.Value;
+                foreach (var successor in entry.Key.Successors)
                 {
-                    var to = Array.IndexOf(nodes, successor.Target);
-                    descriptor.Edges.Add(new ExpressionBuilderArgumentDescriptor(from, to, successor.Label.Name));
+                    var to = nodeMap[successor.Target];
+                    edges.Add(new ExpressionBuilderArgumentDescriptor(from, to, successor.Label.Name));
                 }
-
-                from++;
             }
-            return descriptor;
+
+            edges.Sort((x, y) =>
+            {
+                var from = x.From.CompareTo(y.From);
+                if (from != 0) return from;
+                else return x.To.CompareTo(y.To);
+            });
+            return new ExpressionBuilderGraphDescriptor(nodes, edges);
         }
 
         /// <summary>
