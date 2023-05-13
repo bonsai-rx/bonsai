@@ -289,7 +289,28 @@ namespace Bonsai.Editor.GraphModel
             }
 
             MergeSingletonComponentLayers(ref singletonLayer, layers, ref layerOffset);
+            SetLayeredNodeIndices(layers, source);
             return layers;
+        }
+
+        static void SetLayeredNodeIndices(IEnumerable<GraphNodeGrouping> layers, ExpressionBuilderGraph workflow)
+        {
+            var nodeMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, int>(workflow.Count);
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                nodeMap[workflow[i]] = i;
+            }
+
+            foreach (var layer in layers)
+            {
+                foreach (var node in layer)
+                {
+                    if (node.Tag is Node<ExpressionBuilder, ExpressionBuilderArgument> tag)
+                    {
+                        node.Index = nodeMap[tag];
+                    }
+                }
+            }
         }
 
         static void MergeSingletonComponentLayers(ref GraphNodeGrouping singletonLayer, List<GraphNodeGrouping> layers, ref int layerOffset)

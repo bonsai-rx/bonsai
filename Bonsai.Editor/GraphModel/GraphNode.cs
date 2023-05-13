@@ -73,6 +73,8 @@ namespace Bonsai.Editor.GraphModel
 
         private NodeFlags Flags { get; set; }
 
+        public int Index { get; internal set; }
+
         public int Layer { get; internal set; }
 
         public int LayerIndex { get; internal set; }
