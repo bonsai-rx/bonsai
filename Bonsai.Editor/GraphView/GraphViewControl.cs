@@ -245,7 +245,6 @@ namespace Bonsai.Editor.GraphView
             get { return nodes; }
             set
             {
-                CursorNode = null;
                 pivot = null;
                 nodes = value;
                 hot = null;
@@ -862,6 +861,8 @@ namespace Bonsai.Editor.GraphView
             layoutNodes.Clear();
             var model = Nodes;
             var size = SizeF.Empty;
+            var cursorIndex = CursorNode?.Index;
+            CursorNode = null;
             if (model != null)
             {
                 using (var graphics = CreateVectorGraphics())
@@ -873,7 +874,11 @@ namespace Bonsai.Editor.GraphView
                         var column = layerCount - layer.Key - 1;
                         foreach (var node in layer)
                         {
-                            if (pivot == null) pivot = CursorNode = node;
+                            if (node.Index == cursorIndex)
+                            {
+                                CursorNode = node;
+                            }
+
                             var row = node.LayerIndex;
                             var location = new PointF(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
                             var layout = new LayoutNode(this, node, location);
@@ -888,6 +893,13 @@ namespace Bonsai.Editor.GraphView
 
                     size.Width = layerCount * NodeAirspace;
                 }
+
+                if (CursorNode == null && model.Count > 0)
+                {
+                    var layer = model[0];
+                    CursorNode = layer[layer.Count - 1];
+                }
+                pivot = CursorNode;
             }
 
             canvas.AutoScrollMinSize = Size.Truncate(size);
@@ -1280,7 +1292,7 @@ namespace Bonsai.Editor.GraphView
             if (hot != null)
             {
                 SetCursor(hot);
-                if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                if (ModifierKeys.HasFlag(Keys.Shift))
                 {
                     mouseDownHandled = true;
                     SelectRange(hot, ModifierKeys.HasFlag(Keys.Control));
