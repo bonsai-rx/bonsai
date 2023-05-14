@@ -15,6 +15,7 @@ namespace Bonsai.Editor.GraphModel
 
         public GraphNode(ExpressionBuilder value, int layer, IEnumerable<GraphEdge> successors)
         {
+            Index = -1;
             Value = value;
             Layer = layer;
             Successors = successors;
