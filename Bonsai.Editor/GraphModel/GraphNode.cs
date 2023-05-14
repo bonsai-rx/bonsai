@@ -42,8 +42,8 @@ namespace Bonsai.Editor.GraphModel
                 }
 
                 if (obsolete) Flags |= NodeFlags.Obsolete;
+                if (expressionBuilder.IsBuildDependency()) Flags |= NodeFlags.BuildDependency;
                 Category = elementCategoryAttribute.Category;
-                IsBuildDependency = expressionBuilder.IsBuildDependency();
                 Icon = new ElementIcon(workflowElement);
                 if (workflowElement is IWorkflowExpressionBuilder)
                 {
@@ -65,7 +65,7 @@ namespace Bonsai.Editor.GraphModel
             {
                 if (successor.Node.Value == null)
                 {
-                    successor.Node.IsBuildDependency = IsBuildDependency;
+                    if (IsBuildDependency) successor.Node.Flags |= NodeFlags.BuildDependency;
                     successor.Node.InitializeDummySuccessors();
                 }
             }
@@ -134,7 +134,7 @@ namespace Bonsai.Editor.GraphModel
 
         public ElementIcon Icon { get; private set; }
 
-        public bool IsBuildDependency { get; private set; }
+        public bool IsBuildDependency => (Flags & NodeFlags.BuildDependency) != 0;
 
         public bool IsAnnotation => (Flags & NodeFlags.Annotation) != 0;
 
@@ -172,9 +172,10 @@ namespace Bonsai.Editor.GraphModel
             Highlight = 0x1,
             Obsolete = 0x2,
             Disabled = 0x4,
-            NestedScope = 0x8,
-            NestedGroup = 0x10,
-            Annotation = 0x20
+            BuildDependency = 0x8,
+            NestedScope = 0x10,
+            NestedGroup = 0x20,
+            Annotation = 0x40
         }
 
         static class CategoryColors
