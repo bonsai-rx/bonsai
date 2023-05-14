@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
+using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 
@@ -13,7 +16,15 @@ namespace Bonsai.Editor.Tests
         public MockGraphView(ExpressionBuilderGraph workflow = null)
         {
             Workflow = workflow ?? new ExpressionBuilderGraph();
+            CommandExecutor = new CommandExecutor();
+            var serviceContainer = new ServiceContainer();
+            serviceContainer.AddService(typeof(CommandExecutor), CommandExecutor);
+            ServiceProvider = serviceContainer;
         }
+
+        public CommandExecutor CommandExecutor { get;  }
+
+        public IServiceProvider ServiceProvider { get; }
 
         public ExpressionBuilderGraph Workflow
         {

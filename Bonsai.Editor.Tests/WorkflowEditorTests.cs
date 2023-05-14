@@ -37,7 +37,7 @@ namespace Bonsai.Editor.Tests
             actual = actual.ToArray();
             if (!expected.SequenceEqual(actual))
             {
-                string ToString(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sequence)
+                static string ToString(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sequence)
                 {
                     return string.Join(",", sequence.Select(
                         node => ExpressionBuilder.GetElementDisplayName(node.Value)));
@@ -48,13 +48,12 @@ namespace Bonsai.Editor.Tests
             }
         }
 
-        (WorkflowEditor editor, Action assertIsReversible) CreateMockEditor(ExpressionBuilderGraph workflow = null)
+        (WorkflowEditor editor, Action assertIsReversible) CreateMockEditor(
+            ExpressionBuilderGraph workflow = null,
+            MockGraphView graphView = null)
         {
-            var executor = new CommandExecutor();
-            var serviceProvider = new ServiceContainer();
-            serviceProvider.AddService(typeof(CommandExecutor), executor);
-            var graphView = new MockGraphView(workflow);
-            var editor = new WorkflowEditor(serviceProvider, graphView);
+            graphView ??= new MockGraphView(workflow);
+            var editor = new WorkflowEditor(graphView.ServiceProvider, graphView);
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
             editor.UpdateSelection.Subscribe(graphView.UpdateSelection);
             editor.Workflow = graphView.Workflow;
@@ -62,9 +61,9 @@ namespace Bonsai.Editor.Tests
             var nodeSequence = editor.Workflow.ToArray();
             return (editor, assertIsReversible: () =>
             {
-                while (executor.CanUndo)
+                while (graphView.CommandExecutor.CanUndo)
                 {
-                    executor.Undo();
+                    graphView.CommandExecutor.Undo();
                 }
 
                 AssertIsSequenceEqual(nodeSequence, editor.Workflow);
@@ -80,7 +79,7 @@ namespace Bonsai.Editor.Tests
         {
             var (editor, assertIsReversible) = CreateMockEditor();
             Assert.AreEqual(expected: 0, editor.Workflow.Count);
-            editor.CreateGraphNode(new UnitBuilder(), default, (CreateGraphNodeType)nodeType, branch);
+            editor.CreateNode("A", default, (CreateGraphNodeType)nodeType, branch);
             Assert.AreEqual(expected: 1, editor.Workflow.Count);
             assertIsReversible();
         }
@@ -92,16 +91,15 @@ namespace Bonsai.Editor.Tests
         [DataRow(CreateGraphNodeType.Predecessor, true)]
         public void CreateGraphNode_SingleSelectedNode_ChainNode(object nodeType, bool branch)
         {
-            var workflow = new ExpressionBuilderGraph();
-            var target = workflow.Add(new UnitBuilder());
+            var workflow = EditorHelper.CreateEditorGraph("A");
             var (editor, assertIsReversible) = CreateMockEditor(workflow);
             Assert.AreEqual(expected: 1, editor.Workflow.Count);
-            var selectedNode = editor.FindGraphNode(target.Value);
+            var selectedNode = editor.FindNode("A");
             var createNodeType = (CreateGraphNodeType)nodeType;
-            editor.CreateGraphNode(new UnitBuilder(), selectedNode, createNodeType, branch);
+            editor.CreateNode("B", selectedNode, createNodeType, branch);
             Assert.AreEqual(expected: 2, editor.Workflow.Count);
             var expectedTargetIndex = createNodeType == CreateGraphNodeType.Successor ? 0 : 1;
-            Assert.AreEqual(expected: expectedTargetIndex, editor.Workflow.IndexOf(target));
+            Assert.AreEqual(expected: expectedTargetIndex, editor.FindNode("A").Index);
             assertIsReversible();
         }
 
