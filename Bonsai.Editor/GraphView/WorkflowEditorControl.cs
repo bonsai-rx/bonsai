@@ -7,6 +7,7 @@ using Bonsai.Design;
 using Bonsai.Editor.Themes;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
+using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -76,16 +77,16 @@ namespace Bonsai.Editor.GraphView
             set { WorkflowGraphView.Workflow = value; }
         }
 
-        public void ExpandWebView()
-        {
-            splitContainer.Panel1Collapsed = false;
-        }
-
         public void ExpandWebView(ExpressionBuilder builder)
         {
             webView.Tag = builder;
-            browserLabel.Text = $"Browser ({ExpressionBuilder.GetElementDisplayName(builder)})";
-            ExpandWebView();
+            ExpandWebView(ElementHelper.GetElementName(builder));
+        }
+
+        public void ExpandWebView(string label)
+        {
+            browserLabel.Text = label;
+            splitContainer.Panel1Collapsed = false;
         }
 
         public void CollapseWebView()
