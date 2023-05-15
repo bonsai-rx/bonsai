@@ -2303,13 +2303,10 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
-        private async Task OpenDocumentationAsync(ExpressionBuilder builder)
+        static bool TryGetAssemblyResource(string path, out string assemblyName, out string resourceName)
         {
-            var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
-            if (selectedElement is IncludeWorkflowBuilder include &&
-                !string.IsNullOrEmpty(include.Path))
+            if (!string.IsNullOrEmpty(path))
             {
-                var path = include.Path;
                 const char AssemblySeparator = ':';
                 var separatorIndex = path.IndexOf(AssemblySeparator);
                 if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(BonsaiExtension))
@@ -2318,15 +2315,27 @@ namespace Bonsai.Editor
                     var nameElements = path.Split(new[] { AssemblySeparator }, 2);
                     if (!string.IsNullOrEmpty(nameElements[0]))
                     {
-                        var assemblyName = nameElements[0];
-                        var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
-                        await OpenDocumentationAsync(assemblyName, resourceName);
-                        return;
+                        assemblyName = nameElements[0];
+                        resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                        return true;
                     }
                 }
             }
 
-            await OpenDocumentationAsync(selectedElement.GetType());
+            assemblyName = default;
+            resourceName = default;
+            return false;
+        }
+
+        private async Task OpenDocumentationAsync(ExpressionBuilder builder)
+        {
+            var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
+            if (selectedElement is IncludeWorkflowBuilder include &&
+                TryGetAssemblyResource(include.Path, out string assemblyName, out string resourceName))
+            {
+                await OpenDocumentationAsync(assemblyName, resourceName);
+            }
+            else await OpenDocumentationAsync(selectedElement.GetType());
         }
 
         private async Task OpenDocumentationAsync(Type type)
@@ -2393,6 +2402,14 @@ namespace Bonsai.Editor
                 var typeNode = toolboxTreeView.SelectedNode;
                 if (typeNode != null && typeNode.Tag != null)
                 {
+                    var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+                    if (elementCategory == ~ElementCategory.Workflow &&
+                        TryGetAssemblyResource(typeNode.Name, out string assemblyName, out string resourceName))
+                    {
+                        await OpenDocumentationAsync(assemblyName, resourceName);
+                        return;
+                    }
+
                     var type = Type.GetType(typeNode.Name);
                     if (type != null)
                     {
