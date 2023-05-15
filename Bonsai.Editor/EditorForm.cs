@@ -2331,6 +2331,11 @@ namespace Bonsai.Editor
 
         private async Task OpenDocumentationAsync(Type type)
         {
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+
             var uid = type.FullName;
             var assemblyName = type.Assembly.GetName().Name;
             await OpenDocumentationAsync(assemblyName, uid);
