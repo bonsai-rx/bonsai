@@ -2346,8 +2346,14 @@ namespace Bonsai.Editor
 
             try
             {
+                var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
-                EditorDialog.OpenUrl(url);
+                if (editorControl.WebViewInitialized)
+                {
+                    editorControl.WebView.CoreWebView2.Navigate(url.AbsoluteUri);
+                    editorControl.ExpandWebView();
+                }
+                else EditorDialog.OpenUrl(url);
             }
             catch (ArgumentException ex) when (ex.ParamName == nameof(assemblyName))
             {

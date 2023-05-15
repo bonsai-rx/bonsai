@@ -57,7 +57,7 @@ namespace Bonsai.Editor.GraphView
 
         public bool WebViewCollapsed
         {
-            get { return splitContainer.Panel2Collapsed; }
+            get { return splitContainer.Panel1Collapsed; }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -74,12 +74,19 @@ namespace Bonsai.Editor.GraphView
 
         public void ExpandWebView()
         {
-            splitContainer.Panel2Collapsed = false;
+            splitContainer.Panel1Collapsed = false;
+        }
+
+        public void ExpandWebView(ExpressionBuilder builder)
+        {
+            webView.Tag = builder;
+            browserLabel.Text = $"Browser ({ExpressionBuilder.GetElementDisplayName(builder)})";
+            ExpandWebView();
         }
 
         public void CollapseWebView()
         {
-            splitContainer.Panel2Collapsed = true;
+            splitContainer.Panel1Collapsed = true;
             webView.Tag = null;
         }
 
@@ -462,6 +469,11 @@ namespace Bonsai.Editor.GraphView
                         break;
                 }
             }
+        }
+
+        private void closeBrowserButton_Click(object sender, EventArgs e)
+        {
+            CollapseWebView();
         }
     }
 }
