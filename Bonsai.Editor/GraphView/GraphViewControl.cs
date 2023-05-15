@@ -686,8 +686,6 @@ namespace Bonsai.Editor.GraphView
             point.X += canvas.HorizontalScroll.Value;
             point.Y += canvas.VerticalScroll.Value;
 
-            var rightMost = PointF.Empty;
-            var closestNode = default(GraphNode);
             foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value == null) continue;
@@ -699,21 +697,9 @@ namespace Bonsai.Editor.GraphView
                 {
                     return layout.Node;
                 }
-                else if (point.Y > boundingRectangle.Top &&
-                         (boundingRectangle.Bottom > rightMost.Y ||
-                          boundingRectangle.Right > rightMost.X))
-                {
-                    rightMost = new PointF(boundingRectangle.Right, boundingRectangle.Bottom);
-                    closestNode = layout.Node;
-                }
             }
 
-            while (closestNode?.Successors.FirstOrDefault() is GraphEdge successor)
-            {
-                closestNode = successor.Node;
-            }
-
-            return closestNode;
+            return GetLastNode();
         }
 
         public GraphNode GetNodeAt(Point point)
@@ -729,6 +715,17 @@ namespace Bonsai.Editor.GraphView
                 {
                     return layout.Node;
                 }
+            }
+
+            return null;
+        }
+
+        GraphNode GetLastNode()
+        {
+            if (nodes.Count > 0)
+            {
+                var layer = nodes[0];
+                return layer[layer.Count - 1];
             }
 
             return null;
@@ -894,11 +891,7 @@ namespace Bonsai.Editor.GraphView
                     size.Width = layerCount * NodeAirspace;
                 }
 
-                if (CursorNode == null && model.Count > 0)
-                {
-                    var layer = model[0];
-                    CursorNode = layer[layer.Count - 1];
-                }
+                CursorNode ??= GetLastNode();
                 pivot = CursorNode;
             }
 
