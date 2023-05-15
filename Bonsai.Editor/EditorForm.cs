@@ -1007,8 +1007,8 @@ namespace Bonsai.Editor
             var workflow = model.Workflow;
             if (model.GraphView.SelectedNodes.Count() > 0)
             {
-                var selectedElements = model.GraphView.SelectedNodes.ToWorkflow();
-                workflow = selectedElements;
+                var selectedElements = model.GraphView.SelectedNodes.SortSelection(workflow);
+                workflow = selectedElements.ToWorkflow();
             }
 
             var extension = Path.GetExtension(fileName);

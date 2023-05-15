@@ -703,15 +703,16 @@ namespace Bonsai.Expressions
 
         internal static Expression Build(this ExpressionBuilderGraph source, IBuildContext buildContext)
         {
-            Expression workflowOutput = null;
+            Expression output = null;
             HashSet<string> externalizedProperties = null;
             var argumentLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var dependencyLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var edgeCollection = new List<Edge<ExpressionBuilder, ExpressionBuilderArgument>>();
+            var componentConnections = new List<Expression>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
-            if (!TopologicalSort.TrySort(source, out IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
+            if (!TopologicalSort.TrySort(source, out IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
             {
                 var cyclicalDependency = FindCyclicalDependency(source, buildContext);
                 if (cyclicalDependency == null) throw new WorkflowBuildException("The workflow contains unspecified cyclical build dependencies.");
@@ -720,275 +721,286 @@ namespace Bonsai.Expressions
                 throw CreateDependencyException(message, cyclicalDependency);
             }
 
-            foreach (var node in buildOrder)
+            foreach (var component in buildOrder)
             {
-                Expression expression;
-                var builder = node.Value;
-                var arguments = GetArgumentList(argumentLists, builder);
-
-                // Propagate build target in case of a nested workflow
-                var workflowElement = ExpressionBuilder.Unwrap(builder);
-                var requireBuildContext = workflowElement as IRequireBuildContext;
-                if (requireBuildContext != null)
+                Expression workflowOutput = null;
+                foreach (var node in component)
                 {
-                    try { requireBuildContext.BuildContext = buildContext; }
+                    Expression expression;
+                    var builder = node.Value;
+                    var arguments = GetArgumentList(argumentLists, builder);
+
+                    // Propagate build target in case of a nested workflow
+                    var workflowElement = ExpressionBuilder.Unwrap(builder);
+                    var requireBuildContext = workflowElement as IRequireBuildContext;
+                    if (requireBuildContext != null)
+                    {
+                        try { requireBuildContext.BuildContext = buildContext; }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, builder, e);
+                        }
+                    }
+
+                    var argumentRange = builder.ArgumentRange;
+                    if (argumentRange == null)
+                    {
+                        throw new WorkflowBuildException("Argument range not set in expression builder node.", builder);
+                    }
+
+                    if (arguments.Count < argumentRange.LowerBound)
+                    {
+                        throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, argumentRange.LowerBound), builder);
+                    }
+
+                    if (arguments.Count > argumentRange.UpperBound)
+                    {
+                        throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.UpperBound), builder);
+                    }
+
+                    var externalizedBuilder = workflowElement as IExternalizedMappingBuilder;
+                    if (externalizedBuilder != null)
+                    {
+                        foreach (var property in externalizedBuilder.GetExternalizedProperties())
+                        {
+                            RegisterPropertyName(builder, property, ref externalizedProperties);
+                        }
+                    }
+
+                    try
+                    {
+                        expression = builder.Build(arguments);
+                    }
                     catch (Exception e)
                     {
                         throw new WorkflowBuildException(e.Message, builder, e);
                     }
-                }
-
-                var argumentRange = builder.ArgumentRange;
-                if (argumentRange == null)
-                {
-                    throw new WorkflowBuildException("Argument range not set in expression builder node.", builder);
-                }
-
-                if (arguments.Count < argumentRange.LowerBound)
-                {
-                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, argumentRange.LowerBound), builder);
-                }
-
-                if (arguments.Count > argumentRange.UpperBound)
-                {
-                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.UpperBound), builder);
-                }
-
-                var externalizedBuilder = workflowElement as IExternalizedMappingBuilder;
-                if (externalizedBuilder != null)
-                {
-                    foreach (var property in externalizedBuilder.GetExternalizedProperties())
+                    finally
                     {
-                        RegisterPropertyName(builder, property, ref externalizedProperties);
-                    }
-                }
-
-                try
-                {
-                    expression = builder.Build(arguments);
-                }
-                catch (Exception e)
-                {
-                    throw new WorkflowBuildException(e.Message, builder, e);
-                }
-                finally
-                {
-                    if (requireBuildContext != null)
-                    {
-                        requireBuildContext.BuildContext = null;
-                    }
-                }
-
-                // Merge build dependencies
-                var reducible = ExpressionBuilder.IsReducible(expression);
-                var buildDependencies = GetArgumentList(dependencyLists, builder);
-                if (buildDependencies.Count > 0 && reducible)
-                {
-                    expression = ExpressionBuilder.MergeBuildDependencies(expression, buildDependencies);
-                }
-
-                // Check if build target was reached
-                if (builder == buildContext.BuildTarget)
-                {
-                    buildContext.BuildResult = expression;
-                }
-
-                if (buildContext.BuildResult != null)
-                {
-                    return expression;
-                }
-
-                // Filter disabled successors for property mapping nodes
-                var argumentBuilder = workflowElement as IArgumentBuilder;
-                var propertyMappingBuilder = ExpressionBuilder.IsBuildDependency(argumentBuilder);
-                IList<Edge<ExpressionBuilder, ExpressionBuilderArgument>> nodeSuccessors;
-                if (propertyMappingBuilder)
-                {
-                    edgeCollection.Clear();
-                    edgeCollection.AddRange(node.Successors.Where(edge => !(ExpressionBuilder.Unwrap(edge.Target.Value) is DisableBuilder)));
-                    nodeSuccessors = edgeCollection;
-                }
-                else nodeSuccessors = node.Successors;
-
-                // Remove all closing scopes
-                var disable = expression as DisableExpression;
-                var successorCount = requireBuildContext != null
-                    ? nodeSuccessors.Count(edge => edge.Label != null)
-                    : nodeSuccessors.Count;
-                multicastMap.RemoveAll(scope =>
-                {
-                    var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
-                    if (scope.References.Count == 0 && disable == null)
-                    {
-                        try
+                        if (requireBuildContext != null)
                         {
-                            expression = scope.Close(expression);
-                            return true;
-                        }
-                        catch (Exception e)
-                        {
-                            throw new WorkflowBuildException(e.Message, builder, e);
+                            requireBuildContext.BuildContext = null;
                         }
                     }
 
-                    if (referencesRemoved > 0)
+                    // Merge build dependencies
+                    var reducible = ExpressionBuilder.IsReducible(expression);
+                    var buildDependencies = GetArgumentList(dependencyLists, builder);
+                    if (buildDependencies.Count > 0 && reducible)
                     {
-                        var expandedArguments = disable?.Arguments.Skip(1).GetEnumerator();
-                        do
-                        {
-                            // If there are no successors, or the expression is a disabled build dependency, this scope should never close
-                            if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
-                            else scope.References.AddRange(nodeSuccessors
-                                .Where(successor => successor.Label != null)
-                                .Select(successor => successor.Target.Value));
-                        }
-                        while (expandedArguments != null && expandedArguments.MoveNext());
-                    }
-                    return false;
-                });
-
-                // Evaluate irreducible extension expressions
-                if (!reducible)
-                {
-                    // Disconnect disabled build dependencies from their immediate successors
-                    if (expression == DisconnectExpression.Instance)
-                    {
-                        connections.AddRange(arguments);
-                        continue;
+                        expression = ExpressionBuilder.MergeBuildDependencies(expression, buildDependencies);
                     }
 
-                    // Validate externalized properties
-                    if (externalizedBuilder != null)
+                    // Check if build target was reached
+                    if (builder == buildContext.BuildTarget)
                     {
-                        var argument = expression;
-                        foreach (var successor in nodeSuccessors)
-                        {
-                            var successorElement = ExpressionBuilder.GetWorkflowElement(successor.Target.Value);
-                            var successorInstance = Expression.Constant(successorElement);
-                            foreach (var property in externalizedBuilder.GetExternalizedProperties())
-                            {
-                                try { argument = ExpressionBuilder.BuildPropertyMapping(argument, successorInstance, property.Name); }
-                                catch (Exception e)
-                                {
-                                    throw new WorkflowBuildException(e.Message, builder, e);
-                                }
-                            }
-                        }
-                        continue;
+                        buildContext.BuildResult = expression;
                     }
 
-                    // Do not generate output sequences if the result expression is empty
-                    if (expression == EmptyExpression.Instance)
+                    if (buildContext.BuildResult != null)
                     {
-                        continue;
+                        return expression;
                     }
 
-                    // Do not generate output or successor sequences if the result expression type is void
-                    if (successorCount > 0 && disable == null)
-                    {
-                        try { if (expression.Type == typeof(void)) continue; }
-                        catch (Exception e)
-                        {
-                            throw new WorkflowBuildException(e.Message, builder, e);
-                        }
-                    }
-                }
-
-                if (workflowElement is WorkflowOutputBuilder outputBuilder)
-                {
-                    if (successorCount > 0)
-                    {
-                        throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
-                    }
-
-                    if (workflowOutput != null)
-                    {
-                        throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
-                    }
-
-                    workflowOutput = expression;
-                    continue;
-                }
-
-                if (successorCount > 1 && reducible)
-                {
-                    // Start a new multicast scope
-                    MulticastBranchBuilder multicastBuilder;
+                    // Filter disabled successors for property mapping nodes
+                    var argumentBuilder = workflowElement as IArgumentBuilder;
+                    var propertyMappingBuilder = ExpressionBuilder.IsBuildDependency(argumentBuilder);
+                    IList<Edge<ExpressionBuilder, ExpressionBuilderArgument>> nodeSuccessors;
                     if (propertyMappingBuilder)
                     {
-                        // Property mappings get replayed across subscriptions
-                        multicastBuilder = new ReplayLatestBranchBuilder();
+                        edgeCollection.Clear();
+                        edgeCollection.AddRange(node.Successors.Where(edge => !(ExpressionBuilder.Unwrap(edge.Target.Value) is DisableBuilder)));
+                        nodeSuccessors = edgeCollection;
                     }
-                    else multicastBuilder = new PublishBranchBuilder();
-                    expression = multicastBuilder.Build(expression);
+                    else nodeSuccessors = node.Successors;
 
-                    // Ensure publish/subscribe subject dependencies are not multicast
-                    var multicastScope = new MulticastScope(multicastBuilder);
-                    multicastScope.References.AddRange(nodeSuccessors
-                        .Where(successor => successor.Label != null)
-                        .Select(successor => successor.Target.Value));
-                    multicastMap.Insert(0, multicastScope);
-                }
-
-                foreach (var successor in nodeSuccessors)
-                {
-                    if (successor.Label == null) continue;
-                    var argument = expression;
-                    var buildDependency = false;
-                    if (argumentBuilder != null)
+                    // Remove all closing scopes
+                    var disable = expression as DisableExpression;
+                    var successorCount = requireBuildContext != null
+                        ? nodeSuccessors.Count(edge => edge.Label != null)
+                        : nodeSuccessors.Count;
+                    multicastMap.RemoveAll(scope =>
                     {
-                        try { buildDependency = !argumentBuilder.BuildArgument(argument, successor, out argument); }
-                        catch (Exception e)
+                        var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
+                        if (scope.References.Count == 0 && disable == null)
                         {
-                            throw new WorkflowBuildException(e.Message, builder, e);
+                            try
+                            {
+                                expression = scope.Close(expression);
+                                return true;
+                            }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
+                        }
+
+                        if (referencesRemoved > 0)
+                        {
+                            var expandedArguments = disable?.Arguments.Skip(1).GetEnumerator();
+                            do
+                            {
+                                // If there are no successors, or the expression is a disabled build dependency, this scope should never close
+                                if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
+                                else scope.References.AddRange(nodeSuccessors
+                                    .Where(successor => successor.Label != null)
+                                    .Select(successor => successor.Target.Value));
+                            }
+                            while (expandedArguments != null && expandedArguments.MoveNext());
+                        }
+                        return false;
+                    });
+
+                    // Evaluate irreducible extension expressions
+                    if (!reducible)
+                    {
+                        // Disconnect disabled build dependencies from their immediate successors
+                        if (expression == DisconnectExpression.Instance)
+                        {
+                            componentConnections.AddRange(arguments);
+                            continue;
+                        }
+
+                        // Validate externalized properties
+                        if (externalizedBuilder != null)
+                        {
+                            var argument = expression;
+                            foreach (var successor in nodeSuccessors)
+                            {
+                                var successorElement = ExpressionBuilder.GetWorkflowElement(successor.Target.Value);
+                                var successorInstance = Expression.Constant(successorElement);
+                                foreach (var property in externalizedBuilder.GetExternalizedProperties())
+                                {
+                                    try { argument = ExpressionBuilder.BuildPropertyMapping(argument, successorInstance, property.Name); }
+                                    catch (Exception e)
+                                    {
+                                        throw new WorkflowBuildException(e.Message, builder, e);
+                                    }
+                                }
+                            }
+                            continue;
+                        }
+
+                        // Do not generate output sequences if the result expression is empty
+                        if (expression == EmptyExpression.Instance)
+                        {
+                            continue;
+                        }
+
+                        // Do not generate output or successor sequences if the result expression type is void
+                        if (successorCount > 0 && disable == null)
+                        {
+                            try { if (expression.Type == typeof(void)) continue; }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
                         }
                     }
 
-                    if (buildDependency)
+                    if (workflowElement is WorkflowOutputBuilder outputBuilder)
                     {
-                        UpdateArgumentList(dependencyLists, successor, argument);
-                    }
-                    else UpdateArgumentList(argumentLists, successor, argument);
-                }
+                        if (successorCount > 0)
+                        {
+                            throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
+                        }
 
-                if (successorCount == 0)
-                {
-                    if (disable != null) connections.AddRange(disable.Arguments);
-                    else connections.Add(expression);
-                }
-            }
+                        if (workflowOutput != null || output != null)
+                        {
+                            throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
+                        }
 
-            // Prune disabled multicast branches from output
-            multicastMap.RemoveAll(scope =>
-            {
-                var index = -1;
-                int? argumentIndex = null;
-                var branchesRemoved = connections.RemoveAll(connection =>
-                {
-                    index++;
-                    if (connection is MulticastBranchExpression branchExpression &&
-                        branchExpression == scope.MulticastBuilder.BranchExpression)
-                    {
-                        if (argumentIndex == null) argumentIndex = index;
-                        return true;
+                        workflowOutput = expression;
+                        continue;
                     }
 
-                    return false;
+                    if (successorCount > 1 && reducible)
+                    {
+                        // Start a new multicast scope
+                        MulticastBranchBuilder multicastBuilder;
+                        if (propertyMappingBuilder)
+                        {
+                            // Property mappings get replayed across subscriptions
+                            multicastBuilder = new ReplayLatestBranchBuilder();
+                        }
+                        else multicastBuilder = new PublishBranchBuilder();
+                        expression = multicastBuilder.Build(expression);
+
+                        // Ensure publish/subscribe subject dependencies are not multicast
+                        var multicastScope = new MulticastScope(multicastBuilder);
+                        multicastScope.References.AddRange(nodeSuccessors
+                            .Where(successor => successor.Label != null)
+                            .Select(successor => successor.Target.Value));
+                        multicastMap.Insert(0, multicastScope);
+                    }
+
+                    foreach (var successor in nodeSuccessors)
+                    {
+                        if (successor.Label == null) continue;
+                        var argument = expression;
+                        var buildDependency = false;
+                        if (argumentBuilder != null)
+                        {
+                            try { buildDependency = !argumentBuilder.BuildArgument(argument, successor, out argument); }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
+                        }
+
+                        if (buildDependency)
+                        {
+                            UpdateArgumentList(dependencyLists, successor, argument);
+                        }
+                        else UpdateArgumentList(argumentLists, successor, argument);
+                    }
+
+                    if (successorCount == 0)
+                    {
+                        if (disable != null) componentConnections.AddRange(disable.Arguments);
+                        else componentConnections.Add(expression);
+                    }
+                }
+
+                // Prune disabled multicast branches from output
+                multicastMap.RemoveAll(scope =>
+                {
+                    var index = -1;
+                    int? argumentIndex = null;
+                    var branchesRemoved = componentConnections.RemoveAll(connection =>
+                    {
+                        index++;
+                        if (connection is MulticastBranchExpression branchExpression &&
+                            branchExpression == scope.MulticastBuilder.BranchExpression)
+                        {
+                            argumentIndex ??= index;
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    var activeBranches = scope.References.Count - branchesRemoved;
+                    if (activeBranches > 1) return false;
+                    if (activeBranches == 1) scope.MulticastBuilder.BranchExpression.Cancel();
+                    if (activeBranches == 0) componentConnections.Insert(argumentIndex.Value, scope.MulticastBuilder.Source);
+                    return true;
                 });
 
-                var activeBranches = scope.References.Count - branchesRemoved;
-                if (activeBranches > 1) return false;
-                if (activeBranches == 1) scope.MulticastBuilder.BranchExpression.Cancel();
-                if (activeBranches == 0) connections.Insert(argumentIndex.Value, scope.MulticastBuilder.Source);
-                return true;
-            });
+                var componentOutput = ExpressionBuilder.BuildOutput(workflowOutput, componentConnections);
+                multicastMap.RemoveAll(scope =>
+                {
+                    componentOutput = scope.Close(componentOutput);
+                    return true;
+                });
 
-            var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
-            multicastMap.RemoveAll(scope =>
-            {
-                output = scope.Close(output);
-                return true;
-            });
+                if (workflowOutput != null) output = componentOutput;
+                else connections.Add(componentOutput);
+                multicastMap.Clear();
+                componentConnections.Clear();
+            }
+
+            output = ExpressionBuilder.MergeOutput(output, connections);
             return buildContext.CloseContext(output);
         }
 
@@ -1229,34 +1241,40 @@ namespace Bonsai.Expressions
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
-            if (!TopologicalSort.TrySort(source, out IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
+            if (!TopologicalSort.TrySort(source, out IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
             {
-                throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", "source");
+                throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", nameof(source));
             }
 
-            var nodes = buildOrder.ToArray();
-            var descriptor = new ExpressionBuilderGraphDescriptor();
+            int index = 0;
+            var nodeMap = buildOrder
+                .SelectMany(component => component)
+                .ToDictionary(node => node, node => index++);
 
-            foreach (var node in nodes)
-            {
-                descriptor.Nodes.Add(node.Value);
-            }
+            var nodes = new List<ExpressionBuilder>(nodeMap.Count);
+            nodes.AddRange(nodeMap.Keys.Select(node => node.Value));
 
-            var from = 0;
-            foreach (var node in nodes)
+            var edges = new List<ExpressionBuilderArgumentDescriptor>();
+            foreach (var entry in nodeMap)
             {
-                foreach (var successor in node.Successors)
+                var from = entry.Value;
+                foreach (var successor in entry.Key.Successors)
                 {
-                    var to = Array.IndexOf(nodes, successor.Target);
-                    descriptor.Edges.Add(new ExpressionBuilderArgumentDescriptor(from, to, successor.Label.Name));
+                    var to = nodeMap[successor.Target];
+                    edges.Add(new ExpressionBuilderArgumentDescriptor(from, to, successor.Label.Name));
                 }
-
-                from++;
             }
-            return descriptor;
+
+            edges.Sort((x, y) =>
+            {
+                var from = x.From.CompareTo(y.From);
+                if (from != 0) return from;
+                else return x.To.CompareTo(y.To);
+            });
+            return new ExpressionBuilderGraphDescriptor(nodes, edges);
         }
 
         /// <summary>
@@ -1272,19 +1290,29 @@ namespace Bonsai.Expressions
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (descriptor == null)
             {
-                throw new ArgumentNullException("descriptor");
+                throw new ArgumentNullException(nameof(descriptor));
             }
 
-            var nodes = descriptor.Nodes.Select(value => source.Add(value)).ToArray();
+            var nodes = descriptor.Nodes
+                .Select(value => new Node<ExpressionBuilder, ExpressionBuilderArgument>(value))
+                .ToArray();
             foreach (var edge in descriptor.Edges)
             {
-                source.AddEdge(nodes[edge.From], nodes[edge.To], new ExpressionBuilderArgument(edge.Label));
+                var label = new ExpressionBuilderArgument(edge.Label);
+                nodes[edge.From].Successors.Add(Edge.Create(nodes[edge.To], label));
             }
+
+            if (!TopologicalSort.TrySort(nodes, out IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder))
+            {
+                throw new ArgumentException("Cannot deserialize a workflow with cyclical dependencies.", nameof(source));
+            }
+
+            source.AddRange(buildOrder.SelectMany(component => component));
         }
 
         #endregion

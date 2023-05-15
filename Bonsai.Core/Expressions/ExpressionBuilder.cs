@@ -898,6 +898,11 @@ namespace Bonsai.Expressions
             return expression.NodeType != ExpressionType.Extension || expression.CanReduce;
         }
 
+        static IObservable<Unit> IgnoreConnection(IObservable<Unit> source)
+        {
+            return source.IgnoreElements();
+        }
+
         static IObservable<Unit> IgnoreConnection<TSource>(IObservable<TSource> source)
         {
             return source.IgnoreElements().Select(xs => Unit.Default);
@@ -913,27 +918,38 @@ namespace Bonsai.Expressions
             return MergeDependencies(source, Observable.Merge(connections).Select(xs => default(TSource)));
         }
 
-        internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
+        internal static Expression MergeOutput(Expression output, IEnumerable<Expression> connections)
         {
-            var ignoredConnections = (from connection in connections.Where(IsReducible)
-                                      let observableType = connection.Type.GetGenericArguments()[0]
-                                      select Expression.Call(
-                                          typeof(ExpressionBuilder),
-                                          nameof(IgnoreConnection),
-                                          new[] { observableType }, connection))
-                                      .ToArray();
-            if (output != null && ignoredConnections.Length == 0)
+            var mergedConnections = connections.ToArray();
+            if (mergedConnections.Length == 0)
             {
-                return output;
+                return output ?? Expression.Constant(Observable.Empty<Unit>(), typeof(IObservable<Unit>));
+            }
+            else if (mergedConnections.Length == 1 && output == null)
+            {
+                return mergedConnections[0];
             }
 
-            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections);
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), mergedConnections);
             if (output != null)
             {
                 var outputType = output.Type.GetGenericArguments()[0];
                 return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), new[] { outputType }, output, connectionArrayExpression);
             }
             else return Expression.Call(typeof(ExpressionBuilder), nameof(MergeOutput), null, connectionArrayExpression);
+        }
+
+        internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
+        {
+            return MergeOutput(output, (from connection in connections.Where(IsReducible)
+                                        let observableType = connection.Type.GetGenericArguments()[0]
+                                        select Expression.Call(
+                                            typeof(ExpressionBuilder),
+                                            nameof(IgnoreConnection),
+                                            observableType != typeof(Unit)
+                                              ? new[] { observableType }
+                                              : Type.EmptyTypes,
+                                            connection)));
         }
 
         #endregion

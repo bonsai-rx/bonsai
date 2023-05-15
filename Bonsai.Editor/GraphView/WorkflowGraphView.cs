@@ -259,7 +259,8 @@ namespace Bonsai.Editor.GraphView
 
         private void StoreWorkflowElements()
         {
-            var text = ElementStore.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflow());
+            var selection = selectionModel.SelectedNodes.SortSelection(Workflow);
+            var text = ElementStore.StoreWorkflowElements(selection.ToWorkflow());
             if (!string.IsNullOrEmpty(text))
             {
                 Clipboard.SetText(text);
@@ -358,9 +359,7 @@ namespace Bonsai.Editor.GraphView
 
         public void SelectAllGraphNodes()
         {
-            var graphNodes = graphView.Nodes
-                .SelectMany(layer => layer)
-                .Where(node => node.Value != null);
+            var graphNodes = graphView.Nodes.LayeredNodes();
             graphView.SelectedNodes = graphNodes;
         }
 
@@ -1304,7 +1303,7 @@ namespace Bonsai.Editor.GraphView
                     .Where(node =>
                     {
                         var nodeBuilder = WorkflowEditor.GetGraphNodeBuilder(node);
-                        return selection.Any(builder => workflow.Comparer.Compare(builder, nodeBuilder) == 0);
+                        return selection.Any(builder => ExpressionBuilder.Unwrap(builder) == nodeBuilder);
                     });
             });
         }
@@ -1529,7 +1528,9 @@ namespace Bonsai.Editor.GraphView
                             element.Name,
                             element.FullyQualifiedName,
                             ~ElementCategory.Combinator,
-                            CreateGraphNodeType.Successor,
+                            ModifierKeys.HasFlag(Keys.Shift)
+                                ? CreateGraphNodeType.Predecessor
+                                : CreateGraphNodeType.Successor,
                             branch: false,
                             group: true));
                         ownerItem.DropDownItems.Add(menuItem);

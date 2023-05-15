@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Bonsai.Dag;
 using System.ComponentModel;
+using System;
 
 namespace Bonsai.Expressions
 {
@@ -18,8 +19,34 @@ namespace Bonsai.Expressions
         /// Initializes a new instance of the <see cref="ExpressionBuilderGraph"/> class.
         /// </summary>
         public ExpressionBuilderGraph()
-            : base(InstanceComparer)
         {
+        }
+
+        /// <summary>
+        /// Creates and adds a new edge specifying an argument assignment of the source
+        /// node to the target node with the specified index.
+        /// </summary>
+        /// <param name="from">The node that is the source of the edge.</param>
+        /// <param name="to">The node that is the target of the edge.</param>
+        /// <param name="index">The zero-based index of the input argument.</param>
+        /// <returns>The created edge.</returns>
+        public Edge<ExpressionBuilder, ExpressionBuilderArgument> AddEdge(
+            Node<ExpressionBuilder, ExpressionBuilderArgument> from,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> to,
+            int index)
+        {
+            return AddEdge(from, to, new ExpressionBuilderArgument(index));
+        }
+
+        /// <summary>
+        /// This read-only property is deprecated and should not be used. The getter is
+        /// implemented for backward compatibility with legacy clients only.
+        /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override IComparer<ExpressionBuilder> Comparer
+        {
+            get { return InstanceComparer; }
         }
 
         class ExpressionBuilderComparer : IComparer<ExpressionBuilder>

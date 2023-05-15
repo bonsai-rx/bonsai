@@ -78,7 +78,7 @@ namespace Bonsai.Editor.GraphView
         readonly LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         readonly HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         readonly SvgRendererState iconRendererState = new SvgRendererState();
-        IEnumerable<GraphNodeGrouping> nodes;
+        IReadOnlyList<GraphNodeGrouping> nodes;
         GraphNode pivot;
         GraphNode hot;
 
@@ -240,12 +240,11 @@ namespace Bonsai.Editor.GraphView
 
         public Image GraphicsProvider { get; set; }
 
-        public IEnumerable<GraphNodeGrouping> Nodes
+        public IReadOnlyList<GraphNodeGrouping> Nodes
         {
             get { return nodes; }
             set
             {
-                CursorNode = null;
                 pivot = null;
                 nodes = value;
                 hot = null;
@@ -682,6 +681,27 @@ namespace Bonsai.Editor.GraphView
             return layoutNodes[node].Location;
         }
 
+        GraphNode GetClosestNode(Point point)
+        {
+            point.X += canvas.HorizontalScroll.Value;
+            point.Y += canvas.VerticalScroll.Value;
+
+            foreach (var layout in layoutNodes)
+            {
+                if (layout.Node.Value == null) continue;
+
+                var boundingRectangle = new RectangleF(
+                    layout.BoundingRectangle.Location,
+                    new SizeF(NodeAirspace, NodeAirspace));
+                if (boundingRectangle.Contains(point))
+                {
+                    return layout.Node;
+                }
+            }
+
+            return GetLastNode();
+        }
+
         public GraphNode GetNodeAt(Point point)
         {
             point.X += canvas.HorizontalScroll.Value;
@@ -695,6 +715,17 @@ namespace Bonsai.Editor.GraphView
                 {
                     return layout.Node;
                 }
+            }
+
+            return null;
+        }
+
+        GraphNode GetLastNode()
+        {
+            if (nodes.Count > 0)
+            {
+                var layer = nodes[0];
+                return layer[layer.Count - 1];
             }
 
             return null;
@@ -827,18 +858,24 @@ namespace Bonsai.Editor.GraphView
             layoutNodes.Clear();
             var model = Nodes;
             var size = SizeF.Empty;
+            var cursorIndex = CursorNode?.Index;
+            CursorNode = null;
             if (model != null)
             {
                 using (var graphics = CreateVectorGraphics())
                 {
-                    var layerCount = model.Count();
+                    var layerCount = model.Count;
                     foreach (var layer in model)
                     {
                         var maxRow = 0;
                         var column = layerCount - layer.Key - 1;
                         foreach (var node in layer)
                         {
-                            if (pivot == null) pivot = CursorNode = node;
+                            if (node.Index == cursorIndex)
+                            {
+                                CursorNode = node;
+                            }
+
                             var row = node.LayerIndex;
                             var location = new PointF(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
                             var layout = new LayoutNode(this, node, location);
@@ -853,6 +890,9 @@ namespace Bonsai.Editor.GraphView
 
                     size.Width = layerCount * NodeAirspace;
                 }
+
+                CursorNode ??= GetLastNode();
+                pivot = CursorNode;
             }
 
             canvas.AutoScrollMinSize = Size.Truncate(size);
@@ -1245,7 +1285,7 @@ namespace Bonsai.Editor.GraphView
             if (hot != null)
             {
                 SetCursor(hot);
-                if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                if (ModifierKeys.HasFlag(Keys.Shift))
                 {
                     mouseDownHandled = true;
                     SelectRange(hot, ModifierKeys.HasFlag(Keys.Control));
@@ -1276,9 +1316,14 @@ namespace Bonsai.Editor.GraphView
                     else SelectNode(hot, false);
                 }
             }
-            else if (ModifierKeys == Keys.None)
+            else
             {
-                ClearSelection();
+                var cursorNode = GetClosestNode(e.Location);
+                if (cursorNode != null) SetCursor(cursorNode);
+                if (ModifierKeys == Keys.None)
+                {
+                    ClearSelection();
+                }
             }
 
             mouseDownHandled = false;

@@ -1,81 +1,18 @@
 ﻿using Bonsai.Dag;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bonsai.Core.Tests
 {
     [TestClass]
-    public class TopologicalSortTests
+    public class TopologicalSortTests : TestGraphExtensions
     {
-        class TestGraph : IEnumerable<Node<string, int>>
-        {
-            readonly Dictionary<char, Node<string, int>> nodes;
-            readonly DirectedGraph<string, int> graph;
-
-            public TestGraph(int count)
-            {
-                nodes = new Dictionary<char, Node<string, int>>(count);
-                graph = new DirectedGraph<string, int>();
-                for (int i = 0; i < count; i++)
-                {
-                    var key = (char)('A' + i);
-                    nodes.Add(key, graph.Add(key.ToString()));
-                }
-            }
-
-            public void Add(char from, char to)
-            {
-                graph.AddEdge(nodes[from], nodes[to], 0);
-            }
-
-            public void Add(int label, char from, char to)
-            {
-                graph.AddEdge(nodes[from], nodes[to], label);
-            }
-
-            public void Add(params char[] chain)
-            {
-                Add(0, chain);
-            }
-
-            public void Add(int label, params char[] chain)
-            {
-                for (int i = 1; i < chain.Length; i++)
-                {
-                    graph.AddEdge(nodes[chain[i - 1]], nodes[chain[i]], label);
-                }
-            }
-
-            public IEnumerable<Node<string, int>> TopologicalSort()
-            {
-                return graph.TopologicalSort();
-            }
-
-            public IEnumerator<Node<string, int>> GetEnumerator()
-            {
-                return graph.GetEnumerator();
-            }
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        static void AssertOrder(IEnumerable<Node<string, int>> order, string expected)
-        {
-            var actual = string.Concat(order.Select(node => node.Value));
-            Assert.AreEqual(expected, actual);
-        }
-
         static void AssertOrder(TestGraph graph, string expected)
         {
             var order = graph.TopologicalSort();
             AssertOrder(order, expected);
 
             var orderedGraph = new DirectedGraph<string, int>();
-            foreach (var node in order) orderedGraph.Add(node);
+            orderedGraph.InsertRange(0, order);
             var secondOrder = orderedGraph.TopologicalSort();
             AssertOrder(secondOrder, expected);
         }
@@ -116,7 +53,7 @@ namespace Bonsai.Core.Tests
             {
                 { 'E', 'C', 'D' },
                 { 'E', 'A', 'B' },
-            }, "ECDAB");
+            }, "EABCD");
         }
 
         [TestMethod]
@@ -138,7 +75,7 @@ namespace Bonsai.Core.Tests
                 { 'F', 'B', 'E' },
                      { 'B', 'A' },
                 { 'F', 'C', 'D' },
-            }, "FBEACD");
+            }, "FBACDE");
         }
 
         [TestMethod]
@@ -197,14 +134,12 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void TopologicalSort_MergeDanglingBranch_InsertionOrder()
         {
-            // C comes after D, because C has a dependency on
-            // the second branch of A
             AssertOrder(new TestGraph(4)
             {
                 { 'A', 'B', 'C' },
                 { 'A',      'C' },
                 {      'B', 'D' }
-            }, "ABDC");
+            }, "ABCD");
         }
 
         [TestMethod]
@@ -228,11 +163,11 @@ namespace Bonsai.Core.Tests
                 { 'A', 'C' },
                 { 'F', 'B' },
                 { 'D', 'E' }
-            }, "ACFBDE");
+            }, "FBACDE");
         }
 
         [TestMethod]
-        public void TopologicalSort_DeferredConnectedComponents_InsertionOrder()
+        public void TopologicalSort_DeferredConnectedComponents_ConnectedComponentOrder()
         {
             AssertOrder(new TestGraph(7)
             {
@@ -241,7 +176,7 @@ namespace Bonsai.Core.Tests
                 { 'E', 'F' },
                 { 'G', 'E' },
                 { 'G', 'A' }
-            }, "CDGEFAB");
+            }, "GABEFCD");
         }
 
         [TestMethod]
@@ -260,7 +195,7 @@ namespace Bonsai.Core.Tests
                 { 'L', 'K' },
                 { 'L', 'I' },
                 { 'L', 'A' },
-            }, "LGHKCDEFIJAB");
+            }, "LABKCDEFGHIJ");
         }
 
         [TestMethod]
@@ -283,7 +218,7 @@ namespace Bonsai.Core.Tests
                 { 'D', 'E', 'A' },
                      { 'E', 'B', 'A' },
                      { 'C', 'A' }
-            }, "CDEBA");
+            }, "DEBCA");
         }
 
         [TestMethod]
@@ -306,6 +241,17 @@ namespace Bonsai.Core.Tests
                 { 'B', 'C',      'A' },
                      { 'C', 'D', 'A' },
             }, "BCDA");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_CyclicGraph_ReturnsEmptySequence()
+        {
+            AssertOrder(new TestGraph(4)
+            {
+                { 'B',           'A' },
+                { 'B', 'C',      'A' },
+                     { 'C', 'D', 'B' },
+            }, string.Empty);
         }
     }
 }

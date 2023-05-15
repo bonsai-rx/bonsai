@@ -4,8 +4,10 @@ namespace Bonsai.Editor.GraphModel
 {
     interface IGraphView
     {
-        IEnumerable<GraphNodeGrouping> Nodes { get; }
+        IReadOnlyList<GraphNodeGrouping> Nodes { get; }
 
         IEnumerable<GraphNode> SelectedNodes { get; }
+
+        GraphNode CursorNode { get; }
     }
 }

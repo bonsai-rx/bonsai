@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bonsai.Dag
 {
@@ -8,17 +9,21 @@ namespace Bonsai.Dag
     /// </summary>
     /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
     /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
-    public class DirectedGraph<TNodeValue, TEdgeLabel> : IEnumerable<Node<TNodeValue, TEdgeLabel>>
+    public class DirectedGraph<TNodeValue, TEdgeLabel>
+        : ICollection<Node<TNodeValue, TEdgeLabel>>
+        , IReadOnlyList<Node<TNodeValue, TEdgeLabel>>
     {
-        readonly ISet<Node<TNodeValue, TEdgeLabel>> nodes;
+        readonly List<Node<TNodeValue, TEdgeLabel>> nodes;
+        readonly HashSet<Node<TNodeValue, TEdgeLabel>> nodeLookup;
         readonly IComparer<TNodeValue> valueComparer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectedGraph{T, U}"/> class.
         /// </summary>
         public DirectedGraph()
-            : this(null)
         {
+            nodes = new List<Node<TNodeValue, TEdgeLabel>>();
+            nodeLookup = new HashSet<Node<TNodeValue, TEdgeLabel>>();
         }
 
         /// <summary>
@@ -26,42 +31,21 @@ namespace Bonsai.Dag
         /// that uses a specified comparer.
         /// </summary>
         /// <param name="comparer">The optional comparer to use for ordering node values.</param>
+        [Obsolete]
         public DirectedGraph(IComparer<TNodeValue> comparer)
+            : this()
         {
-            if (comparer == null)
-            {
-                nodes = new HashSet<Node<TNodeValue, TEdgeLabel>>();
-            }
-            else
-            {
-                var nodeComparer = new NodeComparer(comparer);
-                nodes = new SortedSet<Node<TNodeValue, TEdgeLabel>>(nodeComparer);
-                valueComparer = comparer;
-            }
+            valueComparer = comparer;
         }
 
         /// <summary>
         /// Gets the optional <see cref="IComparer{TNodeValue}"/> object used to determine
         /// the order of the values in the directed graph.
         /// </summary>
-        public IComparer<TNodeValue> Comparer
+        [Obsolete]
+        public virtual IComparer<TNodeValue> Comparer
         {
             get { return valueComparer; }
-        }
-
-        class NodeComparer : IComparer<Node<TNodeValue, TEdgeLabel>>
-        {
-            readonly IComparer<TNodeValue> valueComparer;
-
-            internal NodeComparer(IComparer<TNodeValue> comparer)
-            {
-                valueComparer = comparer;
-            }
-
-            public int Compare(Node<TNodeValue, TEdgeLabel> x, Node<TNodeValue, TEdgeLabel> y)
-            {
-                return valueComparer.Compare(x.Value, y.Value);
-            }
         }
 
         /// <summary>
@@ -70,6 +54,16 @@ namespace Bonsai.Dag
         public int Count
         {
             get { return nodes.Count; }
+        }
+
+        /// <summary>
+        /// Gets the node at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the node to get.</param>
+        /// <returns>The node at the specified index.</returns>
+        public Node<TNodeValue, TEdgeLabel> this[int index]
+        {
+            get { return nodes[index]; }
         }
 
         /// <summary>
@@ -86,7 +80,7 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
-        /// Adds a node to the directed graph.
+        /// Adds a node and all its successors to the directed graph.
         /// </summary>
         /// <param name="node">The node to be added to the directed graph.</param>
         public void Add(Node<TNodeValue, TEdgeLabel> node)
@@ -96,11 +90,58 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(node));
             }
 
-            nodes.Add(node);
-            foreach (var successor in node.Successors)
+            if (nodeLookup.Add(node))
             {
-                if (nodes.Contains(successor.Target)) continue;
-                Add(successor.Target);
+                nodes.Add(node);
+                foreach (var successor in node.Successors)
+                {
+                    Add(successor.Target);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds the nodes in a collection to the end of the directed graph.
+        /// </summary>
+        /// <param name="collection">
+        /// The collection of nodes to insert into the directed graph.
+        /// </param>
+        /// <remarks>
+        /// If any of the nodes in the collection are already in the directed graph,
+        /// they will be moved into the new index position. Any successor nodes which
+        /// are not in the graph will also be added in depth-first order.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddRange(IEnumerable<Node<TNodeValue, TEdgeLabel>> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            InsertInternal(nodes.Count, collection);
+        }
+
+        void ThrowIfEdgeVerticesNullOrNotInGraph(Node<TNodeValue, TEdgeLabel> from, Node<TNodeValue, TEdgeLabel> to, string targetParamName)
+        {
+            if (from == null)
+            {
+                throw new ArgumentNullException(nameof(from));
+            }
+
+            if (to == null)
+            {
+                throw new ArgumentNullException(targetParamName);
+            }
+
+            if (!nodeLookup.Contains(from))
+            {
+                throw new ArgumentException("The specified edge source does not belong to the graph.", nameof(from));
+            }
+
+            if (!nodeLookup.Contains(to))
+            {
+                throw new ArgumentException("The specified edge target does not belong to the graph.", targetParamName);
             }
         }
 
@@ -114,26 +155,7 @@ namespace Bonsai.Dag
         /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> AddEdge(Node<TNodeValue, TEdgeLabel> from, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (to == null)
-            {
-                throw new ArgumentNullException(nameof(to));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(to))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, to, nameof(to));
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
             from.Successors.Add(edge);
             return edge;
@@ -149,26 +171,7 @@ namespace Bonsai.Dag
         /// </param>
         public void AddEdge(Node<TNodeValue, TEdgeLabel> from, Edge<TNodeValue, TEdgeLabel> edge)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (edge == null)
-            {
-                throw new ArgumentNullException(nameof(edge));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(edge.Target))
-            {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             from.Successors.Add(edge);
         }
 
@@ -185,26 +188,7 @@ namespace Bonsai.Dag
         /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> InsertEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (to == null)
-            {
-                throw new ArgumentNullException(nameof(to));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(to))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, to, nameof(to));
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
                 throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
@@ -229,26 +213,7 @@ namespace Bonsai.Dag
         /// </param>
         public void InsertEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Edge<TNodeValue, TEdgeLabel> edge)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (edge == null)
-            {
-                throw new ArgumentNullException(nameof(edge));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(edge.Target))
-            {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
                 throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
@@ -270,26 +235,7 @@ namespace Bonsai.Dag
         /// <returns>The created edge.</returns>
         public Edge<TNodeValue, TEdgeLabel> SetEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (to == null)
-            {
-                throw new ArgumentNullException(nameof(to));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(to))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(to));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, to, nameof(to));
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
                 throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
@@ -314,26 +260,7 @@ namespace Bonsai.Dag
         /// </param>
         public void SetEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Edge<TNodeValue, TEdgeLabel> edge)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (edge == null)
-            {
-                throw new ArgumentNullException(nameof(edge));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(edge.Target))
-            {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
                 throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
@@ -352,7 +279,146 @@ namespace Bonsai.Dag
         /// </returns>
         public bool Contains(Node<TNodeValue, TEdgeLabel> node)
         {
-            return nodes.Contains(node);
+            return nodeLookup.Contains(node);
+        }
+
+        /// <summary>
+        /// Searches for the specified node and returns its zero-based
+        /// index within the collection.
+        /// </summary>
+        /// <param name="node">The node to locate in the collection.</param>
+        /// <returns>
+        /// The zero-based index of <paramref name="node"/> in the collection,
+        /// if found; otherwise, -1.
+        /// </returns>
+        public int IndexOf(Node<TNodeValue, TEdgeLabel> node)
+        {
+            if (nodeLookup.Contains(node))
+            {
+                return nodes.IndexOf(node);
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Creates and inserts a new node with the specified value into the
+        /// directed graph at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which the node should be inserted.</param>
+        /// <param name="value">The value of the node label.</param>
+        /// <returns>The created node.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public Node<TNodeValue, TEdgeLabel> Insert(int index, TNodeValue value)
+        {
+            if (index < 0 || index > nodes.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+            }
+
+            var node = new Node<TNodeValue, TEdgeLabel>(value);
+            nodes.Insert(index, node);
+            nodeLookup.Add(node);
+            return node;
+        }
+
+        /// <summary>
+        /// Inserts a node into the directed graph at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which the node should be inserted.</param>
+        /// <param name="node">The node to insert into the directed graph.</param>
+        /// <remarks>
+        /// If the node is already in the directed graph, it will be moved into the
+        /// new index position. Any successor nodes which are not in the graph will
+        /// also be added in depth-first order.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void Insert(int index, Node<TNodeValue, TEdgeLabel> node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
+            if (index < 0 || index > nodes.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+            }
+
+            InsertInternal(index, new[] { node });
+        }
+
+        /// <summary>
+        /// Inserts the nodes in a collection into the directed graph at the
+        /// specified index.
+        /// </summary>
+        /// <param name="index">
+        /// The zero-based index at which the node collection should be inserted.
+        /// </param>
+        /// <param name="collection">
+        /// The collection of nodes to insert into the directed graph.
+        /// </param>
+        /// <remarks>
+        /// If any of the nodes in the collection are already in the directed graph,
+        /// they will be moved into the new index position. Any successor nodes which
+        /// are not in the graph will also be added in depth-first order.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void InsertRange(int index, IEnumerable<Node<TNodeValue, TEdgeLabel>> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            if (index < 0 || index > nodes.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+            }
+
+            InsertInternal(index, collection);
+        }
+
+        void InsertInternal(int index, IEnumerable<Node<TNodeValue, TEdgeLabel>> collection)
+        {
+            var nodeIndex = 0;
+            var insertionIndex = index;
+            var inserted = new HashSet<Node<TNodeValue, TEdgeLabel>>(collection);
+            var additionalNodes = default(List<Node<TNodeValue, TEdgeLabel>>);
+            var visited = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            var stack = new Stack<Node<TNodeValue, TEdgeLabel>>();
+            foreach (var node in inserted)
+            {
+                foreach (var successor in node.DepthFirstSearch(visited, stack))
+                {
+                    if (!inserted.Contains(successor) && !Contains(successor))
+                    {
+                        additionalNodes ??= new();
+                        additionalNodes.Add(successor);
+                    }
+                }
+            }
+
+            if (additionalNodes != null)
+            {
+                inserted.UnionWith(additionalNodes);
+            }
+
+            nodes.RemoveAll(node =>
+            {
+                var remove = inserted.Contains(node);
+                if (remove && nodeIndex < index)
+                {
+                    insertionIndex--;
+                }
+
+                nodeIndex++;
+                return remove;
+            });
+            nodes.InsertRange(insertionIndex, inserted);
+            nodeLookup.UnionWith(inserted);
         }
 
         /// <summary>
@@ -366,24 +432,142 @@ namespace Bonsai.Dag
         /// </returns>
         public bool Remove(Node<TNodeValue, TEdgeLabel> node)
         {
-            if (!nodes.Contains(node))
+            if (node == null)
             {
-                return false;
+                throw new ArgumentNullException(nameof(node));
             }
 
-            foreach (var n in nodes)
+            if (nodeLookup.Remove(node))
             {
-                if (n == node) continue;
-                for (int i = 0; i < n.Successors.Count; i++)
+                nodes.RemoveAll(n =>
                 {
-                    if (n.Successors[i].Target == node)
+                    if (n == node)
                     {
-                        n.Successors.RemoveAt(i);
+                        return true;
                     }
-                }
+
+                    for (int i = 0; i < n.Successors.Count;)
+                    {
+                        if (n.Successors[i].Target == node)
+                        {
+                            n.Successors.RemoveAt(i);
+                            continue;
+                        }
+                        i++;
+                    }
+                    return false;
+                });
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the node at the specified index of the directed graph.
+        /// </summary>
+        /// <param name="index">The zero-based index of the node to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void RemoveAt(int index)
+        {
+            if (index < 0 || index >= nodes.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
             }
 
-            return nodes.Remove(node);
+            var node = nodes[index];
+            Remove(node);
+        }
+
+        /// <summary>
+        /// Removes all nodes that match the conditions defined by the specified
+        /// predicate from the directed graph.
+        /// </summary>
+        /// <param name="match">
+        /// The <see cref="Predicate{T}"/> delegate that defines the conditions
+        /// of the nodes to remove.
+        /// </param>
+        /// <returns>The number of nodes that were removed from the directed graph.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int RemoveWhere(Predicate<Node<TNodeValue, TEdgeLabel>> match)
+        {
+            if (match == null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
+            var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            nodeLookup.RemoveWhere(node =>
+            {
+                if (match(node))
+                {
+                    removed.Add(node);
+                    return true;
+                }
+
+                return false;
+            });
+
+            return RemoveInternal(removed);
+        }
+
+        /// <summary>
+        /// Removes a range of nodes from the directed graph.
+        /// </summary>
+        /// <param name="index">The zero-based starting index of the range of nodes to remove.</param>
+        /// <param name="count">The number of nodes to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="index"/> and <paramref name="count"/> were out of bounds for
+        /// the node list or <paramref name="count"/> is greater than the number of nodes
+        /// from <paramref name="index"/> to the end of the node list.
+        /// </exception>
+        public void RemoveRange(int index, int count)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("The specified index is less than zero.", nameof(index));
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("The count of elements to remove is less than zero.", nameof(count));
+            }
+
+            if (nodes.Count - index < count)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "The index and count were out of bounds or count is greater than the number of nodes from index.",
+                    nameof(count));
+            }
+
+            var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            for (int i = index; i < index + count; i++)
+            {
+                nodeLookup.Remove(nodes[i]);
+                removed.Add(nodes[i]);
+            }
+            RemoveInternal(removed);
+        }
+
+        int RemoveInternal(HashSet<Node<TNodeValue, TEdgeLabel>> removed)
+        {
+            return nodes.RemoveAll(node =>
+            {
+                if (removed.Contains(node))
+                {
+                    return true;
+                }
+
+                for (int i = 0; i < node.Successors.Count;)
+                {
+                    if (removed.Contains(node.Successors[i].Target))
+                    {
+                        node.Successors.RemoveAt(i);
+                        continue;
+                    }
+                    i++;
+                }
+                return false;
+            });
         }
 
         /// <summary>
@@ -400,26 +584,7 @@ namespace Bonsai.Dag
         /// </returns>
         public bool RemoveEdge(Node<TNodeValue, TEdgeLabel> from, Edge<TNodeValue, TEdgeLabel> edge)
         {
-            if (from == null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (edge == null)
-            {
-                throw new ArgumentNullException(nameof(edge));
-            }
-
-            if (!nodes.Contains(from))
-            {
-                throw new ArgumentException("The specified node does not belong to the graph.", nameof(from));
-            }
-
-            if (!nodes.Contains(edge.Target))
-            {
-                throw new ArgumentException("The target of the specified edge does not belong to the graph.", nameof(edge));
-            }
-
+            ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             return from.Successors.Remove(edge);
         }
 
@@ -429,6 +594,53 @@ namespace Bonsai.Dag
         public void Clear()
         {
             nodes.Clear();
+            nodeLookup.Clear();
+        }
+
+        /// <summary>
+        /// Copies all the nodes in the directed graph to a compatible
+        /// one-dimensional array, starting at the beginning of the target array.
+        /// </summary>
+        /// <param name="array">
+        /// The one-dimensional array that is the destination of the nodes
+        /// copied from the directed graph.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="array"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The number of nodes in the directed graph is greater than the number
+        /// of elements that the destination array can contain.
+        /// </exception>
+        public void CopyTo(Node<TNodeValue, TEdgeLabel>[] array)
+        {
+            nodes.CopyTo(array);
+        }
+
+        /// <summary>
+        /// Copies all the nodes in the directed graph to a compatible
+        /// one-dimensional array, starting at the specified index of the target array.
+        /// </summary>
+        /// <param name="array">
+        /// The one-dimensional array that is the destination of the nodes
+        /// copied from the directed graph.
+        /// </param>
+        /// <param name="arrayIndex">
+        /// The zero-based index in the array at which copying begins.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="array"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="arrayIndex"/> is less than 0.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The number of nodes in the directed graph is greater than the available
+        /// space from <paramref name="arrayIndex"/> to the end of the destination array.
+        /// </exception>
+        public void CopyTo(Node<TNodeValue, TEdgeLabel>[] array, int arrayIndex)
+        {
+            nodes.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
@@ -441,7 +653,14 @@ namespace Bonsai.Dag
         /// </returns>
         public IEnumerator<Node<TNodeValue, TEdgeLabel>> GetEnumerator()
         {
-            return nodes.GetEnumerator();
+            return valueComparer != null
+                ? nodes.OrderBy(node => node.Value, valueComparer).GetEnumerator()
+                : nodes.GetEnumerator();
+        }
+
+        bool ICollection<Node<TNodeValue, TEdgeLabel>>.IsReadOnly
+        {
+            get { return false; }
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

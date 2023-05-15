@@ -128,9 +128,18 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(source));
             }
 
+            var successorSet = new HashSet<Node<TNodeValue, TEdgeLabel>>();
             foreach (var node in source)
             {
-                if (!source.Predecessors(node).Any())
+                foreach (var successor in node.Successors)
+                {
+                    successorSet.Add(successor.Target);
+                }
+            }
+
+            foreach (var node in source)
+            {
+                if (!successorSet.Contains(node))
                 {
                     yield return node;
                 }
@@ -163,24 +172,20 @@ namespace Bonsai.Dag
             }
         }
 
-        static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, HashSet<Node<TNodeValue, TEdgeLabel>> visited, Stack<Node<TNodeValue, TEdgeLabel>> stack)
+        internal static IEnumerable<Node<TNodeValue, TEdgeLabel>> DepthFirstSearch<TNodeValue, TEdgeLabel>(this Node<TNodeValue, TEdgeLabel> node, HashSet<Node<TNodeValue, TEdgeLabel>> visited, Stack<Node<TNodeValue, TEdgeLabel>> stack)
         {
-            if (visited.Contains(node)) yield break;
             stack.Push(node);
-
             while (stack.Count > 0)
             {
-                var current = stack.Peek();
-                if (!visited.Contains(current))
+                var current = stack.Pop();
+                if (visited.Add(current))
                 {
-                    visited.Add(current);
+                    yield return current;
                     for (int i = current.Successors.Count - 1; i >= 0; i--)
                     {
-                        if (visited.Contains(current.Successors[i].Target)) continue;
                         stack.Push(current.Successors[i].Target);
                     }
                 }
-                else yield return stack.Pop();
             }
         }
 
@@ -247,11 +252,11 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (!Dag.TopologicalSort.TrySort(source, out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder))
+            if (!Dag.TopologicalSort.TrySort(source, out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder))
             {
                 return Enumerable.Empty<Node<TNodeValue, TEdgeLabel>>();
             }
-            return topologicalOrder;
+            return topologicalOrder.SelectMany(component => component);
         }
 
         /// <summary>

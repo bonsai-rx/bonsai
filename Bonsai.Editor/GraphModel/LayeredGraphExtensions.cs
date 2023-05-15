@@ -20,6 +20,18 @@ namespace Bonsai.Editor.GraphModel
                          .FromInspectableGraph(recurse);
         }
 
+        public static IEnumerable<GraphNode> SortSelection(this IEnumerable<GraphNode> source, ExpressionBuilderGraph workflow)
+        {
+            var nodeMap = source.ToDictionary(node => node.Value);
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                if (nodeMap.TryGetValue(workflow[i].Value, out GraphNode node))
+                {
+                    yield return node;
+                }
+            }
+        }
+
         public static IEnumerable<GraphNode> LayeredNodes(this IEnumerable<GraphNodeGrouping> source)
         {
             return source.SelectMany(layer => layer).Where(node => node.Value != null);
@@ -46,10 +58,10 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        static IEnumerable<GraphNode> ComputeLongestPathLayering(this ExpressionBuilderGraph source)
+        static IEnumerable<GraphNode> ComputeLongestPathLayering(this ConnectedComponent source)
         {
             var layerMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, GraphNode>();
-            foreach (var node in source.TopologicalSort().Reverse())
+            foreach (var node in source.Reverse())
             {
                 var layer = 0;
                 foreach (var successor in node.Successors)
@@ -81,7 +93,7 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        public static IEnumerable<GraphNodeGrouping> LongestPathLayering(this ExpressionBuilderGraph source)
+        public static IEnumerable<GraphNodeGrouping> LongestPathLayering(this ConnectedComponent source)
         {
             Dictionary<int, GraphNodeGrouping> layers = new Dictionary<int, GraphNodeGrouping>();
             foreach (var layeredNode in ComputeLongestPathLayering(source))
@@ -212,57 +224,33 @@ namespace Bonsai.Editor.GraphModel
 
         public class ConnectedComponent : ExpressionBuilderGraph
         {
-            public ConnectedComponent(int index)
+            public ConnectedComponent(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
             {
-                Index = index;
+                InsertRange(0, nodes);
             }
-
-            public int Index { get; private set; }
         }
 
-        public static IList<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
+        public static IReadOnlyList<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
         {
             var connectedComponents = new List<ConnectedComponent>();
-            var connectedComponentMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, ConnectedComponent>();
-            var visited = new Queue<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
-            foreach (var node in source)
+            var connectedSet = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            var currentComponent = new List<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            foreach (var node in source.TopologicalSort())
             {
-                if (!connectedComponentMap.TryGetValue(node, out ConnectedComponent component))
+                currentComponent.Add(node);
+                connectedSet.Remove(node);
+                if (node.Successors.Count == 0 && connectedSet.Count == 0)
                 {
-                    foreach (var successor in node.DepthFirstSearch())
+                    // node is the last sink in the connected component
+                    connectedComponents.Add(new ConnectedComponent(currentComponent));
+                    currentComponent.Clear();
+                }
+                else
+                {
+                    // all the node successors are members of the connected component
+                    foreach (var successor in node.Successors)
                     {
-                        if (connectedComponentMap.TryGetValue(successor, out ConnectedComponent successorComponent))
-                        {
-                            if (component != null && component != successorComponent)
-                            {
-                                // Merge connected components
-                                foreach (var componentNode in component)
-                                {
-                                    successorComponent.Add(componentNode);
-                                    connectedComponentMap[componentNode] = successorComponent;
-                                }
-                                connectedComponents.Remove(component);
-                            }
-
-                            component = successorComponent;
-                        }
-                        else if (!visited.Contains(successor))
-                        {
-                            visited.Enqueue(successor);
-                        }
-                    }
-
-                    if (component == null)
-                    {
-                        component = new ConnectedComponent(connectedComponents.Count);
-                        connectedComponents.Add(component);
-                    }
-
-                    while (visited.Count > 0)
-                    {
-                        var componentNode = visited.Dequeue();
-                        component.Add(componentNode);
-                        connectedComponentMap.Add(componentNode, component);
+                        connectedSet.Add(successor.Target);
                     }
                 }
             }
@@ -270,7 +258,7 @@ namespace Bonsai.Editor.GraphModel
             return connectedComponents;
         }
 
-        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
+        public static IReadOnlyList<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
         {
             int layerOffset = 0;
             GraphNodeGrouping singletonLayer = null;
@@ -301,7 +289,28 @@ namespace Bonsai.Editor.GraphModel
             }
 
             MergeSingletonComponentLayers(ref singletonLayer, layers, ref layerOffset);
+            SetLayeredNodeIndices(layers, source);
             return layers;
+        }
+
+        static void SetLayeredNodeIndices(IEnumerable<GraphNodeGrouping> layers, ExpressionBuilderGraph workflow)
+        {
+            var nodeMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, int>(workflow.Count);
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                nodeMap[workflow[i]] = i;
+            }
+
+            foreach (var layer in layers)
+            {
+                foreach (var node in layer)
+                {
+                    if (node.Tag is Node<ExpressionBuilder, ExpressionBuilderArgument> tag)
+                    {
+                        node.Index = nodeMap[tag];
+                    }
+                }
+            }
         }
 
         static void MergeSingletonComponentLayers(ref GraphNodeGrouping singletonLayer, List<GraphNodeGrouping> layers, ref int layerOffset)

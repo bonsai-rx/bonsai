@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -8,8 +7,8 @@ namespace Bonsai.Dag
     static class TopologicalSort
     {
         public static bool TrySort<TNodeValue, TEdgeLabel>(
-            DirectedGraph<TNodeValue, TEdgeLabel> source,
-            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
+            IReadOnlyList<Node<TNodeValue, TEdgeLabel>> source,
+            out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             return TopologicalSort<TNodeValue, TEdgeLabel>.TrySort(source, out topologicalOrder);
         }
@@ -20,212 +19,217 @@ namespace Bonsai.Dag
         const int TemporaryMark = -1;
 
         public static bool TrySort(
-            DirectedGraph<TNodeValue, TEdgeLabel> source,
-            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
+            IReadOnlyList<Node<TNodeValue, TEdgeLabel>> source,
+            out IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
-            var stack = new CallStack(source.Count);
+            var stack = new CallStack();
             var marks = new MarkDictionary(source.Count);
-            var orderedComponents = new List<ComponentOrdering>();
+            var orderedRoots = new List<SortedNode>();
+            var rootIndices = new Dictionary<Node<TNodeValue, TEdgeLabel>, int>();
+            for (int i = 0; i < source.Count; i++)
+            {
+                var node = source[i];
+                if (node.Successors.Count == 0)
+                {
+                    rootIndices[node] = i;
+                }
+            }
 
             foreach (var node in source)
             {
                 if (!marks.ContainsKey(node))
                 {
-                    var ordering = new NodeOrdering();
-                    var component = default(ComponentOrdering);
                     stack.Push(node, 0);
                     while (stack.Count > 0)
                     {
                         var current = stack.Pop();
                         if (current.Index == 0)
                         {
-                            marks.Add(current.Node, ordering, TemporaryMark);
+                            marks.Add(current.Node, TemporaryMark);
                         }
 
                         var successors = current.Node.Successors;
                         if (current.Index >= successors.Count)
                         {
-                            ordering.Add(current.Node);
-                            marks.Add(current.Node, ordering, ordering.Count);
+                            var nodeMark = marks.Add(current.Node, successors.Count);
+                            if (nodeMark.Flag == 0)
+                            {
+                                var rank = source.Count - rootIndices[current.Node];
+                                nodeMark.Rank = rank;
+                                nodeMark.Component = new ConnectedComponent(rank) { nodeMark };
+                                orderedRoots.Add(nodeMark);
+                            }
+                            else
+                            {
+                                foreach (var successor in successors)
+                                {
+                                    marks[successor.Target].AddDependency(successor.Label, nodeMark);
+                                }
+                            }
                         }
                         else
                         {
                             stack.Push(current.Node, current.Index + 1);
-                            var successorIndex = successors.Count - current.Index - 1;
-                            var successor = successors[successorIndex].Target;
-                            if (marks.TryGetValue(successor, out NodeMark successorMark))
+                            var successor = successors[current.Index].Target;
+                            if (marks.TryGetValue(successor, out SortedNode successorMark))
                             {
                                 if (successorMark.Flag == TemporaryMark)
                                 {
                                     topologicalOrder = null;
                                     return false;
                                 }
-
-                                if (successorMark.Ordering != ordering)
-                                {
-                                    foreach (var dependency in successorMark.Dependencies)
-                                    {
-                                        if (dependency.Ordering == ordering) continue;
-                                        ordering.Add(dependency.Ordering, dependency.Flag);
-                                    }
-
-                                    ordering.Add(successorMark.Ordering, successorMark.Flag);
-                                    if (component == null) component = successorMark.Ordering.Component;
-                                    else if (component != successorMark.Ordering.Component)
-                                    {
-                                        successorMark.Ordering.Component.Add(component);
-                                        orderedComponents[component.Index] = null;
-                                        component = successorMark.Ordering.Component;
-                                    }
-
-                                    for (int i = successors.Count - 1; i > successorIndex; i--)
-                                    {
-                                        var sibling = successors[i].Target;
-                                        var siblingMark = marks[sibling];
-                                        successorMark.AddDependency(siblingMark);
-                                    }
-                                }
                             }
                             else stack.Push(successor, 0);
                         }
                     }
-
-                    if (component == null)
-                    {
-                        component = new ComponentOrdering(orderedComponents.Count);
-                        orderedComponents.Add(component);
-                    }
-                    component.Add(ordering);
                 }
             }
 
-            var result = new List<Node<TNodeValue, TEdgeLabel>>(source.Count);
-            for (int i = orderedComponents.Count - 1; i >= 0; i--)
+            orderedRoots.Sort((x, y) =>
             {
-                if (orderedComponents[i] == null) continue;
-                orderedComponents[i].Evaluate(result);
-            }
-
-            topologicalOrder = ReverseIterator(result);
+                var comparison = Comparer<int>.Default.Compare(x.Component.Rank, y.Component.Rank);
+                if (comparison == 0) comparison = Comparer<int>.Default.Compare(x.Rank, y.Rank);
+                return comparison;
+            });
+            topologicalOrder = ResultIterator(orderedRoots);
             return true;
         }
 
-        static IEnumerable<TSource> ReverseIterator<TSource>(List<TSource> source)
+        static IEnumerable<DirectedGraph<TNodeValue, TEdgeLabel>> ResultIterator(IReadOnlyList<SortedNode> source)
         {
-            for (int i = source.Count - 1; i >= 0; i--)
+            var stack = new Stack<SortedNode>();
+            var result = new Stack<DirectedGraph<TNodeValue, TEdgeLabel>>();
+            var componentSort = new Stack<Node<TNodeValue, TEdgeLabel>>(source.Count);
+            var currentComponent = default(ConnectedComponent);
+            void AddConnectedComponent()
             {
-                yield return source[i];
-            }
-        }
-
-        [DebuggerDisplay("Index = {Index}")]
-        class ComponentOrdering
-        {
-            readonly List<NodeOrdering> orderingStack;
-
-            public ComponentOrdering(int componentIndex)
-            {
-                orderingStack = new List<NodeOrdering>();
-                Index = componentIndex;
-            }
-
-            public int Index { get; }
-
-            public void Add(NodeOrdering ordering)
-            {
-                orderingStack.Add(ordering);
-                ordering.Component = this;
-            }
-
-            public void Add(ComponentOrdering component)
-            {
-                for (int i = 0; i < component.orderingStack.Count; i++)
+                if (currentComponent != null)
                 {
-                    Add(component.orderingStack[i]);
+                    var connectedComponent = new DirectedGraph<TNodeValue, TEdgeLabel>();
+                    connectedComponent.InsertRange(0, componentSort);
+                    result.Push(connectedComponent);
+                    componentSort.Clear();
                 }
             }
 
-            public void Evaluate(List<Node<TNodeValue, TEdgeLabel>> result)
+            foreach (var root in source)
             {
-                for (int i = orderingStack.Count - 1; i >= 0; i--)
+                if (root.Component != currentComponent)
                 {
-                    orderingStack[i].Evaluate(result);
+                    AddConnectedComponent();
+                    currentComponent = root.Component;
+                }
+
+                stack.Push(root);
+                while (stack.Count > 0)
+                {
+                    var current = stack.Pop();
+                    if (--current.Flag <= 0)
+                    {
+                        componentSort.Push(current.Node);
+                        foreach (var dependency in current.GetDependencies())
+                        {
+                            stack.Push(dependency);
+                        }
+                    }
                 }
             }
+
+            AddConnectedComponent();
+            return result;
         }
 
-        class CallStack : Stack<NodeCall>
+        [DebuggerDisplay("({Node}, Flag:{Flag})")]
+        class SortedNode
         {
-            public CallStack(int capacity)
-                : base(capacity)
+            List<NodeDependency> dependencies;
+            public ConnectedComponent Component;
+            public Node<TNodeValue, TEdgeLabel> Node;
+            public int Rank = -1;
+            public int Flag;
+
+            public void AddDependency(TEdgeLabel key, SortedNode dependency)
             {
+                NodeDependency nodeDependency;
+                nodeDependency.Key = key;
+                nodeDependency.Dependency = dependency;
+                dependencies ??= new List<NodeDependency>();
+                dependencies.Add(nodeDependency);
+                if (dependency.Component == null)
+                {
+                    dependency.Component = Component;
+                }
+                else if (Component != dependency.Component)
+                {
+                    ConnectedComponent high, low;
+                    if (Component.Rank > dependency.Component.Rank)
+                    {
+                        high = Component;
+                        low = dependency.Component;
+                    }
+                    else
+                    {
+                        high = dependency.Component;
+                        low = Component;
+                    }
+
+                    foreach (var root in low)
+                    {
+                        high.Add(root);
+                        root.Component = high;
+                    }
+
+                    Component = dependency.Component = high;
+                }
             }
 
-            public void Push(Node<TNodeValue, TEdgeLabel> node, int index)
+            public IEnumerable<SortedNode> GetDependencies()
             {
-                NodeCall item;
-                item.Node = node;
-                item.Index = index;
-                Push(item);
+                if (dependencies == null)
+                {
+                    return Enumerable.Empty<SortedNode>();
+                }
+
+                dependencies.Sort((x, y) => Comparer<TEdgeLabel>.Default.Compare(x.Key, y.Key));
+                return dependencies.Select(x => x.Dependency);
+            }
+
+            struct NodeDependency
+            {
+                public SortedNode Dependency;
+                public TEdgeLabel Key;
             }
         }
 
-        class MarkDictionary : Dictionary<Node<TNodeValue, TEdgeLabel>, NodeMark>
+        class MarkDictionary : Dictionary<Node<TNodeValue, TEdgeLabel>, SortedNode>
         {
             public MarkDictionary(int capacity)
                 : base(capacity)
             {
             }
 
-            public void Add(Node<TNodeValue, TEdgeLabel> node, NodeOrdering ordering, int flag)
+            public SortedNode Add(Node<TNodeValue, TEdgeLabel> node, int flag)
             {
-                var mark = new NodeMark();
-                mark.Ordering = ordering;
+                if (!TryGetValue(node, out SortedNode mark))
+                {
+                    mark = new SortedNode();
+                    mark.Node = node;
+                    Add(node, mark);
+                }
+
                 mark.Flag = flag;
-                this[node] = mark;
+                return mark;
             }
         }
 
-        [DebuggerDisplay("Count = {Count}")]
-        class NodeOrdering
+        class CallStack : Stack<NodeCall>
         {
-            int frontIndex;
-            readonly List<Action<List<Node<TNodeValue, TEdgeLabel>>>> ordering;
-
-            public NodeOrdering()
+            public void Push(Node<TNodeValue, TEdgeLabel> node, int index)
             {
-                ordering = new List<Action<List<Node<TNodeValue, TEdgeLabel>>>>();
-            }
-
-            public int Count
-            {
-                get { return ordering.Count; }
-            }
-
-            public ComponentOrdering Component { get; set; }
-
-            public void Add(Node<TNodeValue, TEdgeLabel> node)
-            {
-                ordering.Add(result => result.Add(node));
-            }
-
-            public void Add(NodeOrdering ordering, int index)
-            {
-                this.ordering.Add(result => ordering.Evaluate(result, index));
-            }
-
-            public void Evaluate(List<Node<TNodeValue, TEdgeLabel>> result)
-            {
-                Evaluate(result, ordering.Count);
-            }
-
-            public void Evaluate(List<Node<TNodeValue, TEdgeLabel>> result, int index)
-            {
-                while (frontIndex < index)
-                {
-                    ordering[frontIndex](result);
-                    frontIndex++;
-                }
+                NodeCall item;
+                item.Node = node;
+                item.Index = index;
+                Push(item);
             }
         }
 
@@ -236,22 +240,14 @@ namespace Bonsai.Dag
             public int Index;
         }
 
-        class NodeMark
+        class ConnectedComponent : HashSet<SortedNode>
         {
-            List<NodeMark> dependencies;
-            public NodeOrdering Ordering;
-            public int Flag;
-
-            public void AddDependency(NodeMark dependency)
+            internal ConnectedComponent(int rank)
             {
-                if (dependencies == null) dependencies = new List<NodeMark>();
-                dependencies.Add(dependency);
+                Rank = rank;
             }
 
-            public IEnumerable<NodeMark> Dependencies
-            {
-                get { return dependencies ?? Enumerable.Empty<NodeMark>(); }
-            }
+            internal int Rank { get; }
         }
     }
 }

@@ -36,7 +36,7 @@ jobs:
       run: msbuild Bonsai.sln /t:Bonsai32 /p:Configuration=Release
 
     - name: Build Tests
-      run: msbuild Bonsai.sln /t:Bonsai_Core_Tests /t:Bonsai_System_Tests /p:Configuration=Release
+      run: msbuild Bonsai.sln /t:Bonsai_Core_Tests /t:Bonsai_System_Tests /t:Bonsai_Editor_Tests /p:Configuration=Release
 
     - name: Run Tests
       run: msbuild Bonsai.Tests.proj
