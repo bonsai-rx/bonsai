@@ -1157,10 +1157,7 @@ namespace Bonsai.Editor.GraphModel
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
             if (insertIndex < 0)
             {
-                var target = targetNodes.Length > 0
-                    ? targetNodes[targetNodes.Length - 1]
-                    : GetGraphNodeTag(graphView.CursorNode);
-                insertIndex = GetInsertIndex(workflow, inspectBuilder, target, nodeType, branch);
+                insertIndex = GetInsertIndex(workflow, inspectBuilder, graphView.CursorNode, nodeType, branch);
             }
 
             builder = inspectBuilder.Builder;
