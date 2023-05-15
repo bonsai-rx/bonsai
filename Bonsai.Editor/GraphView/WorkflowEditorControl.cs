@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
+using Bonsai.Editor.Themes;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
 
@@ -14,6 +15,7 @@ namespace Bonsai.Editor.GraphView
         readonly IServiceProvider serviceProvider;
         readonly IWorkflowEditorService editorService;
         readonly TabPageController workflowTab;
+        readonly ThemeRenderer themeRenderer;
         Padding? adjustMargin;
         bool webViewInitialized;
 
@@ -27,6 +29,7 @@ namespace Bonsai.Editor.GraphView
             InitializeComponent();
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
             webView.CoreWebView2InitializationCompleted += (sender, e) =>
@@ -37,6 +40,7 @@ namespace Bonsai.Editor.GraphView
                     MarkdownConvert.DefaultUrl,
                     Environment.CurrentDirectory,
                     CoreWebView2HostResourceAccessKind.Allow);
+                InitializeWebViewTheme();
             };
         }
 
@@ -444,6 +448,27 @@ namespace Bonsai.Editor.GraphView
             }
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;
+
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
+            browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
+            InitializeWebViewTheme();
+        }
+
+        private void InitializeWebViewTheme()
+        {
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            webView.BackColor = colorTable.ControlBackColor;
+            webView.ForeColor = colorTable.ControlForeColor;
+            if (webView.CoreWebView2 != null)
+            {
+                webView.CoreWebView2.Profile.PreferredColorScheme = themeRenderer.ActiveTheme switch
+                {
+                    ColorTheme.Light => CoreWebView2PreferredColorScheme.Light,
+                    ColorTheme.Dark => CoreWebView2PreferredColorScheme.Dark,
+                    _ => CoreWebView2PreferredColorScheme.Auto
+                };
+            }
         }
 
         private void CoreWebView2_ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e)
