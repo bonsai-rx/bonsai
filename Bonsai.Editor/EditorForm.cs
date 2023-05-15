@@ -2353,7 +2353,7 @@ namespace Bonsai.Editor
             {
                 var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
-                if (editorControl.WebViewInitialized)
+                if (!ModifierKeys.HasFlag(Keys.Control) && editorControl.WebViewInitialized)
                 {
                     editorControl.WebView.CoreWebView2.Navigate(url.AbsoluteUri);
                     editorControl.ExpandWebView();
@@ -2383,7 +2383,7 @@ namespace Bonsai.Editor
 
         private async void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ModifierKeys != Keys.None)
+            if (ModifierKeys != Keys.None && ModifierKeys != Keys.Control)
             {
                 return;
             }
