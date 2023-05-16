@@ -16,6 +16,8 @@ namespace Bonsai.Editor
         public DateTimeOffset Timestamp { get; private set; }
 
         public string FileName { get; private set; }
+
+        internal string Name => FileName;
     }
 
     class RecentlyUsedFileCollection : IEnumerable<RecentlyUsedFile>
