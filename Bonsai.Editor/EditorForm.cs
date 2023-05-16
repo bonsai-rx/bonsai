@@ -30,6 +30,7 @@ namespace Bonsai.Editor
     public partial class EditorForm : Form
     {
         const float DefaultEditorScale = 1.0f;
+        const string EditorUid = "editor";
         const string BonsaiExtension = ".bonsai";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
@@ -2323,7 +2324,7 @@ namespace Bonsai.Editor
                         var categoryName = GetPackageDisplayName(uid.Substring(0, nameSeparator));
                         editorControl.ExpandWebView(label: $"{name} ({categoryName})");
                     }
-                    else editorControl.ExpandWebView(label: uid);
+                    else editorControl.ExpandWebView(label: uid == EditorUid ? Resources.Editor_HelpLabel : uid);
                 }
                 else EditorDialog.OpenUrl(url);
             }
@@ -2388,7 +2389,8 @@ namespace Bonsai.Editor
                 }
             }
 
-            EditorDialog.ShowDocs();
+            var editorAssemblyName = GetType().Assembly.GetName().Name;
+            await OpenDocumentationAsync(editorAssemblyName, EditorUid);
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)

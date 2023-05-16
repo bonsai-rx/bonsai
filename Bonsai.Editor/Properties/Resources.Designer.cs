@@ -193,6 +193,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        internal static string Editor_HelpLabel {
+            get {
+                return ResourceManager.GetString("Editor_HelpLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The workflow needs to be saved before proceeding. Do you want to save the workflow?.
         /// </summary>
         internal static string EnsureSavedWorkflow_Question {
