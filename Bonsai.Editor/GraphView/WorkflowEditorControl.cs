@@ -472,6 +472,13 @@ namespace Bonsai.Editor.GraphView
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;
 
+            var labelOffset = browserLabel.Height - ItemHeight + 1;
+            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
+            {
+                labelOffset += 1;
+            }
+            browserLayoutPanel.RowStyles[0].Height -= labelOffset;
+
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
             browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
