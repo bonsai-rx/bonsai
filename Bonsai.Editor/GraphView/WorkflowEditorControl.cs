@@ -87,6 +87,7 @@ namespace Bonsai.Editor.GraphView
         {
             browserLabel.Text = label;
             splitContainer.Panel1Collapsed = false;
+            EnsureWebViewSize();
         }
 
         public void CollapseWebView()
@@ -264,6 +265,12 @@ namespace Bonsai.Editor.GraphView
             base.OnLoad(e);
         }
 
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            EnsureWebViewSize();
+            base.OnSizeChanged(e);
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             editorService.OnKeyDown(e);
@@ -436,6 +443,21 @@ namespace Bonsai.Editor.GraphView
                 var adjustH = displayX - marginLeft - 1;
                 var adjustV = displayX - marginTop - displayX / 2 - 1;
                 adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
+            }
+            splitContainer.SplitterDistance = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
+            splitContainer.Panel1MinSize = splitContainer.SplitterDistance / 2;
+            splitContainer.FixedPanel = FixedPanel.Panel1;
+        }
+
+        private void EnsureWebViewSize()
+        {
+            if (splitContainer.FixedPanel != FixedPanel.None)
+            {
+                if (Width < 4 * splitContainer.Panel1MinSize)
+                {
+                    splitContainer.SplitterDistance = Width / 2;
+                }
+                else splitContainer.SplitterDistance = 2 * splitContainer.Panel1MinSize - splitContainer.SplitterWidth;
             }
         }
 
