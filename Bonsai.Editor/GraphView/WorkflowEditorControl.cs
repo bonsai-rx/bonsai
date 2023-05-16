@@ -457,7 +457,12 @@ namespace Bonsai.Editor.GraphView
                 {
                     splitContainer.SplitterDistance = Width / 2;
                 }
-                else splitContainer.SplitterDistance = 2 * splitContainer.Panel1MinSize - splitContainer.SplitterWidth;
+                else
+                {
+                    splitContainer.SplitterDistance = Math.Max(
+                        2 * splitContainer.Panel1MinSize - splitContainer.SplitterWidth,
+                        splitContainer.SplitterDistance);
+                }
             }
         }
 
