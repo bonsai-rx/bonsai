@@ -254,11 +254,15 @@ namespace Bonsai.Editor
 
             WindowState = EditorSettings.Instance.WindowState;
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
+            editorControl.WebViewSplitterDistance = (int)Math.Round(
+                EditorSettings.Instance.WebViewSize * scaleFactor.Width);
         }
 
         void CloseEditorForm()
         {
             Application.RemoveMessageFilter(hotKeys);
+            EditorSettings.Instance.WebViewSize = (int)Math.Round(
+                editorControl.WebViewSplitterDistance * inverseScaleFactor.Width);
             var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
             EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
             if (WindowState == FormWindowState.Minimized)

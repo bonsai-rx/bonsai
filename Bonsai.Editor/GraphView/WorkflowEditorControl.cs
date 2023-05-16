@@ -65,6 +65,12 @@ namespace Bonsai.Editor.GraphView
             get { return splitContainer.Panel1Collapsed; }
         }
 
+        public int WebViewSplitterDistance
+        {
+            get { return splitContainer.SplitterDistance; }
+            set { splitContainer.SplitterDistance = value; }
+        }
+
         public VisualizerLayout VisualizerLayout
         {
             get { return WorkflowGraphView.VisualizerLayout; }

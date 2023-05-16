@@ -33,6 +33,8 @@ namespace Bonsai.Editor
 
         public ColorTheme EditorTheme { get; set; }
 
+        public int WebViewSize { get; set; }
+
         public RecentlyUsedFileCollection RecentlyUsedFiles
         {
             get { return recentlyUsedFiles; }
@@ -60,6 +62,11 @@ namespace Bonsai.Editor
                             {
                                 Enum.TryParse(reader.ReadElementContentAsString(), out ColorTheme editorTheme);
                                 settings.EditorTheme = editorTheme;
+                            }
+                            else if (reader.Name == nameof(WebViewSize))
+                            {
+                                int.TryParse(reader.ReadElementContentAsString(), out int webViewSize);
+                                settings.WebViewSize = webViewSize;
                             }
                             else if (reader.Name == nameof(DesktopBounds))
                             {
@@ -105,6 +112,7 @@ namespace Bonsai.Editor
                 writer.WriteStartElement(typeof(EditorSettings).Name);
                 writer.WriteElementString(nameof(WindowState), WindowState.ToString());
                 writer.WriteElementString(nameof(EditorTheme), EditorTheme.ToString());
+                writer.WriteElementString(nameof(WebViewSize), WebViewSize.ToString(CultureInfo.InvariantCulture));
 
                 writer.WriteStartElement(nameof(DesktopBounds));
                 writer.WriteElementString(nameof(Rectangle.X), DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
