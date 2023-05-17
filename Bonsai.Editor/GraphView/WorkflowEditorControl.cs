@@ -4,8 +4,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
+using Bonsai.Editor.Themes;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
+using Bonsai.Editor.GraphModel;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -14,6 +16,7 @@ namespace Bonsai.Editor.GraphView
         readonly IServiceProvider serviceProvider;
         readonly IWorkflowEditorService editorService;
         readonly TabPageController workflowTab;
+        readonly ThemeRenderer themeRenderer;
         Padding? adjustMargin;
         bool webViewInitialized;
 
@@ -27,6 +30,7 @@ namespace Bonsai.Editor.GraphView
             InitializeComponent();
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
             webView.CoreWebView2InitializationCompleted += (sender, e) =>
@@ -37,6 +41,7 @@ namespace Bonsai.Editor.GraphView
                     MarkdownConvert.DefaultUrl,
                     Environment.CurrentDirectory,
                     CoreWebView2HostResourceAccessKind.Allow);
+                InitializeWebViewTheme();
             };
         }
 
@@ -57,7 +62,17 @@ namespace Bonsai.Editor.GraphView
 
         public bool WebViewCollapsed
         {
-            get { return splitContainer.Panel2Collapsed; }
+            get { return splitContainer.Panel1Collapsed; }
+        }
+
+        public int WebViewSize
+        {
+            get { return splitContainer.SplitterDistance; }
+            set
+            {
+                splitContainer.SplitterDistance = value;
+                splitContainer.Panel1MinSize = value / 2;
+            }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -72,14 +87,22 @@ namespace Bonsai.Editor.GraphView
             set { WorkflowGraphView.Workflow = value; }
         }
 
-        public void ExpandWebView()
+        public void ExpandWebView(ExpressionBuilder builder)
         {
-            splitContainer.Panel2Collapsed = false;
+            webView.Tag = builder;
+            ExpandWebView(ElementHelper.GetElementName(builder));
+        }
+
+        public void ExpandWebView(string label)
+        {
+            browserLabel.Text = label;
+            splitContainer.Panel1Collapsed = false;
+            EnsureWebViewSize();
         }
 
         public void CollapseWebView()
         {
-            splitContainer.Panel2Collapsed = true;
+            splitContainer.Panel1Collapsed = true;
             webView.Tag = null;
         }
 
@@ -250,6 +273,12 @@ namespace Bonsai.Editor.GraphView
             ActivateTab(workflowTabPage);
             webView.EnsureCoreWebView2Async();
             base.OnLoad(e);
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            EnsureWebViewSize();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -425,6 +454,34 @@ namespace Bonsai.Editor.GraphView
                 var adjustV = displayX - marginTop - displayX / 2 - 1;
                 adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
             }
+            WebViewSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
+            splitContainer.FixedPanel = FixedPanel.Panel1;
+        }
+
+        private void EnsureWebViewSize()
+        {
+            if (splitContainer.FixedPanel != FixedPanel.None)
+            {
+                if (Width < 4 * splitContainer.Panel1MinSize)
+                {
+                    splitContainer.SplitterDistance = Width / 2;
+                }
+                else
+                {
+                    splitContainer.SplitterDistance = Math.Max(
+                        2 * splitContainer.Panel1MinSize - splitContainer.SplitterWidth,
+                        splitContainer.SplitterDistance);
+                }
+            }
+        }
+
+        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            var delta = PointToClient(MousePosition).X - e.X;
+            if (delta == 0)
+            {
+                WebViewSize = e.SplitX;
+            }
         }
 
         private void InitializeTheme(TabPage tabPage)
@@ -437,6 +494,34 @@ namespace Bonsai.Editor.GraphView
             }
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;
+
+            var labelOffset = browserLabel.Height - ItemHeight + 1;
+            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
+            {
+                labelOffset += 1;
+            }
+            browserLayoutPanel.RowStyles[0].Height -= labelOffset;
+
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
+            browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
+            InitializeWebViewTheme();
+        }
+
+        private void InitializeWebViewTheme()
+        {
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            webView.BackColor = colorTable.ControlBackColor;
+            webView.ForeColor = colorTable.ControlForeColor;
+            if (webView.CoreWebView2 != null)
+            {
+                webView.CoreWebView2.Profile.PreferredColorScheme = themeRenderer.ActiveTheme switch
+                {
+                    ColorTheme.Light => CoreWebView2PreferredColorScheme.Light,
+                    ColorTheme.Dark => CoreWebView2PreferredColorScheme.Dark,
+                    _ => CoreWebView2PreferredColorScheme.Auto
+                };
+            }
         }
 
         private void CoreWebView2_ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e)
@@ -462,6 +547,11 @@ namespace Bonsai.Editor.GraphView
                         break;
                 }
             }
+        }
+
+        private void closeBrowserButton_Click(object sender, EventArgs e)
+        {
+            CollapseWebView();
         }
     }
 }

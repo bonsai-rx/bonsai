@@ -12,17 +12,6 @@ namespace Bonsai.Editor
     sealed class EditorSettings
     {
         const int MaxRecentFiles = 25;
-        const string RecentlyUsedFilesElement = "RecentlyUsedFiles";
-        const string DesktopBoundsElement = "DesktopBounds";
-        const string WindowStateElement = "WindowState";
-        const string RecentlyUsedFileElement = "RecentlyUsedFile";
-        const string FileTimestampElement = "Timestamp";
-        const string FileNameElement = "Name";
-        const string RectangleXElement = "X";
-        const string RectangleYElement = "Y";
-        const string RectangleWidthElement = "Width";
-        const string RectangleHeightElement = "Height";
-        const string EditorThemeElement = "EditorTheme";
         const string SettingsFileName = "Bonsai.exe.settings";
         static readonly string SettingsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), SettingsFileName);
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
@@ -31,6 +20,7 @@ namespace Bonsai.Editor
 
         internal EditorSettings()
         {
+            WebViewSize = 400;
         }
 
         public static EditorSettings Instance
@@ -43,6 +33,8 @@ namespace Bonsai.Editor
         public FormWindowState WindowState { get; set; }
 
         public ColorTheme EditorTheme { get; set; }
+
+        public int WebViewSize { get; set; }
 
         public RecentlyUsedFileCollection RecentlyUsedFiles
         {
@@ -62,39 +54,44 @@ namespace Bonsai.Editor
                         while (reader.Read())
                         {
                             if (reader.NodeType != XmlNodeType.Element) continue;
-                            if (reader.Name == WindowStateElement)
+                            if (reader.Name == nameof(WindowState))
                             {
                                 Enum.TryParse(reader.ReadElementContentAsString(), out FormWindowState windowState);
                                 settings.WindowState = windowState;
                             }
-                            else if (reader.Name == EditorThemeElement)
+                            else if (reader.Name == nameof(EditorTheme))
                             {
                                 Enum.TryParse(reader.ReadElementContentAsString(), out ColorTheme editorTheme);
                                 settings.EditorTheme = editorTheme;
                             }
-                            else if (reader.Name == DesktopBoundsElement)
+                            else if (reader.Name == nameof(WebViewSize))
                             {
-                                reader.ReadToFollowing(RectangleXElement);
+                                int.TryParse(reader.ReadElementContentAsString(), out int webViewSize);
+                                settings.WebViewSize = webViewSize;
+                            }
+                            else if (reader.Name == nameof(DesktopBounds))
+                            {
+                                reader.ReadToFollowing(nameof(Rectangle.X));
                                 int.TryParse(reader.ReadElementContentAsString(), out int x);
-                                reader.ReadToFollowing(RectangleYElement);
+                                reader.ReadToFollowing(nameof(Rectangle.Y));
                                 int.TryParse(reader.ReadElementContentAsString(), out int y);
-                                reader.ReadToFollowing(RectangleWidthElement);
+                                reader.ReadToFollowing(nameof(Rectangle.Width));
                                 int.TryParse(reader.ReadElementContentAsString(), out int width);
-                                reader.ReadToFollowing(RectangleHeightElement);
+                                reader.ReadToFollowing(nameof(Rectangle.Height));
                                 int.TryParse(reader.ReadElementContentAsString(), out int height);
                                 settings.DesktopBounds = new Rectangle(x, y, width, height);
                             }
-                            else if (reader.Name == RecentlyUsedFilesElement)
+                            else if (reader.Name == nameof(RecentlyUsedFiles))
                             {
                                 var fileReader = reader.ReadSubtree();
-                                while (fileReader.ReadToFollowing(RecentlyUsedFileElement))
+                                while (fileReader.ReadToFollowing(nameof(RecentlyUsedFile)))
                                 {
-                                    if (fileReader.Name == RecentlyUsedFileElement)
+                                    if (fileReader.Name == nameof(RecentlyUsedFile))
                                     {
                                         string fileName;
-                                        fileReader.ReadToFollowing(FileTimestampElement);
+                                        fileReader.ReadToFollowing(nameof(RecentlyUsedFile.Timestamp));
                                         DateTimeOffset.TryParse(fileReader.ReadElementContentAsString(), out DateTimeOffset timestamp);
-                                        fileReader.ReadToFollowing(FileNameElement);
+                                        fileReader.ReadToFollowing(nameof(RecentlyUsedFile.Name));
                                         fileName = fileReader.ReadElementContentAsString();
                                         settings.recentlyUsedFiles.Add(timestamp, fileName);
                                     }
@@ -114,24 +111,25 @@ namespace Bonsai.Editor
             using (var writer = XmlWriter.Create(SettingsPath, new XmlWriterSettings { Indent = true }))
             {
                 writer.WriteStartElement(typeof(EditorSettings).Name);
-                writer.WriteElementString(WindowStateElement, WindowState.ToString());
-                writer.WriteElementString(EditorThemeElement, EditorTheme.ToString());
+                writer.WriteElementString(nameof(WindowState), WindowState.ToString());
+                writer.WriteElementString(nameof(EditorTheme), EditorTheme.ToString());
+                writer.WriteElementString(nameof(WebViewSize), WebViewSize.ToString(CultureInfo.InvariantCulture));
 
-                writer.WriteStartElement(DesktopBoundsElement);
-                writer.WriteElementString(RectangleXElement, DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
-                writer.WriteElementString(RectangleYElement, DesktopBounds.Y.ToString(CultureInfo.InvariantCulture));
-                writer.WriteElementString(RectangleWidthElement, DesktopBounds.Width.ToString(CultureInfo.InvariantCulture));
-                writer.WriteElementString(RectangleHeightElement, DesktopBounds.Height.ToString(CultureInfo.InvariantCulture));
+                writer.WriteStartElement(nameof(DesktopBounds));
+                writer.WriteElementString(nameof(Rectangle.X), DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(Rectangle.Y), DesktopBounds.Y.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(Rectangle.Width), DesktopBounds.Width.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(Rectangle.Height), DesktopBounds.Height.ToString(CultureInfo.InvariantCulture));
                 writer.WriteEndElement();
 
                 if (recentlyUsedFiles.Count > 0)
                 {
-                    writer.WriteStartElement(RecentlyUsedFilesElement);
+                    writer.WriteStartElement(nameof(RecentlyUsedFiles));
                     foreach (var file in recentlyUsedFiles)
                     {
-                        writer.WriteStartElement(RecentlyUsedFileElement);
-                        writer.WriteElementString(FileTimestampElement, file.Timestamp.ToString("o"));
-                        writer.WriteElementString(FileNameElement, file.FileName);
+                        writer.WriteStartElement(nameof(RecentlyUsedFile));
+                        writer.WriteElementString(nameof(RecentlyUsedFile.Timestamp), file.Timestamp.ToString("o"));
+                        writer.WriteElementString(nameof(RecentlyUsedFile.Name), file.FileName);
                         writer.WriteEndElement();
                     }
                     writer.WriteEndElement();

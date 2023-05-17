@@ -33,16 +33,22 @@
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.tabControl = new Bonsai.Editor.GraphView.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
+            this.browserLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
+            this.browserTitlePanel = new System.Windows.Forms.Panel();
+            this.closeBrowserButton = new System.Windows.Forms.Button();
+            this.browserLabel = new System.Windows.Forms.Label();
             this.tabContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.webView)).BeginInit();
             this.tabControl.SuspendLayout();
+            this.browserLayoutPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).BeginInit();
+            this.browserTitlePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabContextMenuStrip
@@ -76,34 +82,21 @@
             this.splitContainer.Location = new System.Drawing.Point(0, 0);
             this.splitContainer.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer.Name = "splitContainer";
-            this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.splitContainer.Orientation = System.Windows.Forms.Orientation.Vertical;
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.tabControl);
+            this.splitContainer.Panel1.Controls.Add(this.browserLayoutPanel);
+            this.splitContainer.Panel1Collapsed = true;
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.webView);
-            this.splitContainer.Panel2Collapsed = true;
+            this.splitContainer.Panel2.Controls.Add(this.tabControl);
             this.splitContainer.Size = new System.Drawing.Size(300, 200);
-            this.splitContainer.SplitterDistance = 100;
+            this.splitContainer.SplitterDistance = 300;
             this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 1;
-            // 
-            // webView
-            // 
-            this.webView.AllowExternalDrop = true;
-            this.webView.CreationProperties = null;
-            this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.webView.Location = new System.Drawing.Point(0, 0);
-            this.webView.Margin = new System.Windows.Forms.Padding(2);
-            this.webView.Name = "webView";
-            this.webView.Size = new System.Drawing.Size(300, 97);
-            this.webView.TabIndex = 0;
-            this.webView.ZoomFactor = 1D;
-            this.webView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.webView_KeyDown);
+            this.splitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer_SplitterMoved);
             // 
             // tabControl
             // 
@@ -126,10 +119,77 @@
             this.workflowTabPage.Location = new System.Drawing.Point(4, 28);
             this.workflowTabPage.Name = "workflowTabPage";
             this.workflowTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.workflowTabPage.Size = new System.Drawing.Size(292, 168);
+            this.workflowTabPage.Size = new System.Drawing.Size(292, 68);
             this.workflowTabPage.TabIndex = 0;
             this.workflowTabPage.Text = "Workflow";
             this.workflowTabPage.UseVisualStyleBackColor = true;
+            // 
+            // browserLayoutPanel
+            // 
+            this.browserLayoutPanel.ColumnCount = 1;
+            this.browserLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.browserLayoutPanel.Controls.Add(this.webView, 0, 1);
+            this.browserLayoutPanel.Controls.Add(this.browserTitlePanel, 0, 0);
+            this.browserLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.browserLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.browserLayoutPanel.Name = "browserLayoutPanel";
+            this.browserLayoutPanel.RowCount = 2;
+            this.browserLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
+            this.browserLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.browserLayoutPanel.Size = new System.Drawing.Size(300, 97);
+            this.browserLayoutPanel.TabIndex = 1;
+            // 
+            // webView
+            // 
+            this.webView.AllowExternalDrop = true;
+            this.webView.CreationProperties = null;
+            this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
+            this.webView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webView.Location = new System.Drawing.Point(2, 25);
+            this.webView.Margin = new System.Windows.Forms.Padding(2);
+            this.webView.Name = "webView";
+            this.webView.Size = new System.Drawing.Size(296, 70);
+            this.webView.TabIndex = 0;
+            this.webView.ZoomFactor = 1D;
+            this.webView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.webView_KeyDown);
+            // 
+            // browserTitlePanel
+            // 
+            this.browserTitlePanel.Controls.Add(this.closeBrowserButton);
+            this.browserTitlePanel.Controls.Add(this.browserLabel);
+            this.browserTitlePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.browserTitlePanel.Location = new System.Drawing.Point(0, 0);
+            this.browserTitlePanel.Margin = new System.Windows.Forms.Padding(0);
+            this.browserTitlePanel.Name = "browserTitlePanel";
+            this.browserTitlePanel.Size = new System.Drawing.Size(300, 23);
+            this.browserTitlePanel.TabIndex = 1;
+            // 
+            // closeBrowserButton
+            // 
+            this.closeBrowserButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.closeBrowserButton.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.closeBrowserButton.FlatAppearance.BorderSize = 0;
+            this.closeBrowserButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.closeBrowserButton.Location = new System.Drawing.Point(271, 0);
+            this.closeBrowserButton.Name = "closeBrowserButton";
+            this.closeBrowserButton.Size = new System.Drawing.Size(25, 23);
+            this.closeBrowserButton.TabIndex = 5;
+            this.closeBrowserButton.Text = "✕";
+            this.closeBrowserButton.UseVisualStyleBackColor = false;
+            this.closeBrowserButton.Click += new System.EventHandler(this.closeBrowserButton_Click);
+            // 
+            // browserLabel
+            // 
+            this.browserLabel.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.browserLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.browserLabel.Location = new System.Drawing.Point(0, 0);
+            this.browserLabel.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.browserLabel.Name = "browserLabel";
+            this.browserLabel.Size = new System.Drawing.Size(300, 23);
+            this.browserLabel.TabIndex = 4;
+            this.browserLabel.Text = "Browser";
+            this.browserLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // WorkflowEditorControl
             // 
@@ -144,8 +204,10 @@
             this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
             this.tabControl.ResumeLayout(false);
+            this.browserLayoutPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
+            this.browserTitlePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -159,5 +221,9 @@
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView;
+        private System.Windows.Forms.TableLayoutPanel browserLayoutPanel;
+        private System.Windows.Forms.Panel browserTitlePanel;
+        private System.Windows.Forms.Button closeBrowserButton;
+        private System.Windows.Forms.Label browserLabel;
     }
 }

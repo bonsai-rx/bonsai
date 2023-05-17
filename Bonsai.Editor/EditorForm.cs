@@ -30,6 +30,7 @@ namespace Bonsai.Editor
     public partial class EditorForm : Form
     {
         const float DefaultEditorScale = 1.0f;
+        const string EditorUid = "editor";
         const string BonsaiExtension = ".bonsai";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
@@ -253,11 +254,15 @@ namespace Bonsai.Editor
 
             WindowState = EditorSettings.Instance.WindowState;
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
+            editorControl.WebViewSize = (int)Math.Round(
+                EditorSettings.Instance.WebViewSize * scaleFactor.Width);
         }
 
         void CloseEditorForm()
         {
             Application.RemoveMessageFilter(hotKeys);
+            EditorSettings.Instance.WebViewSize = (int)Math.Round(
+                editorControl.WebViewSize * inverseScaleFactor.Width);
             var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
             EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
             if (WindowState == FormWindowState.Minimized)
@@ -1531,55 +1536,6 @@ namespace Bonsai.Editor
             }
         }
 
-        static string GetElementName(object component)
-        {
-            var name = ExpressionBuilder.GetElementDisplayName(component);
-            if (component is ExternalizedProperty workflowProperty &&
-                !string.IsNullOrWhiteSpace(workflowProperty.Name) &&
-                workflowProperty.Name != workflowProperty.MemberName)
-            {
-                return name + " (" + workflowProperty.MemberName + ")";
-            }
-
-            var componentType = component.GetType();
-            if (component is BinaryOperatorBuilder binaryOperator && binaryOperator.Operand != null)
-            {
-                var operandType = binaryOperator.Operand.GetType();
-                if (operandType.IsGenericType) operandType = operandType.GetGenericArguments()[0];
-                return name + " (" + ExpressionBuilder.GetElementDisplayName(operandType) + ")";
-            }
-            else if (component is SubscribeSubject subscribeSubject && componentType.IsGenericType)
-            {
-                componentType = componentType.GetGenericArguments()[0];
-                if (string.IsNullOrWhiteSpace(subscribeSubject.Name))
-                {
-                    name = name.Substring(0, name.IndexOf("`"));
-                }
-                return name + " (" + ExpressionBuilder.GetElementDisplayName(componentType) + ")";
-            }
-            else
-            {
-                if (component is INamedElement namedExpressionBuilder && !string.IsNullOrWhiteSpace(namedExpressionBuilder.Name))
-                {
-                    name += " (" + ExpressionBuilder.GetElementDisplayName(componentType) + ")";
-                }
-
-                return name;
-            }
-        }
-
-        static string GetElementDescription(object component)
-        {
-            if (component is WorkflowExpressionBuilder workflowExpressionBuilder)
-            {
-                var description = workflowExpressionBuilder.Description;
-                if (!string.IsNullOrEmpty(description)) return description;
-            }
-
-            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(component)[typeof(DescriptionAttribute)];
-            return descriptionAttribute.Description;
-        }
-
         void editorControl_Enter(object sender, EventArgs e)
         {
             var selectedView = selectionModel.SelectedView;
@@ -1602,9 +1558,9 @@ namespace Bonsai.Editor
 
         private void GetSelectionDescription(object[] selectedObjects, out string displayName, out string description)
         {
-            var displayNames = selectedObjects.Select(GetElementName).Distinct().Reverse().ToArray();
+            var displayNames = selectedObjects.Select(ElementHelper.GetElementName).Distinct().Reverse().ToArray();
             displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
-            var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
+            var objectDescriptions = selectedObjects.Select(ElementHelper.GetElementDescription).Distinct().Reverse().ToArray();
             description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
         }
 
@@ -1645,8 +1601,8 @@ namespace Bonsai.Editor
                 var launcher = selectedView.Launcher;
                 if (launcher != null)
                 {
-                    displayName = GetElementName(launcher.Builder);
-                    description = GetElementDescription(launcher.Builder);
+                    displayName = ElementHelper.GetElementName(launcher.Builder);
+                    description = ElementHelper.GetElementDescription(launcher.Builder);
                 }
                 else
                 {
@@ -2045,6 +2001,7 @@ namespace Bonsai.Editor
                             renameSubjectToolStripMenuItem.Visible = false;
                             goToDefinitionToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
+                            toolboxDocsToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
@@ -2303,13 +2260,10 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
-        private async Task OpenDocumentationAsync(ExpressionBuilder builder)
+        static bool TryGetAssemblyResource(string path, out string assemblyName, out string resourceName)
         {
-            var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
-            if (selectedElement is IncludeWorkflowBuilder include &&
-                !string.IsNullOrEmpty(include.Path))
+            if (!string.IsNullOrEmpty(path))
             {
-                var path = include.Path;
                 const char AssemblySeparator = ':';
                 var separatorIndex = path.IndexOf(AssemblySeparator);
                 if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(BonsaiExtension))
@@ -2318,19 +2272,36 @@ namespace Bonsai.Editor
                     var nameElements = path.Split(new[] { AssemblySeparator }, 2);
                     if (!string.IsNullOrEmpty(nameElements[0]))
                     {
-                        var assemblyName = nameElements[0];
-                        var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
-                        await OpenDocumentationAsync(assemblyName, resourceName);
-                        return;
+                        assemblyName = nameElements[0];
+                        resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                        return true;
                     }
                 }
             }
 
-            await OpenDocumentationAsync(selectedElement.GetType());
+            assemblyName = default;
+            resourceName = default;
+            return false;
+        }
+
+        private async Task OpenDocumentationAsync(ExpressionBuilder builder)
+        {
+            var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
+            if (selectedElement is IncludeWorkflowBuilder include &&
+                TryGetAssemblyResource(include.Path, out string assemblyName, out string resourceName))
+            {
+                await OpenDocumentationAsync(assemblyName, resourceName);
+            }
+            else await OpenDocumentationAsync(selectedElement.GetType());
         }
 
         private async Task OpenDocumentationAsync(Type type)
         {
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+
             var uid = type.FullName;
             var assemblyName = type.Assembly.GetName().Name;
             await OpenDocumentationAsync(assemblyName, uid);
@@ -2346,8 +2317,21 @@ namespace Bonsai.Editor
 
             try
             {
+                var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
-                EditorDialog.OpenUrl(url);
+                if (!ModifierKeys.HasFlag(Keys.Control) && editorControl.WebViewInitialized)
+                {
+                    editorControl.WebView.CoreWebView2.Navigate(url.AbsoluteUri);
+                    var nameSeparator = uid.LastIndexOf(ExpressionHelper.MemberSeparator);
+                    if (nameSeparator >= 0)
+                    {
+                        var name = uid.Substring(nameSeparator + 1);
+                        var categoryName = GetPackageDisplayName(uid.Substring(0, nameSeparator));
+                        editorControl.ExpandWebView(label: $"{name} ({categoryName})");
+                    }
+                    else editorControl.ExpandWebView(label: uid == EditorUid ? Resources.Editor_HelpLabel : uid);
+                }
+                else EditorDialog.OpenUrl(url);
             }
             catch (ArgumentException ex) when (ex.ParamName == nameof(assemblyName))
             {
@@ -2372,7 +2356,7 @@ namespace Bonsai.Editor
 
         private async void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ModifierKeys != Keys.None)
+            if (ModifierKeys != Keys.None && ModifierKeys != Keys.Control)
             {
                 return;
             }
@@ -2382,6 +2366,14 @@ namespace Bonsai.Editor
                 var typeNode = toolboxTreeView.SelectedNode;
                 if (typeNode != null && typeNode.Tag != null)
                 {
+                    var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+                    if (elementCategory == ~ElementCategory.Workflow &&
+                        TryGetAssemblyResource(typeNode.Name, out string assemblyName, out string resourceName))
+                    {
+                        await OpenDocumentationAsync(assemblyName, resourceName);
+                        return;
+                    }
+
                     var type = Type.GetType(typeNode.Name);
                     if (type != null)
                     {
@@ -2402,7 +2394,8 @@ namespace Bonsai.Editor
                 }
             }
 
-            EditorDialog.ShowDocs();
+            var editorAssemblyName = GetType().Assembly.GetName().Name;
+            await OpenDocumentationAsync(editorAssemblyName, EditorUid);
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)
