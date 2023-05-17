@@ -20,6 +20,7 @@ namespace Bonsai.Editor
 
         internal EditorSettings()
         {
+            WebViewSize = 400;
         }
 
         public static EditorSettings Instance
