@@ -808,6 +808,13 @@ namespace Bonsai.Editor.GraphView
         void RefreshEditorNode(GraphNode node)
         {
             graphView.Invalidate(node);
+            var builder = WorkflowEditor.GetGraphNodeBuilder(node);
+            if (builder is AnnotationBuilder annotationBuilder &&
+                EditorControl.WebView.Tag == annotationBuilder)
+            {
+                LaunchVisualizer(node);
+            }
+
             var editor = GetWorkflowEditorLauncher(node);
             if (editor != null && editor.Visible)
             {
