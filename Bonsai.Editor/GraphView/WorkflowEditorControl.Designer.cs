@@ -96,6 +96,7 @@
             this.splitContainer.SplitterDistance = 300;
             this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 1;
+            this.splitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer_SplitterMoved);
             // 
             // tabControl
             // 

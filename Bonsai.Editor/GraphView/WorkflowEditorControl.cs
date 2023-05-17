@@ -65,10 +65,14 @@ namespace Bonsai.Editor.GraphView
             get { return splitContainer.Panel1Collapsed; }
         }
 
-        public int WebViewSplitterDistance
+        public int WebViewSize
         {
             get { return splitContainer.SplitterDistance; }
-            set { splitContainer.SplitterDistance = value; }
+            set
+            {
+                splitContainer.SplitterDistance = value;
+                splitContainer.Panel1MinSize = splitContainer.SplitterDistance / 2;
+            }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -450,8 +454,7 @@ namespace Bonsai.Editor.GraphView
                 var adjustV = displayX - marginTop - displayX / 2 - 1;
                 adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
             }
-            splitContainer.SplitterDistance = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
-            splitContainer.Panel1MinSize = splitContainer.SplitterDistance / 2;
+            WebViewSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
             splitContainer.FixedPanel = FixedPanel.Panel1;
         }
 
@@ -469,6 +472,15 @@ namespace Bonsai.Editor.GraphView
                         2 * splitContainer.Panel1MinSize - splitContainer.SplitterWidth,
                         splitContainer.SplitterDistance);
                 }
+            }
+        }
+
+        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            var delta = PointToClient(MousePosition).X - e.X;
+            if (delta == 0)
+            {
+                WebViewSize = e.SplitX;
             }
         }
 
