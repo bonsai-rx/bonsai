@@ -14,6 +14,10 @@ indent_size = 2
 [*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
 indent_size = 2
 
+# HTML / CSS files
+[*.{html,css}]
+indent_size = 2
+
 # Code files
 [*.{cs,csx}]
 indent_size = 4

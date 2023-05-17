@@ -1,0 +1,7 @@
+@media (prefers-color-scheme: light) {
+  :root {
+    --color: #222;
+    --background: #fff;
+    --link-color: #0969da;
+  }
+}

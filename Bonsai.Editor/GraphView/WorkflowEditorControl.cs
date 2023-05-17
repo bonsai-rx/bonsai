@@ -8,6 +8,7 @@ using Bonsai.Editor.Themes;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
 using Bonsai.Editor.GraphModel;
+using System.Reflection;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -41,6 +42,10 @@ namespace Bonsai.Editor.GraphView
                     MarkdownConvert.DefaultUrl,
                     Environment.CurrentDirectory,
                     CoreWebView2HostResourceAccessKind.Allow);
+                webView.CoreWebView2.WebResourceRequested += CoreWebView2_WebResourceRequested;
+                webView.CoreWebView2.AddWebResourceRequestedFilter(
+                    $"https://{MarkdownConvert.EmbeddedUrl}/*",
+                    CoreWebView2WebResourceContext.Stylesheet);
                 InitializeWebViewTheme();
             };
         }
@@ -535,6 +540,23 @@ namespace Bonsai.Editor.GraphView
                 CoreWebView2ContextMenuItemKind.Command);
             closeMenuItem.CustomItemSelected += delegate { CollapseWebView(); };
             e.MenuItems.Add(closeMenuItem);
+        }
+
+        private void CoreWebView2_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
+        {
+            if (e.ResourceContext == CoreWebView2WebResourceContext.Stylesheet)
+            {
+                var resourceUri = new Uri(e.Request.Uri);
+                if (resourceUri.Segments?.Length == 2)
+                {
+                    var resourceStream = Assembly
+                        .GetExecutingAssembly()
+                        .GetManifestResourceStream($"Bonsai.Editor.Resources.WebView.{resourceUri.Segments[1]}");
+                    var response = webView.CoreWebView2.Environment.CreateWebResourceResponse(
+                        resourceStream, 200, "OK", "Content-Type: text/css");
+                    e.Response = response;
+                }
+            }
         }
 
         private void webView_KeyDown(object sender, KeyEventArgs e)

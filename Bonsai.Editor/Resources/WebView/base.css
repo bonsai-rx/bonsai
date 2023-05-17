@@ -1,0 +1,15 @@
+body {
+  color: var(--color);
+  background: var(--background);
+  background-color: var(--background);
+  font: 100% system-ui;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
