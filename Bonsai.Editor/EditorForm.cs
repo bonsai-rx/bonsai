@@ -2001,6 +2001,7 @@ namespace Bonsai.Editor
                             renameSubjectToolStripMenuItem.Visible = false;
                             goToDefinitionToolStripMenuItem.Visible = false;
                             insertBeforeToolStripMenuItem.Visible = true;
+                            toolboxDocsToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
