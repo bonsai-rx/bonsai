@@ -71,7 +71,7 @@ namespace Bonsai.Editor.GraphView
             set
             {
                 splitContainer.SplitterDistance = value;
-                splitContainer.Panel1MinSize = splitContainer.SplitterDistance / 2;
+                splitContainer.Panel1MinSize = value / 2;
             }
         }
 
@@ -277,8 +277,8 @@ namespace Bonsai.Editor.GraphView
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            EnsureWebViewSize();
             base.OnSizeChanged(e);
+            EnsureWebViewSize();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
