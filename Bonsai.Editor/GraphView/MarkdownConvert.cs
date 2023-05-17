@@ -9,6 +9,7 @@ namespace Bonsai.Editor.GraphView
     class MarkdownConvert
     {
         public const string DefaultUrl = "path.localhost";
+        public const string EmbeddedUrl = "path.embedded";
 
         public static string ToHtml(Font font, string text)
         {
@@ -25,7 +26,17 @@ namespace Bonsai.Editor.GraphView
                 writer.Flush();
 
                 var html = writer.ToString();
-                return $@"<div style=""font-family: '{font.Name}'; line-height: 1em;"">{html}</div>";
+                return $@"
+<html>
+  <head>
+    <link rel=""stylesheet"" href=""https://{EmbeddedUrl}/light-theme.css"">
+    <link rel=""stylesheet"" href=""https://{EmbeddedUrl}/dark-theme.css"">
+    <link rel=""stylesheet"" href=""https://{EmbeddedUrl}/base.css"">
+  </head>
+  <body>
+    <div style=""font-family: '{font.Name}'"">{html}</div>
+  </body>
+</html>";
             }
 
             return string.Empty;

@@ -437,42 +437,52 @@ namespace Bonsai.Editor.GraphView
                 if (workflowBuilder is IncludeWorkflowBuilder) return;
                 LaunchWorkflowView(node);
             }
-            else if (builder != null)
+            else if (builder != null && LaunchBuilderEditor(builder))
             {
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                try
+                if (!editorState.WorkflowRunning)
                 {
-                    if (!uiService.CanShowComponentEditor(workflowElement) || !uiService.ShowComponentEditor(workflowElement, this))
+                    editorService.ValidateWorkflow();
+                }
+
+                RefreshEditorNode(node);
+            }
+        }
+
+        private bool LaunchBuilderEditor(ExpressionBuilder builder)
+        {
+            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+            try
+            {
+                if (uiService.CanShowComponentEditor(workflowElement))
+                {
+                    return uiService.ShowComponentEditor(workflowElement, this);
+                }
+
+                var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                if (defaultProperty != null)
+                {
+                    var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
+                    if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
                     {
-                        var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-                        if (defaultProperty != null)
+                        var graphViewEditorService = new WorkflowGraphViewEditorService(this, serviceProvider);
+                        var context = new TypeDescriptorContext(workflowElement, defaultProperty, graphViewEditorService);
+                        var currentValue = defaultProperty.GetValue(workflowElement);
+                        var value = editor.EditValue(context, graphViewEditorService, currentValue);
+                        if (value != currentValue && !defaultProperty.IsReadOnly)
                         {
-                            var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
-                            if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
-                            {
-                                var graphViewEditorService = new WorkflowGraphViewEditorService(this, serviceProvider);
-                                var context = new TypeDescriptorContext(workflowElement, defaultProperty, graphViewEditorService);
-                                var currentValue = defaultProperty.GetValue(workflowElement);
-                                var value = editor.EditValue(context, graphViewEditorService, currentValue);
-                                if (value != currentValue && !defaultProperty.IsReadOnly)
-                                {
-                                    defaultProperty.SetValue(workflowElement, value);
-                                }
-
-                                if (!editorState.WorkflowRunning)
-                                {
-                                    editorService.ValidateWorkflow();
-                                }
-
-                                RefreshEditorNode(node);
-                            }
+                            defaultProperty.SetValue(workflowElement, value);
                         }
+
+                        return true;
                     }
                 }
-                catch (Exception ex)
-                {
-                    uiService.ShowError(ex);
-                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                uiService.ShowError(ex);
+                return false;
             }
         }
 
@@ -798,6 +808,13 @@ namespace Bonsai.Editor.GraphView
         void RefreshEditorNode(GraphNode node)
         {
             graphView.Invalidate(node);
+            var builder = WorkflowEditor.GetGraphNodeBuilder(node);
+            if (builder is AnnotationBuilder annotationBuilder &&
+                EditorControl.WebView.Tag == annotationBuilder)
+            {
+                LaunchVisualizer(node);
+            }
+
             var editor = GetWorkflowEditorLauncher(node);
             if (editor != null && editor.Visible)
             {

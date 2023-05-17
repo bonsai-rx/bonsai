@@ -41,7 +41,7 @@
             this.scintilla.Location = new System.Drawing.Point(12, 12);
             this.scintilla.Name = "scintilla";
             this.scintilla.Size = new System.Drawing.Size(600, 229);
-            this.scintilla.TabIndex = 3;
+            this.scintilla.TabIndex = 1;
             this.scintilla.TabWidth = 2;
             this.scintilla.UseTabs = false;
             this.scintilla.WrapMode = ScintillaNET.WrapMode.Word;
@@ -55,7 +55,7 @@
             this.okButton.Location = new System.Drawing.Point(456, 247);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
-            this.okButton.TabIndex = 1;
+            this.okButton.TabIndex = 2;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
             // 
@@ -66,7 +66,7 @@
             this.cancelButton.Location = new System.Drawing.Point(537, 247);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 2;
+            this.cancelButton.TabIndex = 3;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 

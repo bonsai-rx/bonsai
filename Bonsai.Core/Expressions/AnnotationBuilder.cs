@@ -35,6 +35,7 @@ namespace Bonsai.Expressions
         [Externalizable(false)]
         [Category(nameof(CategoryAttribute.Design))]
         [Description("The text associated with this annotation.")]
+        [Editor("Bonsai.Design.AnnotationTextEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Text { get; set; }
 
         /// <summary>
