@@ -25,7 +25,7 @@ namespace Bonsai.Editor.GraphView
                 writer.Flush();
 
                 var html = writer.ToString();
-                return $@"<div style=""font-family: '{font.Name}'; line-height: 1em;"">{html}</div>";
+                return $@"<div style=""font-family: '{font.Name}'"">{html}</div>";
             }
 
             return string.Empty;
