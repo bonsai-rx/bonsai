@@ -477,10 +477,13 @@ namespace Bonsai.Editor.GraphView
 
         private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
         {
-            var delta = PointToClient(MousePosition).X - e.X;
-            if (delta == 0)
+            if (IsHandleCreated)
             {
-                WebViewSize = e.SplitX;
+                var delta = PointToClient(MousePosition).X - e.X;
+                if (delta == 0)
+                {
+                    WebViewSize = e.SplitX;
+                }
             }
         }
 
