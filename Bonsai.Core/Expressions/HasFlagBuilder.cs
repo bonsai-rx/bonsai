@@ -16,20 +16,24 @@ namespace Bonsai.Expressions
         /// <inheritdoc/>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            if (!left.Type.IsEnum)
+            if (!right.Type.IsEnum)
             {
-                throw new ArgumentException("The input expression must be an enum type.", nameof(left));
+                throw new InvalidOperationException("The flag expression must be an enum type.");
             }
 
-            if (left.Type != right.Type)
+            if (left.Type.IsEnum && left.Type != right.Type)
             {
-                throw new ArgumentException("The flag expression must be of the same type as the input expression.", nameof(right));
+                throw new InvalidOperationException("The input enum must be of the same type as the flag.");
             }
 
-            var underlyingType = Enum.GetUnderlyingType(left.Type);
-            var defaultValue = Expression.Default(underlyingType);
-            left = Expression.Convert(left, underlyingType);
+            var underlyingType = Enum.GetUnderlyingType(right.Type);
             right = Expression.Convert(right, underlyingType);
+            if (left.Type != underlyingType && (left.Type.IsEnum || left.Type.IsPrimitive))
+            {
+                left = Expression.Convert(left, underlyingType);
+            }
+
+            var defaultValue = Expression.Default(underlyingType);
             return Expression.NotEqual(Expression.And(left, right), defaultValue);
         }
 
