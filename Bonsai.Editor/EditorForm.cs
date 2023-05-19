@@ -2287,6 +2287,12 @@ namespace Bonsai.Editor
         private async Task OpenDocumentationAsync(ExpressionBuilder builder)
         {
             var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
+            if (selectedElement is ICustomTypeDescriptor typeDescriptor &&
+                typeDescriptor.GetPropertyOwner(null) is object selectedOperator)
+            {
+                selectedElement = selectedOperator;
+            }
+
             if (selectedElement is IncludeWorkflowBuilder include &&
                 TryGetAssemblyResource(include.Path, out string assemblyName, out string resourceName))
             {
