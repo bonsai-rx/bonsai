@@ -158,6 +158,25 @@ namespace Bonsai.Editor.Tests
 
             assertIsReversible();
         }
+
+        [TestMethod]
+        public void DisableGraphNodes_AllNodesInBranch_KeepNodeIndices()
+        {
+            var nodes = new[] { "A", "B", "C", "D" };
+            var workflow = EditorHelper.CreateEditorGraph(nodes);
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var nodeSequence = editor.Workflow.ToArray();
+            editor.ConnectNodes("A", "B");
+            editor.ConnectNodes("B", "C");
+            editor.ConnectNodes("A", "D");
+            Assert.AreEqual(expected: nodes.Length, editor.Workflow.Count);
+            AssertIsSequenceEqual(nodeSequence, editor.Workflow);
+
+            var nodesToDisable = new[] { editor.FindNode("B"), editor.FindNode("C") };
+            editor.DisableGraphNodes(nodesToDisable);
+            AssertIsSequenceEqual(nodes, editor.GetGraphValues());
+            assertIsReversible();
+        }
     }
 
     static class WorkflowEditorHelper
