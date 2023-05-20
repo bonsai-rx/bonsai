@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 
@@ -46,6 +47,11 @@ namespace Bonsai.Editor.Tests
         {
             var builder = CreateBuilder(name);
             editor.CreateGraphNode(builder, selectedNode, nodeType, branch);
+        }
+
+        internal static IEnumerable<string> GetGraphValues(this WorkflowEditor editor)
+        {
+            return editor.Workflow.Select(n => ExpressionBuilder.GetElementDisplayName(n.Value));
         }
     }
 }
