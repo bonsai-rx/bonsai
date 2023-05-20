@@ -1506,7 +1506,7 @@ namespace Bonsai.Editor.GraphModel
         private void ReplaceNode(Node<ExpressionBuilder, ExpressionBuilderArgument> node, ExpressionBuilder builder)
         {
             var index = Workflow.IndexOf(node);
-            CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
+            CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false, index);
             DeleteGraphNode(node, replaceEdges: true, index);
         }
 
