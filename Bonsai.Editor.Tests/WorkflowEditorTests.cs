@@ -29,18 +29,15 @@ namespace Bonsai.Editor.Tests
             return ElementStore.LoadWorkflow(reader);
         }
 
-        static void AssertIsSequenceEqual(
-            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> expected,
-            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> actual)
+        static void AssertIsSequenceEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
             expected = expected.ToArray();
             actual = actual.ToArray();
             if (!expected.SequenceEqual(actual))
             {
-                static string ToString(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sequence)
+                static string ToString(IEnumerable<T> sequence)
                 {
-                    return string.Join(",", sequence.Select(
-                        node => ExpressionBuilder.GetElementDisplayName(node.Value)));
+                    return string.Join(",", sequence);
                 }
                 var expectedString = ToString(expected);
                 var actualString = ToString(actual);
@@ -58,7 +55,7 @@ namespace Bonsai.Editor.Tests
             editor.UpdateSelection.Subscribe(graphView.UpdateSelection);
             editor.Workflow = graphView.Workflow;
 
-            var nodeSequence = editor.Workflow.ToArray();
+            var nodeSequence = editor.GetGraphValues().ToArray();
             return (editor, assertIsReversible: () =>
             {
                 while (graphView.CommandExecutor.CanUndo)
@@ -66,7 +63,7 @@ namespace Bonsai.Editor.Tests
                     graphView.CommandExecutor.Undo();
                 }
 
-                AssertIsSequenceEqual(nodeSequence, editor.Workflow);
+                AssertIsSequenceEqual(nodeSequence, editor.GetGraphValues());
             });
         }
 
