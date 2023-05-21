@@ -10,7 +10,7 @@
     <VersionPrefix>2.7.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj" />
+    <PackageReference Include="Bonsai.Arduino" Version="2.6.0" />
     <ProjectReference Include="..\Bonsai.Audio\Bonsai.Audio.csproj" />
     <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj" />
     <ProjectReference Include="..\Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj" />
