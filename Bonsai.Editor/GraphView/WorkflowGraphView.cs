@@ -1767,7 +1767,8 @@ namespace Bonsai.Editor.GraphView
                 var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
                 var workflowBuilder = selectedNode != null ? WorkflowEditor.GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
                 foreach (var element in from element in toolboxService.GetToolboxElements()
-                                        where element.ElementTypes.Contains(ElementCategory.Nested)
+                                        where element.ElementTypes.Contains(ElementCategory.Nested) &&
+                                              element.FullyQualifiedName.Contains(typeof(WorkflowExpressionBuilder).Assembly.FullName)
                                         select element)
                 {
                     ToolStripMenuItem menuItem = null;
