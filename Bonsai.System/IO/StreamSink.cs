@@ -10,8 +10,8 @@ using System.Threading;
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Provides a non-generic base class for sinks that write the elements from the input sequence
-    /// into a named stream (e.g. a named pipe).
+    /// Provides a non-generic base class for sinks that write all elements from the
+    /// source sequence to a named stream.
     /// </summary>
     [Combinator]
     [DefaultProperty(nameof(Path))]
@@ -19,7 +19,7 @@ namespace Bonsai.IO
     public abstract class StreamSink
     {
         /// <summary>
-        /// Gets or sets the identifier of the named stream on which to write the elements.
+        /// Gets or sets the identifier of the stream on which to write the elements.
         /// </summary>
         /// <remarks>
         /// If the identifier uses the named pipe prefix <c>\\.\pipe\</c>, a corresponding
@@ -94,9 +94,9 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Writes all elements of an observable sequence to the specified stream
-        /// using the specified selector function.
+        /// Writes all elements of an observable sequence to a stream.
         /// </summary>
+        /// <typeparam name="TElement">The type of the elements in the source sequence.</typeparam>
         /// <param name="source">The sequence of elements to write.</param>
         /// <param name="selector">
         /// The transform function used to convert each element of the sequence into the type
@@ -106,7 +106,35 @@ namespace Bonsai.IO
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a stream.
         /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException">A valid path must be specified.</exception>
         protected IObservable<TElement> Process<TElement>(IObservable<TElement> source, Func<TElement, TSource> selector)
+        {
+            return Process(source, selector, Path);
+        }
+
+        /// <summary>
+        /// Writes all elements of an observable sequence into the specified stream.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The sequence of elements to write.</param>
+        /// <param name="selector">
+        /// The transform function used to convert each element of the sequence into the type
+        /// of inputs accepted by the stream writer.
+        /// </param>
+        /// <param name="path">
+        /// The identifier of the stream on which to write the elements.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the source sequence but where
+        /// there is an additional side effect of writing the elements to the named stream.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException">A valid path must be specified.</exception>
+        protected IObservable<TElement> Process<TElement>(
+            IObservable<TElement> source,
+            Func<TElement, TSource> selector,
+            string path)
         {
             if (source == null)
             {
@@ -120,7 +148,6 @@ namespace Bonsai.IO
 
             return Observable.Create<TElement>(observer =>
             {
-                var path = Path;
                 if (string.IsNullOrEmpty(path))
                 {
                     throw new InvalidOperationException("A valid path must be specified.");
