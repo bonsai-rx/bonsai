@@ -7,8 +7,8 @@ using System.IO;
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Provides a non-generic base class for sinks that write the elements from the input sequence
-    /// into a file.
+    /// Provides a non-generic base class for sinks that write all elements from the
+    /// source sequence to a file.
     /// </summary>
     [Combinator]
     [DefaultProperty(nameof(FileName))]
@@ -77,9 +77,10 @@ namespace Bonsai.IO
         protected abstract void Write(TWriter writer, TSource input);
 
         /// <summary>
-        /// Writes all elements of an observable sequence into the specified file.
+        /// Writes all elements of an observable sequence to a file.
         /// </summary>
-        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <typeparam name="TElement">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The sequence of elements to write to the file.</param>
         /// <param name="selector">
         /// The transform function used to convert each element of the sequence into the type
         /// of inputs accepted by the file writer.
@@ -88,16 +89,42 @@ namespace Bonsai.IO
         /// An observable sequence that is identical to the <paramref name="source"/> sequence
         /// but where there is an additional side effect of writing the elements to a file.
         /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
         protected IObservable<TElement> Process<TElement>(IObservable<TElement> source, Func<TElement, TSource> selector)
+        {
+            return Process(source, selector, FileName);
+        }
+
+        /// <summary>
+        /// Writes all elements of an observable sequence to the specified file.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The sequence of elements to write to the file.</param>
+        /// <param name="selector">
+        /// The transform function used to convert each element of the sequence into the type
+        /// of inputs accepted by the file writer.
+        /// </param>
+        /// <param name="fileName">
+        /// The name of the file on which to write the elements.
+        /// </param>
+        /// <returns>
+        /// An observable sequence that is identical to the <paramref name="source"/> sequence
+        /// but where there is an additional side effect of writing the elements to a file.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        protected IObservable<TElement> Process<TElement>(
+            IObservable<TElement> source,
+            Func<TElement, TSource> selector,
+            string fileName)
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (selector == null)
             {
-                throw new ArgumentNullException("selector");
+                throw new ArgumentNullException(nameof(selector));
             }
 
             return Observable.Create<TElement>(observer =>
@@ -113,7 +140,6 @@ namespace Bonsai.IO
                             var runningWriter = disposable.Writer;
                             if (runningWriter == null)
                             {
-                                var fileName = FileName;
                                 if (string.IsNullOrEmpty(fileName))
                                 {
                                     throw new InvalidOperationException("A valid file path must be specified.");
@@ -145,9 +171,9 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Writes all elements of an observable sequence into the specified file.
+        /// Writes all elements of an observable sequence to the specified file.
         /// </summary>
-        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <param name="source">The sequence of elements to write to the file.</param>
         /// <returns>
         /// An observable sequence that is identical to the <paramref name="source"/> sequence
         /// but where there is an additional side effect of writing the elements to a file.
