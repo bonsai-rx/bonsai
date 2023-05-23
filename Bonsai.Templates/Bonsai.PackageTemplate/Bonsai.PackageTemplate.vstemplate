@@ -12,6 +12,9 @@
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
     <CreateInPlace>true</CreateInPlace>
     <Icon>__TemplateIcon.ico</Icon>
+    <LanguageTag>csharp</LanguageTag>
+    <PlatformTag>Bonsai</PlatformTag>
+    <ProjectTypeTag>library</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
     <Project TargetFileName="ProjectTemplate.csproj" File="ProjectTemplate.csproj" ReplaceParameters="true">
