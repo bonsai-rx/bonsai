@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Bonsai.Expressions;
-using System.ComponentModel;
+using System.Reflection;
 
 namespace Bonsai
 {
@@ -9,44 +9,46 @@ namespace Bonsai
     {
         static bool MatchIgnoredTypes(Type type)
         {
+            var typeName = type.AssemblyQualifiedName;
 #pragma warning disable CS0612 // Type or member is obsolete
-            return type == typeof(SourceBuilder) ||
+            return typeName == typeof(SourceBuilder).AssemblyQualifiedName ||
 #pragma warning restore CS0612 // Type or member is obsolete
-                   type == typeof(CombinatorBuilder) ||
-                   type == typeof(InspectBuilder) ||
-                   type == typeof(ExternalizedProperty) ||
-                   type == typeof(DisableBuilder);
+                   typeName == typeof(CombinatorBuilder).AssemblyQualifiedName ||
+                   typeName == typeof(InspectBuilder).AssemblyQualifiedName ||
+                   typeName == typeof(ExternalizedProperty).AssemblyQualifiedName ||
+                   typeName == typeof(DisableBuilder).AssemblyQualifiedName;
         }
 
-        static bool MatchAttributeType(Type type, Type attributeType)
+        static bool MatchAttributeType(CustomAttributeData[] customAttributes, Type attributeType)
         {
-            return type.IsDefined(attributeType, true);
+            return customAttributes.IsDefined(attributeType);
         }
 
-        public static IEnumerable<ElementCategory> FromType(Type type)
+        public static IEnumerable<ElementCategory> FromType(Type type, CustomAttributeData[] customAttributes)
         {
             if (MatchIgnoredTypes(type)) yield break;
 
-            if (type.IsSubclassOf(typeof(ExpressionBuilder)) ||
-                MatchAttributeType(type, typeof(CombinatorAttribute)) ||
+            if (type.IsMatchSubclassOf(typeof(ExpressionBuilder)) ||
+                MatchAttributeType(customAttributes, typeof(CombinatorAttribute)) ||
 #pragma warning disable CS0612 // Type or member is obsolete
-                MatchAttributeType(type, typeof(SourceAttribute)))
+                MatchAttributeType(customAttributes, typeof(SourceAttribute)))
 #pragma warning restore CS0612 // Type or member is obsolete
             {
-                if (type.IsSubclassOf(typeof(WorkflowExpressionBuilder)))
+                if (type.IsMatchSubclassOf(typeof(WorkflowExpressionBuilder)))
                 {
                     yield return ElementCategory.Nested;
                 }
 
-                if (type.IsSubclassOf(typeof(SubjectExpressionBuilder)) ||
-                    type == typeof(WorkflowInputBuilder))
+                if (type.IsMatchSubclassOf(typeof(SubjectExpressionBuilder)) ||
+                    type.AssemblyQualifiedName == typeof(WorkflowInputBuilder).AssemblyQualifiedName)
                 {
                     yield return ~ElementCategory.Combinator;
                 }
 
-                var attributes = TypeDescriptor.GetAttributes(type);
-                var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
-                yield return elementCategoryAttribute.Category;
+                var elementCategoryAttribute = customAttributes.GetCustomAttributeData(typeof(WorkflowElementCategoryAttribute));
+                yield return elementCategoryAttribute != null
+                    ? (ElementCategory)elementCategoryAttribute.GetConstructorArgument()
+                    : WorkflowElementCategoryAttribute.Default.Category;
             }
         }
     }
