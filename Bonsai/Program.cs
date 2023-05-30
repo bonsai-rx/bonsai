@@ -212,6 +212,7 @@ namespace Bonsai
                     setupInfo.WorkingDirectory = workingDirectory;
                     setupInfo.UseShellExecute = false;
                     var process = Process.Start(setupInfo);
+                    pipeServer.DisposeLocalCopyOfClientHandle();
                     process.WaitForExit();
 
                     using var pipeReader = AppResult.OpenRead(pipeServer);
