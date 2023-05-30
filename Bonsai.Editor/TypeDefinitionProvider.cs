@@ -29,8 +29,9 @@ namespace Bonsai.Editor
 
         static CodeAttributeDeclaration GetAttributeDeclaration(CustomAttributeData attribute, HashSet<string> importNamespaces)
         {
-            importNamespaces.Add(attribute.AttributeType.Namespace);
-            var attributeName = attribute.AttributeType.Name;
+            var attributeType = attribute.Constructor.DeclaringType;
+            importNamespaces.Add(attributeType.Namespace);
+            var attributeName = attributeType.Name;
             var suffix = attributeName.LastIndexOf(nameof(Attribute));
             attributeName = suffix >= 0 ? attributeName.Substring(0, suffix) : attributeName;
             var reference = new CodeTypeReference(attributeName);

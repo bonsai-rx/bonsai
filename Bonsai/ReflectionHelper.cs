@@ -17,7 +17,7 @@ namespace Bonsai
             var attributeLists = new List<IList<CustomAttributeData>>();
             while (type != null)
             {
-                attributeLists.Add(CustomAttributeData.GetCustomAttributes(type));
+                attributeLists.Add(type.GetCustomAttributesData());
                 type = inherit ? type.BaseType : null;
             }
 
@@ -36,7 +36,8 @@ namespace Bonsai
         public static IEnumerable<CustomAttributeData> OfType<TAttribute>(this IEnumerable<CustomAttributeData> customAttributes)
         {
             var attributeTypeName = typeof(TAttribute).FullName;
-            return customAttributes.Where(attribute => attribute.AttributeType.FullName == attributeTypeName);
+            return customAttributes.Where(
+                attribute => attribute.Constructor.DeclaringType.FullName == attributeTypeName);
         }
 
         public static bool IsDefined(this CustomAttributeData[] customAttributes, Type attributeType)
@@ -55,7 +56,7 @@ namespace Bonsai
 
             return Array.Find(
                 customAttributes,
-                attribute => attribute.AttributeType.FullName == attributeType.FullName);
+                attribute => attribute.Constructor.DeclaringType.FullName == attributeType.FullName);
         }
 
         public static object GetConstructorArgument(this CustomAttributeData attribute)
