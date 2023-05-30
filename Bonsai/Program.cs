@@ -178,6 +178,7 @@ namespace Bonsai
                 do
                 {
                     var editorArgs = new List<string>(args);
+                    var workingDirectory = Environment.CurrentDirectory;
                     if (launchEditor && startScreen) launchResult = EditorResult.Exit;
                     if (launchResult == EditorResult.ExportPackage) editorArgs.AddRange(new[] { initialFileName, ExportPackageCommand });
                     else if (launchResult == EditorResult.OpenGallery) editorArgs.Add(GalleryCommand);
@@ -192,7 +193,11 @@ namespace Bonsai
                         if (debugScripts) editorArgs.Add(DebugScriptCommand);
                         if (launchResult == EditorResult.ReloadEditor) editorArgs.Add(ReloadEditorCommand);
                         else editorArgs.Add(SuppressBootstrapCommand);
-                        if (!string.IsNullOrEmpty(initialFileName)) editorArgs.Add(initialFileName);
+                        if (!string.IsNullOrEmpty(initialFileName))
+                        {
+                            editorArgs.Add(initialFileName);
+                            workingDirectory = Path.GetDirectoryName(initialFileName);
+                        }
                     }
 
                     using var pipeServer = new AnonymousPipeServerStream(
@@ -204,7 +209,7 @@ namespace Bonsai
                     var setupInfo = new ProcessStartInfo();
                     setupInfo.FileName = Assembly.GetEntryAssembly().Location;
                     setupInfo.Arguments = string.Join(" ", editorArgs);
-                    setupInfo.WorkingDirectory = Environment.CurrentDirectory;
+                    setupInfo.WorkingDirectory = workingDirectory;
                     setupInfo.UseShellExecute = false;
                     var process = Process.Start(setupInfo);
                     process.WaitForExit();
@@ -226,7 +231,6 @@ namespace Bonsai
                             if (!string.IsNullOrEmpty(result) && File.Exists(result))
                             {
                                 initialFileName = result;
-                                Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
                             }
                         }
                         launchResult = EditorResult.ReloadEditor;
