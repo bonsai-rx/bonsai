@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reactive.Disposables;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace Bonsai
@@ -16,11 +16,11 @@ namespace Bonsai
             Values = new();
             if (stream == null)
             {
-                return Disposable.Empty;
+                return EmptyDisposable.Instance;
             }
 
             var writer = new JsonTextWriter(new StreamWriter(stream));
-            return Disposable.Create(() =>
+            return new AnonymousDisposable(() =>
             {
                 try { Serializer.Serialize(writer, Values); }
                 finally { writer.Close(); }
@@ -31,7 +31,7 @@ namespace Bonsai
         {
             using var reader = new JsonTextReader(new StreamReader(stream));
             Values = Serializer.Deserialize<Dictionary<string, string>>(reader);
-            return Disposable.Empty;
+            return EmptyDisposable.Instance;
         }
 
         public static TResult GetResult<TResult>()
@@ -62,6 +62,34 @@ namespace Bonsai
             }
 
             Values[typeof(TResult).FullName] = result.ToString();
+        }
+
+        class AnonymousDisposable : IDisposable
+        {
+            private Action disposeAction;
+
+            public AnonymousDisposable(Action dispose)
+            {
+                disposeAction = dispose;
+            }
+
+            public void Dispose()
+            {
+                Interlocked.Exchange(ref disposeAction, null)?.Invoke();
+            }
+        }
+
+        class EmptyDisposable : IDisposable
+        {
+            public static readonly EmptyDisposable Instance = new();
+
+            private EmptyDisposable()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
         }
     }
 }
