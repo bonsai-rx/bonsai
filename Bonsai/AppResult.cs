@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipes;
 using System.Threading;
 using Newtonsoft.Json;
 
@@ -11,7 +12,7 @@ namespace Bonsai
         static readonly JsonSerializer Serializer = JsonSerializer.CreateDefault();
         static Dictionary<string, string> Values;
 
-        public static IDisposable OpenWrite(Stream stream)
+        public static IDisposable OpenWrite(NamedPipeClientStream stream)
         {
             Values = new();
             if (stream == null)
@@ -19,10 +20,17 @@ namespace Bonsai
                 return EmptyDisposable.Instance;
             }
 
-            var writer = new JsonTextWriter(new StreamWriter(stream));
+            stream.Connect();
+            var writer = new StreamWriter(stream);
             return new AnonymousDisposable(() =>
             {
-                try { Serializer.Serialize(writer, Values); }
+                try
+                {
+                    Serializer.Serialize(writer, Values);
+                    writer.Flush();
+                    try { stream.WaitForPipeDrain(); }
+                    catch (NotSupportedException) { }
+                }
                 finally { writer.Close(); }
             });
         }

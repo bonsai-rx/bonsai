@@ -96,7 +96,7 @@ namespace Bonsai
             var packageConfiguration = ConfigurationHelper.Load();
             if (!bootstrap)
             {
-                using var pipeClient = pipeHandle != null ? new AnonymousPipeClientStream(PipeDirection.Out, pipeHandle) : null;
+                using var pipeClient = pipeHandle != null ? new NamedPipeClientStream(".", pipeHandle, PipeDirection.Out) : null;
                 using var pipeWriter = AppResult.OpenWrite(pipeClient);
                 if (launchResult == EditorResult.Exit)
                 {
@@ -172,6 +172,7 @@ namespace Bonsai
                 catch (AggregateException) { return ErrorExitCode; }
 
                 var startScreen = launchEditor;
+                var pipeName = Guid.NewGuid().ToString();
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do
                 {
@@ -198,10 +199,7 @@ namespace Bonsai
                         }
                     }
 
-                    using var pipeServer = new AnonymousPipeServerStream(
-                        PipeDirection.In,
-                        HandleInheritability.Inheritable);
-                    var pipeName = pipeServer.GetClientHandleAsString();
+                    using var pipeServer = new NamedPipeServerStream(pipeName, PipeDirection.In);
                     editorArgs.Add(PipeCommand + ":" + pipeName);
 
                     var setupInfo = new ProcessStartInfo();
@@ -210,10 +208,10 @@ namespace Bonsai
                     setupInfo.WorkingDirectory = workingDirectory;
                     setupInfo.UseShellExecute = false;
                     var process = Process.Start(setupInfo);
-                    pipeServer.DisposeLocalCopyOfClientHandle();
+                    pipeServer.WaitForConnection();
+                    using var pipeReader = AppResult.OpenRead(pipeServer);
                     process.WaitForExit();
 
-                    using var pipeReader = AppResult.OpenRead(pipeServer);
                     launchResult = AppResult.GetResult<EditorResult>();
                     if (launchEditor)
                     {
