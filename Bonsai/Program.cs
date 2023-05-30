@@ -13,7 +13,6 @@ namespace Bonsai
 {
     static class Program
     {
-        const string PathEnvironmentVariable = "PATH";
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "--property";
@@ -30,7 +29,6 @@ namespace Bonsai
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
         const string PipeCommand = "--@pipe";
-        const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
         internal const int NormalExitCode = 0;
