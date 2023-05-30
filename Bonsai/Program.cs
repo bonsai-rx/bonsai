@@ -205,8 +205,6 @@ namespace Bonsai
                     setupInfo.FileName = Assembly.GetEntryAssembly().Location;
                     setupInfo.Arguments = string.Join(" ", editorArgs);
                     setupInfo.WorkingDirectory = Environment.CurrentDirectory;
-                    setupInfo.RedirectStandardOutput = true;
-                    setupInfo.RedirectStandardError = true;
                     setupInfo.UseShellExecute = false;
                     var process = Process.Start(setupInfo);
                     process.WaitForExit();
