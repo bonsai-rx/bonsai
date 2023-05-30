@@ -3,8 +3,10 @@ using NuGet.Packaging.Core;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Pipes;
 using System.Reflection;
 
 namespace Bonsai
@@ -27,6 +29,7 @@ namespace Bonsai
         const string ExportImageCommand = "--export-image";
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
+        const string PipeCommand = "--@pipe";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
@@ -51,6 +54,7 @@ namespace Bonsai
             var launchResult = default(EditorResult);
             var initialFileName = default(string);
             var imageFileName = default(string);
+            var pipeHandle = default(string);
             var layoutPath = default(string);
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
@@ -62,6 +66,7 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
+            parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
             parser.RegisterCommand(ReloadEditorCommand, () => { launchResult = EditorResult.ReloadEditor; bootstrap = false; });
@@ -93,6 +98,8 @@ namespace Bonsai
             var packageConfiguration = ConfigurationHelper.Load();
             if (!bootstrap)
             {
+                using var pipeClient = pipeHandle != null ? new AnonymousPipeClientStream(PipeDirection.Out, pipeHandle) : null;
+                using var pipeWriter = AppResult.OpenWrite(pipeClient);
                 if (launchResult == EditorResult.Exit)
                 {
                     if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
@@ -170,40 +177,42 @@ namespace Bonsai
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do
                 {
-                    string[] editorArgs;
+                    var editorArgs = new List<string>(args);
                     if (launchEditor && startScreen) launchResult = EditorResult.Exit;
-                    if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
-                    else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
+                    if (launchResult == EditorResult.ExportPackage) editorArgs.AddRange(new[] { initialFileName, ExportPackageCommand });
+                    else if (launchResult == EditorResult.OpenGallery) editorArgs.Add(GalleryCommand);
                     else if (launchResult == EditorResult.ManagePackages)
                     {
-                        editorArgs = updatePackages
+                        editorArgs.AddRange(updatePackages
                             ? new[] { PackageManagerCommand + ":" + PackageManagerUpdates }
-                            : new[] { PackageManagerCommand };
+                            : new[] { PackageManagerCommand });
                     }
                     else
                     {
-                        var extraArgs = new List<string>(args);
-                        if (debugScripts) extraArgs.Add(DebugScriptCommand);
-                        if (launchResult == EditorResult.ReloadEditor) extraArgs.Add(ReloadEditorCommand);
-                        else extraArgs.Add(SuppressBootstrapCommand);
-                        if (!string.IsNullOrEmpty(initialFileName)) extraArgs.Add(initialFileName);
-                        editorArgs = extraArgs.ToArray();
+                        if (debugScripts) editorArgs.Add(DebugScriptCommand);
+                        if (launchResult == EditorResult.ReloadEditor) editorArgs.Add(ReloadEditorCommand);
+                        else editorArgs.Add(SuppressBootstrapCommand);
+                        if (!string.IsNullOrEmpty(initialFileName)) editorArgs.Add(initialFileName);
                     }
 
-                    var setupInfo = new AppDomainSetup();
-                    setupInfo.ApplicationBase = editorFolder;
-                    setupInfo.PrivateBinPath = editorFolder;
-                    var currentEvidence = AppDomain.CurrentDomain.Evidence;
-                    var currentPermissionSet = AppDomain.CurrentDomain.PermissionSet;
-                    var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
-                    setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-                    setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo, currentPermissionSet);
-                    var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
-                    Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
+                    using var pipeServer = new AnonymousPipeServerStream(
+                        PipeDirection.In,
+                        HandleInheritability.Inheritable);
+                    var pipeName = pipeServer.GetClientHandleAsString();
+                    editorArgs.Add(PipeCommand + ":" + pipeName);
 
-                    var editorFlags = AppResult.GetResult<EditorFlags>(editorDomain);
-                    launchResult = AppResult.GetResult<EditorResult>(editorDomain);
+                    var setupInfo = new ProcessStartInfo();
+                    setupInfo.FileName = Assembly.GetEntryAssembly().Location;
+                    setupInfo.Arguments = string.Join(" ", editorArgs);
+                    setupInfo.WorkingDirectory = Environment.CurrentDirectory;
+                    setupInfo.RedirectStandardOutput = true;
+                    setupInfo.RedirectStandardError = true;
+                    setupInfo.UseShellExecute = false;
+                    var process = Process.Start(setupInfo);
+                    process.WaitForExit();
+
+                    using var pipeReader = AppResult.OpenRead(pipeServer);
+                    launchResult = AppResult.GetResult<EditorResult>();
                     if (launchEditor)
                     {
                         if (launchResult == EditorResult.ReloadEditor) launchEditor = false;
@@ -215,7 +224,7 @@ namespace Bonsai
                         if (launchResult == EditorResult.OpenGallery ||
                             launchResult == EditorResult.ManagePackages)
                         {
-                            var result = AppResult.GetResult<string>(editorDomain);
+                            var result = AppResult.GetResult<string>();
                             if (!string.IsNullOrEmpty(result) && File.Exists(result))
                             {
                                 initialFileName = result;
@@ -226,13 +235,12 @@ namespace Bonsai
                     }
                     else
                     {
+                        var editorFlags = AppResult.GetResult<EditorFlags>();
                         debugScripts = editorFlags.HasFlag(EditorFlags.DebugScripts);
                         updatePackages = editorFlags.HasFlag(EditorFlags.UpdatesAvailable);
-                        initialFileName = AppResult.GetResult<string>(editorDomain);
-                        launchResult = exitCode;
+                        initialFileName = AppResult.GetResult<string>();
+                        launchResult = (EditorResult)process.ExitCode;
                     }
-
-                    AppDomain.Unload(editorDomain);
                 }
                 while (launchResult != EditorResult.Exit);
             }
