@@ -56,7 +56,7 @@ namespace Bonsai.Dag
                             {
                                 var rank = source.Count - rootIndices[current.Node];
                                 nodeMark.Rank = rank;
-                                nodeMark.Component = new ConnectedComponent(rank) { nodeMark };
+                                nodeMark.Component = new ConnectedComponent(rank, nodeMark);
                                 orderedRoots.Add(nodeMark);
                             }
                             else
@@ -157,7 +157,7 @@ namespace Bonsai.Dag
                 dependencies.Add(nodeDependency);
                 if (dependency.Component == null)
                 {
-                    dependency.Component = Component;
+                    dependency.Component = Component.Principal.Component;
                 }
                 else if (Component != dependency.Component)
                 {
@@ -242,12 +242,16 @@ namespace Bonsai.Dag
 
         class ConnectedComponent : HashSet<SortedNode>
         {
-            internal ConnectedComponent(int rank)
+            internal ConnectedComponent(int rank, SortedNode principal)
             {
                 Rank = rank;
+                Principal = principal;
+                Add(principal);
             }
 
             internal int Rank { get; }
+
+            internal SortedNode Principal { get; }
         }
     }
 }
