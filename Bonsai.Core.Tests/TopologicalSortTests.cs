@@ -253,5 +253,19 @@ namespace Bonsai.Core.Tests
                      { 'C', 'D', 'B' },
             }, string.Empty);
         }
+
+        [TestMethod]
+        public void TopologicalSort_CrossedDependencyRoots_ConnectedComponentOrder()
+        {
+            AssertOrder(new TestGraph(16)
+            {
+                { 'A', 'B', 'D' },
+                {      'C', 'D' },
+                {      'E', 'F', 'K', 'L' },
+                {      'B', 'I', 'J', 'K' },
+                {           'F', 'M', 'N', 'P' },
+                {           'G', 'H', 'O', 'P' },
+            }, "ABCDEFIJKLMNGHOP");
+        }
     }
 }
