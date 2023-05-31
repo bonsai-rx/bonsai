@@ -177,6 +177,23 @@ namespace Bonsai.Editor.Tests
             AssertIsSequenceEqual(nodes, editor.GetGraphValues());
             assertIsReversible();
         }
+
+        [TestMethod]
+        public void UngroupGraphNodes_NestedPassthrough_KeepOuterEdges()
+        {
+            var workflow = EditorHelper.CreateEditorGraph("A", "C");
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var sourceNode = editor.FindNode("A");
+            editor.CreateGraphNode(
+                new GroupWorkflowBuilder { Name = "B" },
+                sourceNode,
+                CreateGraphNodeType.Successor,
+                branch: false);
+            editor.ConnectNodes("B", "C");
+            var nodesToUngroup = new[] { editor.FindNode("B") };
+            editor.UngroupGraphNodes(nodesToUngroup);
+            assertIsReversible();
+        }
     }
 
     static class WorkflowEditorHelper
