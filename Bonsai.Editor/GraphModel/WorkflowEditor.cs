@@ -1943,7 +1943,7 @@ namespace Bonsai.Editor.GraphModel
             // Connect output sources to external targets
             var outputConnections = groupOutputs
                 .Select(edge => edge.Item1)
-                .Where(xs => xs != null)
+                .Where(xs => xs != null && groupWorkflow.Contains(xs))
                 .SelectMany(xs => successors.Select(successor =>
                     (source: xs, target: successor)));
             foreach (var (source, target) in outputConnections)
