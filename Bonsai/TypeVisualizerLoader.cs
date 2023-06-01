@@ -14,7 +14,7 @@ namespace Bonsai
     {
         static IEnumerable<TypeVisualizerDescriptor> GetCustomAttributeTypes(Assembly assembly)
         {
-            var assemblyAttributes = CustomAttributeData.GetCustomAttributes(assembly);
+            var assemblyAttributes = assembly.GetCustomAttributesData();
             var typeVisualizers = assemblyAttributes
                 .OfType<TypeVisualizerAttribute>()
                 .Select(attribute => new TypeVisualizerDescriptor(attribute));
