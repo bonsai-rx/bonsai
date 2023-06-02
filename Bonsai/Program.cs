@@ -114,7 +114,8 @@ namespace Bonsai
                         }
                         AppResult.SetResult(EditorResult.Exit);
                         AppResult.SetResult(initialFileName);
-                        return (int)launchResult;
+                        AppResult.SetResult((int)launchResult);
+                        return NormalExitCode;
                     }
                 }
 
@@ -211,6 +212,8 @@ namespace Bonsai
                     pipeServer.WaitForConnection();
                     using var pipeReader = AppResult.OpenRead(pipeServer);
                     process.WaitForExit();
+                    if (process.ExitCode != 0)
+                        return process.ExitCode;
 
                     launchResult = AppResult.GetResult<EditorResult>();
                     if (launchEditor)
@@ -238,7 +241,7 @@ namespace Bonsai
                         debugScripts = editorFlags.HasFlag(EditorFlags.DebugScripts);
                         updatePackages = editorFlags.HasFlag(EditorFlags.UpdatesAvailable);
                         initialFileName = AppResult.GetResult<string>();
-                        launchResult = (EditorResult)process.ExitCode;
+                        launchResult = (EditorResult)AppResult.GetResult<int>();
                     }
                 }
                 while (launchResult != EditorResult.Exit);

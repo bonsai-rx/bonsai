@@ -44,19 +44,14 @@ namespace Bonsai
 
         public static TResult GetResult<TResult>()
         {
-            if (Values == null)
-            {
-                throw new InvalidOperationException("No output stream has been opened for reading.");
-            }
-
-            if (Values.TryGetValue(typeof(TResult).FullName, out string value))
+            if (Values != null && Values.TryGetValue(typeof(TResult).FullName, out string value))
             {
                 if (typeof(TResult).IsEnum)
                 {
                     return (TResult)Enum.Parse(typeof(TResult), value);
                 }
 
-                return (TResult)(object)value;
+                return (TResult)Convert.ChangeType(value, typeof(TResult));
             }
 
             return default;
