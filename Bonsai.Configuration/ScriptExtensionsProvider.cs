@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml;
 
@@ -113,14 +114,34 @@ namespace Bonsai.Configuration
                 assemblyNames.AddRange(projectReferences);
             }
 
+            var runtimeDirectory = RuntimeEnvironment.GetRuntimeDirectory();
+            var runtimeAssemblyMap = Directory
+                .EnumerateFiles(runtimeDirectory, "*" + DllExtension)
+                .ToDictionary(Path.GetFileNameWithoutExtension);
+            var facadesDirectory = Path.Combine(runtimeDirectory, "Facades");
+            if (Directory.Exists(facadesDirectory) &&
+                Directory.GetFiles(facadesDirectory, "netstandard.dll").FirstOrDefault() is string netstandardLocation)
+            {
+                var netstandardName = Path.GetFileNameWithoutExtension(netstandardLocation);
+                runtimeAssemblyMap[netstandardName] = netstandardLocation;
+            }
+
             var assemblyFile = Path.Combine(assemblyDirectory, OutputAssemblyName + DllExtension);
-            var assemblyReferences = (from fileName in assemblyNames
-                                      let assemblyName = Path.GetFileNameWithoutExtension(fileName)
-                                      let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
-                                      select assemblyLocation == null ? fileName :
-                                      Path.IsPathRooted(assemblyLocation) ? assemblyLocation :
-                                      Path.Combine(configurationRoot, assemblyLocation))
-                                      .ToArray();
+            var assemblyReferences = assemblyNames.Select(GetAssemblyLocation).ToArray();
+            string GetAssemblyLocation(string fileName)
+            {
+                var assemblyName = Path.GetFileNameWithoutExtension(fileName);
+                var assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName);
+                if (assemblyLocation != null || runtimeAssemblyMap.TryGetValue(assemblyName, out assemblyLocation))
+                {
+                    return Path.IsPathRooted(assemblyLocation)
+                        ? assemblyLocation
+                        : Path.Combine(configurationRoot, assemblyLocation);
+                }
+
+                return fileName;
+            }
+
             var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile);
             compilerParameters.GenerateExecutable = false;
             compilerParameters.GenerateInMemory = false;
