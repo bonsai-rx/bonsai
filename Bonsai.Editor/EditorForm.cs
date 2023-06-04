@@ -1142,6 +1142,16 @@ namespace Bonsai.Editor
             Close();
         }
 
+        protected override bool ProcessDialogChar(char charCode)
+        {
+            if ((ModifierKeys & Keys.Alt) == Keys.None)
+            {
+                return false;
+            }
+
+            return base.ProcessDialogChar(charCode);
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             Action closeWorkflow = () => e.Cancel = !CloseWorkflow(e.CloseReason);
