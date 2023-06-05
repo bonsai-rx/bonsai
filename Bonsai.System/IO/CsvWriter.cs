@@ -20,6 +20,7 @@ namespace Bonsai.IO
     /// of the sequence to a text file.
     /// </summary>
     [DefaultProperty(nameof(FileName))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Writes a delimited text representation of each element of the sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
