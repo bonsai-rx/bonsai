@@ -35,11 +35,11 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.tabControl = new Bonsai.Editor.GraphView.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
-            this.browserLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.browserLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
             this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.browserTitlePanel = new System.Windows.Forms.Panel();
             this.closeBrowserButton = new System.Windows.Forms.Button();
-            this.browserLabel = new System.Windows.Forms.Label();
+            this.browserLabel = new Bonsai.Editor.Label();
             this.tabContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -221,9 +221,9 @@
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView;
-        private System.Windows.Forms.TableLayoutPanel browserLayoutPanel;
+        private Bonsai.Editor.TableLayoutPanel browserLayoutPanel;
         private System.Windows.Forms.Panel browserTitlePanel;
         private System.Windows.Forms.Button closeBrowserButton;
-        private System.Windows.Forms.Label browserLabel;
+        private Bonsai.Editor.Label browserLabel;
     }
 }
