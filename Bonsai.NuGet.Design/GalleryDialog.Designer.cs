@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.mainLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.packageViewLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.mainLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
+            this.packageViewLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.filterLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.refreshButton = new System.Windows.Forms.Button();
             this.prereleaseCheckBox = new System.Windows.Forms.CheckBox();
             this.pageSelectorPanel = new System.Windows.Forms.Panel();
-            this.packageViewPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.packageViewPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.packageIcons = new System.Windows.Forms.ImageList(this.components);
-            this.detailsLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.detailsLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.searchLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.sortLabel = new System.Windows.Forms.Label();
             this.packageSourceComboBox = new System.Windows.Forms.ComboBox();
@@ -345,13 +345,13 @@
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel mainLayoutPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel mainLayoutPanel;
         private System.Windows.Forms.ImageList packageIcons;
         private System.Windows.Forms.FlowLayoutPanel filterLayoutPanel;
         private System.Windows.Forms.ComboBox packageSourceComboBox;
         private System.Windows.Forms.Label sortLabel;
-        private System.Windows.Forms.TableLayoutPanel packageViewLayoutPanel;
-        private System.Windows.Forms.TableLayoutPanel detailsLayoutPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel packageViewLayoutPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel detailsLayoutPanel;
         private System.Windows.Forms.FlowLayoutPanel searchLayoutPanel;
         private Bonsai.NuGet.Design.CueBannerComboBox searchComboBox;
         private PackageDetails packageDetails;
@@ -359,7 +359,7 @@
         private PackagePageSelector packagePageSelector;
         private System.Windows.Forms.Panel closePanel;
         private System.Windows.Forms.Button closeButton;
-        private System.Windows.Forms.TableLayoutPanel packageViewPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel packageViewPanel;
         private PackageView packageView;
         private System.Windows.Forms.Panel settingsPanel;
         private SaveFolderDialog saveFolderDialog;
