@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Bonsai.Configuration
 {
@@ -17,7 +18,13 @@ namespace Bonsai.Configuration
         const string NuGetOverlayCommandFileName = "NuGet-Overlay.cmd";
         const string NuGetOverlayCommand = "nuget overlay";
         const string NuGetOverlayVersionArgument = "-Version";
-        static readonly string[] SupportedRuntimes = new[] { "win-x86", "win-x64" };
+        static readonly string RuntimePlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" : "win";
+        public static readonly string[] SupportedRuntimes = RuntimeInformation.OSArchitecture switch
+        {
+            Architecture.Arm => new[] { $"{RuntimePlatform}-arm" },
+            Architecture.Arm64 => new[] { $"{RuntimePlatform}-arm64" },
+            _ => new[] { $"{RuntimePlatform}-x86", $"{RuntimePlatform}-x64" }
+        };
 
         static RuntimeGraph GetRuntimeGraph(PackageReaderBase packageReader)
         {
