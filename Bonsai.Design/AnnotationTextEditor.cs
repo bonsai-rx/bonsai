@@ -10,8 +10,10 @@ namespace Bonsai.Design
     /// Provides a user interface editor that displays a dialog box for editing
     /// the annotation text.
     /// </summary>
-    public class AnnotationTextEditor : UITypeEditor
+    public class AnnotationTextEditor : RichTextEditor
     {
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+
         /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
@@ -21,13 +23,13 @@ namespace Bonsai.Design
         /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            if (provider != null)
+            if (provider != null && !IsRunningOnMono)
             {
                 var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
                 if (editorService != null)
                 {
                     using var editorDialog = new AnnotationBuilderEditorDialog();
-                    editorDialog.Annotation = value as string;
+                    editorDialog.Annotation = (string)value;
                     if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                     {
                         return editorDialog.Annotation;

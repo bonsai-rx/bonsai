@@ -6,12 +6,13 @@
     <PackageTags>Bonsai Rx Scripting Iron Python Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.7.1</VersionPrefix>
+    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Scripting.IronPython\Bonsai.Scripting.IronPython.csproj" />
   </ItemGroup>
 </Project>

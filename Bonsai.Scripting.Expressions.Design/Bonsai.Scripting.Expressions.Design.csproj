@@ -6,12 +6,13 @@
     <PackageTags>Bonsai Rx Scripting Expressions Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.7.0</VersionPrefix>
+    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Scripting.Expressions\Bonsai.Scripting.Expressions.csproj" />
   </ItemGroup>
 </Project>
