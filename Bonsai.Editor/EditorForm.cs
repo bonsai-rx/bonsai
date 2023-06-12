@@ -254,15 +254,15 @@ namespace Bonsai.Editor
 
             WindowState = EditorSettings.Instance.WindowState;
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
-            editorControl.WebViewSize = (int)Math.Round(
-                EditorSettings.Instance.WebViewSize * scaleFactor.Width);
+            editorControl.AnnotationPanelSize = (int)Math.Round(
+                EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
         }
 
         void CloseEditorForm()
         {
             Application.RemoveMessageFilter(hotKeys);
-            EditorSettings.Instance.WebViewSize = (int)Math.Round(
-                editorControl.WebViewSize * inverseScaleFactor.Width);
+            EditorSettings.Instance.AnnotationPanelSize = (int)Math.Round(
+                editorControl.AnnotationPanelSize * inverseScaleFactor.Width);
             var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
             EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
             if (WindowState == FormWindowState.Minimized)
@@ -351,8 +351,8 @@ namespace Bonsai.Editor
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
             const float DefaultToolboxSplitterDistance = 245f;
-            var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f : 1.0f;
-            var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f : 1.0f;
+            var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f / factor.Width : 1.0f;
+            var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f / factor.Height : 1.0f;
             toolboxSplitterScale *= DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * workflowSplitterScale * factor.Height);
@@ -1140,6 +1140,16 @@ namespace Bonsai.Editor
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        protected override bool ProcessDialogChar(char charCode)
+        {
+            if ((ModifierKeys & Keys.Alt) == Keys.None)
+            {
+                return false;
+            }
+
+            return base.ProcessDialogChar(charCode);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -2325,17 +2335,18 @@ namespace Bonsai.Editor
             {
                 var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
-                if (!ModifierKeys.HasFlag(Keys.Control) && editorControl.WebViewInitialized)
+                if (!ModifierKeys.HasFlag(Keys.Control) &&
+                    editorControl.AnnotationPanel.WebViewInitialized)
                 {
-                    editorControl.WebView.CoreWebView2.Navigate(url.AbsoluteUri);
+                    editorControl.AnnotationPanel.Navigate(url.AbsoluteUri);
                     var nameSeparator = uid.LastIndexOf(ExpressionHelper.MemberSeparator);
                     if (nameSeparator >= 0)
                     {
                         var name = uid.Substring(nameSeparator + 1);
                         var categoryName = GetPackageDisplayName(uid.Substring(0, nameSeparator));
-                        editorControl.ExpandWebView(label: $"{name} ({categoryName})");
+                        editorControl.ExpandAnnotationPanel(label: $"{name} ({categoryName})");
                     }
-                    else editorControl.ExpandWebView(label: uid == EditorUid ? Resources.Editor_HelpLabel : uid);
+                    else editorControl.ExpandAnnotationPanel(label: uid == EditorUid ? Resources.Editor_HelpLabel : uid);
                 }
                 else EditorDialog.OpenUrl(url);
             }

@@ -20,6 +20,7 @@ namespace Bonsai.IO
     /// of the sequence to a text file.
     /// </summary>
     [DefaultProperty(nameof(FileName))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Writes a delimited text representation of each element of the sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
@@ -28,6 +29,7 @@ namespace Bonsai.IO
         static readonly Expression InvariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
         static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == nameof(string.Join) &&
                                                                                              m.GetParameters().Length == 2 &&
+                                                                                             m.GetParameters()[0].ParameterType == typeof(string) &&
                                                                                              m.GetParameters()[1].ParameterType == typeof(string[]));
         static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().Single(m => m.Name == nameof(StreamWriter.WriteLine) &&
                                                                                                   m.GetParameters().Length == 1 &&

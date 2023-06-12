@@ -12,6 +12,7 @@ namespace Bonsai.IO
     internal static class SerialPortManager
     {
         public const string DefaultConfigurationFile = "SerialPort.config";
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
         static readonly Dictionary<string, Tuple<SerialPort, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<SerialPort, RefCountDisposable>>();
         static readonly object openConnectionsLock = new object();
 
@@ -44,29 +45,53 @@ namespace Bonsai.IO
                     }
 #pragma warning restore CS0612 // Type or member is obsolete
 
-                    var serialPort = new SerialPort(
-                        serialPortName,
-                        serialPortConfiguration.BaudRate,
-                        serialPortConfiguration.Parity,
-                        serialPortConfiguration.DataBits,
-                        serialPortConfiguration.StopBits);
-                    serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
-                    serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
-                    serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
-                    serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
-                    serialPort.Handshake = serialPortConfiguration.Handshake;
-                    serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
-                    serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
-                    serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
-
-                    var encoding = serialPortConfiguration.Encoding;
-                    if (!string.IsNullOrEmpty(encoding))
+                    SerialPort serialPort;
+                    if (IsRunningOnMono)
                     {
-                        serialPort.Encoding = Encoding.GetEncoding(encoding);
+                        var pollingPort = new PollingSerialPort(
+                            serialPortName,
+                            serialPortConfiguration.BaudRate,
+                            serialPortConfiguration.Parity,
+                            serialPortConfiguration.DataBits,
+                            serialPortConfiguration.StopBits);
+                        serialPort = pollingPort;
+                        ConfigureSerialPort(serialPort);
+                        pollingPort.Open();
+                    }
+                    else
+                    {
+                        serialPort = new SerialPort(
+                            serialPortName,
+                            serialPortConfiguration.BaudRate,
+                            serialPortConfiguration.Parity,
+                            serialPortConfiguration.DataBits,
+                            serialPortConfiguration.StopBits);
+                        serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
+                        serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
+                        serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
+                        ConfigureSerialPort(serialPort);
+                        serialPort.Open();
                     }
 
-                    serialPort.Open();
-                    serialPort.ReadExisting();
+                    void ConfigureSerialPort(SerialPort serialPort)
+                    {
+                        serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
+                        serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
+                        serialPort.Handshake = serialPortConfiguration.Handshake;
+                        serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
+                        serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
+
+                        var encoding = serialPortConfiguration.Encoding;
+                        if (!string.IsNullOrEmpty(encoding))
+                        {
+                            serialPort.Encoding = Encoding.GetEncoding(encoding);
+                        }
+                    }
+
+                    if (serialPort.BytesToRead > 0)
+                    {
+                        serialPort.ReadExisting();
+                    }
                     var dispose = Disposable.Create(() =>
                     {
                         serialPort.Close();

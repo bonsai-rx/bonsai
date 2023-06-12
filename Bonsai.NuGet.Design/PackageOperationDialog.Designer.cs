@@ -35,7 +35,7 @@
             this.loggerListBox = new System.Windows.Forms.ListBox();
             this.closeButtonLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.closeButton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.actionNamePanel.SuspendLayout();
             this.closeButtonLayoutPanel.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
@@ -157,6 +157,6 @@
         private System.Windows.Forms.FlowLayoutPanel closeButtonLayoutPanel;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Panel actionNamePanel;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel tableLayoutPanel;
     }
 }

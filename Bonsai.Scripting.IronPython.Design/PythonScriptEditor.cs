@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using System.ComponentModel;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
+using Bonsai.Design;
 
 namespace Bonsai.Scripting.IronPython.Design
 {
@@ -10,8 +11,10 @@ namespace Bonsai.Scripting.IronPython.Design
     /// Provides a user interface editor that displays a dialog box for editing
     /// the Python script.
     /// </summary>
-    public class PythonScriptEditor : UITypeEditor
+    public class PythonScriptEditor : RichTextEditor
     {
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+
         /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
@@ -21,15 +24,17 @@ namespace Bonsai.Scripting.IronPython.Design
         /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
-            if (editorService != null)
+            if (provider != null && !IsRunningOnMono)
             {
-                var script = value as string;
-                var editorDialog = new PythonScriptEditorDialog();
-                editorDialog.Script = script;
-                if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
+                var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+                if (editorService != null)
                 {
-                    return editorDialog.Script;
+                    using var editorDialog = new PythonScriptEditorDialog();
+                    editorDialog.Script = (string)value;
+                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
+                    {
+                        return editorDialog.Script;
+                    }
                 }
             }
 

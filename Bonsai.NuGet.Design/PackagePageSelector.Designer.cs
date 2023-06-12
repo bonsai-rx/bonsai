@@ -32,7 +32,7 @@
             this.currentButton = new System.Windows.Forms.Button();
             this.previousButton = new System.Windows.Forms.Button();
             this.nextButton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.flowLayoutPanel.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
@@ -128,7 +128,7 @@
         private System.Windows.Forms.Button previousButton;
         private System.Windows.Forms.Button nextButton;
         private System.Windows.Forms.Button currentButton;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
+        private Bonsai.NuGet.Design.TableLayoutPanel tableLayoutPanel;
 
     }
 }

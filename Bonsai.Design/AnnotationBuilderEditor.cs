@@ -19,11 +19,24 @@ namespace Bonsai.Design
                 var editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
                 if (editorState != null && !editorState.WorkflowRunning && component is AnnotationBuilder annotationBuilder)
                 {
-                    using var editorDialog = new AnnotationBuilderEditorDialog();
-                    editorDialog.Annotation = annotationBuilder.Text;
-                    if (editorDialog.ShowDialog(owner) == DialogResult.OK)
+                    if (AnnotationTextEditor.IsRunningOnMono)
                     {
-                        annotationBuilder.Text = editorDialog.Annotation;
+                        using var editorDialog = new RichTextEditorDialog();
+                        editorDialog.Text = RichTextEditor.CamelCaseToSpaces(typeof(AnnotationTextEditor).Name);
+                        editorDialog.Value = annotationBuilder.Text;
+                        if (editorDialog.ShowDialog(owner) == DialogResult.OK)
+                        {
+                            annotationBuilder.Text = editorDialog.Value;
+                        }
+                    }
+                    else
+                    {
+                        using var editorDialog = new AnnotationBuilderEditorDialog();
+                        editorDialog.Annotation = annotationBuilder.Text;
+                        if (editorDialog.ShowDialog(owner) == DialogResult.OK)
+                        {
+                            annotationBuilder.Text = editorDialog.Annotation;
+                        }
                     }
                     return true;
                 }

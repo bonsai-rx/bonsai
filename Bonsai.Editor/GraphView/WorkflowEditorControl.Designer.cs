@@ -35,11 +35,11 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.tabControl = new Bonsai.Editor.GraphView.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
-            this.browserLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
+            this.browserLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
+            this.annotationPanel = new Bonsai.Editor.GraphView.AnnotationPanel();
             this.browserTitlePanel = new System.Windows.Forms.Panel();
             this.closeBrowserButton = new System.Windows.Forms.Button();
-            this.browserLabel = new System.Windows.Forms.Label();
+            this.browserLabel = new Bonsai.Editor.Label();
             this.tabContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -47,7 +47,6 @@
             this.splitContainer.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.browserLayoutPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.webView)).BeginInit();
             this.browserTitlePanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -128,7 +127,7 @@
             // 
             this.browserLayoutPanel.ColumnCount = 1;
             this.browserLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.browserLayoutPanel.Controls.Add(this.webView, 0, 1);
+            this.browserLayoutPanel.Controls.Add(this.annotationPanel, 0, 1);
             this.browserLayoutPanel.Controls.Add(this.browserTitlePanel, 0, 0);
             this.browserLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.browserLayoutPanel.Location = new System.Drawing.Point(0, 0);
@@ -141,17 +140,13 @@
             // 
             // webView
             // 
-            this.webView.AllowExternalDrop = true;
-            this.webView.CreationProperties = null;
-            this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.webView.Location = new System.Drawing.Point(2, 25);
-            this.webView.Margin = new System.Windows.Forms.Padding(2);
-            this.webView.Name = "webView";
-            this.webView.Size = new System.Drawing.Size(296, 70);
-            this.webView.TabIndex = 0;
-            this.webView.ZoomFactor = 1D;
-            this.webView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.webView_KeyDown);
+            this.annotationPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.annotationPanel.Location = new System.Drawing.Point(2, 25);
+            this.annotationPanel.Margin = new System.Windows.Forms.Padding(2);
+            this.annotationPanel.Name = "annotationPanel";
+            this.annotationPanel.Size = new System.Drawing.Size(296, 70);
+            this.annotationPanel.TabIndex = 0;
+            this.annotationPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.annotationPanel_KeyDown);
             // 
             // browserTitlePanel
             // 
@@ -206,7 +201,6 @@
             this.splitContainer.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.browserLayoutPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
             this.browserTitlePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -220,10 +214,10 @@
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer;
-        private Microsoft.Web.WebView2.WinForms.WebView2 webView;
-        private System.Windows.Forms.TableLayoutPanel browserLayoutPanel;
+        private Bonsai.Editor.GraphView.AnnotationPanel annotationPanel;
+        private Bonsai.Editor.TableLayoutPanel browserLayoutPanel;
         private System.Windows.Forms.Panel browserTitlePanel;
         private System.Windows.Forms.Button closeBrowserButton;
-        private System.Windows.Forms.Label browserLabel;
+        private Bonsai.Editor.Label browserLabel;
     }
 }

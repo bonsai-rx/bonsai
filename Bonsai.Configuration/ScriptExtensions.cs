@@ -28,10 +28,9 @@ namespace Bonsai.Configuration
   </PropertyGroup>
 
 </Project>";
-
-        IDictionary<string, Configuration.PackageReference> packageMap;
-        PackageConfiguration packageConfiguration;
-        TempDirectory assemblyFolder;
+        readonly IDictionary<string, PackageReference> packageMap;
+        readonly PackageConfiguration packageConfiguration;
+        readonly TempDirectory assemblyFolder;
 
         public ScriptExtensions(PackageConfiguration configuration, string outputPath)
         {

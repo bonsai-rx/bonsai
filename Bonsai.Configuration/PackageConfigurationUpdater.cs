@@ -41,6 +41,7 @@ namespace Bonsai.Configuration
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly NuGetFramework NativeFramework = NuGetFramework.ParseFrameworkName("native,Version=v0.0", DefaultFrameworkNameProvider.Instance);
         static readonly NuGetFramework WindowsFramework = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion);
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
         public PackageConfigurationUpdater(NuGetFramework projectFramework, PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
         {
@@ -309,6 +310,48 @@ namespace Bonsai.Configuration
             }
         }
 
+        static IEnumerable<string> GetAssemblyConfigFiles(NuGetFramework projectFramework, PackageReaderBase package, string installPath)
+        {
+            const string AssemblyConfigExtension = ".dll.config";
+            var contentFolder = package.GetItems(PackagingConstants.Folders.ContentFiles).GetNearest(projectFramework) ??
+                                package.GetItems(PackagingConstants.Folders.Content).GetNearest(projectFramework);
+            if (contentFolder == null) return Enumerable.Empty<string>();
+            return from file in contentFolder.Items
+                   where file.EndsWith(AssemblyConfigExtension)
+                   select Path.Combine(installPath, file);
+        }
+
+        void UpdateAssemblyConfigFiles(PackageReaderBase package, string installPath, Action<string, string> update)
+        {
+            var assemblyConfigFiles = GetAssemblyConfigFiles(bootstrapperFramework, package, installPath)
+                .ToDictionary(configFile => Path.GetFileNameWithoutExtension(configFile));
+            if (assemblyConfigFiles.Count > 0)
+            {
+                var assemblyLocations = GetCompatibleAssemblyReferences(bootstrapperFramework, package);
+                foreach (var path in assemblyLocations)
+                {
+                    var assemblyName = Path.GetFileName(path);
+                    if (assemblyConfigFiles.TryGetValue(assemblyName, out string configFilePath))
+                    {
+                        var configFileName = Path.GetFileName(configFilePath);
+                        var assemblyConfigFilePath = Path.GetDirectoryName(path);
+                        assemblyConfigFilePath = Path.Combine(installPath, assemblyConfigFilePath, configFileName);
+                        update(configFilePath, assemblyConfigFilePath);
+                    }
+                }
+            }
+        }
+
+        void AddAssemblyConfigFiles(PackageReaderBase package, string installPath)
+        {
+            UpdateAssemblyConfigFiles(package, installPath, File.Copy);
+        }
+
+        void RemoveAssemblyConfigFiles(PackageReaderBase package, string installPath)
+        {
+            UpdateAssemblyConfigFiles(package, installPath, (_, configFilePath) => File.Delete(configFilePath));
+        }
+
         class PackageConfigurationPlugin : PackageManagerPlugin
         {
             public PackageConfigurationPlugin(PackageConfigurationUpdater owner)
@@ -382,6 +425,7 @@ namespace Bonsai.Configuration
                 Owner.AddContentFolders(installPath, ExtensionsDirectory);
                 Owner.RegisterLibraryFolders(packageReader, relativePath);
                 Owner.RegisterAssemblyLocations(packageReader, installPath, relativePath, false);
+                if (IsRunningOnMono) Owner.AddAssemblyConfigFiles(packageReader, installPath);
                 var pivots = OverlayHelper.FindPivots(package, packageReader).ToArray();
                 if (pivots.Length > 0)
                 {
@@ -425,6 +469,7 @@ namespace Bonsai.Configuration
                 Owner.RemoveContentFolders(packageReader, installPath, ExtensionsDirectory);
                 Owner.RemoveLibraryFolders(packageReader, relativePath);
                 Owner.RemoveAssemblyLocations(packageReader, relativePath, false);
+                if (IsRunningOnMono) Owner.RemoveAssemblyConfigFiles(packageReader, installPath);
                 var pivots = OverlayHelper.FindPivots(package, packageReader).ToArray();
                 if (pivots.Length > 0)
                 {

@@ -13,14 +13,15 @@ namespace Bonsai.Editor
     {
         const int MaxRecentFiles = 25;
         const string SettingsFileName = "Bonsai.exe.settings";
-        static readonly string SettingsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), SettingsFileName);
+        public static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
         readonly RecentlyUsedFileCollection recentlyUsedFiles = new RecentlyUsedFileCollection(MaxRecentFiles);
-        public static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+        readonly string settingsPath;
 
-        internal EditorSettings()
+        internal EditorSettings(string path)
         {
-            WebViewSize = 400;
+            AnnotationPanelSize = 400;
+            settingsPath = path;
         }
 
         public static EditorSettings Instance
@@ -34,7 +35,7 @@ namespace Bonsai.Editor
 
         public ColorTheme EditorTheme { get; set; }
 
-        public int WebViewSize { get; set; }
+        public int AnnotationPanelSize { get; set; }
 
         public RecentlyUsedFileCollection RecentlyUsedFiles
         {
@@ -43,12 +44,16 @@ namespace Bonsai.Editor
 
         static EditorSettings Load()
         {
-            var settings = new EditorSettings();
-            if (File.Exists(SettingsPath))
+            var assemblyLocation = Assembly.GetEntryAssembly()?.Location;
+            var settingsPath = !string.IsNullOrEmpty(assemblyLocation)
+                ? Path.Combine(Path.GetDirectoryName(assemblyLocation), SettingsFileName)
+                : string.Empty;
+            var settings = new EditorSettings(settingsPath);
+            if (File.Exists(settingsPath))
             {
                 try
                 {
-                    using (var reader = XmlReader.Create(SettingsPath))
+                    using (var reader = XmlReader.Create(settingsPath))
                     {
                         reader.MoveToContent();
                         while (reader.Read())
@@ -64,10 +69,10 @@ namespace Bonsai.Editor
                                 Enum.TryParse(reader.ReadElementContentAsString(), out ColorTheme editorTheme);
                                 settings.EditorTheme = editorTheme;
                             }
-                            else if (reader.Name == nameof(WebViewSize))
+                            else if (reader.Name == nameof(AnnotationPanelSize))
                             {
-                                int.TryParse(reader.ReadElementContentAsString(), out int webViewSize);
-                                settings.WebViewSize = webViewSize;
+                                int.TryParse(reader.ReadElementContentAsString(), out int annotationPanelSize);
+                                settings.AnnotationPanelSize = annotationPanelSize;
                             }
                             else if (reader.Name == nameof(DesktopBounds))
                             {
@@ -108,12 +113,13 @@ namespace Bonsai.Editor
 
         public void Save()
         {
-            using (var writer = XmlWriter.Create(SettingsPath, new XmlWriterSettings { Indent = true }))
+            if (string.IsNullOrEmpty(settingsPath)) return;
+            using (var writer = XmlWriter.Create(settingsPath, new XmlWriterSettings { Indent = true }))
             {
                 writer.WriteStartElement(typeof(EditorSettings).Name);
                 writer.WriteElementString(nameof(WindowState), WindowState.ToString());
                 writer.WriteElementString(nameof(EditorTheme), EditorTheme.ToString());
-                writer.WriteElementString(nameof(WebViewSize), WebViewSize.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(AnnotationPanelSize), AnnotationPanelSize.ToString(CultureInfo.InvariantCulture));
 
                 writer.WriteStartElement(nameof(DesktopBounds));
                 writer.WriteElementString(nameof(Rectangle.X), DesktopBounds.X.ToString(CultureInfo.InvariantCulture));

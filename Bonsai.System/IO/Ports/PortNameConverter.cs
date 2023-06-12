@@ -25,13 +25,14 @@ namespace Bonsai.IO
                                      select !string.IsNullOrEmpty(createPort.Name) ? createPort.Name : createPort.PortName)
                                      .Distinct()
                                      .ToList();
-
-                    if (portNames.Count > 0) return new StandardValuesCollection(portNames);
-                    else return new StandardValuesCollection(SerialPort.GetPortNames());
+                    if (portNames.Count > 0)
+                    {
+                        return new StandardValuesCollection(portNames);
+                    }
                 }
             }
 
-            return base.GetStandardValues(context);
+            return new StandardValuesCollection(SerialPort.GetPortNames());
         }
     }
 }

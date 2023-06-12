@@ -27,12 +27,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
             this.logoPictureBox = new System.Windows.Forms.PictureBox();
-            this.labelProductName = new System.Windows.Forms.Label();
-            this.labelVersion = new System.Windows.Forms.Label();
-            this.labelCopyright = new System.Windows.Forms.Label();
-            this.labelCompanyName = new System.Windows.Forms.Label();
+            this.labelProductName = new Bonsai.Editor.Label();
+            this.labelVersion = new Bonsai.Editor.Label();
+            this.labelCopyright = new Bonsai.Editor.Label();
+            this.labelCompanyName = new Bonsai.Editor.Label();
             this.textBoxDescription = new System.Windows.Forms.RichTextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
@@ -172,12 +172,12 @@
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
+        private Bonsai.Editor.TableLayoutPanel tableLayoutPanel;
         private System.Windows.Forms.PictureBox logoPictureBox;
-        private System.Windows.Forms.Label labelProductName;
-        private System.Windows.Forms.Label labelVersion;
-        private System.Windows.Forms.Label labelCopyright;
-        private System.Windows.Forms.Label labelCompanyName;
+        private Bonsai.Editor.Label labelProductName;
+        private Bonsai.Editor.Label labelVersion;
+        private Bonsai.Editor.Label labelCopyright;
+        private Bonsai.Editor.Label labelCompanyName;
         private System.Windows.Forms.RichTextBox textBoxDescription;
         private System.Windows.Forms.Button okButton;
     }
