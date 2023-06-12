@@ -40,5 +40,11 @@ namespace Bonsai.Design.Visualizers
             }
             else AddValue(timestamped.Timestamp.DateTime, Convert.ToDouble(timestamped.Value));
         }
+
+        /// <inheritdoc/>
+        protected override void Show(DateTime time, object value)
+        {
+            Show(value);
+        }
     }
 }
