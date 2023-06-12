@@ -12,7 +12,7 @@ namespace Bonsai.Design
     /// </summary>
     public class AnnotationTextEditor : RichTextEditor
     {
-        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+        internal static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
         /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)

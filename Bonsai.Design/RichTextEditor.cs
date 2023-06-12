@@ -13,7 +13,7 @@ namespace Bonsai.Design
     /// </summary>
     public class RichTextEditor : UITypeEditor
     {
-        static string CamelCaseToSpaces(string text)
+        internal static string CamelCaseToSpaces(string text)
         {
             var textBuilder = new StringBuilder(text.Length * 2);
             for (int i = 0; i < text.Length; i++)
