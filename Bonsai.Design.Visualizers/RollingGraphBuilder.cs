@@ -101,7 +101,7 @@ namespace Bonsai.Design.Visualizers
             internal string[] ValueLabels;
             internal SymbolType SymbolType;
             internal float LineWidth;
-            internal Action<object, RollingGraphVisualizer> AddValues;
+            internal Action<DateTime, object, RollingGraphVisualizer> AddValues;
         }
 
         /// <summary>
@@ -113,6 +113,7 @@ namespace Bonsai.Design.Visualizers
         {
             var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
+            var timeParameter = Expression.Parameter(typeof(DateTime));
             var valueParameter = Expression.Parameter(typeof(object));
             var viewParameter = Expression.Parameter(typeof(RollingGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
@@ -125,7 +126,7 @@ namespace Bonsai.Design.Visualizers
                 LineWidth = LineWidth
             };
 
-            var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
+            var selectedIndex = GraphHelper.SelectIndexMember(timeParameter, elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;
             if (selectedIndex.Type != typeof(double) && selectedIndex.Type != typeof(string))
             {
@@ -136,7 +137,12 @@ namespace Bonsai.Design.Visualizers
             var showBody = Expression.Block(new[] { elementVariable },
                 Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
                 Expression.Call(viewParameter, nameof(RollingGraphVisualizer.AddValues), null, selectedIndex, selectedValues));
-            Controller.AddValues = Expression.Lambda<Action<object, RollingGraphVisualizer>>(showBody, valueParameter, viewParameter).Compile();
+            Controller.AddValues = Expression.Lambda<Action<DateTime, object, RollingGraphVisualizer>>(
+                showBody,
+                timeParameter,
+                valueParameter,
+                viewParameter)
+                .Compile();
             return Expression.Call(typeof(RollingGraphBuilder), nameof(Process), new[] { parameterType }, source);
         }
 
