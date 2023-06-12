@@ -489,12 +489,10 @@ namespace Bonsai.Editor.GraphView
         private void LaunchVisualizer(GraphNode node)
         {
             if (IsAnnotation(node) &&
-                EditorControl.WebViewInitialized &&
                 WorkflowEditor.GetGraphNodeBuilder(node) is AnnotationBuilder annotationBuilder)
             {
-                var html = MarkdownConvert.ToHtml(Font, annotationBuilder.Text);
-                EditorControl.WebView.NavigateToString(html);
-                EditorControl.ExpandWebView(annotationBuilder);
+                EditorControl.AnnotationPanel.NavigateToString(annotationBuilder.Text);
+                EditorControl.ExpandAnnotationPanel(annotationBuilder);
                 return;
             }
 
@@ -810,7 +808,7 @@ namespace Bonsai.Editor.GraphView
             graphView.Invalidate(node);
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
             if (builder is AnnotationBuilder annotationBuilder &&
-                EditorControl.WebView.Tag == annotationBuilder)
+                EditorControl.AnnotationPanel.Tag == annotationBuilder)
             {
                 LaunchVisualizer(node);
             }
@@ -840,12 +838,12 @@ namespace Bonsai.Editor.GraphView
             if (validateWorkflow)
             {
                 EditorControl.SelectTab(this);
-                if (EditorControl.WebView.Tag is ExpressionBuilder builder)
+                if (EditorControl.AnnotationPanel.Tag is ExpressionBuilder builder)
                 {
                     if (!EditorControl.Workflow.Descendants().Contains(builder))
                     {
-                        EditorControl.WebView.NavigateToString(string.Empty);
-                        EditorControl.WebView.Tag = null;
+                        EditorControl.AnnotationPanel.NavigateToString(string.Empty);
+                        EditorControl.AnnotationPanel.Tag = null;
                     }
                 }
             }

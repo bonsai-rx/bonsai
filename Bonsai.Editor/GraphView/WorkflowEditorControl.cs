@@ -5,10 +5,7 @@ using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Design;
 using Bonsai.Editor.Themes;
-using Microsoft.Web.WebView2.WinForms;
-using Microsoft.Web.WebView2.Core;
 using Bonsai.Editor.GraphModel;
-using System.Reflection;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -19,7 +16,6 @@ namespace Bonsai.Editor.GraphView
         readonly TabPageController workflowTab;
         readonly ThemeRenderer themeRenderer;
         Padding? adjustMargin;
-        bool webViewInitialized;
 
         public WorkflowEditorControl(IServiceProvider provider)
             : this(provider, false)
@@ -33,21 +29,10 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
+            annotationPanel.ThemeRenderer = themeRenderer;
+            annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
+            annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
             InitializeTheme(workflowTabPage);
-            webView.CoreWebView2InitializationCompleted += (sender, e) =>
-            {
-                webViewInitialized = true;
-                webView.CoreWebView2.ContextMenuRequested += CoreWebView2_ContextMenuRequested;
-                webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                    MarkdownConvert.DefaultUrl,
-                    Environment.CurrentDirectory,
-                    CoreWebView2HostResourceAccessKind.Allow);
-                webView.CoreWebView2.WebResourceRequested += CoreWebView2_WebResourceRequested;
-                webView.CoreWebView2.AddWebResourceRequestedFilter(
-                    $"https://{MarkdownConvert.EmbeddedUrl}/*",
-                    CoreWebView2WebResourceContext.Stylesheet);
-                InitializeWebViewTheme();
-            };
         }
 
         public WorkflowGraphView WorkflowGraphView
@@ -55,22 +40,17 @@ namespace Bonsai.Editor.GraphView
             get { return workflowTab.WorkflowGraphView; }
         }
 
-        public WebView2 WebView
+        public AnnotationPanel AnnotationPanel
         {
-            get { return webView; }
+            get { return annotationPanel; }
         }
 
-        public bool WebViewInitialized
-        {
-            get { return webViewInitialized; }
-        }
-
-        public bool WebViewCollapsed
+        public bool AnnotationCollapsed
         {
             get { return splitContainer.Panel1Collapsed; }
         }
 
-        public int WebViewSize
+        public int AnnotationPanelSize
         {
             get { return splitContainer.SplitterDistance; }
             set
@@ -92,23 +72,23 @@ namespace Bonsai.Editor.GraphView
             set { WorkflowGraphView.Workflow = value; }
         }
 
-        public void ExpandWebView(ExpressionBuilder builder)
+        public void ExpandAnnotationPanel(ExpressionBuilder builder)
         {
-            webView.Tag = builder;
-            ExpandWebView(ElementHelper.GetElementName(builder));
+            annotationPanel.Tag = builder;
+            ExpandAnnotationPanel(ElementHelper.GetElementName(builder));
         }
 
-        public void ExpandWebView(string label)
+        public void ExpandAnnotationPanel(string label)
         {
             browserLabel.Text = label;
             splitContainer.Panel1Collapsed = false;
             EnsureWebViewSize();
         }
 
-        public void CollapseWebView()
+        public void CollapseAnnotationPanel()
         {
             splitContainer.Panel1Collapsed = true;
-            webView.Tag = null;
+            annotationPanel.Tag = null;
         }
 
         public void UpdateVisualizerLayout()
@@ -276,7 +256,6 @@ namespace Bonsai.Editor.GraphView
         protected override void OnLoad(EventArgs e)
         {
             ActivateTab(workflowTabPage);
-            webView.EnsureCoreWebView2Async();
             base.OnLoad(e);
         }
 
@@ -459,7 +438,7 @@ namespace Bonsai.Editor.GraphView
                 var adjustV = displayX - marginTop - displayX / 2 - 1;
                 adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
             }
-            WebViewSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
+            AnnotationPanelSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
             splitContainer.FixedPanel = FixedPanel.Panel1;
         }
 
@@ -487,7 +466,7 @@ namespace Bonsai.Editor.GraphView
                 var delta = PointToClient(MousePosition).X - e.X;
                 if (delta == 0)
                 {
-                    WebViewSize = e.SplitX;
+                    AnnotationPanelSize = e.SplitX;
                 }
             }
         }
@@ -513,59 +492,16 @@ namespace Bonsai.Editor.GraphView
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
             browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
-            InitializeWebViewTheme();
+            annotationPanel.InitializeTheme();
         }
 
-        private void InitializeWebViewTheme()
-        {
-            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
-            webView.BackColor = colorTable.ControlBackColor;
-            webView.ForeColor = colorTable.ControlForeColor;
-            if (webView.CoreWebView2 != null)
-            {
-                webView.CoreWebView2.Profile.PreferredColorScheme = themeRenderer.ActiveTheme switch
-                {
-                    ColorTheme.Light => CoreWebView2PreferredColorScheme.Light,
-                    ColorTheme.Dark => CoreWebView2PreferredColorScheme.Dark,
-                    _ => CoreWebView2PreferredColorScheme.Auto
-                };
-            }
-        }
-
-        private void CoreWebView2_ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e)
-        {
-            var closeMenuItem = webView.CoreWebView2.Environment.CreateContextMenuItem(
-                "Close",
-                iconStream: null,
-                CoreWebView2ContextMenuItemKind.Command);
-            closeMenuItem.CustomItemSelected += delegate { CollapseWebView(); };
-            e.MenuItems.Add(closeMenuItem);
-        }
-
-        private void CoreWebView2_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
-        {
-            if (e.ResourceContext == CoreWebView2WebResourceContext.Stylesheet)
-            {
-                var resourceUri = new Uri(e.Request.Uri);
-                if (resourceUri.Segments?.Length == 2)
-                {
-                    var resourceStream = Assembly
-                        .GetExecutingAssembly()
-                        .GetManifestResourceStream($"Bonsai.Editor.Resources.WebView.{resourceUri.Segments[1]}");
-                    var response = webView.CoreWebView2.Environment.CreateWebResourceResponse(
-                        resourceStream, 200, "OK", "Content-Type: text/css");
-                    e.Response = response;
-                }
-            }
-        }
-
-        private void webView_KeyDown(object sender, KeyEventArgs e)
+        private void annotationPanel_KeyDown(object sender, KeyEventArgs e)
         {
             if (ModifierKeys == Keys.Control)
             {
                 switch (e.KeyCode)
                 {
-                    case Keys.F4: CollapseWebView(); break;
+                    case Keys.F4: CollapseAnnotationPanel(); break;
                     case Keys.Back:
                         e.Handled = true;
                         ActiveTab.WorkflowGraphView.Focus();
@@ -576,7 +512,7 @@ namespace Bonsai.Editor.GraphView
 
         private void closeBrowserButton_Click(object sender, EventArgs e)
         {
-            CollapseWebView();
+            CollapseAnnotationPanel();
         }
     }
 }
