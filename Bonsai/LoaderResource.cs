@@ -1,30 +1,17 @@
 ﻿using Bonsai.Configuration;
-using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Bonsai
 {
-    class LoaderResource<TLoader> : IDisposable where TLoader : MarshalByRefObject
+    static class LoaderResource
     {
-        AppDomain reflectionDomain;
-
-        public LoaderResource(PackageConfiguration configuration)
+        public static MetadataLoadContext CreateMetadataLoadContext(PackageConfiguration configuration)
         {
-            var currentEvidence = AppDomain.CurrentDomain.Evidence;
-            var setupInfo = AppDomain.CurrentDomain.SetupInformation;
-            reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", currentEvidence, setupInfo);
-            Loader = (TLoader)reflectionDomain.CreateInstanceAndUnwrap(
-                typeof(TLoader).Assembly.FullName,
-                typeof(TLoader).FullName,
-                false, (BindingFlags)0, null,
-                new[] { configuration }, null, null);
-        }
-
-        public TLoader Loader { get; private set; }
-
-        public void Dispose()
-        {
-            AppDomain.Unload(reflectionDomain);
+            var runtimeAssemblies = Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
+            var resolver = new PackageAssemblyResolver(configuration, runtimeAssemblies);
+            return new MetadataLoadContext(resolver);
         }
     }
 }

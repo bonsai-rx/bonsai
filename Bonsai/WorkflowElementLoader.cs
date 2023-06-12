@@ -13,54 +13,74 @@ using System.Diagnostics;
 
 namespace Bonsai
 {
-    sealed class WorkflowElementLoader : MarshalByRefObject
+    sealed class WorkflowElementLoader
     {
-        public WorkflowElementLoader(PackageConfiguration configuration)
-        {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
-        }
+        const string ExpressionBuilderSuffix = "Builder";
 
-        static bool IsWorkflowElement(Type type)
+        static bool IsWorkflowElement(Type type, CustomAttributeData[] customAttributes)
         {
-            return type.IsSubclassOf(typeof(ExpressionBuilder)) ||
-                type.IsDefined(typeof(CombinatorAttribute), true) ||
+            return type.IsMatchSubclassOf(typeof(ExpressionBuilder)) ||
+                customAttributes.IsDefined(typeof(CombinatorAttribute)) ||
 #pragma warning disable CS0612 // Type or member is obsolete
-                type.IsDefined(typeof(SourceAttribute), true);
+                customAttributes.IsDefined(typeof(SourceAttribute));
 #pragma warning restore CS0612 // Type or member is obsolete
         }
 
-        static bool IsVisibleElement(Type type)
+        static bool IsVisibleElement(CustomAttributeData[] customAttributes)
         {
-            var visibleAttribute = type.GetCustomAttribute<DesignTimeVisibleAttribute>() ?? DesignTimeVisibleAttribute.Default;
-            return visibleAttribute.Visible;
+            var visibleAttribute = customAttributes.GetCustomAttributeData(typeof(DesignTimeVisibleAttribute));
+            if (visibleAttribute != null)
+            {
+                return visibleAttribute.ConstructorArguments.Count > 0 &&
+                       (bool)visibleAttribute.ConstructorArguments[0].Value;
+            }
+
+            return true;
+        }
+
+        static string RemoveSuffix(string source, string suffix)
+        {
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
+        }
+
+        static string GetElementDisplayName(Type type, CustomAttributeData[] customAttributes)
+        {
+            var displayNameAttribute = customAttributes.GetCustomAttributeData(typeof(DisplayNameAttribute));
+            if (displayNameAttribute != null)
+            {
+                return (string)displayNameAttribute.GetConstructorArgument() ?? string.Empty;
+            }
+
+            return type.IsMatchSubclassOf(typeof(ExpressionBuilder))
+                ? RemoveSuffix(type.Name, ExpressionBuilderSuffix)
+                : type.Name;
         }
 
         static IEnumerable<WorkflowElementDescriptor> GetWorkflowElements(Assembly assembly)
         {
-            Type[] types;
-
-            try { types = assembly.GetTypes(); }
-            catch (ReflectionTypeLoadException ex)
-            {
-                Trace.TraceError(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
-                yield break;
-            }
-
+            var types = assembly.GetTypes();
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
-                if (type.IsPublic && !type.IsValueType && !type.ContainsGenericParameters &&
-                    !type.IsAbstract && IsWorkflowElement(type) && !type.IsDefined(typeof(ObsoleteAttribute)) &&
-                    IsVisibleElement(type) && type.GetConstructor(Type.EmptyTypes) != null)
+                if (!type.IsPublic || type.IsValueType || type.ContainsGenericParameters || type.IsAbstract)
                 {
-                    var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
+                    continue;
+                }
+
+                var customAttributes = type.GetCustomAttributesData(inherit: true);
+                if (IsWorkflowElement(type, customAttributes) &&
+                    !customAttributes.IsDefined(typeof(ObsoleteAttribute)) &&
+                    IsVisibleElement(customAttributes) && type.GetConstructor(Type.EmptyTypes) != null)
+                {
+                    var descriptionAttribute = customAttributes.GetCustomAttributeData(typeof(DescriptionAttribute));
                     yield return new WorkflowElementDescriptor
                     {
-                        Name = ExpressionBuilder.GetElementDisplayName(type),
+                        Name = GetElementDisplayName(type, customAttributes),
                         Namespace = type.Namespace,
                         FullyQualifiedName = type.AssemblyQualifiedName,
-                        Description = descriptionAttribute.Description,
-                        ElementTypes = WorkflowElementCategoryConverter.FromType(type).ToArray()
+                        Description = (string)descriptionAttribute?.GetConstructorArgument() ?? string.Empty,
+                        ElementTypes = WorkflowElementCategoryConverter.FromType(type, customAttributes).ToArray()
                     };
                 }
             }
@@ -79,7 +99,9 @@ namespace Bonsai
                     try
                     {
                         var metadataType = assembly.GetType(name);
-                        if (metadataType != null && metadataType.IsDefined(typeof(ObsoleteAttribute)))
+                        if (metadataType != null &&
+                            metadataType.GetCustomAttributesData(inherit: true)
+                                        .IsDefined(typeof(ObsoleteAttribute)))
                         {
                             continue;
                         }
@@ -87,7 +109,7 @@ namespace Bonsai
                         using (var reader = XmlReader.Create(resourceStream, new XmlReaderSettings { IgnoreWhitespace = true }))
                         {
                             reader.ReadStartElement(typeof(WorkflowBuilder).Name);
-                            if (reader.Name == "Description")
+                            if (reader.Name == nameof(WorkflowBuilder.Description))
                             {
                                 reader.ReadStartElement();
                                 description = reader.Value;
@@ -113,36 +135,33 @@ namespace Bonsai
             }
         }
 
-        WorkflowElementDescriptor[] GetReflectionWorkflowElementTypes(string assemblyRef)
+        static IEnumerable<WorkflowElementDescriptor> GetReflectionWorkflowElementTypes(MetadataLoadContext context, string assemblyName)
         {
-            var types = Enumerable.Empty<WorkflowElementDescriptor>();
             try
             {
-                var assembly = Assembly.Load(assemblyRef);
-                types = types.Concat(GetWorkflowElements(assembly));
+                var assembly = context.LoadFromAssemblyName(assemblyName);
+                return GetWorkflowElements(assembly);
             }
             catch (FileLoadException ex) { Trace.TraceError("{0}", ex); }
             catch (FileNotFoundException ex) { Trace.TraceError("{0}", ex); }
             catch (BadImageFormatException ex) { Trace.TraceError("{0}", ex); }
-
-            return types.Distinct().ToArray();
+            return Enumerable.Empty<WorkflowElementDescriptor>();
         }
 
         public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes(PackageConfiguration configuration)
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource<WorkflowElementLoader>(configuration),
-                resource => from assemblyRef in assemblies.ToObservable()
-                            from package in resource.Loader
-                                .GetReflectionWorkflowElementTypes(assemblyRef)
-                                .GroupBy(element => element.Namespace)
-                            select package);
+                () => LoaderResource.CreateMetadataLoadContext(configuration),
+                context => from assemblyName in assemblies.ToObservable()
+                           from package in GetReflectionWorkflowElementTypes(context, assemblyName)
+                                          .GroupBy(element => element.Namespace)
+                           select package);
         }
     }
 }

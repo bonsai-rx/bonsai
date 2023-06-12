@@ -14,6 +14,7 @@
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="7.0.0" PrivateAssets="all" />
     <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -44,6 +45,13 @@
       <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
     </PropertyGroup>
     <ItemGroup>
+      <InputAssemblies Include="System.Buffers.dll" />
+      <InputAssemblies Include="System.Memory.dll" />
+      <InputAssemblies Include="System.Numerics.Vectors.dll" />
+      <InputAssemblies Include="System.Collections.Immutable.dll" />
+      <InputAssemblies Include="System.Reflection.Metadata.dll" />
+      <InputAssemblies Include="System.Reflection.MetadataLoadContext.dll" />
+      <InputAssemblies Include="System.Runtime.CompilerServices.Unsafe.dll" />
       <InputAssemblies Include="Bonsai.Configuration.dll" />
       <InputAssemblies Include="Bonsai.NuGet.dll" />
       <InputAssemblies Include="Bonsai.NuGet.Design.dll" />

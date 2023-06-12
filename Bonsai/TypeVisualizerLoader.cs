@@ -12,76 +12,57 @@ namespace Bonsai
 {
     sealed class TypeVisualizerLoader : MarshalByRefObject
     {
-        public TypeVisualizerLoader(PackageConfiguration configuration)
+        static IEnumerable<TypeVisualizerDescriptor> GetCustomAttributeTypes(Assembly assembly)
         {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
-        }
+            var assemblyAttributes = assembly.GetCustomAttributesData();
+            var typeVisualizers = assemblyAttributes
+                .OfType<TypeVisualizerAttribute>()
+                .Select(attribute => new TypeVisualizerDescriptor(attribute));
 
-        static IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly)
-        {
-            Type[] types;
-            var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
-
-            try { types = assembly.GetTypes(); }
-            catch (ReflectionTypeLoadException ex)
-            {
-                Trace.TraceError(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
-                return typeVisualizers;
-            }
-
+            var types = assembly.GetTypes();
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
                 if (type.IsPublic && !type.IsAbstract && !type.ContainsGenericParameters)
                 {
-                    var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(typeof(TypeVisualizerAttribute), true), attribute =>
-                    {
-                        var visualizerAttribute = (TypeVisualizerAttribute)attribute;
-                        visualizerAttribute.TargetTypeName = type.AssemblyQualifiedName;
-                        return visualizerAttribute;
-                    });
-
-                    if (visualizerAttributes.Length > 0)
-                    {
-                        typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
-                    }
+                    var customAttributes = type.GetCustomAttributesData(inherit: true).OfType<TypeVisualizerAttribute>();
+                    typeVisualizers = typeVisualizers.Concat(customAttributes.Select(
+                        attribute => new TypeVisualizerDescriptor(attribute)
+                        {
+                            TargetTypeName = type.AssemblyQualifiedName
+                        }));
                 }
             }
 
             return typeVisualizers;
         }
 
-        TypeVisualizerDescriptor[] GetReflectionTypeVisualizerAttributes(string assemblyRef)
+        static IEnumerable<TypeVisualizerDescriptor> GetReflectionTypeVisualizerTypes(MetadataLoadContext context, string assemblyName)
         {
-            var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
             try
             {
-                var assembly = Assembly.Load(assemblyRef);
-                var visualizerAttributes = assembly.GetCustomAttributes(typeof(TypeVisualizerAttribute), true).Cast<TypeVisualizerAttribute>();
-                typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
-                typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly));
+                var assembly = context.LoadFromAssemblyName(assemblyName);
+                return GetCustomAttributeTypes(assembly);
             }
             catch (FileLoadException ex) { Trace.TraceError("{0}", ex); }
             catch (FileNotFoundException ex) { Trace.TraceError("{0}", ex); }
             catch (BadImageFormatException ex) { Trace.TraceError("{0}", ex); }
-
-            return typeVisualizers.Distinct().Select(data => new TypeVisualizerDescriptor(data)).ToArray();
+            return Enumerable.Empty<TypeVisualizerDescriptor>();
         }
 
         public static IObservable<TypeVisualizerDescriptor> GetVisualizerTypes(PackageConfiguration configuration)
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource<TypeVisualizerLoader>(configuration),
-                resource => from assemblyRef in assemblies.ToObservable()
-                            let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
-                            from typeVisualizer in typeVisualizers
-                            select typeVisualizer);
+                () => LoaderResource.CreateMetadataLoadContext(configuration),
+                context => from assemblyName in assemblies.ToObservable()
+                           from typeVisualizer in GetReflectionTypeVisualizerTypes(context, assemblyName)
+                           select typeVisualizer);
         }
     }
 }

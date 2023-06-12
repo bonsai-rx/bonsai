@@ -17,6 +17,10 @@ Building from Source
 1. Install the [Wix Toolset build tools](https://wixtoolset.org/releases/) version 3.11 or greater.
 2. From Visual Studio menu, select `Extensions` > `Manage Extensions` and install the WiX Toolset Visual Studio 2022 Extension.
 
+### Debugging
+
+The new bootstrapper logic makes use of isolated child processes to manage local editor extensions. To make it easier to debug the entire process tree we recommend installing the [Child Process Debugging Power Tool](https://devblogs.microsoft.com/devops/introducing-the-child-process-debugging-power-tool/) extension.
+
 Getting Help
 ------------
 

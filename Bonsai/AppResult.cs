@@ -1,33 +1,97 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipes;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Bonsai
 {
     static class AppResult
     {
-        public static TResult GetResult<TResult>(AppDomain domain)
+        static readonly JsonSerializer Serializer = JsonSerializer.CreateDefault();
+        static Dictionary<string, string> Values;
+
+        public static IDisposable OpenWrite(NamedPipeClientStream stream)
         {
-            var resultHolder = (ResultHolder<TResult>)domain.CreateInstanceAndUnwrap(
-                typeof(ResultHolder<TResult>).Assembly.FullName,
-                typeof(ResultHolder<TResult>).FullName);
-            return resultHolder.Result;
+            Values = new();
+            if (stream == null)
+            {
+                return EmptyDisposable.Instance;
+            }
+
+            stream.Connect();
+            var writer = new StreamWriter(stream);
+            return new AnonymousDisposable(() =>
+            {
+                try
+                {
+                    Serializer.Serialize(writer, Values);
+                    writer.Flush();
+                    try { stream.WaitForPipeDrain(); }
+                    catch (NotSupportedException) { }
+                }
+                finally { writer.Close(); }
+            });
+        }
+
+        public static IDisposable OpenRead(Stream stream)
+        {
+            using var reader = new JsonTextReader(new StreamReader(stream));
+            Values = Serializer.Deserialize<Dictionary<string, string>>(reader);
+            return EmptyDisposable.Instance;
+        }
+
+        public static TResult GetResult<TResult>()
+        {
+            if (Values != null && Values.TryGetValue(typeof(TResult).FullName, out string value))
+            {
+                if (typeof(TResult).IsEnum)
+                {
+                    return (TResult)Enum.Parse(typeof(TResult), value);
+                }
+
+                return (TResult)Convert.ChangeType(value, typeof(TResult));
+            }
+
+            return default;
         }
 
         public static void SetResult<TResult>(TResult result)
         {
-            ResultHolder<TResult>.ResultValue = result;
+            if (Values == null)
+            {
+                throw new InvalidOperationException("No output stream has been opened for writing.");
+            }
+
+            Values[typeof(TResult).FullName] = result.ToString();
         }
 
-        class ResultHolder<TResult> : MarshalByRefObject
+        class AnonymousDisposable : IDisposable
         {
-            public static TResult ResultValue;
+            private Action disposeAction;
 
-            public ResultHolder()
+            public AnonymousDisposable(Action dispose)
+            {
+                disposeAction = dispose;
+            }
+
+            public void Dispose()
+            {
+                Interlocked.Exchange(ref disposeAction, null)?.Invoke();
+            }
+        }
+
+        class EmptyDisposable : IDisposable
+        {
+            public static readonly EmptyDisposable Instance = new();
+
+            private EmptyDisposable()
             {
             }
 
-            public TResult Result
+            public void Dispose()
             {
-                get { return ResultValue; }
             }
         }
     }

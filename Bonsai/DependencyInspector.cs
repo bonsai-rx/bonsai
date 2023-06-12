@@ -16,8 +16,6 @@ namespace Bonsai
 {
     sealed class DependencyInspector : MarshalByRefObject
     {
-        readonly ScriptExtensions scriptEnvironment;
-        readonly PackageConfiguration packageConfiguration;
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
@@ -26,14 +24,7 @@ namespace Bonsai
         const string TypeAttributeName = "type";
         const char AssemblySeparator = ':';
 
-        public DependencyInspector(PackageConfiguration configuration)
-        {
-            ConfigurationHelper.SetAssemblyResolve(configuration);
-            scriptEnvironment = new ScriptExtensions(configuration, null);
-            packageConfiguration = configuration;
-        }
-
-        IEnumerable<VisualizerDialogSettings> GetVisualizerSettings(VisualizerLayout root)
+        static IEnumerable<VisualizerDialogSettings> GetVisualizerSettings(VisualizerLayout root)
         {
             var stack = new Stack<VisualizerLayout>();
             stack.Push(root);
@@ -52,8 +43,10 @@ namespace Bonsai
             }
         }
 
-        Configuration.PackageReference[] GetWorkflowPackageDependencies(string[] fileNames)
+        static Configuration.PackageReference[] GetPackageDependencies(string[] fileNames, PackageConfiguration configuration)
         {
+            using var context = LoaderResource.CreateMetadataLoadContext(configuration);
+            var scriptEnvironment = new ScriptExtensions(configuration, null);
             var assemblies = new HashSet<Assembly>();
             foreach (var path in fileNames)
             {
@@ -76,7 +69,7 @@ namespace Bonsai
                                     var assemblyName = includePath.Split(new[] { AssemblySeparator }, 2)[0];
                                     if (!string.IsNullOrEmpty(assemblyName))
                                     {
-                                        var assembly = Assembly.Load(assemblyName);
+                                        var assembly = context.LoadFromAssemblyName(assemblyName);
                                         assemblies.Add(assembly);
                                     }
                                 }
@@ -92,7 +85,7 @@ namespace Bonsai
                 if (File.Exists(layoutPath))
                 {
                     var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
-                        TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration)
+                        TypeVisualizerLoader.GetVisualizerTypes(configuration)
                                             .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
                                             .Select(typeName => Type.GetType(typeName, false))
                                             .Where(type => type != null)
@@ -115,16 +108,16 @@ namespace Bonsai
                 }
             }
 
-            var packageMap = packageConfiguration.GetPackageReferenceMap();
+            var packageMap = configuration.GetPackageReferenceMap();
             var dependencies = assemblies.Select(assembly =>
-                packageConfiguration.GetAssemblyPackageReference(assembly.GetName().Name, packageMap))
+                configuration.GetAssemblyPackageReference(assembly.GetName().Name, packageMap))
                 .Where(package => package != null);
             if (File.Exists(scriptEnvironment.ProjectFileName))
             {
                 dependencies = dependencies.Concat(
                     from id in scriptEnvironment.GetPackageReferences()
-                    where packageConfiguration.Packages.Contains(id)
-                    select packageConfiguration.Packages[id]);
+                    where configuration.Packages.Contains(id)
+                    select configuration.Packages[id]);
             }
 
             return dependencies.ToArray();
@@ -134,14 +127,12 @@ namespace Bonsai
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
-            return Observable.Using(
-                () => new LoaderResource<DependencyInspector>(configuration),
-                resource => from dependency in resource.Loader.GetWorkflowPackageDependencies(fileNames).ToObservable()
-                            let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)
-                            select new PackageDependency(dependency.Id, versionRange));
+            return from dependency in GetPackageDependencies(fileNames, configuration).ToObservable()
+                   let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)
+                   select new PackageDependency(dependency.Id, versionRange);
         }
     }
 }

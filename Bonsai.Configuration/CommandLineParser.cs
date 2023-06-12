@@ -68,7 +68,10 @@ namespace Bonsai.Configuration
                     {
                         var argument = string.Empty;
                         if (options.Length > 1) argument = options[1];
-                        else if (args.Length > i + 1) argument = args[++i];
+                        else if (args.Length > i + 1 && !args[i + 1].StartsWith(CommandPrefix))
+                        {
+                            argument = args[++i];
+                        }
                         command(argument);
                     }
                 }

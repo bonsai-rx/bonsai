@@ -109,7 +109,8 @@ namespace Bonsai
                 if (scriptExtensions.DebugScripts) editorFlags |= EditorFlags.DebugScripts;
                 AppResult.SetResult(editorFlags);
                 AppResult.SetResult(mainForm.FileName);
-                return (int)mainForm.EditorResult;
+                AppResult.SetResult((int)mainForm.EditorResult);
+                return Program.NormalExitCode;
             }
             finally { cancellation.Cancel(); }
         }
