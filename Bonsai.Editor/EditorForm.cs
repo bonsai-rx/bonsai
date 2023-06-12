@@ -255,13 +255,13 @@ namespace Bonsai.Editor
             WindowState = EditorSettings.Instance.WindowState;
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
             editorControl.AnnotationPanelSize = (int)Math.Round(
-                EditorSettings.Instance.WebViewSize * scaleFactor.Width);
+                EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
         }
 
         void CloseEditorForm()
         {
             Application.RemoveMessageFilter(hotKeys);
-            EditorSettings.Instance.WebViewSize = (int)Math.Round(
+            EditorSettings.Instance.AnnotationPanelSize = (int)Math.Round(
                 editorControl.AnnotationPanelSize * inverseScaleFactor.Width);
             var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
             EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
