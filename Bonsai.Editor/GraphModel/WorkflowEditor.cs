@@ -964,6 +964,39 @@ namespace Bonsai.Editor.GraphModel
             return genericType.MakeGenericType(inspectBuilder.ObservableType).AssemblyQualifiedName;
         }
 
+        private void ConfigureBuilder(ExpressionBuilder builder, GraphNode selectedNode, string arguments)
+        {
+            if (string.IsNullOrEmpty(arguments)) return;
+            // TODO: This special case for binary operator operands should be avoided in the future
+            if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
+            {
+                if (GetGraphNodeTag(selectedNode).Value is InspectBuilder inputBuilder &&
+                    inputBuilder.ObservableType != null)
+                {
+                    binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
+                }
+            }
+
+            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+            var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+            if (defaultProperty != null &&
+                !defaultProperty.IsReadOnly &&
+                defaultProperty.Converter != null &&
+                defaultProperty.Converter.CanConvertFrom(typeof(string)))
+            {
+                try
+                {
+                    var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                    var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                    defaultProperty.SetValue(workflowElement, propertyValue);
+                }
+                catch (Exception ex)
+                {
+                    throw new SystemException(ex.Message, ex);
+                }
+            }
+        }
+
         public void CreateGraphNode(
             string typeName,
             ElementCategory elementCategory,
@@ -1037,39 +1070,6 @@ namespace Bonsai.Editor.GraphModel
             ReplaceExternalizedMappings(nodeType, selectedNodes);
             commandExecutor.Execute(commands.updateLayout.Command, EmptyAction);
             commandExecutor.EndCompositeCommand();
-        }
-
-        private void ConfigureBuilder(ExpressionBuilder builder, GraphNode selectedNode, string arguments)
-        {
-            if (string.IsNullOrEmpty(arguments)) return;
-            // TODO: This special case for binary operator operands should be avoided in the future
-            if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
-            {
-                if (GetGraphNodeTag(selectedNode).Value is InspectBuilder inputBuilder &&
-                    inputBuilder.ObservableType != null)
-                {
-                    binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
-                }
-            }
-
-            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-            var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-            if (defaultProperty != null &&
-                !defaultProperty.IsReadOnly &&
-                defaultProperty.Converter != null &&
-                defaultProperty.Converter.CanConvertFrom(typeof(string)))
-            {
-                try
-                {
-                    var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
-                    var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
-                    defaultProperty.SetValue(workflowElement, propertyValue);
-                }
-                catch (Exception ex)
-                {
-                    throw new SystemException(ex.Message, ex);
-                }
-            }
         }
 
         public void CreateGraphNode(
