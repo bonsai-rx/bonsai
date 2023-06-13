@@ -153,7 +153,8 @@ namespace Bonsai.Editor.GraphModel
             Node<ExpressionBuilder, ExpressionBuilderArgument> target,
             CreateGraphNodeType nodeType)
         {
-            var insertOffset = target == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
+            if (target == null) return workflow.Count;
+            var insertOffset = nodeType == CreateGraphNodeType.Successor ? 1 : 0;
             return workflow.IndexOf(target) + insertOffset;
         }
 
@@ -198,7 +199,7 @@ namespace Bonsai.Editor.GraphModel
 
         private void SortWorkflow(ExpressionBuilderGraph workflow)
         {
-            Workflow.InsertRange(0, Workflow.TopologicalSort());
+            workflow.InsertRange(0, workflow.TopologicalSort());
         }
 
         private GraphCommand GetSimpleSort()
@@ -688,7 +689,9 @@ namespace Bonsai.Editor.GraphModel
             }
 
             GraphCommand reorder;
-            var targetIndex = workflow.IndexOf(target) + 1;
+            var components = workflow.FindConnectedComponents();
+            var targetComponent = components.First(component => component.Contains(target));
+            var targetIndex = LastIndexOfComponentNode(workflow, targetComponent) + 1;
             if (sinkNodes != null)
             {
                 reorder = GetReversibleSort();
@@ -962,12 +965,56 @@ namespace Bonsai.Editor.GraphModel
             return genericType.MakeGenericType(inspectBuilder.ObservableType).AssemblyQualifiedName;
         }
 
-        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
+        private void ConfigureBuilder(ExpressionBuilder builder, GraphNode selectedNode, string arguments)
         {
-            InsertGraphNode(typeName, elementCategory, nodeType, branch, group, null);
+            if (string.IsNullOrEmpty(arguments)) return;
+            // TODO: This special case for binary operator operands should be avoided in the future
+            if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
+            {
+                if (GetGraphNodeTag(selectedNode).Value is InspectBuilder inputBuilder &&
+                    inputBuilder.ObservableType != null)
+                {
+                    binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
+                }
+            }
+
+            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+            var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+            if (defaultProperty != null &&
+                !defaultProperty.IsReadOnly &&
+                defaultProperty.Converter != null &&
+                defaultProperty.Converter.CanConvertFrom(typeof(string)))
+            {
+                try
+                {
+                    var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                    var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                    defaultProperty.SetValue(workflowElement, propertyValue);
+                }
+                catch (Exception ex)
+                {
+                    throw new SystemException(ex.Message, ex);
+                }
+            }
         }
 
-        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group, string arguments)
+        public void CreateGraphNode(
+            string typeName,
+            ElementCategory elementCategory,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool group)
+        {
+            CreateGraphNode(typeName, elementCategory, nodeType, branch, group, arguments: null);
+        }
+
+        public void CreateGraphNode(
+            string typeName,
+            ElementCategory elementCategory,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool group,
+            string arguments)
         {
             if (string.IsNullOrEmpty(typeName))
             {
@@ -1017,11 +1064,6 @@ namespace Bonsai.Editor.GraphModel
 
             builder = CreateBuilder(typeName, elementCategory, group);
             ConfigureBuilder(builder, selectedNode, arguments);
-            if (typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName ||
-                typeName == typeof(AnnotationBuilder).AssemblyQualifiedName)
-            {
-                nodeType = CreateGraphNodeType.Predecessor;
-            }
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, commands.updateLayout.Undo);
@@ -1029,39 +1071,6 @@ namespace Bonsai.Editor.GraphModel
             ReplaceExternalizedMappings(nodeType, selectedNodes);
             commandExecutor.Execute(commands.updateLayout.Command, EmptyAction);
             commandExecutor.EndCompositeCommand();
-        }
-
-        private void ConfigureBuilder(ExpressionBuilder builder, GraphNode selectedNode, string arguments)
-        {
-            if (string.IsNullOrEmpty(arguments)) return;
-            // TODO: This special case for binary operator operands should be avoided in the future
-            if (builder is BinaryOperatorBuilder binaryOperator && selectedNode != null)
-            {
-                if (GetGraphNodeTag(selectedNode).Value is InspectBuilder inputBuilder &&
-                    inputBuilder.ObservableType != null)
-                {
-                    binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
-                }
-            }
-
-            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-            var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-            if (defaultProperty != null &&
-                !defaultProperty.IsReadOnly &&
-                defaultProperty.Converter != null &&
-                defaultProperty.Converter.CanConvertFrom(typeof(string)))
-            {
-                try
-                {
-                    var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
-                    var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
-                    defaultProperty.SetValue(workflowElement, propertyValue);
-                }
-                catch (Exception ex)
-                {
-                    throw new SystemException(ex.Message, ex);
-                }
-            }
         }
 
         public void CreateGraphNode(
@@ -1154,6 +1163,13 @@ namespace Bonsai.Editor.GraphModel
             var inspectParameter = new ExpressionBuilderArgument();
 
             var targetNodes = selectedNodes.ToArray();
+            if (targetNodes.Length > 0 &&
+               (builder is ExternalizedMappingBuilder ||
+                builder is AnnotationBuilder))
+            {
+                nodeType = CreateGraphNodeType.Predecessor;
+            }
+
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
             if (insertIndex < 0)
             {
@@ -1193,7 +1209,7 @@ namespace Bonsai.Editor.GraphModel
                     _ => false
                 }));
 
-            var reorder = GetSimpleSort();
+            var reorder = GetReversibleSort();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);

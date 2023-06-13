@@ -194,6 +194,33 @@ namespace Bonsai.Editor.Tests
             editor.UngroupGraphNodes(nodesToUngroup);
             assertIsReversible();
         }
+
+        [TestMethod]
+        public void DisconnectGraphNodes_TargetIsNotRoot_InsertAfterClosestRoot()
+        {
+            var workflow = EditorHelper.CreateEditorGraph("A", "B", "C", "D");
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            editor.ConnectNodes("A", "C");
+            editor.ConnectNodes("B", "C");
+            editor.ConnectNodes("C", "D");
+            var sourceNode = editor.FindNode("B");
+            var targetNode = editor.FindNode("C");
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode("D").Index);
+            editor.DisconnectGraphNodes(new[] { sourceNode }, targetNode);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode("B").Index);
+            assertIsReversible();
+        }
+
+        [TestMethod]
+        public void CreateAnnotation_EmptySelection_InsertAfterClosestRoot()
+        {
+            var workflow = EditorHelper.CreateEditorGraph("A");
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var annotationBuilder = new AnnotationBuilder();
+            editor.CreateGraphNode(annotationBuilder, null, CreateGraphNodeType.Successor, branch: false);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode(annotationBuilder).Index);
+            assertIsReversible();
+        }
     }
 
     static class WorkflowEditorHelper
