@@ -964,12 +964,23 @@ namespace Bonsai.Editor.GraphModel
             return genericType.MakeGenericType(inspectBuilder.ObservableType).AssemblyQualifiedName;
         }
 
-        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group)
+        public void CreateGraphNode(
+            string typeName,
+            ElementCategory elementCategory,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool group)
         {
-            InsertGraphNode(typeName, elementCategory, nodeType, branch, group, null);
+            CreateGraphNode(typeName, elementCategory, nodeType, branch, group, arguments: null);
         }
 
-        public void InsertGraphNode(string typeName, ElementCategory elementCategory, CreateGraphNodeType nodeType, bool branch, bool group, string arguments)
+        public void CreateGraphNode(
+            string typeName,
+            ElementCategory elementCategory,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool group,
+            string arguments)
         {
             if (string.IsNullOrEmpty(typeName))
             {
@@ -1019,11 +1030,6 @@ namespace Bonsai.Editor.GraphModel
 
             builder = CreateBuilder(typeName, elementCategory, group);
             ConfigureBuilder(builder, selectedNode, arguments);
-            if (typeName == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName ||
-                typeName == typeof(AnnotationBuilder).AssemblyQualifiedName)
-            {
-                nodeType = CreateGraphNodeType.Predecessor;
-            }
             var commands = GetCreateGraphNodeCommands(builder, selectedNodes.Select(GetGraphNodeTag), nodeType, branch);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, commands.updateLayout.Undo);
@@ -1156,6 +1162,13 @@ namespace Bonsai.Editor.GraphModel
             var inspectParameter = new ExpressionBuilderArgument();
 
             var targetNodes = selectedNodes.ToArray();
+            if (targetNodes.Length > 0 &&
+               (builder is ExternalizedMappingBuilder ||
+                builder is AnnotationBuilder))
+            {
+                nodeType = CreateGraphNodeType.Predecessor;
+            }
+
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(targetNodes);
             if (insertIndex < 0)
             {

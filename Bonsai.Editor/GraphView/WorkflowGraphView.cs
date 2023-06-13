@@ -335,7 +335,7 @@ namespace Bonsai.Editor.GraphView
             bool group,
             string arguments)
         {
-            try { Editor.InsertGraphNode(typeName, elementCategory, nodeType, branch, group, arguments); }
+            try { Editor.CreateGraphNode(typeName, elementCategory, nodeType, branch, group, arguments); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(Resources.CreateTypeNode_Error, name, e.InnerException.Message);
