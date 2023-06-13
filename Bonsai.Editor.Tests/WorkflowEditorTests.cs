@@ -194,6 +194,22 @@ namespace Bonsai.Editor.Tests
             editor.UngroupGraphNodes(nodesToUngroup);
             assertIsReversible();
         }
+
+        [TestMethod]
+        public void DisconnectGraphNodes_TargetIsNotRoot_InsertAfterClosestRoot()
+        {
+            var workflow = EditorHelper.CreateEditorGraph("A", "B", "C", "D");
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            editor.ConnectNodes("A", "C");
+            editor.ConnectNodes("B", "C");
+            editor.ConnectNodes("C", "D");
+            var sourceNode = editor.FindNode("B");
+            var targetNode = editor.FindNode("C");
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode("D").Index);
+            editor.DisconnectGraphNodes(new[] { sourceNode }, targetNode);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode("B").Index);
+            assertIsReversible();
+        }
     }
 
     static class WorkflowEditorHelper
