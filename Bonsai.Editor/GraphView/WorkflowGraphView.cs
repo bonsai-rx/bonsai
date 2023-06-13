@@ -1692,7 +1692,7 @@ namespace Bonsai.Editor.GraphView
                 valueProperty.SetValue(propertySource, memberValue);
                 propertySource.MemberName = memberName;
 
-                Editor.CreateGraphNode(propertySource, default(GraphNode), CreateGraphNodeType.Predecessor, branch: true);
+                Editor.CreateGraphNode(propertySource, default(GraphNode), CreateGraphNodeType.Successor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
