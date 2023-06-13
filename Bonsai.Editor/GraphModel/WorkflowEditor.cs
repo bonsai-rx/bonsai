@@ -1209,7 +1209,9 @@ namespace Bonsai.Editor.GraphModel
                     _ => false
                 }));
 
-            var reorder = GetReversibleSort();
+            var reorder = nodeType == CreateGraphNodeType.Predecessor || targetNodes.Length == 0
+                || targetNodes.Length == 1 && targetNodes[0] == graphView.CursorNode?.Tag
+                ? GetSimpleSort() : GetReversibleSort();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
