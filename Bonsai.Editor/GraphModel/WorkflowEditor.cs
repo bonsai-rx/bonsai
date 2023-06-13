@@ -153,7 +153,8 @@ namespace Bonsai.Editor.GraphModel
             Node<ExpressionBuilder, ExpressionBuilderArgument> target,
             CreateGraphNodeType nodeType)
         {
-            var insertOffset = target == null || nodeType == CreateGraphNodeType.Successor ? 1 : 0;
+            if (target == null) return workflow.Count;
+            var insertOffset = nodeType == CreateGraphNodeType.Successor ? 1 : 0;
             return workflow.IndexOf(target) + insertOffset;
         }
 
