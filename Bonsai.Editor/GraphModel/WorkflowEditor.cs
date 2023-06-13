@@ -688,7 +688,9 @@ namespace Bonsai.Editor.GraphModel
             }
 
             GraphCommand reorder;
-            var targetIndex = workflow.IndexOf(target) + 1;
+            var components = workflow.FindConnectedComponents();
+            var targetComponent = components.First(component => component.Contains(target));
+            var targetIndex = LastIndexOfComponentNode(workflow, targetComponent) + 1;
             if (sinkNodes != null)
             {
                 reorder = GetReversibleSort();
