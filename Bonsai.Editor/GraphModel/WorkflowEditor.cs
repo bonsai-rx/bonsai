@@ -1209,7 +1209,7 @@ namespace Bonsai.Editor.GraphModel
                     _ => false
                 }));
 
-            var reorder = GetSimpleSort();
+            var reorder = GetReversibleSort();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
