@@ -31,6 +31,12 @@ namespace Bonsai.Editor.Tests
             return editor.FindGraphNode(node.Value);
         }
 
+        internal static GraphNode FindNode(this WorkflowEditor editor, ExpressionBuilder builder)
+        {
+            var node = editor.Workflow.First(n => ExpressionBuilder.Unwrap(n.Value) == builder);
+            return editor.FindGraphNode(node.Value);
+        }
+
         internal static void ConnectNodes(this WorkflowEditor editor, string source, string target)
         {
             var sourceNodes = new[] { editor.FindNode(source) };

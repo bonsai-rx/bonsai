@@ -210,6 +210,17 @@ namespace Bonsai.Editor.Tests
             Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode("B").Index);
             assertIsReversible();
         }
+
+        [TestMethod]
+        public void CreateAnnotation_EmptySelection_InsertAfterClosestRoot()
+        {
+            var workflow = EditorHelper.CreateEditorGraph("A");
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var annotationBuilder = new AnnotationBuilder();
+            editor.CreateGraphNode(annotationBuilder, null, CreateGraphNodeType.Successor, branch: false);
+            Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode(annotationBuilder).Index);
+            assertIsReversible();
+        }
     }
 
     static class WorkflowEditorHelper
