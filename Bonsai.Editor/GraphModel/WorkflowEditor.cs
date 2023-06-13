@@ -198,7 +198,7 @@ namespace Bonsai.Editor.GraphModel
 
         private void SortWorkflow(ExpressionBuilderGraph workflow)
         {
-            Workflow.InsertRange(0, Workflow.TopologicalSort());
+            workflow.InsertRange(0, workflow.TopologicalSort());
         }
 
         private GraphCommand GetSimpleSort()
