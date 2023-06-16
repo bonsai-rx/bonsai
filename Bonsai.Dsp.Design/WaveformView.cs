@@ -322,6 +322,18 @@ namespace Bonsai.Dsp.Design
                 SelectedPage--;
             }
 
+            if (modifiers.HasFlag(Keys.Control) && keyCode == Keys.Oemplus)
+            {
+                var factor = modifiers.HasFlag(Keys.Shift) ? 10 : 1;
+                HistoryLength += factor;
+            }
+
+            if (modifiers.HasFlag(Keys.Control) && keyCode == Keys.OemMinus)
+            {
+                var factor = modifiers.HasFlag(Keys.Shift) ? 10 : 1;
+                HistoryLength = Math.Max(1, HistoryLength - factor);
+            }
+
             return base.ProcessDialogKey(keyData);
         }
 
