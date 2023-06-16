@@ -185,7 +185,7 @@ namespace Bonsai.Shaders
         public IObservable<Texture> Generate<TSource>(IObservable<TSource> source)
         {
             var update = updateFrame.Generate();
-            return ShaderManager.WindowSource.SelectMany(window =>
+            return ShaderManager.WindowSource.Take(1).SelectMany(window =>
                 source.Select(_ => CloneImageConfiguration())
                       .Buffer(update)
                       .SelectMany(xs => xs)
