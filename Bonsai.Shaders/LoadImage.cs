@@ -134,6 +134,23 @@ namespace Bonsai.Shaders
             set { configuration.FlipMode = value; }
         }
 
+        ImageTexture CloneImageConfiguration()
+        {
+            return new ImageTexture
+            {
+                Width = configuration.Width,
+                Height = configuration.Height,
+                InternalFormat = configuration.InternalFormat,
+                WrapS = configuration.WrapS,
+                WrapT = configuration.WrapT,
+                MinFilter = configuration.MinFilter,
+                MagFilter = configuration.MagFilter,
+                FileName = configuration.FileName,
+                ColorType = configuration.ColorType,
+                FlipMode = configuration.FlipMode
+            };
+        }
+
         /// <summary>
         /// Generates an observable sequence that returns a texture buffer loaded
         /// from the specified image file.
@@ -145,6 +162,7 @@ namespace Bonsai.Shaders
         public override IObservable<Texture> Generate()
         {
             var update = updateFrame.Generate().Take(1);
+            var configuration = CloneImageConfiguration();
             return update.Select(x => configuration.CreateResource(((ShaderWindow)x.Sender).ResourceManager));
         }
 
@@ -166,7 +184,12 @@ namespace Bonsai.Shaders
         /// </returns>
         public IObservable<Texture> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.SelectMany(Generate());
+            var update = updateFrame.Generate();
+            return ShaderManager.WindowSource.SelectMany(window =>
+                source.Select(_ => CloneImageConfiguration())
+                      .Buffer(update)
+                      .SelectMany(xs => xs)
+                      .Select(configuration => configuration.CreateResource(window.ResourceManager)));
         }
     }
 }
