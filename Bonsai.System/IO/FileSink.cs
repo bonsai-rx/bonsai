@@ -117,6 +117,11 @@ namespace Bonsai.IO
             Func<TElement, TSource> selector,
             string fileName)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new InvalidOperationException("A valid file path must be specified.");
+            }
+
             if (source == null)
             {
                 throw new ArgumentNullException(nameof(source));
@@ -129,6 +134,13 @@ namespace Bonsai.IO
 
             return Observable.Create<TElement>(observer =>
             {
+                PathHelper.EnsureDirectory(fileName);
+                fileName = PathHelper.AppendSuffix(fileName, Suffix);
+                if (File.Exists(fileName) && !Overwrite)
+                {
+                    throw new IOException(string.Format("The file '{0}' already exists.", fileName));
+                }
+
                 var disposable = new WriterDisposable<TWriter>(Buffered);
                 var process = source.Do(element =>
                 {
@@ -140,18 +152,6 @@ namespace Bonsai.IO
                             var runningWriter = disposable.Writer;
                             if (runningWriter == null)
                             {
-                                if (string.IsNullOrEmpty(fileName))
-                                {
-                                    throw new InvalidOperationException("A valid file path must be specified.");
-                                }
-
-                                PathHelper.EnsureDirectory(fileName);
-                                fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                                if (File.Exists(fileName) && !Overwrite)
-                                {
-                                    throw new IOException(string.Format("The file '{0}' already exists.", fileName));
-                                }
-
                                 runningWriter = disposable.Writer = CreateWriter(fileName, input);
                             }
 
