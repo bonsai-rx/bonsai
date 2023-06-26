@@ -80,6 +80,11 @@ namespace Bonsai.Design.Visualizers
 
         internal static Expression SelectIndexMember(Expression expression, string indexSelector, out string indexLabel)
         {
+            return SelectIndexMember(time: null, expression, indexSelector, out indexLabel);
+        }
+
+        internal static Expression SelectIndexMember(Expression time, Expression expression, string indexSelector, out string indexLabel)
+        {
             Expression selectedIndex;
             if (!string.IsNullOrEmpty(indexSelector))
             {
@@ -88,14 +93,14 @@ namespace Bonsai.Design.Visualizers
             }
             else
             {
-                selectedIndex = Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
+                selectedIndex = time ?? Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
                 indexLabel = "Time";
             }
 
             if (selectedIndex.Type == typeof(DateTimeOffset)) selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
             if (selectedIndex.Type == typeof(DateTime))
             {
-                selectedIndex = Expression.Convert(selectedIndex, typeof(ZedGraph.XDate));
+                selectedIndex = Expression.Convert(selectedIndex, typeof(XDate));
             }
 
             return selectedIndex;

@@ -8,7 +8,7 @@ namespace Bonsai.Design.Visualizers
     /// <summary>
     /// Provides a type visualizer to display an object as a line graph.
     /// </summary>
-    public class LineGraphVisualizer : DialogTypeVisualizer
+    public class LineGraphVisualizer : BufferedVisualizer
     {
         LineGraphBuilder.VisualizerController controller;
         LineGraphView view;

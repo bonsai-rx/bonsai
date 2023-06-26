@@ -8,7 +8,7 @@ namespace Bonsai.Design.Visualizers
     /// <summary>
     /// Provides a type visualizer to display an object as a rolling graph.
     /// </summary>
-    public class RollingGraphVisualizer : DialogTypeVisualizer
+    public class RollingGraphVisualizer : BufferedVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
         RollingGraphBuilder.VisualizerController controller;
@@ -127,8 +127,13 @@ namespace Bonsai.Design.Visualizers
         /// <inheritdoc/>
         public override void Show(object value)
         {
-            var time = DateTime.Now;
-            controller.AddValues(value, this);
+            Show(DateTime.Now, value);
+        }
+
+        /// <inheritdoc/>
+        protected override void Show(DateTime time, object value)
+        {
+            controller.AddValues(time, value, this);
             if ((time - updateTime) > TargetElapsedTime)
             {
                 view.Graph.Invalidate();

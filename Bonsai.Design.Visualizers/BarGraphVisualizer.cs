@@ -8,7 +8,7 @@ namespace Bonsai.Design.Visualizers
     /// <summary>
     /// Provides a type visualizer to display an object as a bar graph.
     /// </summary>
-    public class BarGraphVisualizer : DialogTypeVisualizer
+    public class BarGraphVisualizer : BufferedVisualizer
     {
         BarGraphBuilder.VisualizerController controller;
         BarGraphView view;

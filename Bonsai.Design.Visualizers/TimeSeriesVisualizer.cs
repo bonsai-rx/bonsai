@@ -125,7 +125,7 @@ namespace Bonsai.Design.Visualizers
     /// Provides a base class for rolling graph visualizers of multi-dimensional
     /// time series data.
     /// </summary>
-    public class TimeSeriesVisualizerBase : DialogTypeVisualizer
+    public class TimeSeriesVisualizerBase : BufferedVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
         internal RollingGraphView view;
@@ -192,6 +192,16 @@ namespace Bonsai.Design.Visualizers
         public override void Show(object value)
         {
             AddValue(DateTime.Now, Convert.ToDouble(value));
+        }
+
+        /// <inheritdoc/>
+        protected override void Show(DateTime time, object value)
+        {
+            if (value is IConvertible convertible)
+            {
+                AddValue(time, convertible.ToDouble(null));
+            }
+            else Show(value);
         }
 
         /// <inheritdoc/>
