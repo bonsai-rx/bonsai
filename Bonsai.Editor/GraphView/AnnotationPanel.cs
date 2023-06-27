@@ -14,6 +14,7 @@ namespace Bonsai.Editor.GraphView
         readonly RichTextBox textBox;
         readonly WebView2 webView;
         bool webViewInitialized;
+        Action onInitialize;
 
         public AnnotationPanel()
         {
@@ -46,7 +47,6 @@ namespace Bonsai.Editor.GraphView
                 webView.Margin = new Padding(2);
                 webView.Size = new System.Drawing.Size(296, 70);
                 webView.ZoomFactor = 1D;
-                webView.EnsureCoreWebView2Async();
                 webView.CoreWebView2InitializationCompleted += (sender, e) =>
                 {
                     webViewInitialized = true;
@@ -64,6 +64,9 @@ namespace Bonsai.Editor.GraphView
                     {
                         OnTextChanged(EventArgs.Empty);
                     }
+
+                    onInitialize?.Invoke();
+                    onInitialize = null;
                 };
                 Controls.Add(webView);
             }
@@ -71,14 +74,9 @@ namespace Bonsai.Editor.GraphView
 
         public ThemeRenderer ThemeRenderer { get; set; }
 
-        public WebView2 WebView
+        public bool HasWebView
         {
-            get { return webView; }
-        }
-
-        public bool WebViewInitialized
-        {
-            get { return webViewInitialized; }
+            get { return webView != null; }
         }
 
         public event LinkClickedEventHandler LinkClicked
@@ -104,6 +102,7 @@ namespace Bonsai.Editor.GraphView
                 var html = MarkdownConvert.ToHtml(Font, text);
                 webView.NavigateToString(html);
             }
+            else onInitialize = () => NavigateToString(text);
         }
 
         public void Navigate(string uri)
@@ -112,6 +111,7 @@ namespace Bonsai.Editor.GraphView
             {
                 webView.CoreWebView2.Navigate(uri);
             }
+            else onInitialize = () => Navigate(uri);
         }
 
         internal void InitializeTheme()
@@ -174,6 +174,12 @@ namespace Bonsai.Editor.GraphView
                     e.Response = response;
                 }
             }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            webView.EnsureCoreWebView2Async();
+            base.OnLoad(e);
         }
     }
 }
