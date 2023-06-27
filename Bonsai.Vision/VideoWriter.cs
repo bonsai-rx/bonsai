@@ -10,7 +10,7 @@ namespace Bonsai.Vision
     /// <summary>
     /// Represents an operator that writes a sequence of images into a compressed AVI file.
     /// </summary>
-    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
+    [WorkflowElementIcon("Bonsai:ElementIcon.Video")]
     [Description("Writes a sequence of images into a compressed AVI file.")]
     public class VideoWriter : FileSink<IplImage, VideoWriterDisposable>
     {

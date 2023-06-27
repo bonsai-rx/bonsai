@@ -11,7 +11,7 @@ namespace Bonsai.Vision
     /// the specified camera.
     /// </summary>
     [DefaultProperty(nameof(Index))]
-    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
+    [WorkflowElementIcon("Bonsai:ElementIcon.Video")]
     [Description("Generates a sequence of images acquired from the specified camera.")]
     public class CameraCapture : Source<IplImage>
     {
