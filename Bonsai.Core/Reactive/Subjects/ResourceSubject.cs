@@ -13,8 +13,8 @@ namespace Bonsai.Reactive
     /// value of an observable sequence to all subscribed and future observers. The value
     /// is disposed when the containing context is closed.
     /// </summary>
+    [WorkflowElementIcon(nameof(ResourceSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubject), nameof(ResourceSubject))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubject : SubjectBuilder
     {
@@ -38,8 +38,8 @@ namespace Bonsai.Reactive
     /// is disposed when the containing context is closed.
     /// </summary>
     /// <typeparam name="T">The type of the disposable resource stored by the subject.</typeparam>
+    [WorkflowElementIcon(nameof(ResourceSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubject), nameof(ResourceSubject))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubject<T> : SubjectBuilder<T> where T : class, IDisposable
     {

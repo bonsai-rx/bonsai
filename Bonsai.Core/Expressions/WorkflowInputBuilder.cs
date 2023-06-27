@@ -66,8 +66,8 @@ namespace Bonsai.Expressions
     /// <typeparam name="TSource">
     /// The type of the elements in the generated observable sequence.
     /// </typeparam>
+    [WorkflowElementIcon(nameof(WorkflowInputBuilder))]
     [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(WorkflowInputBuilder), nameof(WorkflowInputBuilder))]
     public class WorkflowInputBuilder<TSource> : WorkflowInputBuilder
     {
         /// <inheritdoc/>

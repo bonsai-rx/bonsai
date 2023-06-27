@@ -11,8 +11,8 @@ namespace Bonsai.Reactive
     /// Represents an expression builder that broadcasts the last value of an observable
     /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
+    [WorkflowElementIcon(nameof(AsyncSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(AsyncSubject), nameof(AsyncSubject))]
     [Description("Broadcasts the last value of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class AsyncSubject : SubjectBuilder
     {
@@ -35,8 +35,8 @@ namespace Bonsai.Reactive
     /// sequence to complete to all subscribed and future observers.
     /// </summary>
     /// <typeparam name="T">The type of the result stored by the subject.</typeparam>
+    [WorkflowElementIcon(nameof(AsyncSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(AsyncSubject), nameof(AsyncSubject))]
     [Description("Broadcasts the result of the first observable sequence to complete to all subscribed and future observers.")]
     public class AsyncSubject<T> : SubjectBuilder<T>
     {

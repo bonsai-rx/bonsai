@@ -10,8 +10,8 @@ namespace Bonsai.Reactive
     /// Represents an expression builder that broadcasts the values of an observable
     /// sequence to multiple subscribers using a shared subject.
     /// </summary>
+    [WorkflowElementIcon(nameof(PublishSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(PublishSubject), nameof(PublishSubject))]
     [Description("Broadcasts the values of an observable sequence to multiple subscribers using a shared subject.")]
     public class PublishSubject : SubjectBuilder
     {
@@ -28,8 +28,8 @@ namespace Bonsai.Reactive
     /// sequences to multiple subscribers.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
+    [WorkflowElementIcon(nameof(PublishSubject))]
     [XmlType(Namespace = Constants.ReactiveXmlNamespace)]
-    [WorkflowElementIcon(typeof(PublishSubject), nameof(PublishSubject))]
     [Description("Broadcasts the values from other observable sequences to multiple subscribers.")]
     public class PublishSubject<T> : SubjectBuilder<T>
     {

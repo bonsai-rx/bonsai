@@ -6,7 +6,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that declare shared subjects. This is an abstract class.
     /// </summary>
     [DefaultProperty(nameof(Name))]
-    [WorkflowElementIcon(typeof(SubjectExpressionBuilder), nameof(SubjectExpressionBuilder))]
+    [WorkflowElementIcon(nameof(SubjectExpressionBuilder))]
     public abstract class SubjectExpressionBuilder : VariableArgumentExpressionBuilder, INamedElement
     {
         /// <summary>
