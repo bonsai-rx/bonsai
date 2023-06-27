@@ -12,8 +12,8 @@ namespace Bonsai.Expressions
     /// in a mashup visualizer.
     /// </summary>
     [WorkflowElementCategory(ElementCategory.Property)]
+    [WorkflowElementIcon("Bonsai:ElementIcon.Visualizer")]
     [XmlType("VisualizerMapping", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Visualizer")]
     [Description("Specifies an observable sequence to be combined in a mashup visualizer.")]
     public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, ISerializableElement
     {

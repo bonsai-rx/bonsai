@@ -12,8 +12,8 @@ namespace Bonsai.Expressions
     /// </summary>
     [Obsolete]
     [ProxyType(typeof(Reactive.ReplaySubject))]
+    [WorkflowElementIcon(nameof(ReplaySubjectBuilder))]
     [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class ReplaySubjectBuilder : SubjectBuilder
     {
@@ -90,8 +90,8 @@ namespace Bonsai.Expressions
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
     [Obsolete]
     [ProxyType(typeof(Reactive.ReplaySubject<>))]
+    [WorkflowElementIcon(nameof(ReplaySubjectBuilder))]
     [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(ReplaySubjectBuilder), nameof(ReplaySubjectBuilder))]
     [Description("Replays the values of other observable sequences to all subscribed and future observers.")]
     public class ReplaySubjectBuilder<T> : SubjectBuilder<T>
     {

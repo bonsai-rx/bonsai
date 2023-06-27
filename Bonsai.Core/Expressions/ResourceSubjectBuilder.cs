@@ -10,8 +10,8 @@ namespace Bonsai.Expressions
     /// </summary>
     [Obsolete]
     [ProxyType(typeof(Reactive.ResourceSubject))]
+    [WorkflowElementIcon(nameof(ResourceSubjectBuilder))]
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubjectBuilder : Reactive.ResourceSubject
     {
@@ -27,8 +27,8 @@ namespace Bonsai.Expressions
     /// <typeparam name="T">The type of the disposable resource stored by the subject.</typeparam>
     [Obsolete]
     [ProxyType(typeof(Reactive.ResourceSubject<>))]
+    [WorkflowElementIcon(nameof(ResourceSubjectBuilder))]
     [XmlType("ResourceSubject", Namespace = Constants.XmlNamespace)]
-    [WorkflowElementIcon(typeof(ResourceSubjectBuilder), nameof(ResourceSubjectBuilder))]
     [Description("Stores a disposable resource and shares it with all subscribed and future observers.")]
     public class ResourceSubjectBuilder<T> : SubjectBuilder<T> where T : class, IDisposable
     {

@@ -14,7 +14,7 @@ namespace Bonsai.Vision
     /// specified movie file.
     /// </summary>
     [DefaultProperty(nameof(FileName))]
-    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
+    [WorkflowElementIcon("Bonsai:ElementIcon.Video")]
     [Description("Generates a sequence of images from the specified movie file.")]
     public class FileCapture : Source<IplImage>
     {

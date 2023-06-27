@@ -57,7 +57,15 @@ namespace Bonsai.Editor.GraphModel
         {
             var iconAttribute = workflowElementType.GetCustomAttribute<WorkflowElementIconAttribute>() ?? WorkflowElementIconAttribute.Default;
             resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
-            if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
+            if (!string.IsNullOrEmpty(iconAttribute.Name))
+            {
+                defaultName = iconAttribute.Name;
+                if (defaultName.IndexOf(AssemblySeparator) >= 0)
+                {
+                    resourceQualifier = null;
+                    return;
+                }
+            }
             else defaultName = resourceQualifier.Name;
             if (resourceQualifier.Namespace != null)
             {
