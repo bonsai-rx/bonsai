@@ -2336,7 +2336,7 @@ namespace Bonsai.Editor
                 var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
                 if (!ModifierKeys.HasFlag(Keys.Control) &&
-                    editorControl.AnnotationPanel.WebViewInitialized)
+                    editorControl.AnnotationPanel.HasWebView)
                 {
                     editorControl.AnnotationPanel.Navigate(url.AbsoluteUri);
                     var nameSeparator = uid.LastIndexOf(ExpressionHelper.MemberSeparator);
