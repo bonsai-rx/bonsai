@@ -48,6 +48,7 @@ namespace Bonsai.Resources
             foreach (var node in source)
             {
                 var element = ExpressionBuilder.Unwrap(node.Value);
+                if (element is DisableBuilder) continue;
                 yield return element;
 
                 var workflowBuilder = element as IWorkflowExpressionBuilder;
