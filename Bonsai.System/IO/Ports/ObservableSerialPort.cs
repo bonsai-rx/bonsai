@@ -3,6 +3,8 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {
@@ -48,35 +50,85 @@ namespace Bonsai.IO
             return Observable.Create<string>(observer =>
             {
                 var data = string.Empty;
+                Action dispose = default;
                 var connection = SerialPortManager.ReserveConnection(portName);
                 SerialDataReceivedEventHandler dataReceivedHandler;
                 var serialPort = connection.SerialPort;
+                var baseStream = connection.SerialPort.BaseStream;
                 dataReceivedHandler = (sender, e) =>
                 {
-                    switch (e.EventType)
+                    try
                     {
-                        case SerialData.Eof: observer.OnCompleted(); break;
-                        case SerialData.Chars:
-                        default:
-                            if (serialPort.IsOpen && serialPort.BytesToRead > 0)
-                            {
-                                data += serialPort.ReadExisting();
-                                var lines = data.Split(new[] { newLine }, StringSplitOptions.None);
-                                for (int i = 0; i < lines.Length; i++)
+                        switch (e.EventType)
+                        {
+                            case SerialData.Eof: observer.OnCompleted(); break;
+                            case SerialData.Chars:
+                            default:
+                                if (serialPort.IsOpen && serialPort.BytesToRead > 0)
                                 {
-                                    if (i == lines.Length - 1) data = lines[i];
-                                    else observer.OnNext(lines[i]);
+                                    data += serialPort.ReadExisting();
+                                    var lines = data.Split(new[] { newLine }, StringSplitOptions.None);
+                                    for (int i = 0; i < lines.Length; i++)
+                                    {
+                                        if (i == lines.Length - 1) data = lines[i];
+                                        else observer.OnNext(lines[i]);
+                                    }
                                 }
-                            }
-                            break;
+                                break;
+                        }
+                    }
+                    finally
+                    {
+                        if (dispose != null)
+                        {
+                            // If we reach this branch, we might be in deadlock
+                            // so we share the responsibility of disposing the
+                            // serial port.
+                            dispose?.Invoke();
+                            dispose = null;
+                        }
                     }
                 };
-
                 connection.SerialPort.DataReceived += dataReceivedHandler;
                 return Disposable.Create(() =>
                 {
                     connection.SerialPort.DataReceived -= dataReceivedHandler;
-                    connection.Dispose();
+
+                    // Arm the dispose call. We should not need a memory barrier here
+                    // since both threads are already sharing a lock.
+                    dispose = connection.Dispose;
+
+                    void TryDispose()
+                    {
+                        // We do an async spin lock until someone can dispose the serial port.
+                        // Since the dispose call is idempotent it is enough to guarantee
+                        // at-least-once semantics
+                        if (dispose == null) return;
+
+                        // The SerialPort class holds a lock on base stream to
+                        // ensure synchronization between calls to Dispose and
+                        // calls to DataReceived handler
+                        if (Monitor.TryEnter(baseStream))
+                        {
+                            // If we enter the critical section we can go ahead and
+                            // dispose the serial port
+                            try
+                            {
+                                dispose?.Invoke();
+                                dispose = null;
+                            }
+                            finally { Monitor.Exit(baseStream); }
+                        }
+                        else
+                        {
+                            // If we reach this branch we may be in deadlock so we
+                            // need to release this thread
+                            DefaultScheduler.Instance.Schedule(TryDispose);
+                        }
+                    }
+
+                    // Run the spin lock
+                    TryDispose();
                 });
             });
         }
