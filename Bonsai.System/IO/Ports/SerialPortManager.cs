@@ -13,8 +13,8 @@ namespace Bonsai.IO
     {
         public const string DefaultConfigurationFile = "SerialPort.config";
         static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
-        static readonly Dictionary<string, Tuple<SerialPort, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<SerialPort, RefCountDisposable>>();
-        static readonly object openConnectionsLock = new object();
+        static readonly Dictionary<string, Tuple<SerialPort, RefCountDisposable>> openConnections = new();
+        internal static readonly object SyncRoot = new();
 
         public static SerialPortDisposable ReserveConnection(string portName)
         {
@@ -30,7 +30,7 @@ namespace Bonsai.IO
             }
 
             Tuple<SerialPort, RefCountDisposable> connection;
-            lock (openConnectionsLock)
+            lock (SyncRoot)
             {
                 if (!openConnections.TryGetValue(portName, out connection))
                 {
@@ -103,9 +103,9 @@ namespace Bonsai.IO
                     openConnections.Add(portName, connection);
                     return new SerialPortDisposable(serialPort, refCount);
                 }
-            }
 
-            return new SerialPortDisposable(connection.Item1, connection.Item2.GetDisposable());
+                return new SerialPortDisposable(connection.Item1, connection.Item2.GetDisposable());
+            }
         }
 
         [Obsolete]
