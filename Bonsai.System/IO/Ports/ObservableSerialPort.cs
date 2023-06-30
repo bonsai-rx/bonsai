@@ -88,7 +88,7 @@ namespace Bonsai.IO
                             // so we share the responsibility of disposing the
                             // serial port.
                             dispose();
-                            disposeAction = null;
+                            Volatile.Write(ref disposeAction, null);
                         }
                     }
                 };
@@ -122,7 +122,7 @@ namespace Bonsai.IO
                             try
                             {
                                 dispose();
-                                disposeAction = null;
+                                Volatile.Write(ref disposeAction, null);
                             }
                             finally { Monitor.Exit(baseStream); }
                         }
