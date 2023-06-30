@@ -27,7 +27,10 @@ namespace Bonsai.IO
             var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
-                disposable.Dispose();
+                lock (SerialPortManager.SyncRoot)
+                {
+                    disposable.Dispose();
+                }
             }
         }
     }
