@@ -29,10 +29,9 @@ namespace Bonsai.IO
                 else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
             }
 
-            Tuple<SerialPort, RefCountDisposable> connection;
             lock (SyncRoot)
             {
-                if (!openConnections.TryGetValue(portName, out connection))
+                if (!openConnections.TryGetValue(portName, out var connection))
                 {
                     var serialPortName = serialPortConfiguration.PortName;
                     if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
