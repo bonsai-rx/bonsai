@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Reactive.Disposables;
-using System.IO.Ports;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 
 namespace Bonsai.IO
 {
@@ -47,96 +44,48 @@ namespace Bonsai.IO
 
         public static IObservable<string> ReadLine(string portName, string newLine)
         {
-            return Observable.Create<string>(observer =>
+            return Observable.Create<string>((observer, cancellationToken) =>
             {
-                var data = string.Empty;
-                Action disposeAction = default;
-                var connection = SerialPortManager.ReserveConnection(portName);
-                SerialDataReceivedEventHandler dataReceivedHandler;
-                var serialPort = connection.SerialPort;
-                var baseStream = connection.SerialPort.BaseStream;
-                dataReceivedHandler = (sender, e) =>
+                return Task.Factory.StartNew(() =>
                 {
-                    try
+                    var data = string.Empty;
+                    using var connection = SerialPortManager.ReserveConnection(portName);
+                    using var cancellation = cancellationToken.Register(connection.Dispose);
+                    var serialPort = connection.SerialPort;
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        switch (e.EventType)
+                        try
                         {
-                            case SerialData.Eof: observer.OnCompleted(); break;
-                            case SerialData.Chars:
-                            default:
-                                if (serialPort.IsOpen && serialPort.BytesToRead > 0)
-                                {
-                                    data += serialPort.ReadExisting();
-                                    var lines = data.Split(new[] { newLine }, StringSplitOptions.None);
-                                    for (int i = 0; i < lines.Length; i++)
-                                    {
-                                        if (i == lines.Length - 1) data = lines[i];
-                                        else observer.OnNext(lines[i]);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                    finally
-                    {
-                        // We need a volatile read here to prevent reordering of
-                        // instructions on access to the shared dispose delegate
-                        var dispose = Volatile.Read(ref disposeAction);
-                        if (dispose != null)
-                        {
-                            // If we reach this branch, we might be in deadlock
-                            // so we share the responsibility of disposing the
-                            // serial port.
-                            dispose();
-                            Volatile.Write(ref disposeAction, null);
-                        }
-                    }
-                };
-                connection.SerialPort.DataReceived += dataReceivedHandler;
-                return Disposable.Create(() =>
-                {
-                    connection.SerialPort.DataReceived -= dataReceivedHandler;
-
-                    // Arm the dispose call. We do not need a memory barrier here
-                    // since both threads are sharing full mutexes and stores
-                    // will be eventually updated (we don't care exactly when)
-                    disposeAction = connection.Dispose;
-
-                    // We do an async spin lock until someone can dispose the serial port.
-                    // Since the dispose call is idempotent it is enough to guarantee
-                    // at-least-once semantics
-                    void TryDispose()
-                    {
-                        // Same as above we need a volatile read here to prevent
-                        // reordering of instructions
-                        var dispose = Volatile.Read(ref disposeAction);
-                        if (dispose == null) return;
-
-                        // The SerialPort class holds a lock on base stream to
-                        // ensure synchronization between calls to Dispose and
-                        // calls to DataReceived handler
-                        if (Monitor.TryEnter(baseStream))
-                        {
-                            // If we enter the critical section we can go ahead and
-                            // dispose the serial port
-                            try
+                            var bytesToRead = serialPort.BytesToRead;
+                            if (bytesToRead == 0)
                             {
-                                dispose();
-                                Volatile.Write(ref disposeAction, null);
+                                var next = (char)serialPort.ReadChar();
+                                data = string.Concat(data, next, serialPort.ReadExisting());
                             }
-                            finally { Monitor.Exit(baseStream); }
+                            else data = string.Concat(data, serialPort.ReadExisting());
+                            if (cancellationToken.IsCancellationRequested) break;
+
+                            var lines = data.Split(new[] { newLine }, StringSplitOptions.None);
+                            for (int i = 0; i < lines.Length; i++)
+                            {
+                                if (i == lines.Length - 1) data = lines[i];
+                                else observer.OnNext(lines[i]);
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            // If we reach this branch we may be in deadlock so we
-                            // need to release this thread
-                            DefaultScheduler.Instance.Schedule(TryDispose);
+                            if (!cancellationToken.IsCancellationRequested)
+                            {
+                                observer.OnError(ex);
+                            }
+
+                            break;
                         }
                     }
-
-                    // Run the spin lock
-                    TryDispose();
-                });
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             });
         }
     }
