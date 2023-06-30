@@ -50,7 +50,7 @@ namespace Bonsai.IO
             return Observable.Create<string>(observer =>
             {
                 var data = string.Empty;
-                Action dispose = default;
+                Action disposeAction = default;
                 var connection = SerialPortManager.ReserveConnection(portName);
                 SerialDataReceivedEventHandler dataReceivedHandler;
                 var serialPort = connection.SerialPort;
@@ -79,13 +79,16 @@ namespace Bonsai.IO
                     }
                     finally
                     {
+                        // We need a volatile read here to prevent reordering of
+                        // instructions on access to the shared dispose delegate
+                        var dispose = Volatile.Read(ref disposeAction);
                         if (dispose != null)
                         {
                             // If we reach this branch, we might be in deadlock
                             // so we share the responsibility of disposing the
                             // serial port.
-                            dispose?.Invoke();
-                            dispose = null;
+                            dispose();
+                            disposeAction = null;
                         }
                     }
                 };
@@ -94,15 +97,19 @@ namespace Bonsai.IO
                 {
                     connection.SerialPort.DataReceived -= dataReceivedHandler;
 
-                    // Arm the dispose call. We should not need a memory barrier here
-                    // since both threads are already sharing a lock.
-                    dispose = connection.Dispose;
+                    // Arm the dispose call. We do not need a memory barrier here
+                    // since both threads are sharing full mutexes and stores
+                    // will be eventually updated (we don't care exactly when)
+                    disposeAction = connection.Dispose;
 
+                    // We do an async spin lock until someone can dispose the serial port.
+                    // Since the dispose call is idempotent it is enough to guarantee
+                    // at-least-once semantics
                     void TryDispose()
                     {
-                        // We do an async spin lock until someone can dispose the serial port.
-                        // Since the dispose call is idempotent it is enough to guarantee
-                        // at-least-once semantics
+                        // Same as above we need a volatile read here to prevent
+                        // reordering of instructions
+                        var dispose = Volatile.Read(ref disposeAction);
                         if (dispose == null) return;
 
                         // The SerialPort class holds a lock on base stream to
@@ -114,8 +121,8 @@ namespace Bonsai.IO
                             // dispose the serial port
                             try
                             {
-                                dispose?.Invoke();
-                                dispose = null;
+                                dispose();
+                                disposeAction = null;
                             }
                             finally { Monitor.Exit(baseStream); }
                         }
