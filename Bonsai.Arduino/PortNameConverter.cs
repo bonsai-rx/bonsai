@@ -20,18 +20,20 @@ namespace Bonsai.Arduino
                 if (workflowBuilder != null)
                 {
                     var portNames = (from builder in workflowBuilder.Workflow.Descendants()
+                                     where builder is not DisableBuilder
                                      let createPort = ExpressionBuilder.GetWorkflowElement(builder) as CreateArduino
                                      where createPort != null && !string.IsNullOrEmpty(createPort.PortName)
                                      select !string.IsNullOrEmpty(createPort.Name) ? createPort.Name : createPort.PortName)
                                      .Distinct()
                                      .ToList();
-
-                    if (portNames.Count > 0) return new StandardValuesCollection(portNames);
-                    else return new StandardValuesCollection(SerialPort.GetPortNames());
+                    if (portNames.Count > 0)
+                    {
+                        return new StandardValuesCollection(portNames);
+                    }
                 }
             }
 
-            return base.GetStandardValues(context);
+            return new StandardValuesCollection(SerialPort.GetPortNames());
         }
     }
 }
