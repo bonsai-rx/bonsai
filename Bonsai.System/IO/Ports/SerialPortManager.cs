@@ -29,10 +29,9 @@ namespace Bonsai.IO
                 else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
             }
 
-            Tuple<SerialPort, RefCountDisposable> connection;
             lock (SyncRoot)
             {
-                if (!openConnections.TryGetValue(portName, out connection))
+                if (!openConnections.TryGetValue(portName, out var connection))
                 {
                     var serialPortName = serialPortConfiguration.PortName;
                     if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
@@ -45,48 +44,30 @@ namespace Bonsai.IO
                     }
 #pragma warning restore CS0612 // Type or member is obsolete
 
-                    SerialPort serialPort;
-                    if (IsRunningOnMono)
+                    var serialPort = new SerialPort(
+                        serialPortName,
+                        serialPortConfiguration.BaudRate,
+                        serialPortConfiguration.Parity,
+                        serialPortConfiguration.DataBits,
+                        serialPortConfiguration.StopBits);
+                    if (!IsRunningOnMono)
                     {
-                        var pollingPort = new PollingSerialPort(
-                            serialPortName,
-                            serialPortConfiguration.BaudRate,
-                            serialPortConfiguration.Parity,
-                            serialPortConfiguration.DataBits,
-                            serialPortConfiguration.StopBits);
-                        serialPort = pollingPort;
-                        ConfigureSerialPort(serialPort);
-                        pollingPort.Open();
-                    }
-                    else
-                    {
-                        serialPort = new SerialPort(
-                            serialPortName,
-                            serialPortConfiguration.BaudRate,
-                            serialPortConfiguration.Parity,
-                            serialPortConfiguration.DataBits,
-                            serialPortConfiguration.StopBits);
                         serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
                         serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
                         serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
-                        ConfigureSerialPort(serialPort);
-                        serialPort.Open();
                     }
+                    serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
+                    serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
+                    serialPort.Handshake = serialPortConfiguration.Handshake;
+                    serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
+                    serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
 
-                    void ConfigureSerialPort(SerialPort serialPort)
+                    var encoding = serialPortConfiguration.Encoding;
+                    if (!string.IsNullOrEmpty(encoding))
                     {
-                        serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
-                        serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
-                        serialPort.Handshake = serialPortConfiguration.Handshake;
-                        serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
-                        serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
-
-                        var encoding = serialPortConfiguration.Encoding;
-                        if (!string.IsNullOrEmpty(encoding))
-                        {
-                            serialPort.Encoding = Encoding.GetEncoding(encoding);
-                        }
+                        serialPort.Encoding = Encoding.GetEncoding(encoding);
                     }
+                    serialPort.Open();
 
                     if (serialPort.BytesToRead > 0)
                     {
