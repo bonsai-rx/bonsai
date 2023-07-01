@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bonsai.Arduino
 {
@@ -90,7 +91,6 @@ namespace Bonsai.Arduino
             commandBuffer = new byte[MaxDataBytes];
             sysexBuffer = new byte[MaxDataBytes];
             readBuffer = new byte[serialPort.ReadBufferSize];
-            serialPort.DataReceived += new SerialDataReceivedEventHandler(serialPort_DataReceived);
         }
 
         /// <summary>
@@ -141,28 +141,62 @@ namespace Bonsai.Arduino
             SysexReceived?.Invoke(this, e);
         }
 
-        void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        Task RunAsync(CancellationToken cancellationToken)
         {
-            var bytesToRead = serialPort.BytesToRead;
-            while (serialPort.IsOpen && bytesToRead > 0)
+            serialPort.Open();
+            Thread.Sleep(ConnectionDelay);
+            serialPort.ReadExisting();
+            return Task.Factory.StartNew(() =>
             {
-                var bytesRead = serialPort.Read(readBuffer, 0, Math.Min(bytesToRead, readBuffer.Length));
-                for (int i = 0; i < bytesRead; i++)
+                using var cancellation = cancellationToken.Register(serialPort.Dispose);
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    ProcessInput(readBuffer[i]);
+                    try
+                    {
+                        var bytesToRead = serialPort.BytesToRead;
+                        if (bytesToRead == 0)
+                        {
+                            var nextByte = serialPort.ReadByte();
+                            if (nextByte < 0) break;
+                            ProcessInput((byte)nextByte);
+                        }
+                        else
+                        {
+                            while (bytesToRead > 0)
+                            {
+                                var bytesRead = serialPort.Read(readBuffer, 0, Math.Min(bytesToRead, readBuffer.Length));
+                                for (int i = 0; i < bytesRead; i++)
+                                {
+                                    ProcessInput(readBuffer[i]);
+                                }
+                                bytesToRead -= bytesRead;
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                        break;
+                    }
                 }
-                bytesToRead -= bytesRead;
-            }
+            },
+            cancellationToken,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
         }
 
         /// <summary>
         /// Opens a new serial port connection to the Arduino board.
         /// </summary>
-        public void Open()
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
+        public void Open(CancellationToken cancellationToken = default)
         {
-            serialPort.Open();
-            Thread.Sleep(ConnectionDelay);
-            serialPort.ReadExisting();
+            RunAsync(cancellationToken);
         }
 
         void ReportInput(ref int[] reportInput, byte command, int index, bool state)

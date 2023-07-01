@@ -6,6 +6,7 @@ using System.Xml;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Bonsai.Arduino
 {
@@ -50,12 +51,13 @@ namespace Bonsai.Arduino
                     }
 #pragma warning restore CS0612 // Type or member is obsolete
 
+                    var cancellation = new CancellationTokenSource();
                     var arduino = new Arduino(serialPortName, arduinoConfiguration.BaudRate);
-                    arduino.Open();
+                    arduino.Open(cancellation.Token);
                     arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
                     var dispose = Disposable.Create(() =>
                     {
-                        arduino.Close();
+                        cancellation.Cancel();
                         openConnections.Remove(portName);
                     });
 
