@@ -26,7 +26,10 @@ namespace Bonsai.Arduino
             var disposable = Interlocked.Exchange(ref resource, null);
             if (disposable != null)
             {
-                disposable.Dispose();
+                lock (ArduinoManager.SyncRoot)
+                {
+                    disposable.Dispose();
+                }
             }
         }
     }

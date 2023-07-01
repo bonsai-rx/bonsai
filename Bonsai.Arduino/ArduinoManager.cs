@@ -12,8 +12,8 @@ namespace Bonsai.Arduino
     internal static class ArduinoManager
     {
         public const string DefaultConfigurationFile = "Arduino.config";
-        static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<Arduino, RefCountDisposable>>();
-        static readonly object openConnectionsLock = new object();
+        static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new();
+        internal static readonly object SyncRoot = new();
 
         public static ArduinoDisposable ReserveConnection(string portName)
         {
@@ -27,8 +27,8 @@ namespace Bonsai.Arduino
 
         internal static ArduinoDisposable ReserveConnection(string portName, ArduinoConfiguration arduinoConfiguration)
         {
-            var connection = default(Tuple<Arduino, RefCountDisposable>);
-            lock (openConnectionsLock)
+            Tuple<Arduino, RefCountDisposable> connection = default;
+            lock (SyncRoot)
             {
                 if (string.IsNullOrEmpty(portName))
                 {
@@ -64,9 +64,9 @@ namespace Bonsai.Arduino
                     openConnections.Add(portName, connection);
                     return new ArduinoDisposable(arduino, refCount);
                 }
-            }
 
-            return new ArduinoDisposable(connection.Item1, connection.Item2.GetDisposable());
+                return new ArduinoDisposable(connection.Item1, connection.Item2.GetDisposable());
+            }
         }
 
         [Obsolete]
