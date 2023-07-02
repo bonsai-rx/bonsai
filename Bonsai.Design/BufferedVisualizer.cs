@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
-namespace Bonsai.Design.Visualizers
+namespace Bonsai.Design
 {
     /// <summary>
     /// Provides an abstract base class for type visualizers with an update
