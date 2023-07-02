@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Bonsai;
 using Bonsai.Design;
 using System.Drawing;
+using System.Reactive;
 
 [assembly: TypeVisualizer(typeof(ObjectTextVisualizer), Target = typeof(object))]
 
@@ -12,7 +13,7 @@ namespace Bonsai.Design
     /// <summary>
     /// Provides a type visualizer for displaying any object type as text.
     /// </summary>
-    public class ObjectTextVisualizer : DialogTypeVisualizer
+    public class ObjectTextVisualizer : BufferedVisualizer
     {
         const int AutoScaleHeight = 13;
         const float DefaultDpi = 96f;
@@ -23,6 +24,20 @@ namespace Bonsai.Design
         int bufferSize;
 
         /// <inheritdoc/>
+        protected override int TargetInterval => 1000 / 30;
+
+        /// <inheritdoc/>
+        protected override void ShowBuffer(IList<Timestamped<object>> values)
+        {
+            if (values.Count > 0)
+            {
+                base.ShowBuffer(values);
+                textBox.Text = string.Join(Environment.NewLine, buffer);
+                textPanel.Invalidate();
+            }
+        }
+
+        /// <inheritdoc/>
         public override void Show(object value)
         {
             value = value ?? string.Empty;
@@ -31,7 +46,6 @@ namespace Bonsai.Design
             {
                 buffer.Dequeue();
             }
-            textBox.Text = string.Join(Environment.NewLine, buffer);
         }
 
         /// <inheritdoc/>
