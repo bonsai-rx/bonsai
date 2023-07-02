@@ -18,7 +18,7 @@ namespace Bonsai.Design
         const int AutoScaleHeight = 13;
         const float DefaultDpi = 96f;
 
-        TextBox textBox;
+        RichTextBox textBox;
         UserControl textPanel;
         Queue<string> buffer;
         int bufferSize;
@@ -52,11 +52,11 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             buffer = new Queue<string>();
-            textBox = new TextBox { Dock = DockStyle.Fill };
+            textBox = new RichTextBox { Dock = DockStyle.Fill };
             textBox.ReadOnly = true;
             textBox.Multiline = true;
             textBox.WordWrap = false;
-            textBox.TextChanged += (sender, e) => textPanel.Invalidate();
+            textBox.ScrollBars = RichTextBoxScrollBars.Horizontal;
 
             textPanel = new UserControl();
             textPanel.SuspendLayout();
@@ -80,9 +80,8 @@ namespace Bonsai.Design
             var lineHeight = AutoScaleHeight * e.Graphics.DpiY / DefaultDpi;
             bufferSize = (int)((textBox.ClientSize.Height - 2) / lineHeight);
             var textSize = TextRenderer.MeasureText(textBox.Text, textBox.Font);
-            if (textBox.ScrollBars == ScrollBars.None && textBox.ClientSize.Width < textSize.Width)
+            if (textBox.ClientSize.Width < textSize.Width)
             {
-                textBox.ScrollBars = ScrollBars.Horizontal;
                 var offset = 2 * lineHeight + SystemInformation.HorizontalScrollBarHeight - textPanel.Height;
                 if (offset > 0)
                 {
