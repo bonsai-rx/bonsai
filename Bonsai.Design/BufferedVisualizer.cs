@@ -12,11 +12,10 @@ namespace Bonsai.Design
     /// </summary>
     public abstract class BufferedVisualizer : DialogTypeVisualizer
     {
-        const int TargetInterval = 1000 / 50;
-
-        internal BufferedVisualizer()
-        {
-        }
+        /// <summary>
+        /// Gets or sets the target interval, in milliseconds, between visualizer updates.
+        /// </summary>
+        protected virtual int TargetInterval => 1000 / 50;
 
         /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
