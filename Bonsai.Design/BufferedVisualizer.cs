@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
@@ -39,15 +41,24 @@ namespace Bonsai.Design
                     return mergedSource
                         .Timestamp(HighResolutionScheduler.Default)
                         .Buffer(() => timerTick)
-                        .Do(buffer =>
-                        {
-                            foreach (var timestamped in buffer)
-                            {
-                                var time = timestamped.Timestamp.LocalDateTime;
-                                Show(time, timestamped.Value);
-                            }
-                        }).Finally(timer.Stop);
+                        .Do(ShowBuffer).Finally(timer.Stop);
                 });
+        }
+
+        /// <summary>
+        /// Updates the type visualizer with a new buffer of timestamped values.
+        /// </summary>
+        /// <param name="values">
+        /// A buffer of timestamped values where each timestamp indicates the
+        /// time at which the value was received.
+        /// </param>
+        protected virtual void ShowBuffer(IList<Timestamped<object>> values)
+        {
+            foreach (var timestamped in values)
+            {
+                var time = timestamped.Timestamp.LocalDateTime;
+                Show(time, timestamped.Value);
+            }
         }
 
         /// <summary>
