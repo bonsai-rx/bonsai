@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
-namespace Bonsai.Design.Visualizers
+namespace Bonsai.Design
 {
     /// <summary>
     /// Provides an abstract base class for type visualizers with an update
@@ -10,11 +12,10 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     public abstract class BufferedVisualizer : DialogTypeVisualizer
     {
-        const int TargetInterval = 1000 / 50;
-
-        internal BufferedVisualizer()
-        {
-        }
+        /// <summary>
+        /// Gets or sets the target interval, in milliseconds, between visualizer updates.
+        /// </summary>
+        protected virtual int TargetInterval => 1000 / 50;
 
         /// <inheritdoc/>
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
@@ -39,15 +40,24 @@ namespace Bonsai.Design.Visualizers
                     return mergedSource
                         .Timestamp(HighResolutionScheduler.Default)
                         .Buffer(() => timerTick)
-                        .Do(buffer =>
-                        {
-                            foreach (var timestamped in buffer)
-                            {
-                                var time = timestamped.Timestamp.LocalDateTime;
-                                Show(time, timestamped.Value);
-                            }
-                        }).Finally(timer.Stop);
+                        .Do(ShowBuffer).Finally(timer.Stop);
                 });
+        }
+
+        /// <summary>
+        /// Updates the type visualizer with a new buffer of timestamped values.
+        /// </summary>
+        /// <param name="values">
+        /// A buffer of timestamped values where each timestamp indicates the
+        /// time at which the value was received.
+        /// </param>
+        protected virtual void ShowBuffer(IList<Timestamped<object>> values)
+        {
+            foreach (var timestamped in values)
+            {
+                var time = timestamped.Timestamp.LocalDateTime;
+                Show(time, timestamped.Value);
+            }
         }
 
         /// <summary>
