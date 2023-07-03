@@ -819,7 +819,9 @@ namespace Bonsai.Expressions
                     return new CallCandidate
                     {
                         method = method,
-                        declaringType = method.DeclaringType,
+                        declaringType = method.IsVirtual
+                            ? ((MethodInfo)method).GetBaseDefinition().DeclaringType
+                            : method.DeclaringType,
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
                         expansion = ParamExpansionRequired(parameters, argumentTypes),
