@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -19,7 +20,7 @@ namespace Bonsai.Configuration
 
         static string GetEnvironmentPlatform()
         {
-            return Environment.Is64BitProcess ? "x64" : "x86";
+            return RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
         }
 
         static string GetDefaultConfigurationFilePath()
