@@ -765,6 +765,7 @@ namespace Bonsai.Expressions
             internal static readonly CallCandidate Ambiguous = new CallCandidate();
             internal static readonly CallCandidate None = new CallCandidate();
             internal MethodBase method;
+            internal Type declaringType;
             internal Expression[] arguments;
             internal bool generic;
             internal bool expansion;
@@ -818,6 +819,7 @@ namespace Bonsai.Expressions
                     return new CallCandidate
                     {
                         method = method,
+                        declaringType = method.DeclaringType,
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
                         expansion = ParamExpansionRequired(parameters, argumentTypes),
@@ -852,6 +854,15 @@ namespace Bonsai.Expressions
                 {
                     // skip self-test
                     if (i == j) continue;
+
+                    // exclude self if declaring type is base type of other; and vice-versa
+                    if (candidates[i].declaringType != candidates[j].declaringType)
+                    {
+                        if (candidates[i].declaringType.IsAssignableFrom(candidates[j].declaringType))
+                            candidates[i].excluded = true;
+                        else candidates[j].excluded = true;
+                        continue;
+                    }
 
                     // compare implicit type conversion
                     var comparison = CompareFunctionMember(
