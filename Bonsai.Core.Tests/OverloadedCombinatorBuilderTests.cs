@@ -98,6 +98,40 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        class HidingOverloadedCombinatorMock : OverloadedCombinatorMock
+        {
+            public new IObservable<double> Process(IObservable<double> source)
+            {
+                return source.Select(x => double.NaN);
+            }
+        }
+
+        class HidingSpecializedGenericOverloadedCombinatorMock : SpecializedGenericOverloadedCombinatorMock
+        {
+            public new IObservable<TSource> Process<TSource>(IObservable<Timestamped<TSource>> source)
+            {
+                return source.Select(x => default(TSource));
+            }
+        }
+
+        [Combinator]
+        class BaseVirtualCombinatorMock
+        {
+            public virtual IObservable<string> Process(IObservable<string> source) => source;
+        }
+
+        class DerivedOverrideCombinatorMock : BaseVirtualCombinatorMock
+        {
+            public override IObservable<string> Process(IObservable<string> source) => Observable.Return(string.Empty);
+        }
+
+        class DerivedOverrideOverloadedCombinatorMock : BaseVirtualCombinatorMock
+        {
+            public override IObservable<string> Process(IObservable<string> source) => source;
+
+            public IObservable<object> Process(IObservable<object> _) => Observable.Return(default(object));
+        }
+
         [TestMethod]
         public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
         {
@@ -186,6 +220,50 @@ namespace Bonsai.Core.Tests
             var resultProvider = TestCombinatorBuilder<int>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_HidingDoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
+        {
+            var value = 5.0;
+            var combinator = new HidingOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_HidingSpecializedGenericOverloadedMethod_ReturnsValue()
+        {
+            var value = 5;
+            var combinator = new HidingSpecializedGenericOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value).Timestamp());
+            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_DerivedOverrideMethodCalledWithString_ReturnsOverrideValue()
+        {
+            var value = "5";
+            var combinator = new DerivedOverrideCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_DerivedOverrideOverloadedMethodCalledWithString_ReturnsObjectValue()
+        {
+            var value = "5";
+            var combinator = new DerivedOverrideOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
         }
     }
 }
