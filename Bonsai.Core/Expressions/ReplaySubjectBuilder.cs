@@ -35,6 +35,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Window))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string WindowXml
         {
             get
@@ -113,6 +114,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Window))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string WindowXml
         {
             get

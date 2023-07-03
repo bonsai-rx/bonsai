@@ -36,6 +36,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Window))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string WindowXml
         {
             get
@@ -104,6 +105,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Window))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string WindowXml
         {
             get

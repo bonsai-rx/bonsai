@@ -29,11 +29,12 @@ namespace Bonsai.Vision
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Transform))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string TransformXml
         {
             get
             {
-                var transform = (Mat)Transform;
+                var transform = Transform;
                 if (transform == null) return null;
 
                 var array = new float[transform.Rows, transform.Cols];

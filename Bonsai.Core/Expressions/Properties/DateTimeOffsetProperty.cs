@@ -43,6 +43,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Value))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string ValueXml
         {
             get { return Value.ToString("o"); }

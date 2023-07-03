@@ -28,6 +28,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Interval))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string IntervalXml
         {
             get { return XmlConvert.ToString(Interval); }
@@ -52,6 +53,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string DueTimeXml
         {
             get

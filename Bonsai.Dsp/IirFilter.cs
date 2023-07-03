@@ -38,6 +38,7 @@ namespace Bonsai.Dsp
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(FeedforwardCoefficients))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string FeedforwardCoefficientsXml
         {
             get { return ArrayConvert.ToString(FeedforwardCoefficients, CultureInfo.InvariantCulture); }
@@ -49,6 +50,7 @@ namespace Bonsai.Dsp
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(FeedbackCoefficients))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string FeedbackCoefficientsXml
         {
             get { return ArrayConvert.ToString(FeedbackCoefficients, CultureInfo.InvariantCulture); }

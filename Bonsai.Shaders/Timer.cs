@@ -40,6 +40,7 @@ namespace Bonsai.Shaders
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }
@@ -51,6 +52,7 @@ namespace Bonsai.Shaders
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Period))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string PeriodXml
         {
             get { return Period.HasValue ? XmlConvert.ToString(Period.Value) : null; }

@@ -32,6 +32,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string DueTimeXml
         {
             get
