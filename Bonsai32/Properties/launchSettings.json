@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Bonsai32": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
