@@ -40,9 +40,9 @@ namespace Bonsai.Configuration
 
         public static string GetConfigurationRoot(PackageConfiguration configuration = null)
         {
-            return configuration == null || string.IsNullOrWhiteSpace(configuration.ConfigurationFile)
-                ? Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile)
-                : Path.GetDirectoryName(configuration.ConfigurationFile);
+            return !string.IsNullOrWhiteSpace(configuration?.ConfigurationFile)
+                ? Path.GetDirectoryName(configuration.ConfigurationFile)
+                : AppDomain.CurrentDomain.BaseDirectory;
         }
 
         public static string GetAssemblyLocation(this PackageConfiguration configuration, string assemblyName)

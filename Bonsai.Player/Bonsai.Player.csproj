@@ -6,10 +6,10 @@
     <Description>A command line player for Bonsai workflows.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,7 +19,7 @@
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
   </ItemGroup>
-  <Target Name="ILRepack" AfterTargets="Build">
+  <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net472'">
     <PropertyGroup>
       <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
     </PropertyGroup>
