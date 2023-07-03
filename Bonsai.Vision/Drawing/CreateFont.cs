@@ -45,6 +45,7 @@ namespace Bonsai.Vision.Drawing
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Font))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string FontXml
         {
             get

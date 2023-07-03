@@ -36,6 +36,7 @@ namespace Bonsai.Dsp
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(Kernel))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string KernelXml
         {
             get { return ArrayConvert.ToString(Kernel, CultureInfo.InvariantCulture); }

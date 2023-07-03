@@ -38,6 +38,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [XmlText]
         [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string InstanceXml
         {
             get

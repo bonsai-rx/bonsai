@@ -38,6 +38,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeSpan))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string TimeSpanXml
         {
             get { return XmlConvert.ToString(TimeSpan); }
@@ -49,6 +50,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeShift))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string TimeShiftXml
         {
             get

@@ -28,6 +28,7 @@ namespace Bonsai.Shaders
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(DueTime))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string DueTimeXml
         {
             get { return XmlConvert.ToString(DueTime); }

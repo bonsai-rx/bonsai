@@ -44,6 +44,7 @@ namespace Bonsai.Reactive
         /// </summary>
         [Browsable(false)]
         [XmlElement(nameof(TimeSpan))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string TimeSpanXml
         {
             get
