@@ -5,17 +5,17 @@ using System.Reactive.Linq;
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Represents an operator that writes the text representation of each element of the
-    /// sequence to a serial port.
+    /// This type is obsolete. Please use the <see cref="Ports.SerialWriteLine"/> operator instead.
     /// </summary>
-    [DefaultProperty(nameof(PortName))]
-    [Description("Writes the text representation of each element of the sequence to a serial port.")]
+    [Obsolete]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Description("This type is obsolete. Please use the Ports.SerialWriteLine operator instead.")]
     public class SerialStringWrite : Sink
     {
         /// <summary>
         /// Gets or sets the name of the serial port.
         /// </summary>
-        [TypeConverter(typeof(PortNameConverter))]
+        [TypeConverter(typeof(Ports.PortNameConverter))]
         [Description("The name of the serial port.")]
         public string PortName { get; set; }
 
@@ -23,7 +23,7 @@ namespace Bonsai.IO
         /// Gets or sets the separator used to terminate lines sent to the serial port.
         /// </summary>
         [Description("The separator used to terminate lines sent to the serial port.")]
-        public string NewLine { get; set; } = ObservableSerialPort.DefaultNewLine;
+        public string NewLine { get; set; }
 
         /// <summary>
         /// Writes the text representation of each element of an observable sequence to a serial port.
@@ -41,17 +41,20 @@ namespace Bonsai.IO
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var newLine = ObservableSerialPort.Unescape(NewLine);
+            var newLine = Ports.SerialPortManager.Unescape(NewLine);
             return Observable.Using(
-                () => SerialPortManager.ReserveConnection(PortName),
-                connection => source.Do(value =>
+                () => Ports.SerialPortManager.ReserveConnection(PortName),
+                connection =>
                 {
-                    lock (connection.SerialPort)
+                    return source.Do(value =>
                     {
-                        connection.SerialPort.Write(value.ToString());
-                        connection.SerialPort.Write(newLine);
-                    }
-                }));
+                        lock (connection.SerialPort)
+                        {
+                            connection.SerialPort.Write(value.ToString());
+                            connection.SerialPort.Write(newLine);
+                        }
+                    });
+                });
         }
     }
 }

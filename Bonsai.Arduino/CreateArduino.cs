@@ -1,8 +1,8 @@
-﻿using Bonsai.IO;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using Bonsai.IO.Ports;
 
 namespace Bonsai.Arduino
 {

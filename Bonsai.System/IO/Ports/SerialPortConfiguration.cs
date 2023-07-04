@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO.Ports;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Represents the set of configuration parameters used to create a new serial port connection.
@@ -27,6 +27,11 @@ namespace Bonsai.IO
         /// </summary>
         [TypeConverter(typeof(SerialPortEncodingConverter))]
         public string Encoding { get; set; }
+
+        /// <summary>
+        /// Gets or sets the new line separator used to delimit reads from the serial port.
+        /// </summary>
+        public string NewLine { get; set; } = SerialPortManager.DefaultNewLine;
 
         /// <summary>
         /// Gets or sets the parity bit for the <see cref="SerialPort"/> object.

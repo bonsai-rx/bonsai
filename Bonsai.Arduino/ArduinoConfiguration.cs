@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Bonsai.IO;
+using Bonsai.IO.Ports;
 
 namespace Bonsai.Arduino
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace Bonsai.IO
@@ -9,6 +10,7 @@ namespace Bonsai.IO
     /// </summary>
     [Obsolete]
     [XmlRoot("SerialPortConfigurationSettings")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class SerialPortConfigurationCollection : KeyedCollection<string, SerialPortConfiguration>
     {
         /// <summary>

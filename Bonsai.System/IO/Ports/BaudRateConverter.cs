@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Provides a type converter to convert serial baud rates to and from other representations.

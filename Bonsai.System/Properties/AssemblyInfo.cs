@@ -4,6 +4,8 @@
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.IO", "io")]
+[assembly: XmlNamespacePrefix("clr-namespace:Bonsai.IO.Ports", "port")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Resources", "res")]
 [assembly: WorkflowNamespaceIcon("Bonsai.IO", "Bonsai:ElementIcon.IO")]
+[assembly: WorkflowNamespaceIcon("Bonsai.IO.Ports", "Bonsai:ElementIcon.IO")]
 [assembly: WorkflowNamespaceIcon("Bonsai.Resources", "Bonsai:ElementIcon.IO")]
