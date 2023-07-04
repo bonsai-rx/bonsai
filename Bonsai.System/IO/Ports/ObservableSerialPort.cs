@@ -63,11 +63,8 @@ namespace Bonsai.IO
                     if (string.IsNullOrEmpty(newLine)) newLine = connection.SerialPort.NewLine;
                     return source.Do(value =>
                     {
-                        lock (connection.SerialPort)
-                        {
-                            connection.SerialPort.Write(value.ToString());
-                            connection.SerialPort.Write(newLine);
-                        }
+                        connection.SerialPort.Write(value.ToString());
+                        connection.SerialPort.Write(newLine);
                     });
                 });
         }
