@@ -115,8 +115,8 @@ namespace Bonsai.Editor.GraphModel
         {
             get
             {
-                if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
-                else if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                else if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
                 else return null;
             }
         }
