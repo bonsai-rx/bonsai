@@ -63,14 +63,13 @@ namespace Bonsai.IO.Ports
                 () => SerialPortManager.ReserveConnection(PortName),
                 connection =>
                 {
-                    var buffer = new byte[count];
                     var serialPort = connection.SerialPort;
-                    return source.Select(_ =>
+                    return source.SelectMany(async (_, cancellationToken) =>
                     {
-                        var bytesRead = serialPort.Read(buffer, 0, buffer.Length);
-                        var output = new byte[bytesRead];
-                        Array.Copy(buffer, output, bytesRead);
-                        return output;
+                        var buffer = new byte[count];
+                        await serialPort.BaseStream.ReadAsync(
+                            buffer, 0, buffer.Length, cancellationToken);
+                        return buffer;
                     });
                 });
         }
