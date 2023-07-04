@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Bonsai.IO.Ports
@@ -57,8 +58,12 @@ namespace Bonsai.IO.Ports
         public IObservable<string> Generate<TSource>(IObservable<TSource> source)
         {
             return Observable.Using(
-                () => SerialPortManager.ReserveConnection(PortName),
-                connection => source.Select(_ => connection.SerialPort.ReadLine()));
+                cancellationToken => Task.FromResult(SerialPortManager.ReserveConnection(PortName)),
+                (connection, cancellationToken) => Task.FromResult(source.Select(_ =>
+                {
+                    using var cancellation = cancellationToken.Register(connection.Dispose);
+                    return connection.SerialPort.ReadLine();
+                })));
         }
     }
 }
