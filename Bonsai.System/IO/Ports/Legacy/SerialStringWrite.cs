@@ -1,20 +1,21 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Represents an operator that writes the text representation of each element of the
-    /// sequence to a serial port.
+    /// This type is obsolete. Please use the <see cref="Ports.SerialWriteLine"/> operator instead.
     /// </summary>
-    [DefaultProperty(nameof(PortName))]
-    [Description("Writes the text representation of each element of the sequence to a serial port.")]
+    [Obsolete]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Description("This type is obsolete. Please use the Ports.SerialWriteLine operator instead.")]
     public class SerialStringWrite : Sink
     {
         /// <summary>
         /// Gets or sets the name of the serial port.
         /// </summary>
-        [TypeConverter(typeof(PortNameConverter))]
+        [TypeConverter(typeof(Ports.PortNameConverter))]
         [Description("The name of the serial port.")]
         public string PortName { get; set; }
 
@@ -40,8 +41,20 @@ namespace Bonsai.IO
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var newLine = SerialPortManager.Unescape(NewLine);
-            return ObservableSerialPort.WriteLine(source, PortName, newLine);
+            var newLine = Ports.SerialPortManager.Unescape(NewLine);
+            return Observable.Using(
+                () => Ports.SerialPortManager.ReserveConnection(PortName),
+                connection =>
+                {
+                    return source.Do(value =>
+                    {
+                        lock (connection.SerialPort)
+                        {
+                            connection.SerialPort.Write(value.ToString());
+                            connection.SerialPort.Write(newLine);
+                        }
+                    });
+                });
         }
     }
 }

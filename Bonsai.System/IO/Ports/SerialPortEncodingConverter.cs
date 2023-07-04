@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     class SerialPortEncodingConverter : StringConverter
     {

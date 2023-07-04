@@ -1,18 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO.Ports;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Xml.Serialization;
 
-namespace Bonsai.IO.Ports
+namespace Bonsai.IO
 {
     /// <summary>
-    /// Represents an operator that creates and configures a connection to a system serial port.
+    /// This type is obsolete. Please use the <see cref="Ports.CreateSerialPort"/> operator instead.
     /// </summary>
-    [DefaultProperty(nameof(Name))]
-    [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Creates and configures a connection to a system serial port.")]
+    [Obsolete]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Description("This type is obsolete. Please use the Ports.CreateSerialPort operator instead.")]
     public class CreateSerialPort : Source<SerialPort>, INamedElement
     {
         readonly SerialPortConfiguration configuration = new SerialPortConfiguration();
@@ -51,12 +49,22 @@ namespace Bonsai.IO.Ports
         /// <summary>
         /// Gets or sets the byte encoding used for pre- and post-transmission conversion of text.
         /// </summary>
-        [TypeConverter(typeof(SerialPortEncodingConverter))]
+        [TypeConverter(typeof(Ports.SerialPortEncodingConverter))]
         [Description("The byte encoding used for pre- and post-transmission conversion of text.")]
         public string Encoding
         {
             get { return configuration.Encoding; }
             set { configuration.Encoding = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the new line separator used to delimit reads from the serial port.
+        /// </summary>
+        [Description("The new line separator used to delimit reads from the serial port.")]
+        public string NewLine
+        {
+            get { return configuration.NewLine; }
+            set { configuration.NewLine = value; }
         }
 
         /// <summary>
@@ -185,7 +193,7 @@ namespace Bonsai.IO.Ports
         public override IObservable<SerialPort> Generate()
         {
             return Observable.Using(
-                () => SerialPortManager.ReserveConnection(Name, configuration),
+                () => Ports.SerialPortManager.ReserveConnection(Name, configuration),
                 connection => Observable.Return(connection.SerialPort).Concat(Observable.Never(connection.SerialPort)));
         }
     }

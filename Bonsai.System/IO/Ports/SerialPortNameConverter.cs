@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO.Ports;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Provides a type converter to convert serial port names to and from other representations.

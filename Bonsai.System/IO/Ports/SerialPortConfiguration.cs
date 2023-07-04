@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO.Ports;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Represents the set of configuration parameters used to create a new serial port connection.

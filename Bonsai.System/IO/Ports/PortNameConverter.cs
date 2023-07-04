@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO.Ports;
 using System.Linq;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     class PortNameConverter : StringConverter
     {

@@ -3,7 +3,7 @@ using System.Threading;
 using System.Reactive.Disposables;
 using System.IO.Ports;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     internal sealed class SerialPortDisposable : ICancelable, IDisposable
     {

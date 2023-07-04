@@ -2,15 +2,17 @@
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Xml.Serialization;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Represents an operator that reads a sequence of bytes from a serial port.
     /// </summary>
     [DefaultProperty(nameof(PortName))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Reads a sequence of bytes from a serial port.")]
-    public class SerialPortRead : Source<byte[]>
+    public class SerialRead : Source<byte[]>
     {
         /// <summary>
         /// Gets or sets the name of the serial port.

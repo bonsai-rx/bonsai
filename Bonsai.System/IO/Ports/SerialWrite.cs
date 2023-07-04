@@ -1,15 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
+using System.Xml.Serialization;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     /// <summary>
     /// Represents an operator that writes a sequence of bytes to a serial port.
     /// </summary>
     [DefaultProperty(nameof(PortName))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Writes a sequence of bytes to a serial port.")]
-    public class SerialPortWrite : Sink<byte[]>
+    public class SerialWrite : Sink<byte[]>
     {
         /// <summary>
         /// Gets or sets the name of the serial port.

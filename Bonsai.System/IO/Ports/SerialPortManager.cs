@@ -8,7 +8,7 @@ using System.Reactive.Disposables;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     internal static class SerialPortManager
     {

@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace Bonsai.IO
+namespace Bonsai.IO.Ports
 {
     static class ObservableSerialPort
     {
