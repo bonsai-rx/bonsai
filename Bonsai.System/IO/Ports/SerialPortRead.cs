@@ -62,9 +62,10 @@ namespace Bonsai.IO
                 connection =>
                 {
                     var buffer = new byte[count];
+                    var serialPort = connection.SerialPort;
                     return source.Select(_ =>
                     {
-                        var bytesRead = connection.SerialPort.Read(buffer, 0, buffer.Length);
+                        var bytesRead = serialPort.Read(buffer, 0, buffer.Length);
                         var output = new byte[bytesRead];
                         Array.Copy(buffer, output, bytesRead);
                         return output;

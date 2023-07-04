@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
@@ -24,7 +25,7 @@ namespace Bonsai.IO
         public string NewLine { get; set; }
 
         /// <summary>
-        /// Reads lines of characters asynchronously from the serial port.
+        /// Reads a sequence of characters delimited by a new line separator from the serial port.
         /// </summary>
         /// <returns>
         /// A sequence of <see cref="string"/> values representing each of the lines
@@ -34,6 +35,28 @@ namespace Bonsai.IO
         {
             var newLine = SerialPortManager.Unescape(NewLine);
             return ObservableSerialPort.ReadLine(PortName, newLine);
+        }
+
+        /// <summary>
+        /// Reads a sequence of lines from a serial port, where each new line
+        /// is read only when an observable sequence emits a notification.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for reading new lines from
+        /// the serial port.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="string"/> values representing each of the lines
+        /// read from the serial port for each corresponding notification.
+        /// </returns>
+        public IObservable<string> Generate<TSource>(IObservable<TSource> source)
+        {
+            return Observable.Using(
+                () => SerialPortManager.ReserveConnection(PortName),
+                connection => source.Select(_ => connection.SerialPort.ReadLine()));
         }
     }
 }
