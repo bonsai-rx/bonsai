@@ -115,8 +115,8 @@ namespace Bonsai.Editor.GraphModel
         {
             get
             {
-                if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
-                else if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                else if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
                 else return null;
             }
         }
@@ -134,6 +134,8 @@ namespace Bonsai.Editor.GraphModel
         public ElementCategory Category { get; private set; }
 
         public ElementIcon Icon { get; private set; }
+
+        public bool IsDisabled => (Flags & NodeFlags.Disabled) != 0;
 
         public bool IsBuildDependency => (Flags & NodeFlags.BuildDependency) != 0;
 
