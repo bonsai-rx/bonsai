@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.IO.Ports
@@ -12,30 +13,45 @@ namespace Bonsai.IO.Ports
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    var data = string.Empty;
                     using var connection = SerialPortManager.ReserveConnection(portName);
                     using var cancellation = cancellationToken.Register(connection.Dispose);
                     var serialPort = connection.SerialPort;
-                    if (string.IsNullOrEmpty(newLine)) newLine = serialPort.NewLine;
+                    if (string.IsNullOrEmpty(newLine))
+                    {
+                        newLine = serialPort.NewLine;
+                    }
+
+                    var lineBuilder = new StringBuilder();
+                    var lastChar = newLine[newLine.Length - 1];
+                    var readBuffer = new char[1];
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         try
                         {
-                            var bytesToRead = serialPort.BytesToRead;
-                            if (bytesToRead == 0)
+                            var found = false;
+                            while (!found)
                             {
-                                var next = (char)serialPort.ReadChar();
-                                data = string.Concat(data, next, serialPort.ReadExisting());
-                            }
-                            else data = string.Concat(data, serialPort.ReadExisting());
-                            if (cancellationToken.IsCancellationRequested) break;
+                                var bytesRead = serialPort.Read(readBuffer, 0, 1);
+                                lineBuilder.Append(readBuffer, 0, bytesRead);
+                                if (readBuffer[0] != lastChar || lineBuilder.Length < newLine.Length)
+                                {
+                                    continue;
+                                }
 
-                            var lines = data.Split(new[] { newLine }, StringSplitOptions.None);
-                            for (int i = 0; i < lines.Length; i++)
-                            {
-                                if (i == lines.Length - 1) data = lines[i];
-                                else observer.OnNext(lines[i]);
+                                found = true;
+                                for (int i = 2; i <= newLine.Length; i++)
+                                {
+                                    if (newLine[newLine.Length - i] != lineBuilder[lineBuilder.Length - i])
+                                    {
+                                        found = false;
+                                        break;
+                                    }
+                                }
                             }
+
+                            var result = lineBuilder.ToString(0, lineBuilder.Length - newLine.Length);
+                            observer.OnNext(result);
+                            lineBuilder.Clear();
                         }
                         catch (Exception ex)
                         {
@@ -60,7 +76,11 @@ namespace Bonsai.IO.Ports
                 () => SerialPortManager.ReserveConnection(portName),
                 connection =>
                 {
-                    if (string.IsNullOrEmpty(newLine)) newLine = connection.SerialPort.NewLine;
+                    if (string.IsNullOrEmpty(newLine))
+                    {
+                        newLine = connection.SerialPort.NewLine;
+                    }
+
                     return source.Do(value =>
                     {
                         connection.SerialPort.Write(value.ToString());
