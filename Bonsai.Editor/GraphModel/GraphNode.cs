@@ -135,6 +135,8 @@ namespace Bonsai.Editor.GraphModel
 
         public ElementIcon Icon { get; private set; }
 
+        public bool IsDisabled => (Flags & NodeFlags.Disabled) != 0;
+
         public bool IsBuildDependency => (Flags & NodeFlags.BuildDependency) != 0;
 
         public bool IsAnnotation => (Flags & NodeFlags.Annotation) != 0;

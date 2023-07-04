@@ -1082,7 +1082,7 @@ namespace Bonsai.Editor.GraphView
             iconRendererState.Stroke = stroke;
             iconRendererState.CurrentColor = currentColor;
             iconRendererState.Translation = nodeRectangle.Location;
-            if (layout.Node.ModifierBrush != null)
+            if (layout.Node.IsDisabled)
             {
                 graphics.FillEllipse(Brushes.DarkGray, nodeRectangle);
             }
