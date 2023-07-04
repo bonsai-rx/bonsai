@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
@@ -23,7 +22,7 @@ namespace Bonsai.IO
         /// Gets or sets the separator used to terminate lines sent to the serial port.
         /// </summary>
         [Description("The separator used to terminate lines sent to the serial port.")]
-        public string NewLine { get; set; } = ObservableSerialPort.DefaultNewLine;
+        public string NewLine { get; set; }
 
         /// <summary>
         /// Writes the text representation of each element of an observable sequence to a serial port.
@@ -41,17 +40,8 @@ namespace Bonsai.IO
         /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var newLine = ObservableSerialPort.Unescape(NewLine);
-            return Observable.Using(
-                () => SerialPortManager.ReserveConnection(PortName),
-                connection => source.Do(value =>
-                {
-                    lock (connection.SerialPort)
-                    {
-                        connection.SerialPort.Write(value.ToString());
-                        connection.SerialPort.Write(newLine);
-                    }
-                }));
+            var newLine = SerialPortManager.Unescape(NewLine);
+            return ObservableSerialPort.WriteLine(source, PortName, newLine);
         }
     }
 }

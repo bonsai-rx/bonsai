@@ -21,7 +21,7 @@ namespace Bonsai.IO
         /// Gets or sets the new line separator used to delimit reads from the serial port.
         /// </summary>
         [Description("The new line separator used to delimit reads from the serial port.")]
-        public string NewLine { get; set; } = ObservableSerialPort.DefaultNewLine;
+        public string NewLine { get; set; }
 
         /// <summary>
         /// Reads lines of characters asynchronously from the serial port.
@@ -32,7 +32,7 @@ namespace Bonsai.IO
         /// </returns>
         public override IObservable<string> Generate()
         {
-            var newLine = ObservableSerialPort.Unescape(NewLine);
+            var newLine = SerialPortManager.Unescape(NewLine);
             return ObservableSerialPort.ReadLine(PortName, newLine);
         }
     }

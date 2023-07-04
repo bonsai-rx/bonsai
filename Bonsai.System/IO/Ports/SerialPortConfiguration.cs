@@ -29,6 +29,11 @@ namespace Bonsai.IO
         public string Encoding { get; set; }
 
         /// <summary>
+        /// Gets or sets the new line separator used to delimit reads from the serial port.
+        /// </summary>
+        public string NewLine { get; set; } = SerialPortManager.DefaultNewLine;
+
+        /// <summary>
         /// Gets or sets the parity bit for the <see cref="SerialPort"/> object.
         /// </summary>
         public Parity Parity { get; set; }
