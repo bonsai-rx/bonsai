@@ -58,16 +58,6 @@ namespace Bonsai.IO
         }
 
         /// <summary>
-        /// Gets or sets the new line separator used to delimit reads from the serial port.
-        /// </summary>
-        [Description("The new line separator used to delimit reads from the serial port.")]
-        public string NewLine
-        {
-            get { return configuration.NewLine; }
-            set { configuration.NewLine = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the parity bit for the <see cref="SerialPort"/> object.
         /// </summary>
         [Description("The parity checking protocol.")]
