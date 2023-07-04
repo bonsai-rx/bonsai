@@ -100,6 +100,7 @@ namespace Bonsai.IO.Ports
 
         public static string Unescape(string value)
         {
+            if (string.IsNullOrEmpty(value)) return value;
             return Regex.Replace(value, "\\\\[\'\"\\\\0abfnrtv]|\\\\u[0-9a-fA-F]{4}|\\\\U[0-9a-fA-F]{8}|\\\\x[0-9a-fA-F]{0,4}", m =>
             {
                 if (m.Length == 1) return m.Value;
