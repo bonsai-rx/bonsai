@@ -15,7 +15,7 @@
     <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj" />
     <ProjectReference Include="..\Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Osc\Bonsai.Osc.csproj" />
-    <ProjectReference Include="..\Bonsai.Scripting\Bonsai.Scripting.csproj" />
+    <ProjectReference Include="..\Bonsai.Scripting.Expressions.Design\Bonsai.Scripting.Expressions.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Shaders.Design\Bonsai.Shaders.Design.csproj" />
     <ProjectReference Include="..\Bonsai.System.Design\Bonsai.System.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Vision.Design\Bonsai.Vision.Design.csproj" />
