@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
 
@@ -15,7 +15,7 @@ namespace Bonsai.IO
         /// Gets or sets the name of the environment variable to query the value of.
         /// </summary>
         [Description("The name of the environment variable to query the value of.")]
-        public string Variable { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets the value of the specified environment variable for the current process
