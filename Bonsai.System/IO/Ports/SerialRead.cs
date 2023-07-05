@@ -38,7 +38,7 @@ namespace Bonsai.IO.Ports
         /// </returns>
         public override IObservable<byte[]> Generate()
         {
-            return Generate(Observable.Return(Unit.Default));
+            return ObservableSerialPort.Read(PortName, Count);
         }
 
         /// <summary>
