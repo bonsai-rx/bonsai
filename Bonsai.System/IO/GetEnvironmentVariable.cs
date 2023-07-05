@@ -1,46 +1,52 @@
-﻿using Bonsai;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Reactive.Linq;
 
 namespace Bonsai.IO
-{ 
+{
     /// <summary>
-    /// Represents an operator that returns the value of an OS environment variable.
+    /// Represents an operator that gets the value of an environment variable for the current process.
     /// </summary>
-    /// 
-    [Description("Returns the value of an environment variable.")]
+    ///
+    [Description("Returns the value of an environment variable for the current process.")]
     public class GetEnvironmentVariable : Source<string>
     {
+        /// <summary>
+        /// Gets or sets the name of the environment variable to query the value of.
+        /// </summary>
         [Description("The name of the environment variable to query the value of.")]
         public string Variable { get; set; }
 
         /// <summary>
-        /// Generates an observable sequence containing a string with the value
-        /// of the queried environment variable.
+        /// Gets the value of the specified environment variable for the current process
+        /// and returns it through an observable sequence.
         /// </summary>
         /// <returns>
-        /// An observable sequence containing the value of the queried
-        /// environment variable.
+        /// A sequence containing the value of the specified environment variable. The
+        /// value will be <see langword="null"/> if the environment variable is not found.
         /// </returns>
         public override IObservable<string> Generate()
         {
-            return Observable.Return(Environment.GetEnvironmentVariable(Variable));
+            return Observable.Return(Environment.GetEnvironmentVariable(Name));
         }
 
         /// <summary>
-        /// Generates an observable sequence containing a string with the value
-        /// of the queried environment variable, triggered with any input
-        /// sequence
+        /// Gets the value of the specified environment variable for the current process
+        /// whenever an observable sequence emits a notification.
         /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence of notifications used to get the value of the environment variable.
+        /// </param>
         /// <returns>
-        /// An observable sequence containing the value of the queried
-        /// environment variable.
+        /// A sequence containing the current values of the specified environment variable.
+        /// The value may be <see langword="null"/> if the environment variable is not found.
         /// </returns>
         public IObservable<string> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(x => { return Environment.GetEnvironmentVariable(Variable); });
+            return source.Select(_ => { return Environment.GetEnvironmentVariable(Name); });
         }
     }
 }
