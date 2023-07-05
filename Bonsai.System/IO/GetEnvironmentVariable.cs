@@ -46,7 +46,7 @@ namespace Bonsai.IO
         /// </returns>
         public IObservable<string> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(_ => { return Environment.GetEnvironmentVariable(Name); });
+            return source.Select(_ => Environment.GetEnvironmentVariable(Name));
         }
     }
 }
