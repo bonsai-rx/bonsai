@@ -30,7 +30,7 @@ namespace Bonsai.Vision
 
                 var range = max - min;
                 var scale = range > 0 ? 1.0 / range : 0;
-                var shift = range > 0 ? -min : 0;
+                var shift = range > 0 ? -min * scale : 0;
                 CV.ConvertScale(input, output, scale, shift);
                 return output;
             });
