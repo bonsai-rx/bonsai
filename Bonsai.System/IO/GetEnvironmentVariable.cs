@@ -7,7 +7,6 @@ namespace Bonsai.IO
     /// <summary>
     /// Represents an operator that gets the value of an environment variable for the current process.
     /// </summary>
-    ///
     [Description("Returns the value of an environment variable for the current process.")]
     public class GetEnvironmentVariable : Source<string>
     {
