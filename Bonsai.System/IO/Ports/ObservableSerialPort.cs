@@ -7,6 +7,44 @@ namespace Bonsai.IO.Ports
 {
     static class ObservableSerialPort
     {
+        public static IObservable<byte[]> Read(string portName, int count)
+        {
+            return Observable.Create<byte[]>((observer, cancellationToken) =>
+            {
+                return Task.Factory.StartNew(() =>
+                {
+                    using var connection = SerialPortManager.ReserveConnection(portName);
+                    using var cancellation = cancellationToken.Register(connection.Dispose);
+                    var serialPort = connection.SerialPort;
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            var bytesRead = 0;
+                            var buffer = new byte[count];
+                            while (bytesRead < count)
+                            {
+                                bytesRead += serialPort.Read(buffer, bytesRead, count - bytesRead);
+                            }
+                            observer.OnNext(buffer);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!cancellationToken.IsCancellationRequested)
+                            {
+                                observer.OnError(ex);
+                            }
+
+                            break;
+                        }
+                    }
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
+            });
+        }
+
         public static IObservable<string> ReadLine(string portName, string newLine)
         {
             return Observable.Create<string>((observer, cancellationToken) =>
