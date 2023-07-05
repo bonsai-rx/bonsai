@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Bonsai.IO.Ports
@@ -60,18 +61,18 @@ namespace Bonsai.IO.Ports
         {
             var count = Count;
             return Observable.Using(
-                () => SerialPortManager.ReserveConnection(PortName),
-                connection =>
+                cancellationToken => Task.FromResult(SerialPortManager.ReserveConnection(PortName)),
+                (connection, cancellationToken) => Task.FromResult(source.Select(_ =>
                 {
-                    var serialPort = connection.SerialPort;
-                    return source.SelectMany(async (_, cancellationToken) =>
+                    using var cancellation = cancellationToken.Register(connection.Dispose);
+                    var bytesRead = 0;
+                    var buffer = new byte[count];
+                    while (bytesRead < count)
                     {
-                        var buffer = new byte[count];
-                        await serialPort.BaseStream.ReadAsync(
-                            buffer, 0, buffer.Length, cancellationToken);
-                        return buffer;
-                    });
-                });
+                        bytesRead += connection.SerialPort.Read(buffer, bytesRead, count - bytesRead);
+                    }
+                    return buffer;
+                })));
         }
     }
 }
