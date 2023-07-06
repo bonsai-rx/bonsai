@@ -22,8 +22,10 @@ namespace Bonsai.Core.Tests
 
         IObservable<TSource> TestCombinatorBuilder<TSource>(object combinator, params Expression[] arguments)
         {
+            Expression buildResult;
             var builder = new CombinatorBuilder { Combinator = combinator };
-            var buildResult = builder.Build(arguments);
+            try { buildResult = builder.Build(arguments); }
+            catch (Exception ex) { throw new WorkflowBuildException(ex.Message, builder, ex); }
             var lambda = Expression.Lambda<Func<IObservable<TSource>>>(buildResult);
             var resultFactory = lambda.Compile();
             var result = resultFactory();

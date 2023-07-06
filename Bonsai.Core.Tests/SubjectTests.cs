@@ -9,6 +9,30 @@ namespace Bonsai.Core.Tests
     [TestClass]
     public class SubjectTests
     {
+        [Combinator]
+        class TypeCombinatorMock<T> : Combinator<T, T>
+        {
+            public override IObservable<T> Process(IObservable<T> source)
+            {
+                return source;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_MulticastInterfaceToSubjectOfDifferentInterface_ThrowsBuildException()
+        {
+            var builder = new WorkflowBuilder();
+            builder.Workflow.Add(new BehaviorSubject<IDisposable> { Name = nameof(BehaviorSubject) });
+            var source = builder.Workflow.Add(new CombinatorBuilder { Combinator = new DoubleProperty { Value = 5.5 } });
+            var convert1 = builder.Workflow.Add(new CombinatorBuilder { Combinator = new TypeCombinatorMock<IComparable>() });
+            var convert2 = builder.Workflow.Add(new MulticastSubject { Name = nameof(BehaviorSubject) });
+            builder.Workflow.AddEdge(source, convert1, new ExpressionBuilderArgument());
+            builder.Workflow.AddEdge(convert1, convert2, new ExpressionBuilderArgument());
+            var expression = builder.Workflow.Build();
+            Assert.IsNotNull(expression);
+        }
+
         [TestMethod]
         public void ResourceSubject_SourceTerminatesExceptionally_ShouldNotTryToDispose()
         {

@@ -188,8 +188,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Build_AmbiguousOverloadedMethodCalledWithIntTuple_ThrowsInvalidOperationException()
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_AmbiguousOverloadedMethodCalledWithIntTuple_ThrowsWorkflowBuildException()
         {
             var value = 5;
             var combinator = new AmbiguousOverloadedCombinatorMock();
