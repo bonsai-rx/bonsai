@@ -60,6 +60,13 @@ namespace Bonsai.Expressions
             var subjectType = subjectExpression.Type.GetGenericArguments()[0];
             if (observableType != subjectType)
             {
+                if (!HasConversion(observableType, subjectType))
+                {
+                    throw new InvalidOperationException(
+                        $"No coercion operator is defined between types '{observableType}' and '{subjectType}'."
+                    );
+                }
+
                 source = CoerceMethodArgument(typeof(IObservable<>).MakeGenericType(subjectType), source);
                 observableType = subjectType;
             }
