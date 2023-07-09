@@ -7,6 +7,8 @@ using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Reactive;
 
 [assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(Mat))]
 
@@ -26,12 +28,12 @@ namespace Bonsai.Dsp.Design
     /// <typeparam name="TWaveformView">
     /// A type derived from <see cref="WaveformView"/> which will control how data is displayed.
     /// </typeparam>
-    public class MatVisualizer<TWaveformView> : DialogTypeVisualizer where TWaveformView : WaveformView, new()
+    public class MatVisualizer<TWaveformView> : BufferedVisualizer where TWaveformView : WaveformView, new()
     {
-        const int TargetElapsedTime = (int)(1000.0 / 30);
-        bool requireInvalidate;
-        Timer updateTimer;
         TWaveformView graph;
+
+        /// <inheritdoc/>
+        protected override int TargetInterval => 1000 / 30;
 
         /// <summary>
         /// Gets or sets the lower bound of the x-axis displayed in the graph.
@@ -131,9 +133,9 @@ namespace Bonsai.Dsp.Design
         /// Invalidates the entire graph display at the next data update.
         /// This will send a paint message to the graph control.
         /// </summary>
+        [Obsolete]
         protected void InvalidateGraph()
         {
-            requireInvalidate = true;
         }
 
         /// <inheritdoc/>
@@ -194,27 +196,13 @@ namespace Bonsai.Dsp.Design
             if (visualizerService != null)
             {
                 visualizerService.AddControl(graph);
-                updateTimer = new System.Windows.Forms.Timer();
-                updateTimer.Interval = TargetElapsedTime;
-                updateTimer.Tick += (sender, e) =>
-                {
-                    if (requireInvalidate)
-                    {
-                        graph.InvalidateWaveform();
-                        requireInvalidate = false;
-                    }
-                };
-                updateTimer.Start();
             }
         }
 
         /// <inheritdoc/>
         public override void Unload()
         {
-            updateTimer.Stop();
-            updateTimer.Dispose();
             graph.Dispose();
-            updateTimer = null;
             graph = null;
         }
 
@@ -235,7 +223,16 @@ namespace Bonsai.Dsp.Design
             sampleHandle.Free();
 
             graph.UpdateWaveform(samples, rows, columns);
-            InvalidateGraph();
+        }
+
+        /// <inheritdoc/>
+        protected override void ShowBuffer(IList<Timestamped<object>> values)
+        {
+            base.ShowBuffer(values);
+            if (values.Count > 0)
+            {
+                graph.InvalidateWaveform();
+            }
         }
     }
 }
