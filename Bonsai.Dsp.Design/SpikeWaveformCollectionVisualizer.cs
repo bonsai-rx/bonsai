@@ -54,8 +54,6 @@ namespace Bonsai.Dsp.Design
 
                 Graph.UpdateWaveform(spike.ChannelIndex, samples, bufferSize.Height, samples.Length);
             }
-
-            InvalidateGraph();
         }
     }
 }
