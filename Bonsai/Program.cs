@@ -195,8 +195,16 @@ namespace Bonsai
                         else editorArgs.Add(SuppressBootstrapCommand);
                         if (!string.IsNullOrEmpty(initialFileName))
                         {
-                            editorArgs.Add(initialFileName);
-                            workingDirectory = Path.GetDirectoryName(initialFileName);
+                            if (Directory.Exists(initialFileName))
+                            {
+                                workingDirectory = initialFileName;
+                                initialFileName = string.Empty;
+                            }
+                            else
+                            {
+                                editorArgs.Add(initialFileName);
+                                workingDirectory = Path.GetDirectoryName(initialFileName);
+                            }
                         }
                     }
 
