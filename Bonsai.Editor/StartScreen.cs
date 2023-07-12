@@ -14,10 +14,11 @@ namespace Bonsai.Editor
         bool tabSelect;
         readonly List<Image> customImages = new List<Image>();
         readonly ComponentResourceManager resources = new ComponentResourceManager(typeof(StartScreen));
-        readonly TreeNode newProjectNode = new TreeNode("New Project", 0, 0);
-        readonly TreeNode openProjectNode = new TreeNode("Open Project", 1, 1);
-        readonly TreeNode galleryNode = new TreeNode("Bonsai Gallery", 2, 2);
-        readonly TreeNode packageManagerNode = new TreeNode("Manage Packages", 3, 3);
+        readonly TreeNode newFileNode = new TreeNode("New File", 0, 0);
+        readonly TreeNode openFileNode = new TreeNode("Open File", 1, 1);
+        readonly TreeNode openFolderNode = new TreeNode("Open Folder", 2, 2);
+        readonly TreeNode galleryNode = new TreeNode("Bonsai Gallery", 3, 3);
+        readonly TreeNode packageManagerNode = new TreeNode("Manage Packages", 4, 4);
         readonly TreeNode documentationNode = new TreeNode("Documentation");
         readonly TreeNode forumNode = new TreeNode("Forums");
 
@@ -26,28 +27,32 @@ namespace Bonsai.Editor
             InitializeComponent();
             getStartedTreeView.Nodes.Add(documentationNode);
             getStartedTreeView.Nodes.Add(forumNode);
-            openTreeView.Nodes.Add(newProjectNode);
-            openTreeView.Nodes.Add(openProjectNode);
+            openTreeView.Nodes.Add(newFileNode);
+            openTreeView.Nodes.Add(openFileNode);
+            if (!EditorSettings.IsRunningOnMono)
+            {
+                openTreeView.Nodes.Add(openFolderNode);
+            }
             openTreeView.Nodes.Add(galleryNode);
             openTreeView.Nodes.Add(packageManagerNode);
+            FileName = string.Empty;
         }
 
         public EditorResult EditorResult { get; private set; }
 
-        public string FileName
-        {
-            get { return openWorkflowDialog.FileName; }
-        }
+        public string FileName { get; private set; }
 
         private void ActivateNode(TreeNode node)
         {
             if (node == documentationNode) EditorDialog.ShowDocs();
             if (node == forumNode) EditorDialog.ShowForum();
-            if (node == newProjectNode) EditorResult = EditorResult.ReloadEditor;
+            if (node == newFileNode) EditorResult = EditorResult.ReloadEditor;
             if (node == galleryNode) EditorResult = EditorResult.OpenGallery;
             if (node == packageManagerNode) EditorResult = EditorResult.ManagePackages;
-            if (node == openProjectNode && openWorkflowDialog.ShowDialog() == DialogResult.OK)
+            if (node == openFileNode && openWorkflowDialog.ShowDialog() == DialogResult.OK ||
+                node == openFolderNode && openFolderDialog.ShowDialog() == DialogResult.OK)
             {
+                FileName = node == openFileNode ? openWorkflowDialog.FileName : openFolderDialog.SelectedPath;
                 EditorResult = EditorResult.ReloadEditor;
             }
 
@@ -87,6 +92,12 @@ namespace Bonsai.Editor
             foreach (var file in recentlyUsedFiles)
             {
                 recentFileView.Nodes.Add(Path.GetFileName(file.FileName), file.FileName);
+                if (string.IsNullOrEmpty(openWorkflowDialog.InitialDirectory))
+                {
+                    var initialDirectory = Path.GetDirectoryName(file.FileName);
+                    openWorkflowDialog.InitialDirectory = initialDirectory;
+                    openFolderDialog.SelectedPath = initialDirectory;
+                }
             }
 
             openTreeView.Select();
@@ -110,8 +121,9 @@ namespace Bonsai.Editor
                 Math.Min(MaxImageSize, (int)(16 * factor.Height)),
                 Math.Min(MaxImageSize, (int)(16 * factor.Height)));
 
-            var newItemImage = (Image)(resources.GetObject("newToolStripMenuItem.Image"));
-            var openItemImage = (Image)(resources.GetObject("openToolStripMenuItem.Image"));
+            var newFileImage = (Image)resources.GetObject("newToolStripMenuItem.Image");
+            var openFileImage = (Image)resources.GetObject("openFileToolStripMenuItem.Image");
+            var openFolderImage = (Image)resources.GetObject("openToolStripMenuItem.Image");
             var galleryItemImage = (Image)(resources.GetObject("galleryToolStripMenuItem.Image"));
             var packageManagerItemImage = (Image)(resources.GetObject("packageManagerToolStripMenuItem.Image"));
             var editorTheme = EditorSettings.Instance.EditorTheme;
@@ -129,14 +141,16 @@ namespace Bonsai.Editor
                 recentFileView.BackColor = ThemeHelper.Invert(systemMenuColor);
                 recentFileView.ForeColor = ThemeHelper.Invert(recentFileView.ForeColor);
                 recentFileView.LineColor = ThemeHelper.Invert(recentFileView.LineColor);
-                customImages.Add(newItemImage = ThemeHelper.InvertScale(newItemImage, iconList.ImageSize));
-                customImages.Add(openItemImage = ThemeHelper.InvertScale(openItemImage, iconList.ImageSize));
+                customImages.Add(newFileImage = ThemeHelper.InvertScale(newFileImage, iconList.ImageSize));
+                customImages.Add(openFileImage = ThemeHelper.InvertScale(openFileImage, iconList.ImageSize));
+                customImages.Add(openFolderImage = ThemeHelper.InvertScale(openFolderImage, iconList.ImageSize));
                 customImages.Add(galleryItemImage = ThemeHelper.InvertScale(galleryItemImage, iconList.ImageSize));
                 customImages.Add(packageManagerItemImage = ThemeHelper.InvertScale(packageManagerItemImage, iconList.ImageSize));
             }
 
-            iconList.Images.Add(newItemImage);
-            iconList.Images.Add(openItemImage);
+            iconList.Images.Add(newFileImage);
+            iconList.Images.Add(openFileImage);
+            iconList.Images.Add(openFolderImage);
             iconList.Images.Add(galleryItemImage);
             iconList.Images.Add(packageManagerItemImage);
             base.ScaleControl(factor, specified);

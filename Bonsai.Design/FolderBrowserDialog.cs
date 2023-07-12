@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Windows.Forms;
 
 namespace Bonsai.Design
@@ -48,6 +49,14 @@ namespace Bonsai.Design
             dialog.GetOptions(out uint options);
             options |= FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM;
             dialog.SetOptions(options);
+            if (!string.IsNullOrEmpty(SelectedPath) &&
+                SHCreateItemFromParsingName(
+                    SelectedPath, pbc: null,
+                    typeof(IShellItem).GUID,
+                    out IShellItem selectedShellItem) == S_OK)
+            {
+                dialog.SetFolder(selectedShellItem);
+            }
 
             if (dialog.Show(hwndOwner) == S_OK &&
                 dialog.GetResult(out IShellItem shellItem) == S_OK &&
@@ -174,6 +183,13 @@ namespace Bonsai.Design
             [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
             uint Compare([In, MarshalAs(UnmanagedType.Interface)] IShellItem psi, [In] uint hint, out int piOrder);
         }
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        static extern uint SHCreateItemFromParsingName(
+            [MarshalAs(UnmanagedType.LPWStr)] string pszPath,
+            IBindCtx pbc,
+            [MarshalAs(UnmanagedType.LPStruct)] Guid riid,
+            [MarshalAs(UnmanagedType.Interface)] out IShellItem ppv);
 
         #endregion
     }
