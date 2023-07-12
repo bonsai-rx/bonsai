@@ -29,7 +29,10 @@ namespace Bonsai.Editor
             getStartedTreeView.Nodes.Add(forumNode);
             openTreeView.Nodes.Add(newFileNode);
             openTreeView.Nodes.Add(openFileNode);
-            openTreeView.Nodes.Add(openFolderNode);
+            if (!EditorSettings.IsRunningOnMono)
+            {
+                openTreeView.Nodes.Add(openFolderNode);
+            }
             openTreeView.Nodes.Add(galleryNode);
             openTreeView.Nodes.Add(packageManagerNode);
             FileName = string.Empty;
