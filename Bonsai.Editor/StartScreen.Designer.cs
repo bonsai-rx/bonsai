@@ -39,8 +39,9 @@
             this.getStartedTreeView = new System.Windows.Forms.TreeView();
             this.recentLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
             this.recentLabel = new Bonsai.Editor.Label();
-            this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
             this.recentFileView = new Bonsai.Editor.RecentlyUsedFileView();
+            this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
+            this.openFolderDialog = new Bonsai.Design.FolderBrowserDialog();
             this.tableLayoutPanel.SuspendLayout();
             this.startLayoutPanel.SuspendLayout();
             this.recentLayoutPanel.SuspendLayout();
@@ -245,6 +246,7 @@
         private Bonsai.Editor.RecentlyUsedFileView recentFileView;
         private Bonsai.Editor.TableLayoutPanel recentLayoutPanel;
         private System.Windows.Forms.ImageList iconList;
+        private Bonsai.Design.FolderBrowserDialog openFolderDialog;
     }
 }
 
