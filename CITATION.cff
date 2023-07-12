@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+title: "Bonsai: an event-based framework for processing and controlling data streams"
+message: "If you use this project in your research, please cite it as below."
+type: software
+authors:
+  - given-names: Gonçalo
+    family-names: Lopes
+    orcid: 'https://orcid.org/0000-0003-0731-4945'
+  - given-names: Niccolò
+    family-names: Bonacchi
+  - given-names: João
+    family-names: Frazão
+  - given-names: Joana P.
+    family-names: Neto
+  - given-names: Bassam V.
+    family-names: Atallah
+  - given-names: Sofia
+    family-names: Soares
+  - given-names: Luís
+    family-names: Moreira
+  - given-names: Sara
+    family-names: Matias
+  - given-names: Pavel M.
+    family-names: Itskov
+  - given-names: Patrícia A.
+    family-names: Correia
+  - given-names: Roberto E.
+    family-names: Medina
+  - given-names: Lorenza
+    family-names: Calcaterra
+  - given-names: Elena
+    family-names: Dreosti
+  - given-names: Joseph J.
+    family-names: Paton
+  - given-names: Adam R.
+    family-names: Kampff
+identifiers:
+  - type: doi
+    value: 10.3389/fninf.2015.00007
+repository-code: 'https://github.com/bonsai-rx/bonsai'
+url: 'https://bonsai-rx.org/'
+license: MIT
