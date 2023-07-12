@@ -13,6 +13,8 @@ namespace Bonsai.Design
     /// </summary>
     public class FolderNameEditor : UITypeEditor
     {
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+
         /// <inheritdoc/>
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
@@ -25,15 +27,24 @@ namespace Bonsai.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                using (var dialog = new FolderBrowserDialog())
+                var folderName = value as string;
+                if (!string.IsNullOrEmpty(folderName))
                 {
-                    var folderName = value as string;
-                    if (!string.IsNullOrEmpty(folderName))
-                    {
-                        dialog.SelectedPath = Path.GetFullPath(folderName);
-                    }
-                    else dialog.SelectedPath = Environment.CurrentDirectory;
+                    folderName = Path.GetFullPath(folderName);
+                }
+                else folderName = Environment.CurrentDirectory;
 
+                if (IsRunningOnMono)
+                {
+                    using var dialog = new System.Windows.Forms.FolderBrowserDialog { SelectedPath = folderName };
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        return PathConvert.GetProjectPath(dialog.SelectedPath);
+                    }
+                }
+                else
+                {
+                    using var dialog = new FolderBrowserDialog { SelectedPath = folderName };
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
                         return PathConvert.GetProjectPath(dialog.SelectedPath);
