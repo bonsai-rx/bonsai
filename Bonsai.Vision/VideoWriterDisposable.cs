@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Threading;
+using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
@@ -11,16 +12,22 @@ namespace Bonsai.Vision
     {
         IDisposable resource;
 
-        internal VideoWriterDisposable(OpenCV.Net.VideoWriter writer, IDisposable disposable)
+        internal VideoWriterDisposable(OpenCV.Net.VideoWriter writer, Size frameSize, IDisposable disposable)
         {
             Writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            FrameSize = frameSize;
             resource = disposable;
         }
 
         /// <summary>
         /// Gets the reference to the disposable video writer instance.
         /// </summary>
-        public OpenCV.Net.VideoWriter Writer { get; private set; }
+        public OpenCV.Net.VideoWriter Writer { get; }
+
+        /// <summary>
+        /// Gets the size of individual video frames.
+        /// </summary>
+        public Size FrameSize { get; }
 
         /// <summary>
         /// Gets a value indicating whether the video writer has been disposed.
