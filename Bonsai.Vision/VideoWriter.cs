@@ -14,8 +14,7 @@ namespace Bonsai.Vision
     [Description("Writes a sequence of images into a compressed AVI file.")]
     public class VideoWriter : FileSink<IplImage, VideoWriterDisposable>
     {
-        Size writerFrameSize;
-        static readonly object SyncRoot = new object();
+        static readonly object SyncRoot = new();
 
         /// <summary>
         /// Gets or sets a value specifying the four-character code of the codec
@@ -54,11 +53,10 @@ namespace Bonsai.Vision
             var frameSize = FrameSize.Width > 0 && FrameSize.Height > 0 ? FrameSize : input.Size;
             var fourCCText = FourCC;
             var fourCC = fourCCText.Length != 4 ? 0 : OpenCV.Net.VideoWriter.FourCC(fourCCText[0], fourCCText[1], fourCCText[2], fourCCText[3]);
-            writerFrameSize = frameSize;
             lock (SyncRoot)
             {
                 var writer = new OpenCV.Net.VideoWriter(fileName, fourCC, FrameRate, frameSize, input.Channels > 1);
-                return new VideoWriterDisposable(writer, Disposable.Create(() =>
+                return new VideoWriterDisposable(writer, frameSize, Disposable.Create(() =>
                 {
                     lock (SyncRoot)
                     {
@@ -79,9 +77,9 @@ namespace Bonsai.Vision
         /// </param>
         protected override void Write(VideoWriterDisposable writer, IplImage input)
         {
-            if (input.Width != writerFrameSize.Width || input.Height != writerFrameSize.Height)
+            if (input.Width != writer.FrameSize.Width || input.Height != writer.FrameSize.Height)
             {
-                var resized = new IplImage(new Size(writerFrameSize.Width, writerFrameSize.Height), input.Depth, input.Channels);
+                var resized = new IplImage(writer.FrameSize, input.Depth, input.Channels);
                 CV.Resize(input, resized, ResizeInterpolation);
                 input = resized;
             }
