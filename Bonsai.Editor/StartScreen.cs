@@ -75,7 +75,7 @@ namespace Bonsai.Editor
                 }
                 else
                 {
-                    openWorkflowDialog.FileName = path;
+                    FileName = path;
                     EditorResult = EditorResult.ReloadEditor;
                 }
             }
