@@ -5,6 +5,7 @@ using Bonsai;
 using Bonsai.Design;
 using System.Drawing;
 using System.Reactive;
+using System.Text.RegularExpressions;
 
 [assembly: TypeVisualizer(typeof(ObjectTextVisualizer), Target = typeof(object))]
 
@@ -40,8 +41,10 @@ namespace Bonsai.Design
         /// <inheritdoc/>
         public override void Show(object value)
         {
-            value = value ?? string.Empty;
-            buffer.Enqueue(value.ToString());
+            value ??= string.Empty;
+            var text = value.ToString();
+            text = Regex.Replace(text, @"\r|\n", string.Empty);
+            buffer.Enqueue(text);
             while (buffer.Count > bufferSize)
             {
                 buffer.Dequeue();
