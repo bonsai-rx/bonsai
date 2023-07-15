@@ -30,10 +30,9 @@ namespace Bonsai.Design
                 {
                     using var editorDialog = new AnnotationBuilderEditorDialog();
                     editorDialog.Annotation = (string)value;
-                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
-                    {
-                        return editorDialog.Annotation;
-                    }
+                    return editorService.ShowDialog(editorDialog) == DialogResult.OK
+                        ? editorDialog.Annotation
+                        : value;
                 }
             }
 

@@ -31,10 +31,9 @@ namespace Bonsai.Scripting.IronPython.Design
                 {
                     using var editorDialog = new PythonScriptEditorDialog();
                     editorDialog.Script = (string)value;
-                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
-                    {
-                        return editorDialog.Script;
-                    }
+                    return editorService.ShowDialog(editorDialog) == DialogResult.OK
+                        ? editorDialog.Script
+                        : value;
                 }
             }
 

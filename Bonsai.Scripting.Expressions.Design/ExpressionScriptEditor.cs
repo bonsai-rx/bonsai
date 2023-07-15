@@ -31,10 +31,9 @@ namespace Bonsai.Scripting.Expressions.Design
                 {
                     using var editorDialog = new ExpressionScriptEditorDialog();
                     editorDialog.Script = (string)value;
-                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
-                    {
-                        return editorDialog.Script;
-                    }
+                    return editorService.ShowDialog(editorDialog) == DialogResult.OK
+                        ? editorDialog.Script
+                        : value;
                 }
             }
 
