@@ -692,6 +692,7 @@ namespace Bonsai.Editor.GraphView
                 point.X = Math.Min(point.X, (int)rightMost.Location.X);
             }
 
+            var bottomY = 0f;
             foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value == null) continue;
@@ -699,13 +700,14 @@ namespace Bonsai.Editor.GraphView
                 var boundingRectangle = new RectangleF(
                     layout.BoundingRectangle.Location,
                     new SizeF(NodeAirspace, NodeAirspace));
+                bottomY = Math.Max(bottomY, boundingRectangle.Bottom);
                 if (boundingRectangle.Contains(point))
                 {
                     return layout.Node;
                 }
             }
 
-            return null;
+            return point.Y >= bottomY ? GetLastNode() : null;
         }
 
         public GraphNode GetNodeAt(Point point)
