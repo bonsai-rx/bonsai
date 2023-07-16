@@ -247,7 +247,8 @@ namespace Bonsai.Editor
         void RestoreEditorSettings()
         {
             var desktopBounds = ScaleBounds(EditorSettings.Instance.DesktopBounds, scaleFactor);
-            if (desktopBounds.Width > 0)
+            if (desktopBounds.Width > 0 &&
+                Array.Exists(Screen.AllScreens, screen => screen.WorkingArea.IntersectsWith(desktopBounds)))
             {
                 Bounds = desktopBounds;
             }
