@@ -686,6 +686,12 @@ namespace Bonsai.Editor.GraphView
             point.X += canvas.HorizontalScroll.Value;
             point.Y += canvas.VerticalScroll.Value;
 
+            if (layoutNodes.Count > 0)
+            {
+                var rightMost = layoutNodes[0];
+                point.X = Math.Min(point.X, (int)rightMost.Location.X);
+            }
+
             foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value == null) continue;
@@ -699,7 +705,7 @@ namespace Bonsai.Editor.GraphView
                 }
             }
 
-            return GetLastNode();
+            return null;
         }
 
         public GraphNode GetNodeAt(Point point)
