@@ -3,37 +3,26 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <Title>Bonsai - Player</Title>
-    <Description>A command line player for Bonsai workflows.</Description>
+    <ToolCommandName>bonsai</ToolCommandName>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <Description>A tool for running Bonsai workflows from the command-line.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <VersionPrefix>2.8.0</VersionPrefix>
+    <PackAsTool>true</PackAsTool>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
   </ItemGroup>
-  <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net472'">
-    <PropertyGroup>
-      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
-    </PropertyGroup>
-    <ItemGroup>
-      <InputAssemblies Include="Bonsai.Configuration.dll" />
-    </ItemGroup>
-    <ItemGroup>
-      <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
-    </ItemGroup>
-    <ILRepack OutputType="$(OutputType)"
-              MainAssembly="$(AssemblyName).exe"
-              OutputAssembly="$(AssemblyName).exe"
-              InputAssemblies="@(InputAssemblies)"
-              InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)"
-              WorkingDirectory="$(WorkingDirectory)" />
-  </Target>
+  <ItemGroup>
+    <Content Include="..\LICENSE" PackagePath="/" />
+    <Content Include="..\icon.png" PackagePath="/" />
+  </ItemGroup>
 </Project>
