@@ -22,7 +22,7 @@ namespace Bonsai
 {
     static class Launcher
     {
-        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net472");
+        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net48");
 
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,

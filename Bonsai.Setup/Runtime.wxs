@@ -4,8 +4,8 @@
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define Product32DisplayName="Bonsai (x86)"?>
-  <?define BonsaiBuildPath="..\Bonsai\bin\Release\net472"?>
-  
+  <?define BonsaiBuildPath="..\Bonsai\bin\Release\net48"?>
+
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="BonsaiExecutable" Guid="*" Win64="$(var.Win64)">
