@@ -55,8 +55,7 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             buffer = new Queue<string>();
-            textBox = new RichTextBox { Dock = DockStyle.Fill };
-            textBox.ReadOnly = true;
+            textBox = new RichTextLabel { Dock = DockStyle.Fill };
             textBox.Multiline = true;
             textBox.WordWrap = false;
             textBox.ScrollBars = RichTextBoxScrollBars.Horizontal;
