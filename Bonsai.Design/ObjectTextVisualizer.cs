@@ -59,6 +59,15 @@ namespace Bonsai.Design
             textBox.Multiline = true;
             textBox.WordWrap = false;
             textBox.ScrollBars = RichTextBoxScrollBars.Horizontal;
+            textBox.MouseDoubleClick += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    buffer.Clear();
+                    textBox.Text = string.Empty;
+                    textPanel.Invalidate();
+                }
+            };
 
             textPanel = new UserControl();
             textPanel.SuspendLayout();
