@@ -16,9 +16,21 @@ namespace Bonsai.IO
         /// <summary>
         /// Gets or sets the relative or absolute path of the file to open for writing.
         /// </summary>
-        [Description("The relative or absolute path of the file to open for writing. If the specified file already exists, it is overwritten.")]
+        [Description("The relative or absolute path of the file to open for writing.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the output file should be overwritten if it already exists.
+        /// </summary>
+        [Description("Indicates whether the output file should be overwritten if it already exists.")]
+        public bool Overwrite { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether text should be appended to the output file if it already exists.
+        /// </summary>
+        [Description("Indicates whether text should be appended to the output file if it already exists.")]
+        public bool Append { get; set; }
 
         /// <summary>
         /// Creates a new file, writes the string in the observable sequence to the file,
@@ -34,9 +46,17 @@ namespace Bonsai.IO
         public override IObservable<string> Process(IObservable<string> source)
         {
             var path = Path;
+            var overwrite = Overwrite;
+            var append = Append;
             return source.Do(contents =>
             {
-                using var writer = new StreamWriter(path, append: false);
+                PathHelper.EnsureDirectory(path);
+                if (File.Exists(path) && !overwrite && !append)
+                {
+                    throw new IOException($"The file '{path}' already exists.");
+                }
+
+                using var writer = new StreamWriter(path, append);
                 writer.Write(contents);
             });
         }
