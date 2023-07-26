@@ -33,7 +33,6 @@ namespace Bonsai.Expressions
         /// will be projected into.
         /// </summary>
         [Externalizable(false)]
-        [TypeConverter(typeof(TypeMappingConverter))]
         [Description("Specifies an optional output type into which the selected properties will be mapped.")]
         [Editor("Bonsai.Design.TypeMappingEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public TypeMapping TypeMapping
