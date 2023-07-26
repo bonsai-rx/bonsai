@@ -22,7 +22,6 @@ namespace Bonsai.Expressions
         /// observable sequence with a mashup visualizer.
         /// </summary>
         [Externalizable(false)]
-        [TypeConverter(typeof(TypeMappingConverter))]
         [Description("Specifies the visualizer type used to combine the observable sequence with a mashup visualizer.")]
         public TypeMapping VisualizerType { get; set; }
 

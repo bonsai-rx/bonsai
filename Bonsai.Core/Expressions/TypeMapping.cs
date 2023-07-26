@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
@@ -9,6 +10,7 @@ namespace Bonsai.Expressions
     /// to specify output and visualizer types.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [TypeConverter(typeof(TypeMappingConverter))]
     public abstract class TypeMapping
     {
         internal abstract Type TargetType { get; }
