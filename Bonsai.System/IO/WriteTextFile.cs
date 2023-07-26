@@ -11,7 +11,7 @@ namespace Bonsai.IO
     /// </summary>
     [DefaultProperty(nameof(Path))]
     [Description("Creates a new file, writes the source string to the file, and then closes the file.")]
-    public class WriteAllText : Sink<string>
+    public class WriteTextFile : Sink<string>
     {
         /// <summary>
         /// Gets or sets the relative or absolute path of the file to open for writing.

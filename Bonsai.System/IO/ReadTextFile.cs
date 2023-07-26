@@ -11,7 +11,7 @@ namespace Bonsai.IO
     /// </summary>
     [DefaultProperty(nameof(Path))]
     [Description("Opens a text file, returns a single string with all lines in the file, and then closes the file.")]
-    public class ReadAllText : Source<string>
+    public class ReadTextFile : Source<string>
     {
         /// <summary>
         /// Gets or sets the relative or absolute path of the file to open for reading.
