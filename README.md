@@ -33,7 +33,7 @@ Contributing
 
 Bonsai is a programming language with a growing community of users and developers. Anyone is welcome to participate by reporting bugs, proposing features or improvements, or contributing pull requests directly to our open-source repositories.
 
-For more information please see our [Contributor Guide](https://bonsai-rx.org/contribute/). By contributing to our project, we also expect you to uphold our community [Code of Conduct](CODE_OF_CONDUCT.md).
+For more information please see our [Contributor Guide](https://bonsai-rx.org/contribute/). By contributing to our project, we also expect you to uphold our community [Code of Conduct](https://bonsai-rx.org/code-of-conduct).
 
 Documentation
 -------------
