@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Bonsai.TransformTemplate")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Gonçalo Lopes")]
+[assembly: AssemblyCompany("Bonsai Foundation")]
 [assembly: AssemblyProduct("Bonsai.TransformTemplate")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2023")]
+[assembly: AssemblyCopyright("Copyright © Bonsai Foundation CIC and Contributors 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

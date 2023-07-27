@@ -7,7 +7,11 @@
   <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
   <?define VCRTRegistryKey="SOFTWARE\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeMinimum"?>
 
-  <Bundle Name="$(var.ProductDisplayName)" Version="!(bind.PackageVersion.Bonsai)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
+  <Bundle Name="$(var.ProductDisplayName)"
+          Version="!(bind.PackageVersion.Bonsai)"
+          Manufacturer="Bonsai Foundation"
+          UpgradeCode="$(var.ProductUpgradeCode)"
+          IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf"
                                               ShowVersion="yes"

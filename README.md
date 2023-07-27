@@ -31,12 +31,9 @@ You can find the Bonsai community in a few places:
 Contributing
 ------------
 
-1. Create an [issue](https://github.com/bonsai-rx/bonsai/issues) describing what you would like to improve, or pick an existing issue.
-2. Install [Git](https://git-scm.com/downloads).
-3. [Fork Bonsai](https://github.com/bonsai-rx/bonsai/fork).
-4. Create a new branch in your fork called `issue-###` where `###` is the issue number.
-5. Make small incremental changes to your branch to resolve the issue.
-6. Create a new PR into the main repository and tag a reviewer.
+Bonsai is a programming language with a growing community of users and developers. Anyone is welcome to participate by reporting bugs, proposing features or improvements, or contributing pull requests directly to our open-source repositories.
+
+For more information please see our [Contributor Guide](https://bonsai-rx.org/contribute/). By contributing to our project, we also expect you to uphold our community [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Documentation
 -------------
