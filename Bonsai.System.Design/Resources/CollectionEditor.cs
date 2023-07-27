@@ -95,9 +95,23 @@ namespace Bonsai.Resources.Design
         {
             var itemType = CollectionItemType;
             var newItemTypes = new List<Type>();
-            if (!itemType.IsAbstract) newItemTypes.Add(itemType);
-            newItemTypes.AddRange(itemType.GetCustomAttributes<XmlIncludeAttribute>().Select(attribute => attribute.Type));
+            if (IsValidType(itemType)) newItemTypes.Add(itemType);
+            newItemTypes.AddRange(itemType
+                .GetCustomAttributes<XmlIncludeAttribute>()
+                .Select(attribute => attribute.Type)
+                .Where(IsValidType));
             return newItemTypes.ToArray();
+        }
+
+        static bool IsValidType(Type type)
+        {
+            if (type.IsAbstract || type.IsInterface || type.ContainsGenericParameters)
+            {
+                return false;
+            }
+
+            var designTimeVisibleAttribute = type.GetCustomAttribute<DesignTimeVisibleAttribute>();
+            return designTimeVisibleAttribute == null || designTimeVisibleAttribute.Visible;
         }
 
         /// <summary>
