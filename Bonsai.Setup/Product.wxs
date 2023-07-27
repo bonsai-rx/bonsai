@@ -6,12 +6,12 @@
   <?define ProductDisplayName="Bonsai"?>
   <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
   <?define ProgramFilesFolder="ProgramFilesFolder"?>
-  
-	<Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiEXE)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perUser" />
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<MediaTemplate EmbedCab="yes"/>
+  <Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiEXE)" Manufacturer="Bonsai Foundation" UpgradeCode="$(var.ProductUpgradeCode)">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perUser" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes"/>
     <UIRef Id="WixUI_Advanced"/>
     <Property Id="ApplicationFolderName" Value="$(var.ProductDisplayName)" />
     <Property Id="WixAppFolder" Value="WixPerUserFolder" />
@@ -20,8 +20,8 @@
     <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.WorkflowTemplatePath)\__TemplateIcon.ico" />
     <Icon Id="vsix.ico" SourceFile="vsix.ico"/>
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
-    
-		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+
+    <Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id="Gallery"/>
@@ -33,12 +33,12 @@
       <Feature Id="DevelopmentFeature" Title="Development" Level="1">
         <ComponentGroupRef Id="BonsaiVsExtensions" />
       </Feature>
-		</Feature>
-	</Product>
+    </Feature>
+  </Product>
 
-	<Fragment>
+  <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="$(var.ProgramFilesFolder)">
+      <Directory Id="$(var.ProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="$(var.ProductDisplayName)">
           <Directory Id="GALLERYFOLDER" Name="Gallery">
             <Component Id="Gallery" Guid="902807d6-61fe-402a-8245-7b0ca9db2d37" Win64="$(var.Win64)">
@@ -59,7 +59,7 @@
             </Directory>
           </Directory>
         </Directory>
-			</Directory>
+      </Directory>
 
       <Directory Id="ProgramMenuFolder" Name="Programs">
         <Directory Id="ProgramMenuDir" Name="$(var.ProductDisplayName)">
@@ -69,6 +69,6 @@
           </Component>
         </Directory>
       </Directory>
-		</Directory>
-	</Fragment>
+    </Directory>
+  </Fragment>
 </Wix>
