@@ -11,6 +11,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl></PackageIconUrl>
     <VersionPrefix>2.8.0</VersionPrefix>
     <PackAsTool>true</PackAsTool>
   </PropertyGroup>
