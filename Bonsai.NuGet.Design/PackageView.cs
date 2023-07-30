@@ -73,11 +73,6 @@ namespace Bonsai.NuGet.Design
             }
         }
 
-        static bool IsRunningOnMono()
-        {
-            return Type.GetType("Mono.Runtime") != null;
-        }
-
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             // slightly dampened scale factor for right margin
@@ -94,7 +89,7 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            if (!IsRunningOnMono())
+            if (!NativeMethods.IsRunningOnMono)
             {
                 NativeMethods.SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
             }
@@ -173,10 +168,11 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
         {
-            var color = (e.State & TreeNodeStates.Selected) != 0 ? SystemColors.HighlightText : SystemColors.WindowText;
             var bounds = e.Bounds;
             bounds.Width = RightMargin - bounds.X;
-
+            var color = (e.State & TreeNodeStates.Selected) != 0
+                ? SystemColors.HighlightText
+                : SystemColors.WindowText;
             if (e.Node.Tag == null)
             {
                 TextRenderer.DrawText(e.Graphics, e.Node.Text, Font, bounds, color,
@@ -184,6 +180,11 @@ namespace Bonsai.NuGet.Design
             }
             else
             {
+                if (NativeMethods.IsRunningOnMono && (e.State & TreeNodeStates.Selected) != 0)
+                {
+                    e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
+                }
+
                 if (e.Node.Checked)
                 {
                     var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - boundsMargin;
