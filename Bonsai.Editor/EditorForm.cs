@@ -1785,12 +1785,15 @@ namespace Bonsai.Editor
             var nameLength = descriptionTextBox.TextLength;
             name = descriptionTextBox.Text.Replace('\n', ' ');
             descriptionTextBox.Lines = new[] { name, description };
-            descriptionTextBox.SelectionStart = 0;
-            descriptionTextBox.SelectionLength = nameLength;
-            descriptionTextBox.SelectionFont = selectionFont;
-            descriptionTextBox.SelectionStart = nameLength;
-            descriptionTextBox.SelectionLength = descriptionTextBox.TextLength - nameLength;
-            descriptionTextBox.SelectionFont = regularFont;
+            if (!EditorSettings.IsRunningOnMono)
+            {
+                descriptionTextBox.SelectionStart = 0;
+                descriptionTextBox.SelectionLength = nameLength;
+                descriptionTextBox.SelectionFont = selectionFont;
+                descriptionTextBox.SelectionStart = nameLength;
+                descriptionTextBox.SelectionLength = descriptionTextBox.TextLength - nameLength;
+                descriptionTextBox.SelectionFont = regularFont;
+            }
             descriptionTextBox.ResumeLayout();
         }
 
