@@ -178,7 +178,7 @@ namespace Bonsai.Editor.GraphView
 
         protected override void OnLoad(EventArgs e)
         {
-            webView.EnsureCoreWebView2Async();
+            webView?.EnsureCoreWebView2Async();
             base.OnLoad(e);
         }
     }
