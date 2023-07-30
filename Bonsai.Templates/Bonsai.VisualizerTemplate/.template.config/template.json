@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Visualizer" ],
+    "description": "A class used to create a Bonsai type visualizer",
+    "identity": "Bonsai.VisualizerTemplate",
+    "name": "Bonsai Visualizer",
+    "tags": {
+        "language": "C#",
+        "type": "item"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "**/[Bb]in/**",
+                        "**/[Oo]bj/**",
+                        "**/[Pp]roperties/**",
+                        "**/*.ico",
+                        "**/*.vstemplate",
+                        "Bonsai.VisualizerTemplate.csproj"
+                    ]
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "itemName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_name",
+            "replaces": "$safeitemname$",
+            "fileRename": "VisualizerTemplate"
+        },
+        "namespace": {
+            "type": "bind",
+            "binding": "msbuild:RootNamespace",
+            "replaces": "$rootnamespace$"
+        }
+    },
+    "constraints": {
+        "csharp-only": {
+            "type": "project-capability",
+            "args": "CSharp"
+        }  
+    },
+    "shortName": "bonsaivisualizer",
+    "defaultName": "Visualizer1",
+    "preferDefaultName": true
+}

@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Workflow" ],
+    "description": "A class used to create a new Bonsai workflow",
+    "identity": "Bonsai.WorkflowTemplate",
+    "name": "Bonsai Workflow",
+    "tags": {
+        "type": "item"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "**/[Bb]in/**",
+                        "**/[Oo]bj/**",
+                        "**/[Pp]roperties/**",
+                        "**/*.ico",
+                        "**/*.vstemplate",
+                        "Bonsai.WorkflowTemplate.csproj"
+                    ]
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "itemName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_name",
+            "replaces": "$safeitemname$",
+            "fileRename": "WorkflowTemplate"
+        }
+    },
+    "shortName": "bonsaiworkflow",
+    "defaultName": "Workflow1",
+    "preferDefaultName": true
+}

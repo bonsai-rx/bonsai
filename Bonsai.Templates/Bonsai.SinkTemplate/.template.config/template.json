@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Sink" ],
+    "description": "A class used to create a Bonsai observable side-effect",
+    "identity": "Bonsai.SinkTemplate",
+    "name": "Bonsai Sink",
+    "tags": {
+        "language": "C#",
+        "type": "item"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "**/[Bb]in/**",
+                        "**/[Oo]bj/**",
+                        "**/[Pp]roperties/**",
+                        "**/*.ico",
+                        "**/*.vstemplate",
+                        "Bonsai.SinkTemplate.csproj"
+                    ]
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "itemName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_name",
+            "replaces": "$safeitemname$",
+            "fileRename": "SinkTemplate"
+        },
+        "namespace": {
+            "type": "bind",
+            "binding": "msbuild:RootNamespace",
+            "replaces": "$rootnamespace$"
+        }
+    },
+    "constraints": {
+        "csharp-only": {
+            "type": "project-capability",
+            "args": "CSharp"
+        }  
+    },
+    "shortName": "bonsaisink",
+    "defaultName": "Sink1",
+    "preferDefaultName": true
+}

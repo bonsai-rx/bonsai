@@ -23,7 +23,11 @@
     <Content Include="..\icon.png" PackagePath="/" />
     <Content Include="Bonsai.EnvironmentTemplate\**\*" />
     <Content Include="Bonsai.PackageTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.PackageTemplate.csproj" />
+    <Content Include="Bonsai.SinkTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
     <Content Include="Bonsai.SourceTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.TransformTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.VisualizerTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.WorkflowTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
     <Compile Remove="**\*" />
   </ItemGroup>
 
