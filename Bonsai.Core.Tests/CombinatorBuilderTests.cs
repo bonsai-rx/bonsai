@@ -20,13 +20,20 @@ namespace Bonsai.Core.Tests
             return Expression.Constant(source, typeof(IObservable<TSource>));
         }
 
-        IObservable<TSource> TestCombinatorBuilder<TSource>(object combinator, params Expression[] arguments)
+        IObservable<TResult> TestCombinatorBuilder<TResult>(object combinator, params Expression[] arguments)
         {
             Expression buildResult;
             var builder = new CombinatorBuilder { Combinator = combinator };
             try { buildResult = builder.Build(arguments); }
             catch (Exception ex) { throw new WorkflowBuildException(ex.Message, builder, ex); }
-            var lambda = Expression.Lambda<Func<IObservable<TSource>>>(buildResult);
+            if (buildResult.Type != typeof(IObservable<TResult>))
+            {
+                var actualType = buildResult.Type.GetGenericArguments()[0];
+                throw new WorkflowBuildException($"" +
+                    $"Output signature does not match. Expected: {typeof(TResult)}. Actual: {actualType}.");
+            }
+
+            var lambda = Expression.Lambda<Func<IObservable<TResult>>>(buildResult);
             var resultFactory = lambda.Compile();
             var result = resultFactory();
             return result;

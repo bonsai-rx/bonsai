@@ -132,6 +132,27 @@ namespace Bonsai.Core.Tests
             public IObservable<object> Process(IObservable<object> _) => Observable.Return(default(object));
         }
 
+        [Combinator]
+        abstract class BaseGenericOverloadedCombinatorMock
+        {
+            public abstract IObservable<TSource> Process<TSource>(IObservable<TSource> source);
+        }
+
+        class DerivedOverrideGenericOverloadedCombinatorMock : BaseGenericOverloadedCombinatorMock
+        {
+            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
+
+            public IObservable<EventArgs> Process(IObservable<EventArgs> _)
+                => Observable.Return(default(EventArgs));
+        }
+
+        class DerivedOverridePrimitiveTransformMock : Transform<double, double>
+        {
+            public override IObservable<double> Process(IObservable<double> source) => source;
+
+            public IObservable<decimal> Process(IObservable<decimal> source) => source;
+        }
+
         [TestMethod]
         public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
         {
@@ -250,7 +271,7 @@ namespace Bonsai.Core.Tests
             var value = "5";
             var combinator = new DerivedOverrideCombinatorMock();
             var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
+            var resultProvider = TestCombinatorBuilder<string>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreNotEqual(value, result);
         }
@@ -262,6 +283,28 @@ namespace Bonsai.Core.Tests
             var combinator = new DerivedOverrideOverloadedCombinatorMock();
             var source = CreateObservableExpression(Observable.Return(value));
             var resultProvider = TestCombinatorBuilder<object>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_OverloadOverrideWithRefTypeAndCallWithObject_ReturnsObjectValue()
+        {
+            var value = new object();
+            var combinator = new DerivedOverrideGenericOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreNotEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_OverloadOverrideCalledWithConvertibleValue_ReturnsOriginalTypeValue()
+        {
+            var value = 5.0;
+            var combinator = new DerivedOverridePrimitiveTransformMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreNotEqual(value, result);
         }
