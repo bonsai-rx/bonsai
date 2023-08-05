@@ -20,6 +20,13 @@ namespace Bonsai.Core.Tests
             return Expression.Constant(source, typeof(IObservable<TSource>));
         }
 
+        IObservable<TResult> TestCombinatorBuilder<TResult, TCombinator>(params Expression[] arguments)
+            where TCombinator : new()
+        {
+            var combinator = new TCombinator();
+            return TestCombinatorBuilder<TResult>(combinator, arguments);
+        }
+
         IObservable<TResult> TestCombinatorBuilder<TResult>(object combinator, params Expression[] arguments)
         {
             Expression buildResult;

@@ -12,15 +12,8 @@ namespace Bonsai.Core.Tests
         [Combinator]
         class OverloadedCombinatorMock
         {
-            public IObservable<float> Process(IObservable<float> source)
-            {
-                return source;
-            }
-
-            public IObservable<double> Process(IObservable<double> source)
-            {
-                return source;
-            }
+            public IObservable<float> Process(IObservable<float> source) => source;
+            public IObservable<double> Process(IObservable<double> source) => source;
         }
 
         [Combinator]
@@ -40,29 +33,17 @@ namespace Bonsai.Core.Tests
         [Combinator]
         class GenericOverloadedCombinatorMock
         {
-            public IObservable<float> Process(IObservable<float> source)
-            {
-                return source.Select(x => x + 1);
-            }
+            public IObservable<float> Process(IObservable<float> _) => Observable.Return(float.NaN);
 
-            public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
-            {
-                return source;
-            }
+            public IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
         }
 
         [Combinator]
         class ListTupleOverloadedCombinatorMock
         {
             public IObservable<int> Process(IObservable<Tuple<int, int>> source)
-            {
-                return source.Select(xs => xs.Item1);
-            }
-
-            public IObservable<IList<int>> Process(IObservable<IList<int>> source)
-            {
-                return source;
-            }
+                => source.Select(x => x.Item1);
+            public IObservable<IList<int>> Process(IObservable<IList<int>> source) => source;
         }
 
         [Combinator]
@@ -87,23 +68,14 @@ namespace Bonsai.Core.Tests
         [Combinator]
         class SpecializedGenericOverloadedCombinatorMock
         {
-            public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
-            {
-                return source;
-            }
-
+            public IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
             public IObservable<TSource> Process<TSource>(IObservable<Timestamped<TSource>> source)
-            {
-                return source.Select(x => x.Value);
-            }
+                => source.Select(x => x.Value);
         }
 
         class HidingOverloadedCombinatorMock : OverloadedCombinatorMock
         {
-            public new IObservable<double> Process(IObservable<double> source)
-            {
-                return source.Select(x => double.NaN);
-            }
+            public new IObservable<double> Process(IObservable<double> _) => Observable.Return(double.NaN);
         }
 
         class HidingSpecializedGenericOverloadedCombinatorMock : SpecializedGenericOverloadedCombinatorMock
@@ -122,14 +94,16 @@ namespace Bonsai.Core.Tests
 
         class DerivedOverrideCombinatorMock : BaseVirtualCombinatorMock
         {
-            public override IObservable<string> Process(IObservable<string> source) => Observable.Return(string.Empty);
+            public override IObservable<string> Process(IObservable<string> source)
+                => Observable.Return(string.Empty);
         }
 
         class DerivedOverrideOverloadedCombinatorMock : BaseVirtualCombinatorMock
         {
             public override IObservable<string> Process(IObservable<string> source) => source;
 
-            public IObservable<object> Process(IObservable<object> _) => Observable.Return(default(object));
+            public IObservable<object> Process(IObservable<object> _) =>
+                Observable.Return(default(object));
         }
 
         [Combinator]
@@ -140,150 +114,134 @@ namespace Bonsai.Core.Tests
 
         class DerivedOverrideGenericOverloadedCombinatorMock : BaseGenericOverloadedCombinatorMock
         {
-            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
+            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+                => Observable.Empty<TSource>();
 
-            public IObservable<EventArgs> Process(IObservable<EventArgs> _)
-                => Observable.Return(default(EventArgs));
+            public IObservable<EventArgs> Process(IObservable<EventArgs> source) => source;
         }
 
         class DerivedOverridePrimitiveTransformMock : Transform<double, double>
         {
             public override IObservable<double> Process(IObservable<double> source) => source;
-
             public IObservable<decimal> Process(IObservable<decimal> source) => source;
         }
 
-        [TestMethod]
-        public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
+        private TResult RunOverload<TSource, TResult, TCombinator>(TSource value) where TCombinator : new()
         {
-            var value = 5.0;
-            var combinator = new OverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
-            var result = Last(resultProvider).Result;
+            return RunOverload<TSource, TResult, TCombinator>(Observable.Return(value));
+        }
+
+        private TResult RunOverload<TSource, TResult, TCombinator>(IObservable<TSource> value) where TCombinator : new()
+        {
+            var combinator = new TCombinator();
+            var source = CreateObservableExpression(value);
+            var resultProvider = TestCombinatorBuilder<TResult>(combinator, source);
+            return Last(resultProvider).Result;
+        }
+
+        private void AssertOverloadEquals<TSource, TCombinator>(TSource value) where TCombinator : new()
+        {
+            var result = RunOverload<TSource, TSource, TCombinator>(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_FloatOverloadedMethodCalledWithInt_ReturnsFloatValue()
+        public void Build_OverloadDoubleMethodCalledWithDouble_ReturnsDoubleValue()
+        {
+            AssertOverloadEquals<double, OverloadedCombinatorMock>(5.0);
+        }
+
+        [TestMethod]
+        public void Build_OverloadFloatMethodCalledWithInt_ReturnsFloatValue()
         {
             var value = 5;
-            var combinator = new OverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<float>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<int, float, OverloadedCombinatorMock>(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_ParamsFloatOverloadedMethodCalledWithInt_ReturnsFloatValue()
+        public void Build_OverloadParamsFloatMethodCalledWithInt_ReturnsFloatValue()
         {
             var value = 5;
-            var combinator = new ParamsOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<float>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<int, float, ParamsOverloadedCombinatorMock>(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_GenericFloatOverloadedMethodCalledWithFloat_ReturnsFloatValue()
+        public void Build_OverloadGenericFloatMethodCalledWithFloat_ReturnsSpecializedResult()
         {
             var value = 5.0f;
-            var combinator = new GenericOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<float>(combinator, source);
-            var result = Last(resultProvider).Result;
-            Assert.AreEqual(value + 1, result);
+            var result = RunOverload<float, float, GenericOverloadedCombinatorMock>(value);
+            Assert.AreEqual(float.NaN, result);
         }
 
         [TestMethod]
-        public void Build_ListTupleOverloadedMethodCalledWithIntTuple_ReturnsIntValue()
+        public void Build_OverloadListTupleMethodCalledWithIntTuple_ReturnsIntValue()
         {
-            var value = 5;
-            var combinator = new ListTupleOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(Tuple.Create(value, value)));
-            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
-            var result = Last(resultProvider).Result;
-            Assert.AreEqual(value, result);
+            var value = Tuple.Create(5, 1);
+            var result = RunOverload<Tuple<int, int>, int, ListTupleOverloadedCombinatorMock>(value);
+            Assert.AreEqual(value.Item1, result);
         }
 
         [TestMethod]
         [ExpectedException(typeof(WorkflowBuildException))]
-        public void Build_AmbiguousOverloadedMethodCalledWithIntTuple_ThrowsWorkflowBuildException()
+        public void Build_OverloadAmbiguousMethodCalledWithIntTuple_ThrowsWorkflowBuildException()
         {
             var value = 5;
-            var combinator = new AmbiguousOverloadedCombinatorMock();
             var source1 = CreateObservableExpression(Observable.Return(value));
             var source2 = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<int>(combinator, source1, source2);
+            var resultProvider = TestCombinatorBuilder<int, AmbiguousOverloadedCombinatorMock>(source1, source2);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_AverageOverloadedMethodCalledWithLong_ReturnsDoubleValue()
+        public void Build_OverloadAverageMethodCalledWithLong_ReturnsDoubleValue()
         {
             var value = 5L;
-            var combinator = new Bonsai.Reactive.Average();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<long, double, Reactive.Average>(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_SpecializedGenericOverloadedMethod_ReturnsValue()
+        public void Build_OverloadSpecializedGenericMethod_ReturnsValue()
         {
             var value = 5;
-            var combinator = new SpecializedGenericOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value).Timestamp());
-            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<Timestamped<int>, int, SpecializedGenericOverloadedCombinatorMock>(
+                Observable.Return(value).Timestamp());
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_HidingDoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
+        public void Build_OverloadHidingDoubleMethodCalledWithDouble_ReturnsDoubleValue()
         {
             var value = 5.0;
-            var combinator = new HidingOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<double, double, HidingOverloadedCombinatorMock>(value);
             Assert.AreNotEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_HidingSpecializedGenericOverloadedMethod_ReturnsValue()
+        public void Build_OverloadHidingSpecializedGenericMethod_ReturnsValue()
         {
             var value = 5;
-            var combinator = new HidingSpecializedGenericOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value).Timestamp());
-            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<Timestamped<int>, int, HidingSpecializedGenericOverloadedCombinatorMock>(
+                Observable.Return(value).Timestamp());
             Assert.AreNotEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_DerivedOverrideMethodCalledWithString_ReturnsOverrideValue()
+        public void Build_OverloadDerivedOverrideMethodCalledWithString_ReturnsOverrideValue()
         {
             var value = "5";
-            var combinator = new DerivedOverrideCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<string>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<string, string, DerivedOverrideCombinatorMock>(value);
             Assert.AreNotEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_DerivedOverrideOverloadedMethodCalledWithString_ReturnsObjectValue()
+        public void Build_OverloadDerivedOverrideMethodCalledWithString_ReturnsObjectValue()
         {
             var value = "5";
-            var combinator = new DerivedOverrideOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<string, object, DerivedOverrideOverloadedCombinatorMock>(value);
             Assert.AreNotEqual(value, result);
         }
 
@@ -291,10 +249,7 @@ namespace Bonsai.Core.Tests
         public void Build_OverloadOverrideWithRefTypeAndCallWithObject_ReturnsObjectValue()
         {
             var value = new object();
-            var combinator = new DerivedOverrideGenericOverloadedCombinatorMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<object>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<object, object, DerivedOverrideGenericOverloadedCombinatorMock>(value);
             Assert.AreNotEqual(value, result);
         }
 
@@ -302,10 +257,7 @@ namespace Bonsai.Core.Tests
         public void Build_OverloadOverrideCalledWithConvertibleValue_ReturnsOriginalTypeValue()
         {
             var value = 5.0;
-            var combinator = new DerivedOverridePrimitiveTransformMock();
-            var source = CreateObservableExpression(Observable.Return(value));
-            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
-            var result = Last(resultProvider).Result;
+            var result = RunOverload<double, double, DerivedOverridePrimitiveTransformMock>(value);
             Assert.AreNotEqual(value, result);
         }
     }
