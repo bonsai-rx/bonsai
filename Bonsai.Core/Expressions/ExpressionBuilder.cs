@@ -882,7 +882,7 @@ namespace Bonsai.Expressions
                                 candidateParameters[baseType],
                                 candidateParameters[subType],
                                 argumentTypes,
-                                (a, b, _) => b.IsAssignableFrom(a) ? 1 : 0);
+                                (a, b, _) => b.IsAssignableFrom(a) ? 1 : -1);
                             candidates[baseType].excluded = subsumption > 0;
                         }
                         else candidates[baseType].excluded = true;
