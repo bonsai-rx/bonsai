@@ -19,22 +19,14 @@ namespace Bonsai.Core.Tests
         [Combinator]
         class ParamsOverloadedCombinatorMock
         {
-            public IObservable<float> Process(params IObservable<float>[] source)
-            {
-                return source.FirstOrDefault();
-            }
-
-            public IObservable<double> Process(params IObservable<double>[] source)
-            {
-                return source.FirstOrDefault();
-            }
+            public IObservable<float> Process(params IObservable<float>[] source) => source.FirstOrDefault();
+            public IObservable<double> Process(params IObservable<double>[] source) => source.FirstOrDefault();
         }
 
         [Combinator]
         class GenericOverloadedCombinatorMock
         {
             public IObservable<float> Process(IObservable<float> _) => Observable.Return(float.NaN);
-
             public IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
         }
 
@@ -49,20 +41,9 @@ namespace Bonsai.Core.Tests
         [Combinator]
         class AmbiguousOverloadedCombinatorMock
         {
-            public IObservable<int> Process(IObservable<int> source1, IObservable<double> source2)
-            {
-                return source1;
-            }
-
-            public IObservable<int> Process(IObservable<double> source1, IObservable<int> source2)
-            {
-                return source2;
-            }
-
-            public IObservable<int> Process(IObservable<object> source1, IObservable<object> source2)
-            {
-                return null;
-            }
+            public IObservable<int> Process(IObservable<int> source1, IObservable<double> _) => source1;
+            public IObservable<int> Process(IObservable<double> _, IObservable<int> source2) => source2;
+            public IObservable<int> Process(IObservable<object> _, IObservable<object> __) => null;
         }
 
         [Combinator]
@@ -81,29 +62,24 @@ namespace Bonsai.Core.Tests
         class HidingSpecializedGenericOverloadedCombinatorMock : SpecializedGenericOverloadedCombinatorMock
         {
             public new IObservable<TSource> Process<TSource>(IObservable<Timestamped<TSource>> source)
-            {
-                return source.Select(x => default(TSource));
-            }
+                => source.Select(x => default(TSource));
         }
 
         [Combinator]
-        class BaseVirtualCombinatorMock
+        abstract class BaseVirtualCombinatorMock
         {
-            public virtual IObservable<string> Process(IObservable<string> source) => source;
+            public abstract IObservable<string> Process(IObservable<string> source);
         }
 
         class DerivedOverrideCombinatorMock : BaseVirtualCombinatorMock
         {
-            public override IObservable<string> Process(IObservable<string> source)
-                => Observable.Return(string.Empty);
+            public override IObservable<string> Process(IObservable<string> source) => source;
         }
 
         class DerivedOverrideOverloadedCombinatorMock : BaseVirtualCombinatorMock
         {
             public override IObservable<string> Process(IObservable<string> source) => source;
-
-            public IObservable<object> Process(IObservable<object> _) =>
-                Observable.Return(default(object));
+            public IObservable<object> Process(IObservable<object> source) => source;
         }
 
         [Combinator]
@@ -114,24 +90,30 @@ namespace Bonsai.Core.Tests
 
         class DerivedOverrideGenericOverloadedCombinatorMock : BaseGenericOverloadedCombinatorMock
         {
-            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
-                => Observable.Empty<TSource>();
-
+            public override IObservable<TSource> Process<TSource>(IObservable<TSource> source) => source;
             public IObservable<EventArgs> Process(IObservable<EventArgs> source) => source;
         }
 
-        class DerivedOverridePrimitiveTransformMock : Transform<double, double>
+        class DerivedOverridePrimitiveTransformMock : Transform<float, float>
         {
-            public override IObservable<double> Process(IObservable<double> source) => source;
-            public IObservable<decimal> Process(IObservable<decimal> source) => source;
+            public override IObservable<float> Process(IObservable<float> source) => source;
+            public IObservable<double> Process(IObservable<double> source) => source;
         }
 
-        private TResult RunOverload<TSource, TResult, TCombinator>(TSource value) where TCombinator : new()
+        class DerivedOverrideCovariantTransformMock : Transform<object[], object[]>
+        {
+            public override IObservable<object[]> Process(IObservable<object[]> source) => source;
+            public IObservable<Array> Process(IObservable<Array> source) => source;
+        }
+
+        private TResult RunOverload<TSource, TResult, TCombinator>(TSource value)
+            where TCombinator : new()
         {
             return RunOverload<TSource, TResult, TCombinator>(Observable.Return(value));
         }
 
-        private TResult RunOverload<TSource, TResult, TCombinator>(IObservable<TSource> value) where TCombinator : new()
+        private TResult RunOverload<TSource, TResult, TCombinator>(IObservable<TSource> value)
+            where TCombinator : new()
         {
             var combinator = new TCombinator();
             var source = CreateObservableExpression(value);
@@ -139,20 +121,18 @@ namespace Bonsai.Core.Tests
             return Last(resultProvider).Result;
         }
 
-        private void AssertOverloadEquals<TSource, TCombinator>(TSource value) where TCombinator : new()
+        [TestMethod]
+        public void Build_OverloadCallWithExactSignature_PreferExactMatch()
+        // Same class overload exactly matching the argument signature is always preferred
         {
-            var result = RunOverload<TSource, TSource, TCombinator>(value);
+            var value = 5.0;
+            var result = RunOverload<double, double, OverloadedCombinatorMock>(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_OverloadDoubleMethodCalledWithDouble_ReturnsDoubleValue()
-        {
-            AssertOverloadEquals<double, OverloadedCombinatorMock>(5.0);
-        }
-
-        [TestMethod]
-        public void Build_OverloadFloatMethodCalledWithInt_ReturnsFloatValue()
+        public void Build_OverloadMethodCalledWithImplicitConversion_PreferClosestConversion()
+        // Same class overload with closest implicit conversion is preferred
         {
             var value = 5;
             var result = RunOverload<int, float, OverloadedCombinatorMock>(value);
@@ -160,7 +140,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadParamsFloatMethodCalledWithInt_ReturnsFloatValue()
+        public void Build_OverloadParamsMethodWithImplicitConversion_PreferClosestConversion()
+        // Same class params overload with closest implicit conversion is preferred
         {
             var value = 5;
             var result = RunOverload<int, float, ParamsOverloadedCombinatorMock>(value);
@@ -168,7 +149,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadGenericFloatMethodCalledWithFloat_ReturnsSpecializedResult()
+        public void Build_OverloadGenericMethodAndNonGenericMethod_PreferNonGenericMethod()
+        // Non-generic method signature is preferred over matching generic overload
         {
             var value = 5.0f;
             var result = RunOverload<float, float, GenericOverloadedCombinatorMock>(value);
@@ -176,7 +158,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadListTupleMethodCalledWithIntTuple_ReturnsIntValue()
+        public void Build_OverloadMethodWithDifferentReturnSignature_ReturnValueFromPreferredOverload()
+        // Return type signature depends on preferred method overload
         {
             var value = Tuple.Create(5, 1);
             var result = RunOverload<Tuple<int, int>, int, ListTupleOverloadedCombinatorMock>(value);
@@ -185,7 +168,8 @@ namespace Bonsai.Core.Tests
 
         [TestMethod]
         [ExpectedException(typeof(WorkflowBuildException))]
-        public void Build_OverloadAmbiguousMethodCalledWithIntTuple_ThrowsWorkflowBuildException()
+        public void Build_OverloadAmbiguousMethodCall_ThrowsWorkflowBuildException()
+        // Ambiguous overloaded method call throws build exception
         {
             var value = 5;
             var source1 = CreateObservableExpression(Observable.Return(value));
@@ -196,7 +180,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadAverageMethodCalledWithLong_ReturnsDoubleValue()
+        public void Build_NullableOverloadMethodCalledWithImplicitConversion_PreferNonNullableClosestConversion()
+        // Same class non-nullable overload with closest implicit conversion is preferred
         {
             var value = 5L;
             var result = RunOverload<long, double, Reactive.Average>(value);
@@ -204,7 +189,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadSpecializedGenericMethod_ReturnsValue()
+        public void Build_OverloadSpecializedGenericMethod_PreferSpecializedOverload()
+        // More specialized generic method signature is preferred over more general one
         {
             var value = 5;
             var result = RunOverload<Timestamped<int>, int, SpecializedGenericOverloadedCombinatorMock>(
@@ -213,7 +199,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadHidingDoubleMethodCalledWithDouble_ReturnsDoubleValue()
+        public void Build_OverloadHidingBaseMethod_PreferNewOverload()
+        // New overload with exact method signature hides base class implementation
         {
             var value = 5.0;
             var result = RunOverload<double, double, HidingOverloadedCombinatorMock>(value);
@@ -221,7 +208,8 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadHidingSpecializedGenericMethod_ReturnsValue()
+        public void Build_OverloadHidingSpecializedGenericMethod_PreferNewOverload()
+        // New overload with exact method signature hides base class implementation
         {
             var value = 5;
             var result = RunOverload<Timestamped<int>, int, HidingSpecializedGenericOverloadedCombinatorMock>(
@@ -230,35 +218,48 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_OverloadDerivedOverrideMethodCalledWithString_ReturnsOverrideValue()
+        public void Build_OverloadOverrideCalledWithExactType_ReturnOverrideValue()
+        // Override overload from abstract base class calls derived implementation
         {
             var value = "5";
             var result = RunOverload<string, string, DerivedOverrideCombinatorMock>(value);
-            Assert.AreNotEqual(value, result);
+            Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_OverloadDerivedOverrideMethodCalledWithString_ReturnsObjectValue()
+        public void Build_OverloadOverrideAndNewOverloadWithBaseType_PreferNewOverload()
+        // New overload excludes base class method since argument matches covariant signature without conversion
         {
             var value = "5";
             var result = RunOverload<string, object, DerivedOverrideOverloadedCombinatorMock>(value);
-            Assert.AreNotEqual(value, result);
+            Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_OverloadOverrideWithRefTypeAndCallWithObject_ReturnsObjectValue()
+        public void Build_OverloadGenericOverrideAndNewOverloadWithUnrelatedType_PreferGenericExactMatch()
+        // Base overload is preferred since no type conversion is required to match a generic method
         {
             var value = new object();
             var result = RunOverload<object, object, DerivedOverrideGenericOverloadedCombinatorMock>(value);
-            Assert.AreNotEqual(value, result);
+            Assert.AreEqual(value, result);
         }
 
         [TestMethod]
-        public void Build_OverloadOverrideCalledWithConvertibleValue_ReturnsOriginalTypeValue()
+        public void Build_OverloadOverrideExactValueTypeAndNewOverloadWithImplicitConversion_PreferExactType()
+        // Override is preferred since generic covariance does not apply to value types
         {
-            var value = 5.0;
-            var result = RunOverload<double, double, DerivedOverridePrimitiveTransformMock>(value);
-            Assert.AreNotEqual(value, result);
+            var value = 5.0f;
+            var result = RunOverload<float, float, DerivedOverridePrimitiveTransformMock>(value);
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_OverloadOverrideValueTypeWithImplicitConversion_PreferClosestConversionOverride()
+        // Override is preferred since generic covariance does not apply to value types
+        {
+            var value = 5;
+            var result = RunOverload<int, float, DerivedOverridePrimitiveTransformMock>(value);
+            Assert.AreEqual(value, result);
         }
     }
 }
