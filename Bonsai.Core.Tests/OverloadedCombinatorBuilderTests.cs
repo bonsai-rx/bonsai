@@ -261,5 +261,14 @@ namespace Bonsai.Core.Tests
             var result = RunOverload<int, float, DerivedOverridePrimitiveTransformMock>(value);
             Assert.AreEqual(value, result);
         }
+
+        [TestMethod]
+        public void Build_OverloadOverrideAndNewOverloadWithBaseTypeAfterExplicitConversion_PreferNewOverload()
+        // New overload is preferred since conversion to base override signature would match new covariant signature
+        {
+            var value = new object[1];
+            var result = RunOverload<object, Array, DerivedOverrideCovariantTransformMock>(value);
+            Assert.AreEqual(value, result);
+        }
     }
 }
