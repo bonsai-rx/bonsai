@@ -106,6 +106,25 @@ namespace Bonsai.Core.Tests
             public IObservable<Array> Process(IObservable<Array> source) => source;
         }
 
+        [Combinator]
+        class MultiArgumentBaseCovariantMock
+        {
+            public virtual IObservable<object[]> Process(
+                IObservable<object[]> source,
+                IObservable<object> source2) => source;
+        }
+
+        class MultiArgumentDerivedCovariantMock : MultiArgumentBaseCovariantMock
+        {
+            public override IObservable<object[]> Process(
+                IObservable<object[]> source,
+                IObservable<object> source2) => source;
+
+            public IObservable<Array> Process(
+                IObservable<Array> source,
+                IObservable<string> _) => source;
+        }
+
         private TResult RunOverload<TSource, TResult, TCombinator>(TSource value)
             where TCombinator : new()
         {
@@ -269,6 +288,31 @@ namespace Bonsai.Core.Tests
             var value = new object[1];
             var result = RunOverload<object, Array, DerivedOverrideCovariantTransformMock>(value);
             Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_OverloadOverrideAndNewMultiArgumentWithMixedConversions_PreferBaseOverload()
+        // Override is preferred since method signature is not subsumed and second argument is exact match
+        {
+            var value = new object[1];
+            var source1 = CreateObservableExpression(Observable.Return((object)value));
+            var source2 = CreateObservableExpression(Observable.Return((object)value));
+            var resultProvider = TestCombinatorBuilder<object[], MultiArgumentDerivedCovariantMock>(source1, source2);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_OverloadOverrideAndNewMultiArgumentWithSpecializedConversion_PreferNewOverload()
+        // New overload is preferred since the second argument is more specialized
+        {
+            var value1 = new object[1];
+            var value2 = string.Empty;
+            var source1 = CreateObservableExpression(Observable.Return((object)value1));
+            var source2 = CreateObservableExpression(Observable.Return(value2));
+            var resultProvider = TestCombinatorBuilder<Array, MultiArgumentDerivedCovariantMock>(source1, source2);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value1, result);
         }
     }
 }
