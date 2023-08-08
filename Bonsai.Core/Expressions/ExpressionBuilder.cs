@@ -508,18 +508,22 @@ namespace Bonsai.Expressions
             }
         }
 
-        static Expression[] MatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments)
+        static Expression[] MatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments, out bool coerced)
         {
             int i = 0;
-            return Array.ConvertAll(arguments, argument =>
+            var isCoerced = false;
+            var result = Array.ConvertAll(arguments, argument =>
             {
                 var parameterType = parameters[i++].ParameterType;
                 if (argument.Type != parameterType)
                 {
+                    isCoerced |= !parameterType.IsAssignableFrom(argument.Type);
                     argument = CoerceMethodArgument(parameterType, argument);
                 }
                 return argument;
             });
+            coerced = isCoerced;
+            return result;
         }
 
         #endregion
@@ -770,6 +774,7 @@ namespace Bonsai.Expressions
             internal bool generic;
             internal bool expansion;
             internal bool excluded;
+            internal bool coerced;
         }
 
         internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
@@ -793,6 +798,7 @@ namespace Bonsai.Expressions
                 })
                 .Select(method =>
                 {
+                    bool coerced;
                     Expression[] callArguments;
                     ParameterInfo[] parameters;
                     try
@@ -812,7 +818,7 @@ namespace Bonsai.Expressions
                         }
 
                         if (!CanMatchMethodParameters(parameters, callArguments)) return null;
-                        callArguments = MatchMethodParameters(parameters, callArguments);
+                        callArguments = MatchMethodParameters(parameters, callArguments, out coerced);
                     }
                     catch (ArgumentException) { return null; }
                     catch (InvalidOperationException) { return null; }
@@ -825,7 +831,8 @@ namespace Bonsai.Expressions
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
                         expansion = ParamExpansionRequired(parameters, argumentTypes),
-                        excluded = false
+                        excluded = false,
+                        coerced = coerced
                     };
                 })
                 .Where(candidate => candidate != null)
@@ -857,13 +864,29 @@ namespace Bonsai.Expressions
                     // skip self-test
                     if (i == j) continue;
 
+                    // skip excluded candidates
+                    if (candidates[j].excluded) continue;
+
                     // exclude self if declaring type is base type of other; and vice-versa
-                    if (candidates[i].declaringType != candidates[j].declaringType)
+                    // if no conversions are involved; otherwise if both matches required
+                    // conversion then exclude base type signature if it matches subtype signature
+                    if (candidates[i].declaringType != candidates[j].declaringType &&
+                        candidates[i].coerced == candidates[j].coerced)
                     {
-                        if (candidates[i].declaringType.IsAssignableFrom(candidates[j].declaringType))
-                            candidates[i].excluded = true;
-                        else candidates[j].excluded = true;
-                        continue;
+                        var baseType = candidates[i].declaringType.IsAssignableFrom(candidates[j].declaringType)
+                            ? i : j;
+                        if (candidates[baseType].coerced)
+                        {
+                            var subType = baseType == i ? j : i;
+                            var subsumption = CompareFunctionMember(
+                                candidateParameters[baseType],
+                                candidateParameters[subType],
+                                argumentTypes,
+                                (a, b, _) => b.IsAssignableFrom(a) ? 1 : -1);
+                            candidates[baseType].excluded = subsumption > 0;
+                        }
+                        else candidates[baseType].excluded = true;
+                        if (candidates[baseType].excluded) continue;
                     }
 
                     // compare implicit type conversion
