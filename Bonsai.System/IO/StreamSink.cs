@@ -162,8 +162,8 @@ namespace Bonsai.IO
                     try
                     {
                         if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                        path = PathHelper.AppendSuffix(path, Suffix);
-                        stream = CreateStream(path, Overwrite, cancellationSource.Token);
+                        var streamPath = PathHelper.AppendSuffix(path, Suffix);
+                        stream = CreateStream(streamPath, Overwrite, cancellationSource.Token);
                         disposable.Writer = CreateWriter(stream);
                     }
                     catch (Exception ex)

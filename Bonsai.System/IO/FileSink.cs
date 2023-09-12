@@ -135,10 +135,10 @@ namespace Bonsai.IO
             return Observable.Create<TElement>(observer =>
             {
                 PathHelper.EnsureDirectory(fileName);
-                fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                if (File.Exists(fileName) && !Overwrite)
+                var filePath = PathHelper.AppendSuffix(fileName, Suffix);
+                if (File.Exists(filePath) && !Overwrite)
                 {
-                    throw new IOException(string.Format("The file '{0}' already exists.", fileName));
+                    throw new IOException(string.Format("The file '{0}' already exists.", filePath));
                 }
 
                 var disposable = new WriterDisposable<TWriter>(Buffered);
@@ -152,7 +152,7 @@ namespace Bonsai.IO
                             var runningWriter = disposable.Writer;
                             if (runningWriter == null)
                             {
-                                runningWriter = disposable.Writer = CreateWriter(fileName, input);
+                                runningWriter = disposable.Writer = CreateWriter(filePath, input);
                             }
 
                             Write(runningWriter, input);
