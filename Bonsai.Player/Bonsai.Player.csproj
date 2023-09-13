@@ -12,7 +12,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl></PackageIconUrl>
-    <VersionPrefix>2.8.0</VersionPrefix>
+    <VersionPrefix>2.8.1</VersionPrefix>
     <PackAsTool>true</PackAsTool>
   </PropertyGroup>
   <ItemGroup>
