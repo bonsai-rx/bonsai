@@ -37,6 +37,11 @@ namespace Bonsai.Configuration
                 currentPath = string.Join(new string(Path.PathSeparator, 1), path, currentPath);
                 Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
             }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                NativeMethods.AddDllDirectory(path);
+            }
         }
 
         public static string GetConfigurationRoot(PackageConfiguration configuration = null)
