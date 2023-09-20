@@ -209,7 +209,8 @@ namespace Bonsai
                     }
 
                     using var pipeServer = new NamedPipeServerStream(pipeName, PipeDirection.In);
-                    editorArgs.Add(PipeCommand + ":" + pipeName);
+                    editorArgs = editorArgs.ConvertAll(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg);
+                    editorArgs.AddRange(new[] { PipeCommand, pipeName });
 
                     var setupInfo = new ProcessStartInfo();
                     setupInfo.FileName = Assembly.GetEntryAssembly().Location;
