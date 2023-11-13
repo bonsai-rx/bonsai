@@ -126,7 +126,7 @@ namespace Bonsai.Vision.Design
             RotatedRect ellipse;
             ellipse.Angle = 0;
             ellipse.Center = circle.Center;
-            ellipse.Size = new Size2f(circle.Radius, circle.Radius);
+            ellipse.Size = new Size2f(circle.Radius * 2, circle.Radius * 2);
             return ellipse;
         }
 
@@ -134,7 +134,7 @@ namespace Bonsai.Vision.Design
         {
             Circle circle;
             circle.Center = ellipse.Center;
-            circle.Radius = ellipse.Size.Width;
+            circle.Radius = ellipse.Size.Width / 2;
             return circle;
         }
 
