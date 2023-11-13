@@ -63,7 +63,7 @@ namespace Bonsai.Vision.Design
                                 select (from moveEvt in mouseMove.TakeUntil(mouseUp)
                                         let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
                                         let modifiedRegion = downEvt.Button == MouseButtons.Right
-                                            ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Control))
+                                            ? ScaleRegion(region, target, IsCirclePicker || ModifierKeys.HasFlag(Keys.Control))
                                             : MoveRegion(region, target - location)
                                         let modifiedRectangle = RegionRectangle(modifiedRegion)
                                         where modifiedRectangle.Width > 0 && modifiedRectangle.Height > 0 &&
