@@ -15,17 +15,19 @@ namespace Bonsai.Configuration
 
         protected override async Task RunPackageOperationAsync(Func<Task> operationFactory)
         {
-            await operationFactory().ContinueWith(task =>
+            try { await operationFactory(); }
+            catch (Exception ex)
             {
-                if (task.Exception is AggregateException ex)
+                if (ex is AggregateException aex)
                 {
-                    foreach (var error in ex.InnerExceptions)
+                    foreach (var error in aex.InnerExceptions)
                     {
                         PackageManager.Logger.LogError(error.Message);
                     }
                 }
-                else PackageManager.Logger.LogError(task.Exception.Message);
-            }, TaskContinuationOptions.OnlyOnFaulted);
+                else PackageManager.Logger.LogError(ex.Message);
+                throw;
+            }
         }
     }
 }
