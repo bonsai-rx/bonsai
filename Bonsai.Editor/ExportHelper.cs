@@ -42,12 +42,7 @@ namespace Bonsai.Editor
             var bounds = graphView.GetLayoutSize();
             var graphics = new SvgNet.SvgGraphics();
             graphView.DrawGraphics(graphics);
-            var svg = graphics.WriteSVGString();
-            var attributes = string.Format(
-                "<svg width=\"{0}\" height=\"{1}\" ",
-                bounds.Width, bounds.Height);
-            svg = svg.Replace("<svg ", attributes);
-            return svg;
+            return graphics.WriteSVGString(bounds);
         }
 
         public static Bitmap ExportBitmap(ExpressionBuilderGraph workflow, Font font, SvgRendererFactory iconRenderer)
@@ -60,12 +55,10 @@ namespace Bonsai.Editor
         {
             var bounds = graphView.GetLayoutSize();
             var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                var gdi = new SvgNet.GdiGraphics(graphics);
-                graphView.DrawGraphics(gdi);
-                return bitmap;
-            }
+            using var graphics = Graphics.FromImage(bitmap);
+            var gdi = new SvgNet.GdiGraphics(graphics);
+            graphView.DrawGraphics(gdi);
+            return bitmap;
         }
     }
 }
