@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bonsai.Editor.Tests
 {
@@ -6,6 +7,8 @@ namespace Bonsai.Editor.Tests
     public class WordSeparationTests
     {
         [DataTestMethod]
+        [DataRow("")]
+        [DataRow("State Space", "State ", "Space")]
         [DataRow("UpdateVRState", "Update", "VR", "State")]
         [DataRow("Get-DisplayLED", "Get-", "Display", "LED")]
         [DataRow("A_LARGE_NAME", "A_", "LARGE_", "NAME")]
@@ -15,6 +18,13 @@ namespace Bonsai.Editor.Tests
         {
             var words = text.SplitOnWordBoundaries();
             CollectionAssert.AreEqual(expectedWords, words);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SplitOnWordBoundaries_NullString_ThrowsArgumentNullException()
+        {
+            StringExtensions.SplitOnWordBoundaries(null);
         }
     }
 }

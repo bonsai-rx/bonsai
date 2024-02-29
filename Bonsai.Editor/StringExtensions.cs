@@ -34,6 +34,11 @@ namespace Bonsai.Editor
 
         public static string[] SplitOnWordBoundaries(this string text)
         {
+            if (text == null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
             var wordCount = 0;
             var words = new string[text.Length];
             var builder = new StringBuilder(text.Length);
