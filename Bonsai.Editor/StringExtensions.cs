@@ -19,7 +19,7 @@ namespace Bonsai.Editor
         {
             return char.IsWhiteSpace(c) || c switch
             {
-                '_' or '-' => true,
+                '_' or '-' or '.' => true,
                 _ => false
             };
         }
