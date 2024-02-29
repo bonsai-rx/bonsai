@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bonsai.Editor.Tests
 {
     [TestClass]
-    public class WorkflowEditorTests
+    public partial class WorkflowEditorTests
     {
         static Stream LoadEmbeddedResource(string name)
         {
