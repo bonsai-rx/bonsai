@@ -25,6 +25,14 @@ namespace Bonsai.Editor.Tests
             return graph.ToInspectableGraph();
         }
 
+        internal static TBuilder FindExpressionBuilder<TBuilder>(this ExpressionBuilderGraph workflow) where TBuilder : class
+        {
+            return (from node in workflow
+                    let builder = node.Value as TBuilder
+                    where builder != null
+                    select builder).FirstOrDefault();
+        }
+
         internal static GraphNode FindNode(this WorkflowEditor editor, string name)
         {
             var node = editor.Workflow.First(n => ExpressionBuilder.GetElementDisplayName(n.Value) == name);

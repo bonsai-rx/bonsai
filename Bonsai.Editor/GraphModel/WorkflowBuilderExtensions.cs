@@ -51,7 +51,7 @@ namespace Bonsai.Editor.GraphModel
                         let subjectBuilder = element.Builder as SubjectExpressionBuilder
                         where subjectBuilder != null && subjectBuilder.Name == name
                         select new SubjectDefinition(level, subjectBuilder, element.IsReadOnly))
-                        .LastOrDefault();
+                        .FirstOrDefault();
             }
 
             return null;
