@@ -988,31 +988,10 @@ namespace Bonsai.Editor.GraphView
             EnsureVisible(CursorNode);
         }
 
-        private static string[] GetWords(string text)
-        {
-            var wordCount = 0;
-            var words = new string[text.Length];
-            var builder = new StringBuilder(text.Length);
-            foreach (var c in text)
-            {
-                if (builder.Length > 0 && (Char.IsUpper(c) || Char.IsWhiteSpace(c)))
-                {
-                    words[wordCount++] = builder.ToString();
-                    builder.Clear();
-                }
-
-                builder.Append(c);
-            }
-
-            if (builder.Length > 0) words[wordCount++] = builder.ToString();
-            Array.Resize(ref words, wordCount);
-            return words;
-        }
-
         private static IEnumerable<string> WordWrap(Graphics graphics, string text, Font font, float lineWidth)
         {
             var trimStart = true;
-            var words = GetWords(text);
+            var words = text.SplitOnWordBoundaries();
             var lineBreak = words.Length <= 1 ? 0 : 2;
             var result = new StringBuilder(text.Length);
             foreach (var word in words)
