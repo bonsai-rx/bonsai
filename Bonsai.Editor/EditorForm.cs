@@ -2337,10 +2337,10 @@ namespace Bonsai.Editor
 
             try
             {
+                var showExternal = ModifierKeys.HasFlag(Keys.Control);
                 var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
-                if (!ModifierKeys.HasFlag(Keys.Control) &&
-                    editorControl.AnnotationPanel.HasWebView)
+                if (!showExternal && editorControl.AnnotationPanel.HasWebView)
                 {
                     editorControl.AnnotationPanel.Navigate(url.AbsoluteUri);
                     var nameSeparator = uid.LastIndexOf(ExpressionHelper.MemberSeparator);
