@@ -20,7 +20,7 @@ namespace Bonsai.Editor
             return char.IsSeparator(c) || char.IsPunctuation(c);
         }
 
-        static bool IsWordBreak(string text, int index, char current)
+        static bool IsWordBoundary(string text, int index, char current)
         {
             var previous = text[index - 1];
             return IsLowerToUpperCase(previous, current)
@@ -41,7 +41,7 @@ namespace Bonsai.Editor
             for (int i = 0; i < text.Length; i++)
             {
                 var c = text[i];
-                if (i > 0 && IsWordBreak(text, i, c))
+                if (i > 0 && IsWordBoundary(text, i, c))
                 {
                     words[wordCount++] = builder.ToString();
                     builder.Clear();
