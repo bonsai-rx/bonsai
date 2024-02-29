@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using Bonsai.Dag;
-using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
