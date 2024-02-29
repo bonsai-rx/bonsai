@@ -17,11 +17,7 @@ namespace Bonsai.Editor
 
         static bool IsWordSeparator(char c)
         {
-            return char.IsWhiteSpace(c) || c switch
-            {
-                '_' or '-' or '.' => true,
-                _ => false
-            };
+            return char.IsSeparator(c) || char.IsPunctuation(c);
         }
 
         static bool IsWordBreak(string text, int index, char current)

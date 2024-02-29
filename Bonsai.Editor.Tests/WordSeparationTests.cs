@@ -9,6 +9,8 @@ namespace Bonsai.Editor.Tests
         [DataTestMethod]
         [DataRow("")]
         [DataRow("Point.X", "Point.", "X")]
+        [DataRow("Source/1", "Source/", "1")]
+        [DataRow("Source/Path", "Source/", "Path")]
         [DataRow("State Space", "State ", "Space")]
         [DataRow("TimeStep.ElapsedTime", "Time", "Step.", "Elapsed", "Time")]
         [DataRow("UpdateVRState", "Update", "VR", "State")]
