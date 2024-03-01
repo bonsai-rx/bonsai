@@ -60,19 +60,15 @@ namespace Bonsai.NuGet
 
         public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
         {
-            var updatePackages = new List<IPackageSearchMetadata>();
             using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
-            foreach (var package in localPackages)
+            var tasks = localPackages.Select(package =>
             {
                 var updateRange = new VersionRange(package.Identity.Version, includeMinVersion: false);
-                var latestPackage = await GetLatestMetadataAsync(repository, package.Identity.Id, updateRange, includePrerelease, cacheContext, token);
-                if (latestPackage != null)
-                {
-                    updatePackages.Add(latestPackage);
-                }
-            }
+                return GetLatestMetadataAsync(repository, package.Identity.Id, updateRange, includePrerelease, cacheContext, token);
+            }).ToArray();
 
-            return updatePackages;
+            var packageUpdates = await Task.WhenAll(tasks);
+            return packageUpdates.Where(package => package != null).ToList();
         }
 
         public static async Task<IPackageSearchMetadata> GetMetadataAsync(this SourceRepository repository, PackageIdentity identity, SourceCacheContext cacheContext, CancellationToken token = default)
