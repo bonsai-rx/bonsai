@@ -16,11 +16,13 @@
         }],
         "args": {
             "executable": "powershell",
-            "args": "-File Setup.ps1",
+            "args": "-File .bonsai/Setup.ps1",
             "redirectStandardOutput": false
-        }
-          
+        },
+        "applyFileRenamesToArgs": [ "args" ]
     }],
+    "sourceName": ".bonsai",
+    "defaultName": ".bonsai",
     "shortName": "bonsaienv",
-    "preferNameDirectory": true
+    "preferDefaultName": true
 }
