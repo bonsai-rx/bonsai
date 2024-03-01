@@ -1,4 +1,4 @@
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
 using NuGet.Frameworks;
@@ -209,12 +209,9 @@ namespace Bonsai.NuGet.Design
 
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
         {
-            if (updateFeed)
-            {
-                var localPackages = PackageManager.LocalRepository.GetLocalPackages();
-                return new UpdateQuery(repository, localPackages, includePrerelease);
-            }
-            else return new SearchQuery(repository, searchTerm, pageSize, includePrerelease, packageTypes);
+            return updateFeed
+                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, packageTypes)
+                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, packageTypes);
         }
 
         static Bitmap ResizeImage(Image image, Size newSize)

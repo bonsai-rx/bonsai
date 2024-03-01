@@ -58,21 +58,27 @@ namespace Bonsai.NuGet
             return await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
         }
 
-        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<IPackageSearchMetadata> localPackages, bool includePrerelease, CancellationToken token = default)
         {
-            var updatePackages = new List<IPackageSearchMetadata>();
-            using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
-            foreach (var package in localPackages)
-            {
-                var updateRange = new VersionRange(package.Identity.Version, includeMinVersion: false);
-                var latestPackage = await GetLatestMetadataAsync(repository, package.Identity.Id, updateRange, includePrerelease, cacheContext, token);
-                if (latestPackage != null)
-                {
-                    updatePackages.Add(latestPackage);
-                }
-            }
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+        }
 
-            return updatePackages;
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
+        {
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+        }
+
+        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<PackageIdentity> packages, bool includePrerelease, CancellationToken token = default)
+        {
+            using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
+            var tasks = packages.Select(package =>
+            {
+                var updateRange = new VersionRange(package.Version, includeMinVersion: false);
+                return GetLatestMetadataAsync(repository, package.Id, updateRange, includePrerelease, cacheContext, token);
+            }).ToArray();
+
+            var packageUpdates = await Task.WhenAll(tasks);
+            return packageUpdates.Where(package => package != null).ToList();
         }
 
         public static async Task<IPackageSearchMetadata> GetMetadataAsync(this SourceRepository repository, PackageIdentity identity, SourceCacheContext cacheContext, CancellationToken token = default)

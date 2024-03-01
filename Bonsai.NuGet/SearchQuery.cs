@@ -10,12 +10,23 @@ namespace Bonsai.NuGet
 {
     public class SearchQuery : QueryContinuation<IEnumerable<IPackageSearchMetadata>>
     {
-        public SearchQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, IEnumerable<string> packageTypes = default)
+        public SearchQuery(
+            SourceRepository repository,
+            string searchTerm,
+            int pageSize,
+            bool includePrerelease,
+            IEnumerable<string> packageTypes = default)
             : this(repository, searchTerm, 0, pageSize, includePrerelease, packageTypes)
         {
         }
 
-        private SearchQuery(SourceRepository repository, string searchTerm, int pageIndex, int pageSize, bool includePrerelease, IEnumerable<string> packageTypes)
+        private SearchQuery(
+            SourceRepository repository,
+            string searchTerm,
+            int pageIndex,
+            int pageSize,
+            bool includePrerelease,
+            IEnumerable<string> packageTypes)
         {
             Repository = repository;
             SearchTerm = searchTerm;
@@ -25,23 +36,21 @@ namespace Bonsai.NuGet
             PackageTypes = packageTypes;
         }
 
-        public SourceRepository Repository { get; private set; }
+        public SourceRepository Repository { get; }
 
-        public string SearchTerm { get; private set; }
+        public string SearchTerm { get; }
 
-        public int PageIndex { get; private set; }
+        public int PageIndex { get; }
 
-        public int PageSize { get; private set; }
+        public int PageSize { get; }
 
-        public bool IncludePrerelease { get; private set; }
+        public bool IncludePrerelease { get; }
 
-        public IEnumerable<string> PackageTypes { get; private set; }
+        public IEnumerable<string> PackageTypes { get; }
 
         public override async Task<QueryResult<IEnumerable<IPackageSearchMetadata>>> GetResultAsync(CancellationToken token = default)
         {
-            var searchFilterType = IncludePrerelease ? SearchFilterType.IsAbsoluteLatestVersion : SearchFilterType.IsLatestVersion;
-            var searchFilter = new SearchFilter(IncludePrerelease, searchFilterType);
-            searchFilter.PackageTypes = PackageTypes;
+            var searchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageTypes);
             try
             {
                 var result = (await Repository.SearchAsync(SearchTerm, searchFilter, PageIndex * PageSize, PageSize + 1, token)).ToList();
