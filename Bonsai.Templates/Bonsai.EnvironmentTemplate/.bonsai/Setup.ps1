@@ -11,9 +11,9 @@ if (!(Test-Path "./Bonsai.exe")) {
         }
     }
     Invoke-WebRequest $release -OutFile "temp.zip"
-    Move-Item -Path "NuGet.config" "temp.config"
+    Move-Item -Path "NuGet.config" "temp.config" -ErrorAction SilentlyContinue
     Expand-Archive "temp.zip" -DestinationPath "." -Force
-    Move-Item -Path "temp.config" "NuGet.config" -Force
+    Move-Item -Path "temp.config" "NuGet.config" -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "temp.zip"
     Remove-Item -Path "Bonsai32.exe"
 }
