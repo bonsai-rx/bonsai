@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bonsai Foundation")]
 [assembly: AssemblyProduct("Bonsai.Templates")]
-[assembly: AssemblyCopyright("Copyright © Bonsai Foundation CIC and Contributors 2023")]
+[assembly: AssemblyCopyright("Copyright © Bonsai Foundation CIC and Contributors 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
