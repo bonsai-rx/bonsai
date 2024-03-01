@@ -1,3 +1,4 @@
+Push-Location $PSScriptRoot
 if (!(Test-Path "./Bonsai.exe")) {
     $release = "https://github.com/bonsai-rx/bonsai/releases/latest/download/Bonsai.zip"
     $configPath = "./Bonsai.config"
@@ -17,3 +18,4 @@ if (!(Test-Path "./Bonsai.exe")) {
     Remove-Item -Path "Bonsai32.exe"
 }
 & .\Bonsai.exe --no-editor
+Pop-Location
