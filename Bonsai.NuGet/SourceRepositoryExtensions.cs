@@ -58,13 +58,23 @@ namespace Bonsai.NuGet
             return await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
         }
 
-        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<IPackageSearchMetadata> localPackages, bool includePrerelease, CancellationToken token = default)
+        {
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+        }
+
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
+        {
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+        }
+
+        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<PackageIdentity> packages, bool includePrerelease, CancellationToken token = default)
         {
             using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
-            var tasks = localPackages.Select(package =>
+            var tasks = packages.Select(package =>
             {
-                var updateRange = new VersionRange(package.Identity.Version, includeMinVersion: false);
-                return GetLatestMetadataAsync(repository, package.Identity.Id, updateRange, includePrerelease, cacheContext, token);
+                var updateRange = new VersionRange(package.Version, includeMinVersion: false);
+                return GetLatestMetadataAsync(repository, package.Id, updateRange, includePrerelease, cacheContext, token);
             }).ToArray();
 
             var packageUpdates = await Task.WhenAll(tasks);

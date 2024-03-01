@@ -1,5 +1,4 @@
-﻿using NuGet.Protocol;
-using NuGet.Protocol.Core.Types;
+﻿using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -10,25 +9,41 @@ namespace Bonsai.NuGet
 {
     public class UpdateQuery : QueryContinuation<IEnumerable<IPackageSearchMetadata>>
     {
-        public UpdateQuery(SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease)
+        public UpdateQuery(
+            SourceRepository remoteRepository,
+            SourceRepository localRepository,
+            string searchTerm,
+            bool includePrerelease,
+            IEnumerable<string> packageTypes = default)
         {
-            Repository = repository;
-            LocalPackages = localPackages;
+            RemoteRepository = remoteRepository;
+            LocalRepository = localRepository;
+            SearchTerm = searchTerm;
             IncludePrerelease = includePrerelease;
+            PackageTypes = packageTypes;
         }
 
-        public SourceRepository Repository { get; private set; }
+        public SourceRepository RemoteRepository { get; }
 
-        public IEnumerable<LocalPackageInfo> LocalPackages { get; private set; }
+        public SourceRepository LocalRepository { get; }
 
-        public bool IncludePrerelease { get; private set; }
+        public string SearchTerm { get; }
+
+        public bool IncludePrerelease { get; }
+
+        public IEnumerable<string> PackageTypes { get; }
 
         public override async Task<QueryResult<IEnumerable<IPackageSearchMetadata>>> GetResultAsync(CancellationToken token = default)
         {
-            try { return QueryResult.Create(await Repository.GetUpdatesAsync(LocalPackages, IncludePrerelease, token)); }
+            try
+            {
+                var searchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageTypes);
+                var localPackages = await LocalRepository.SearchAsync(SearchTerm, searchFilter, 0, int.MaxValue, token);
+                return QueryResult.Create(await RemoteRepository.GetUpdatesAsync(localPackages, IncludePrerelease, token));
+            }
             catch (NuGetProtocolException ex)
             {
-                var exception = new InvalidOperationException($"There was an error accessing the repository '{Repository}'.", ex);
+                var exception = new InvalidOperationException($"There was an error accessing the repository '{RemoteRepository}'.", ex);
                 return QueryResult.Create(Observable.Throw<IPackageSearchMetadata>(exception).ToEnumerable());
             }
         }
