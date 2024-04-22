@@ -32,7 +32,7 @@ namespace Bonsai.Design
         public TypeConverter Converter { get; set; }
 
         /// <summary>
-        /// Gets or sets the upper limit of values in the slider.
+        /// Gets or sets the lower limit of values in the slider.
         /// </summary>
         public double Minimum
         {
@@ -41,7 +41,7 @@ namespace Bonsai.Design
         }
 
         /// <summary>
-        /// Gets or sets the lower limit of values in the slider.
+        /// Gets or sets the upper limit of values in the slider.
         /// </summary>
         public double Maximum
         {
