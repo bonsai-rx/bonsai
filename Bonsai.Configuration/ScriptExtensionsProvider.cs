@@ -143,14 +143,25 @@ namespace Bonsai.Configuration
                 return fileName;
             }
 
-            var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile);
-            compilerParameters.GenerateExecutable = false;
-            compilerParameters.GenerateInMemory = false;
-            compilerParameters.IncludeDebugInformation = includeDebugInformation;
+            var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile)
+            {
+                GenerateExecutable = false,
+                GenerateInMemory = false,
+                IncludeDebugInformation = includeDebugInformation,
+                CompilerOptions = "",
+            };
+
+            if (scriptEnvironment.GetAllowUnsafeBlocks())
+            {
+                compilerParameters.CompilerOptions += " /unsafe";
+            }
+            
             if (!includeDebugInformation)
             {
-                compilerParameters.CompilerOptions = "/optimize";
+                compilerParameters.CompilerOptions += " /optimize";
             }
+
+            compilerParameters.CompilerOptions = compilerParameters.CompilerOptions.TrimStart();
 
             using (var codeProvider = new CSharpCodeProvider())
             {

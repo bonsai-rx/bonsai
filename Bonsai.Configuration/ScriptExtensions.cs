@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Bonsai.Configuration
 {
@@ -20,6 +21,7 @@ namespace Bonsai.Configuration
         const string PackageVersionAttribute = "Version";
         const string UseWindowsFormsElement = "UseWindowsForms";
         const string ItemGroupElement = "ItemGroup";
+        const string AllowUnsafeBlocksElement = "AllowUnsafeBlocks";
         const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
@@ -98,6 +100,12 @@ namespace Bonsai.Configuration
             };
         }
 
+        static XElement GetProperty(XDocument document, string key)
+            => document.XPathSelectElement($"/Project/PropertyGroup/{key}");
+
+        static bool? GetBoolProperty(XDocument document, string key)
+            => GetProperty(document, key)?.Value?.Equals("true", StringComparison.InvariantCultureIgnoreCase);
+
         public IEnumerable<string> GetAssemblyReferences()
         {
             yield return "System.dll";
@@ -114,8 +122,7 @@ namespace Bonsai.Configuration
             if (!File.Exists(ProjectFileName)) yield break;
             using var stream = File.OpenRead(ProjectFileName);
             var document = LoadProjectDocument(stream);
-            var useWindowsForms = document.Descendants(XName.Get(UseWindowsFormsElement)).FirstOrDefault();
-            if (useWindowsForms != null && useWindowsForms.Value == "true")
+            if (GetBoolProperty(document, UseWindowsFormsElement) ?? false)
             {
                 yield return "System.Windows.Forms.dll";
             }
@@ -193,6 +200,13 @@ namespace Bonsai.Configuration
             }
 
             File.WriteAllText(ProjectFileName, root.ToString(SaveOptions.DisableFormatting));
+        }
+
+        public bool GetAllowUnsafeBlocks()
+        {
+            using var stream = File.OpenRead(ProjectFileName);
+            var document = LoadProjectDocument(stream);
+            return GetBoolProperty(document, AllowUnsafeBlocksElement) ?? false;
         }
 
         public void Dispose()
