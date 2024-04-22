@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Bonsai;
 using Bonsai.Design;
+using System.Diagnostics;
 using System.Drawing;
 using System.Reactive;
-using System.Text.RegularExpressions;
+using System.Text;
 
 [assembly: TypeVisualizer(typeof(ObjectTextVisualizer), Target = typeof(object))]
 
@@ -30,25 +31,99 @@ namespace Bonsai.Design
         /// <inheritdoc/>
         protected override void ShowBuffer(IList<Timestamped<object>> values)
         {
-            if (values.Count > 0)
+            if (values.Count == 0)
+                return;
+
+            var sb = new StringBuilder();
+
+            // Trim old values if bufferSize was reduced
+            while (buffer.Count >= bufferSize)
+                buffer.Dequeue();
+
+            // Add new values to the buffer (and only the ones which might appear)
+            for (int i = Math.Max(0, values.Count - bufferSize); i < values.Count; i++)
             {
-                base.ShowBuffer(values);
-                textBox.Text = string.Join(Environment.NewLine, buffer);
-                textPanel.Invalidate();
+                sb.Clear();
+                AppendDisplayText(sb, values[i].Value);
+                AppendString(sb.ToString());
             }
+
+            // Update the visual representation of the buffer
+            RefreshVisualization(sb);
         }
 
         /// <inheritdoc/>
         public override void Show(object value)
         {
-            value ??= string.Empty;
-            var text = value.ToString();
-            text = Regex.Replace(text, @"\r|\n", string.Empty);
-            buffer.Enqueue(text);
-            while (buffer.Count > bufferSize)
+            // Updates to this visualizer are expected to go through ShowBuffer
+            Debug.Fail($"Likely unintentional call to {nameof(ObjectTextVisualizer)}.{nameof(Show)}");
+
+            var stringBuilder = new StringBuilder();
+            AppendDisplayText(stringBuilder, value);
+            AppendString(stringBuilder.ToString());
+            RefreshVisualization(stringBuilder);
+        }
+
+        /// <summary>
+        /// Appends the display text for the specified object to the text buffer.
+        /// </summary>
+        /// <param name="stringBuilder">The string builder which receives the display text.</param>
+        /// <param name="value">The object for which to retrieve the display text.</param>
+        protected virtual void AppendDisplayText(StringBuilder stringBuilder, object value)
+        {
+            string rawText = value?.ToString() ?? string.Empty;
+            stringBuilder.EnsureCapacity(stringBuilder.Length + rawText.Length);
+
+            foreach (var c in rawText)
             {
-                buffer.Dequeue();
+                switch (c)
+                {
+                    // Carriage returns are presumed to be followed by line feeds, skip them entirely
+                    case '\r':
+                        continue;
+                    // Newlines become space so that things like multi-line JSON or matrices are still visible
+                    case '\n':
+                    case '\x0085': // Next line character (NEL)
+                    case '\x2028': // Unicode line separator
+                    case '\x2029': // Unicode paragraph separator
+                        stringBuilder.Append(' ');
+                        break;
+                    case '\t':
+                        stringBuilder.Append(c);
+                        break;
+                    // Replace all other control characters with the "�" replacement character
+                    case < ' ': // C0 control characters
+                    case '\x007F': // Delete
+                    case >= '\x0080' and <= '\x009F': // C1 control characters
+                        stringBuilder.Append('\xFFFD');
+                        break;
+                    default:
+                        stringBuilder.Append(c);
+                        break;
+                }
             }
+        }
+
+        private void AppendString(string value)
+        {
+            if (buffer.Count >= bufferSize)
+                buffer.Dequeue();
+
+            buffer.Enqueue(value);
+        }
+
+        private void RefreshVisualization(StringBuilder stringBuilder)
+        {
+            Debug.Assert(buffer.Count <= bufferSize);
+            stringBuilder.Clear();
+            foreach (var line in buffer)
+            {
+                if (stringBuilder.Length > 0)
+                    stringBuilder.Append(Environment.NewLine);
+                stringBuilder.Append(line);
+            }
+            textBox.Text = stringBuilder.ToString();
+            textPanel.Invalidate();
         }
 
         /// <inheritdoc/>
@@ -106,7 +181,9 @@ namespace Bonsai.Design
         {
             bufferSize = 0;
             textBox.Dispose();
+            textPanel.Dispose();
             textBox = null;
+            textPanel = null;
             buffer = null;
         }
     }
