@@ -70,20 +70,28 @@ namespace Bonsai.Editor
             contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add(new ToolStripMenuItem("Stop", null, (sender, e) => cts.Cancel()));
 
-            var notifyIcon = new NotifyIcon();
+            using var notifyIcon = new NotifyIcon();
             notifyIcon.Icon = Properties.Resources.Icon;
             notifyIcon.Text = Path.GetFileName(fileName);
             notifyIcon.ContextMenuStrip = contextMenu;
             notifyIcon.Visible = true;
+
+            using var synchronizationContext = new WindowsFormsSynchronizationContext();
             runtimeWorkflow.Finally(() =>
             {
-                notifyIcon.Visible = false;
-                Application.Exit();
+                // Posting the exit to the main thread's winforms sync context is important for two reasons:
+                // 1) When this finally action executes on the main thread we need to defer exiting until
+                //    Application.Run, otherwise we're trying to exit a message loop which hasn't even started.
+                // 2) When this finally action executes it will be on a background thread, we need to exit from the main
+                //    thread. While Application.Exit can be called from any thread, it directly calls FormClosed callbacks
+                //    of any open forms, and many visualizers assume they'll only be called from the main thread.
+                synchronizationContext.Post(_ => Application.Exit(), null);
             }).Subscribe(
                 unit => { },
                 ex => { Console.Error.WriteLine(ex); },
                 () => { },
                 cts.Token);
+
             Application.Run();
         }
 
