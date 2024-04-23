@@ -190,12 +190,12 @@ namespace Bonsai.Expressions
                     if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder))
                     {
                         // If merging dangling branches in a workflow, recurse on the main output source
-                        if (methodCall.Method.Name == nameof(ExpressionBuilder.MergeOutput))
+                        if (methodCall.Method.Name == nameof(MergeOutput))
                         {
                             source = methodCall.Arguments[0];
                         }
                         // If merging with build dependencies in a workflow, recurse on the main output
-                        else if (methodCall.Method.Name == nameof(ExpressionBuilder.MergeDependencies) &&
+                        else if (methodCall.Method.Name == nameof(MergeDependencies) &&
                                  methodCall.Arguments[0] is MethodCallExpression lazy &&
                                  lazy.Arguments[0] is LambdaExpression lambda)
                         {
@@ -209,9 +209,10 @@ namespace Bonsai.Expressions
                     {
                         source = methodCall.Arguments[0];
                     }
-                    // If multicasting into a subject, recurse on the input source
+                    // If multicasting into a subject or nested sink, recurse on the input source
                     else if ((methodCall.Method.DeclaringType == typeof(SubjectBuilder) ||
-                             methodCall.Method.DeclaringType == typeof(MulticastSubject)) &&
+                             methodCall.Method.DeclaringType == typeof(MulticastSubject) ||
+                             methodCall.Method.DeclaringType == typeof(Reactive.Sink)) &&
                              methodCall.Method.Name == nameof(Combinator.Process))
                     {
                         source = methodCall.Arguments[0];
