@@ -112,10 +112,12 @@ namespace Bonsai
             var dependencies = assemblies.Select(assembly =>
                 configuration.GetAssemblyPackageReference(assembly.GetName().Name, packageMap))
                 .Where(package => package != null);
-            if (File.Exists(scriptEnvironment.ProjectFileName))
+
+            var scriptProjectMetadata = scriptEnvironment.LoadProjectMetadata();
+            if (scriptProjectMetadata.Exists)
             {
                 dependencies = dependencies.Concat(
-                    from id in scriptEnvironment.GetPackageReferences()
+                    from id in scriptProjectMetadata.GetPackageReferences()
                     where configuration.Packages.Contains(id)
                     select configuration.Packages[id]);
             }
