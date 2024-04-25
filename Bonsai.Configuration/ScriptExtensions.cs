@@ -1,5 +1,4 @@
 ﻿using NuGet.Configuration;
-using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,22 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
-using static Bonsai.Configuration.ScriptExtensionsProjectMetadata;
 
 namespace Bonsai.Configuration
 {
     public class ScriptExtensions : IDisposable
     {
-        const string OuterIndent = "  ";
-        const string InnerIndent = "    ";
         const string DefaultProjectFileName = "Extensions.csproj";
-        const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
-  <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-  </PropertyGroup>
-
-</Project>";
         readonly IDictionary<string, PackageReference> packageMap;
         readonly PackageConfiguration packageConfiguration;
         readonly TempDirectory assemblyFolder;
@@ -96,67 +86,21 @@ namespace Bonsai.Configuration
             return new ScriptExtensionsProjectMetadata(document);
         }
 
+        public void UpdateProjectMetadata(ScriptExtensionsProjectMetadata projectMetadata)
+            => File.WriteAllText(ProjectFileName, projectMetadata.GetProjectXml());
+
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
-            XElement root;
-            if (!File.Exists(ProjectFileName))
-            {
-                root = XElement.Parse(ProjectFileTemplate, LoadOptions.PreserveWhitespace);
+            var projectMetadata = LoadProjectMetadata();
+            if (!projectMetadata.Exists)
                 EnsureNuGetSettings();
-            }
-            else root = XElement.Load(ProjectFileName, LoadOptions.PreserveWhitespace);
-
-            var projectReferences = root.Descendants(PackageReferenceElement).ToArray();
-            var lastReference = projectReferences.LastOrDefault();
 
             var packageReferences = assemblyReferences
                 .Select(assemblyName => packageConfiguration.GetAssemblyPackageReference(assemblyName, packageMap))
-                .Where(package => package != null);
-            foreach (var reference in packageReferences)
-            {
-                var includeAttribute = new XAttribute(PackageIncludeAttribute, reference.Id);
-                var versionAttribute = new XAttribute(PackageVersionAttribute, reference.Version);
-                var existingReference = (from element in projectReferences
-                                         let id = element.Attribute(PackageIncludeAttribute)
-                                         where id != null && id.Value == reference.Id
-                                         select element).FirstOrDefault();
-                if (existingReference != null)
-                {
-                    var version = existingReference.Attribute(PackageVersionAttribute);
-                    if (version == null) existingReference.Add(versionAttribute);
-                    else if (NuGetVersion.Parse(version.Value) < NuGetVersion.Parse(reference.Version))
-                    {
-                        version.SetValue(reference.Version);
-                    }
+                .Where(package => package is not null);
 
-                    continue;
-                }
-
-                var referenceElement = new XElement(PackageReferenceElement, includeAttribute, versionAttribute);
-                if (lastReference == null)
-                {
-                    var itemGroup = new XElement(ItemGroupElement);
-                    itemGroup.Add(Environment.NewLine + InnerIndent);
-                    itemGroup.Add(referenceElement);
-                    itemGroup.Add(Environment.NewLine + OuterIndent);
-
-                    root.Add(OuterIndent);
-                    root.Add(itemGroup);
-                    root.Add(Environment.NewLine);
-                    root.Add(Environment.NewLine);
-                }
-                else
-                {
-                    lastReference.AddAfterSelf(referenceElement);
-                    if (lastReference.PreviousNode != null && lastReference.PreviousNode.NodeType >= XmlNodeType.Text)
-                    {
-                        lastReference.AddAfterSelf(lastReference.PreviousNode);
-                    }
-                }
-                lastReference = referenceElement;
-            }
-
-            File.WriteAllText(ProjectFileName, root.ToString(SaveOptions.DisableFormatting));
+            projectMetadata = projectMetadata.AddPackageReferences(packageReferences);
+            UpdateProjectMetadata(projectMetadata);
         }
 
         public void Dispose()

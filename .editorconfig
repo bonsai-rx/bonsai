@@ -29,3 +29,8 @@ charset = utf-8-bom
 [*.{cs}]
 # Organize usings
 dotnet_sort_system_directives_first = true
+
+# Language keyword vs full type name
+# Predefined for members, etc does not create a message because the explicitly sized types are conveient in interop scenarios where the bit size matters.
+dotnet_style_predefined_type_for_locals_parameters_members = true:none
+dotnet_style_predefined_type_for_member_access = true:suggestion
