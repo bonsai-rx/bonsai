@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
+using static Bonsai.Configuration.ScriptExtensionsProjectMetadata;
 
 namespace Bonsai.Configuration
 {
@@ -16,12 +16,6 @@ namespace Bonsai.Configuration
         const string OuterIndent = "  ";
         const string InnerIndent = "    ";
         const string DefaultProjectFileName = "Extensions.csproj";
-        const string PackageReferenceElement = "PackageReference";
-        const string PackageIncludeAttribute = "Include";
-        const string PackageVersionAttribute = "Version";
-        const string UseWindowsFormsElement = "UseWindowsForms";
-        const string ItemGroupElement = "ItemGroup";
-        const string AllowUnsafeBlocksElement = "AllowUnsafeBlocks";
         const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
@@ -84,59 +78,22 @@ namespace Bonsai.Configuration
             }
         }
 
-        static XDocument LoadProjectDocument(Stream stream)
+        public ScriptExtensionsProjectMetadata LoadProjectMetadata()
         {
-            using var reader = XmlReader.Create(stream, GetXmlReaderSettings());
-            return XDocument.Load(reader, LoadOptions.None);
-        }
+            if (!File.Exists(ProjectFileName))
+                return default;
 
-        static XmlReaderSettings GetXmlReaderSettings()
-        {
-            return new XmlReaderSettings
+            var readerSettings = new XmlReaderSettings()
             {
                 IgnoreWhitespace = true,
                 IgnoreProcessingInstructions = true,
                 DtdProcessing = DtdProcessing.Prohibit
             };
-        }
 
-        static XElement GetProperty(XDocument document, string key)
-            => document.XPathSelectElement($"/Project/PropertyGroup/{key}");
-
-        static bool? GetBoolProperty(XDocument document, string key)
-            => GetProperty(document, key)?.Value?.Equals("true", StringComparison.InvariantCultureIgnoreCase);
-
-        public IEnumerable<string> GetAssemblyReferences()
-        {
-            yield return "System.dll";
-            yield return "System.Core.dll";
-            yield return "System.Drawing.dll";
-            yield return "System.Numerics.dll";
-            yield return "System.Reactive.Linq.dll";
-            yield return "System.Runtime.Serialization.dll";
-            yield return "System.Xml.dll";
-            yield return "Bonsai.Core.dll";
-            yield return "Microsoft.CSharp.dll";
-            yield return "netstandard.dll";
-
-            if (!File.Exists(ProjectFileName)) yield break;
             using var stream = File.OpenRead(ProjectFileName);
-            var document = LoadProjectDocument(stream);
-            if (GetBoolProperty(document, UseWindowsFormsElement) ?? false)
-            {
-                yield return "System.Windows.Forms.dll";
-            }
-        }
-
-        public IEnumerable<string> GetPackageReferences()
-        {
-            if (!File.Exists(ProjectFileName)) return Enumerable.Empty<string>();
-            using var stream = File.OpenRead(ProjectFileName);
-            var document = LoadProjectDocument(stream);
-            return from element in document.Descendants(XName.Get(PackageReferenceElement))
-                   let id = element.Attribute(PackageIncludeAttribute)
-                   where id != null
-                   select id.Value;
+            using var reader = XmlReader.Create(stream, readerSettings);
+            var document = XDocument.Load(reader, LoadOptions.None);
+            return new ScriptExtensionsProjectMetadata(document);
         }
 
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
@@ -200,13 +157,6 @@ namespace Bonsai.Configuration
             }
 
             File.WriteAllText(ProjectFileName, root.ToString(SaveOptions.DisableFormatting));
-        }
-
-        public bool GetAllowUnsafeBlocks()
-        {
-            using var stream = File.OpenRead(ProjectFileName);
-            var document = LoadProjectDocument(stream);
-            return GetBoolProperty(document, AllowUnsafeBlocksElement) ?? false;
         }
 
         public void Dispose()

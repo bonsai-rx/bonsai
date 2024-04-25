@@ -97,13 +97,14 @@ namespace Bonsai.Configuration
             var assemblyNames = new HashSet<string>();
             var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
             var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
+            var scriptProjectMetadata = scriptEnvironment.LoadProjectMetadata();
             var packageSource = new PackageSource(editorRepositoryPath);
             var packageRepository = new SourceRepository(packageSource, Repository.Provider.GetCoreV3());
             var dependencyResource = packageRepository.GetResource<DependencyInfoResource>();
             var localPackageResource = packageRepository.GetResource<FindLocalPackagesResource>();
             using (var cacheContext = new SourceCacheContext())
             {
-                var projectReferences = from id in scriptEnvironment.GetPackageReferences()
+                var projectReferences = from id in scriptProjectMetadata.GetPackageReferences()
                                         from assemblyReference in FindAssemblyReferences(
                                             projectFramework,
                                             dependencyResource,
@@ -111,7 +112,7 @@ namespace Bonsai.Configuration
                                             cacheContext,
                                             packageId: id)
                                         select assemblyReference;
-                assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
+                assemblyNames.AddRange(scriptProjectMetadata.GetAssemblyReferences());
                 assemblyNames.AddRange(projectReferences);
             }
 
@@ -143,25 +144,23 @@ namespace Bonsai.Configuration
                 return fileName;
             }
 
+
+            var compilerOptions = new List<string>();
+            {
+                if (scriptProjectMetadata.AllowUnsafeBlocks)
+                    compilerOptions.Add("/unsafe");
+
+                if (!includeDebugInformation)
+                    compilerOptions.Add("/optimize");
+            }
+
             var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile)
             {
                 GenerateExecutable = false,
                 GenerateInMemory = false,
                 IncludeDebugInformation = includeDebugInformation,
-                CompilerOptions = "",
+                CompilerOptions = string.Join(" ", compilerOptions),
             };
-
-            if (scriptEnvironment.GetAllowUnsafeBlocks())
-            {
-                compilerParameters.CompilerOptions += " /unsafe";
-            }
-            
-            if (!includeDebugInformation)
-            {
-                compilerParameters.CompilerOptions += " /optimize";
-            }
-
-            compilerParameters.CompilerOptions = compilerParameters.CompilerOptions.TrimStart();
 
             using (var codeProvider = new CSharpCodeProvider())
             {
