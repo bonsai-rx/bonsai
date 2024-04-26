@@ -1541,7 +1541,9 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            if (e.Item is TreeNode selectedNode && selectedNode.GetNodeCount(false) == 0)
+            if (e.Item is TreeNode selectedNode &&
+                selectedNode.Tag is not null &&
+                selectedNode.GetNodeCount(false) == 0)
             {
                 toolboxTreeView.DoDragDrop(selectedNode, DragDropEffects.Copy);
             }
