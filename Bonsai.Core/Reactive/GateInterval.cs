@@ -86,7 +86,7 @@ namespace Bonsai.Reactive
         {
             var dueTime = DueTime;
             var scheduler = HighResolutionScheduler.Default;
-            var interval = Observable.Timer(Interval, scheduler);
+            var interval = Observable.Interval(Interval, scheduler);
             return dueTime.HasValue
                 ? source.Gate(interval, dueTime.Value, scheduler)
                 : source.Gate(interval);
