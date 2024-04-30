@@ -90,7 +90,7 @@ namespace Bonsai
         /// </returns>
         public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval, IScheduler scheduler)
         {
-            return Gate(source, Observable.Timer(interval, scheduler));
+            return Gate(source, Observable.Interval(interval, scheduler));
         }
 
         /// <summary>
