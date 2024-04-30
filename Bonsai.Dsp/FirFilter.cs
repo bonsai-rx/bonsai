@@ -13,6 +13,11 @@ namespace Bonsai.Dsp
     /// Represents an operator that convolves the input signal with a finite-impulse
     /// response filter kernel.
     /// </summary>
+    /// <remarks>
+    /// This operator is implemented using cross-correlation. If kernels are symmetric,
+    /// there is no difference between correlation and convolution. When using asymmetric
+    /// kernels, note the kernel needs to be flipped to obtain a true convolution.
+    /// </remarks>
     [Description("Convolves the input signal with a finite-impulse response filter kernel.")]
     public class FirFilter : Transform<Mat, Mat>
     {
