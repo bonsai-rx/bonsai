@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Threading.Tasks;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -36,16 +37,14 @@ namespace Bonsai.Editor
                 throw new ArgumentException("No downstream URLs have been specified.", nameof(hrefs));
             }
 
-            WebException lastException = default;
+            Exception lastException = default;
             for (int i = 0; i < hrefs.Length; i++)
             {
                 try { return await GetXRefMapAsync($"{baseUrl}{hrefs[i]}"); }
-                catch (WebException ex) when (ex.Response is HttpWebResponse httpResponse &&
-                                              httpResponse.StatusCode is HttpStatusCode.NotFound)
-                {
-                    lastException = ex;
-                    continue;
-                }
+                catch (WebException ex) when (ex.Response is HttpWebResponse { StatusCode: HttpStatusCode.NotFound })
+                { lastException ??= ex; } // Always prefer a DocumentationException as it'll be more specific
+                catch (DocumentationException ex)
+                { lastException = ex; }
             }
 
             throw lastException;
@@ -61,11 +60,25 @@ namespace Bonsai.Editor
             using var response = await request.GetResponseAsync();
             var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream);
+
+            if (reader.ReadLine().Trim() != "### YamlMime:XRefMap")
+                throw new DocumentationException("The documentation server did not respond with a cross-reference map.");
+
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .IgnoreUnmatchedProperties()
                 .Build();
-            var xrefmap = deserializer.Deserialize<XRefMap>(reader);
+
+            XRefMap xrefmap;
+            try { xrefmap = deserializer.Deserialize<XRefMap>(reader); }
+            catch (YamlException ex)
+            {
+                throw new DocumentationException("The cross-reference map returned by the documentation server is malformed.", ex);
+            }
+
+            if (xrefmap.References is null)
+                throw new DocumentationException("The cross-reference map returned by the documentation server is malformed.");
+
             return xrefmap.References.ToDictionary(
                 reference => reference.Uid,
                 reference => $"{baseUrl}/{reference.Href}");
