@@ -107,6 +107,11 @@ namespace Bonsai.Editor
                 return false;
             }
 
+            // Drop build metadata if present (it's not considered for version precedence or equivalence)
+            var plus = version.IndexOf('+');
+            if (plus >= 0)
+                version = version.Substring(0, plus);
+
             string specialVersion;
             var hyphen = version.IndexOf('-');
             if (hyphen >= 0)
