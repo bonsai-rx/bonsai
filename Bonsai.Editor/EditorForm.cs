@@ -2366,12 +2366,12 @@ namespace Bonsai.Editor
                 var message = $"The specified operator {uid} was not found in the documentation for {assemblyName}.";
                 editorSite.ShowError(ex, message);
             }
-            catch (SystemException ex) when (ex is WebException || ex is NotSupportedException)
+            catch (Exception ex) when (ex is WebException or NotSupportedException or DocumentationException)
             {
                 var message = $"The documentation for the module {assemblyName} is not available. {{0}}";
                 editorSite.ShowError(ex, message);
             }
-            catch (SystemException ex)
+            catch (Exception ex)
             {
                 editorSite.ShowError(ex);
             }
