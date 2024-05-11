@@ -57,6 +57,7 @@ namespace Bonsai.Editor
             var request = WebRequest.CreateHttp(requestUrl);
             request.ReadWriteTimeout = ReadWriteTimeout;
             request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate; //TODO: Use DecompressionMethods.All upon .NET modernization
             using var response = await request.GetResponseAsync();
             var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream);
