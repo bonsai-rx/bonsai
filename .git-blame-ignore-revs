@@ -6,7 +6,3 @@ e12cd15478ef4dd7cc2a391ae74d877f33acee97
 
 # Ensure unix portability of uri launcher
 a949f77d92437690840a24857f421c0f47161d43
-
-# Move arduino package into separate repository
-1804cdb10530babc3146f9c07bc7d23a877a93f5
-1a60ab3cd625cb89e29531895efdd96936c2c271
