@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\wix.3.14.0\build\wix.props" Condition="Exists('..\packages\wix.3.14.0\build\wix.props')" />
+  <Import Project="..\packages\wix.3.14.1\build\wix.props" Condition="Exists('..\packages\wix.3.14.1\build\wix.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.6</ProductVersion>
     <ProjectGuid>{da1c1aa7-15f6-4787-b441-e75bcffe680b}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>Bonsai-2.8.2</OutputName>
+    <OutputName>Bonsai-2.8.3</OutputName>
     <OutputType>Bundle</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -74,7 +74,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\wix.3.14.0\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\wix.3.14.0\build\wix.props'))" />
+    <Error Condition="!Exists('..\packages\wix.3.14.1\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\wix.3.14.1\build\wix.props'))" />
   </Target>
   <Import Project="..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets" Condition="Exists('..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets')" />
   <!--
