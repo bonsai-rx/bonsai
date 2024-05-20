@@ -193,6 +193,10 @@ namespace Bonsai.Design
             if (visualizerMappings.Count == 0) return Array.Empty<VisualizerFactory>();
             return visualizerMappings.Select(mapping =>
             {
+                // stack overflow happens if a visualizer ends up being mapped to itself
+                if (mapping.Source == builder)
+                    throw new WorkflowBuildException("Combining together visualizer mappings from the same node is not currently supported.", builder);
+
                 var nestedSources = GetMashupArguments(mapping.Source, typeVisualizerMap);
                 var visualizerType = mapping.VisualizerType ?? typeVisualizerMap.GetTypeVisualizers(mapping.Source).FirstOrDefault();
                 return new VisualizerFactory(mapping.Source, visualizerType, nestedSources);
