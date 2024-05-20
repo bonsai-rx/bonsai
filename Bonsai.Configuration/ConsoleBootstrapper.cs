@@ -18,14 +18,7 @@ namespace Bonsai.Configuration
             try { await operationFactory(); }
             catch (Exception ex)
             {
-                if (ex is AggregateException aex)
-                {
-                    foreach (var error in aex.InnerExceptions)
-                    {
-                        PackageManager.Logger.LogError(error.Message);
-                    }
-                }
-                else PackageManager.Logger.LogError(ex.Message);
+                PackageManager.Logger.LogError(ex.ToString());
                 throw;
             }
         }
