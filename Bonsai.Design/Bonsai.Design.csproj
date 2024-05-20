@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.0</VersionPrefix>
+    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />

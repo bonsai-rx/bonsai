@@ -7,10 +7,10 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.0</VersionPrefix>
+    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Bonsai.Arduino" Version="2.6.0" />
+    <PackageReference Include="Bonsai.Arduino" Version="2.8.1" />
     <ProjectReference Include="..\Bonsai.Audio\Bonsai.Audio.csproj" />
     <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj" />
     <ProjectReference Include="..\Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj" />
