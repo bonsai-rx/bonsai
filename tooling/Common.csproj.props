@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Bonsai Foundation</Authors>
+    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2024</Copyright>
+    <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
+    <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
+    <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
+    <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
+    <RepositoryUrl>https://github.com/bonsai-rx/bonsai.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <VersionSuffix></VersionSuffix>
+    <LangVersion>9.0</LangVersion>
+    <Features>strict</Features>
+  </PropertyGroup>
+</Project>

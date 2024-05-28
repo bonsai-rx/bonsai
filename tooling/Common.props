@@ -1,0 +1,7 @@
+<Project>
+  <!-- Default configuration and platform when not present -->
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+  </PropertyGroup>
+</Project>

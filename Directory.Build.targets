@@ -1,7 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project>
-  <PropertyGroup>
-    <DaysFromFirstRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse(2011/12/12))).Days)</DaysFromFirstRevision>
-    <FileVersion>$(VersionPrefix).$(DaysFromFirstRevision)</FileVersion>
-  </PropertyGroup>
+﻿<Project>
+  <Import Project="tooling/Common.targets" />
+  <Import Project="tooling/Common$(MSBuildProjectExtension).targets" Condition="Exists('tooling/Common$(MSBuildProjectExtension).targets')" />
 </Project>
