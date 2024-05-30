@@ -15,5 +15,8 @@
     <VersionSuffix></VersionSuffix>
     <LangVersion>9.0</LangVersion>
     <Features>strict</Features>
+
+    <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
+    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
   </PropertyGroup>
 </Project>
