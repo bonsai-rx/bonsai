@@ -18,5 +18,8 @@
 
     <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
     <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
+
+    <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
 </Project>
