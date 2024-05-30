@@ -13,8 +13,16 @@
     <OutputPath>..\Bonsai\bin\$(Configuration)\</OutputPath>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
+
+    <!--
+      These along with the `Private="false"` on the ProjectReference below ensure that MSBuild does not attempt to copy
+      the main Bonsai.exe and its dependencies to the output of Bonsai32 since it will be output to the main bootstrapper's
+      output folder (which already has all of that.)
+    -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai\Bonsai.csproj" />
+    <ProjectReference Include="..\Bonsai\Bonsai.csproj" Private="false" />
   </ItemGroup>
 </Project>
