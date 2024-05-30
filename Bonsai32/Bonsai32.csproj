@@ -24,5 +24,12 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj" Private="false" />
+
+    <!--
+      This reference is necessary to work around a ambiguity in the NuGet restore graph.
+      If you get MSB3277 warnings referencing this or other packages, add explicit references here for the newest
+      version referenced by the warning.
+    -->
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 </Project>
