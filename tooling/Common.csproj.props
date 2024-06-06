@@ -1,23 +1,33 @@
 <Project>
   <PropertyGroup>
+    <!-- Common C# Properties -->
+    <LangVersion>9.0</LangVersion>
+    <Features>strict</Features>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Common NuGet Package Properties -->
     <Authors>Bonsai Foundation</Authors>
     <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2024</Copyright>
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
-    <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
-    <RepositoryUrl>https://github.com/bonsai-rx/bonsai.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+
     <VersionSuffix></VersionSuffix>
-    <LangVersion>9.0</LangVersion>
-    <Features>strict</Features>
+
+    <!-- Emit modern symbol pacakges -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols Condition="'$(Configuration)' != 'Release'">false</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
     <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
+
+    <!-- Embed untracked sources in the PDB when building from CI -->
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <EmbedUntrackedSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedUntrackedSources>
 
     <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
