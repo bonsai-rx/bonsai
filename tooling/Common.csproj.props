@@ -12,7 +12,6 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
-    <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <VersionSuffix></VersionSuffix>

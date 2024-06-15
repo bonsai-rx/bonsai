@@ -1,10 +1,7 @@
-bin
-obj
-packages
+.vs/
+/artifacts/
+/packages/
 Resources/*.ico
 *.Generated.cs
-*.orig
 *.user
-*.suo
-*.exe
-.vs
+Bonsai.Setup.Bootstrapper/vc_redist.*.exe

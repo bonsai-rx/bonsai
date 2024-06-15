@@ -4,7 +4,7 @@
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define Product32DisplayName="Bonsai (x86)"?>
-  <?define BonsaiBuildPath="..\Bonsai\bin\Release\net48"?>
+  <?define BonsaiBuildPath="..\artifacts\bin\Bonsai\release"?>
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">

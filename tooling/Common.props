@@ -4,4 +4,32 @@
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
   </PropertyGroup>
+
+  <!-- Build to central artifacts folder instead of scattering bin and obj throughout the solution tree -->
+  <PropertyGroup>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../artifacts'))</ArtifactsPath>
+
+    <!--
+      Odd things can happen when WSL and Windows share the same output directories.
+      As such if we detect we're running under WSL we use different output directories.
+    -->
+    <ArtifactsPath Condition="'$(WSL_DISTRO_NAME)' != ''">$(ArtifactsPath)/wsl</ArtifactsPath>
+  </PropertyGroup>
+  <!-- Manually apply basic artifacts path for non-C# projects and legacy C# projects  -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' != '.csproj' or '$(UsingMicrosoftNETSdk)' != 'true'">
+    <_ThisProjectOutputSubdirectory>$(MSBuildProjectName)</_ThisProjectOutputSubdirectory>
+    <!-- This project exists both as a legacy VSIX project and a modern .NET SDK Template package so disambiguation is necessary -->
+    <_ThisProjectOutputSubdirectory Condition="'$(_ThisProjectOutputSubdirectory)' == 'Bonsai.Templates'">$(MSBuildProjectName)-vsix</_ThisProjectOutputSubdirectory>
+
+    <BaseOutputPath>$(ArtifactsPath)/bin/</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)$(_ThisProjectOutputSubdirectory)/$(Configuration.ToLowerInvariant())-$(Platform.ToLowerInvariant())/</OutputPath>
+    <OutputDir>$(OutputPath)</OutputDir>
+    <OutDir>$(OutputPath)</OutDir>
+
+    <BaseIntermediateOutputPath>$(ArtifactsPath)/obj/$(_ThisProjectOutputSubdirectory)/</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration.ToLowerInvariant())-$(Platform.ToLowerInvariant())/</IntermediateOutputPath>
+
+    <PackageOutputPath>$(ArtifactsPath)/package/$(Configuration.ToLowerInvariant())</PackageOutputPath>
+  </PropertyGroup>
 </Project>
