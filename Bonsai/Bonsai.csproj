@@ -76,7 +76,7 @@
   </Target>
   <Target Name="NuGetConfig" AfterTargets="Build">
     <WriteLinesToFile File="$(TargetDir)NuGet.config"
-                      Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(ProjectDir)..\bin\$(Configuration)'))"
+                      Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(PackageOutputPath)'))"
                       Overwrite="true"
                       WriteOnlyWhenDifferent="true" />
   </Target>

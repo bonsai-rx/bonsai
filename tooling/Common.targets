@@ -1,2 +1,24 @@
 <Project>
+  <!-- Verify each intermediate output directory is only used for a single project -->
+  <PropertyGroup>
+    <_RelativeProjectPathFilePath>$(BaseIntermediateOutputPath)RelativeProjectPath.txt</_RelativeProjectPathFilePath>
+    <_ProjectPathRelativeToIntermediateDirectory>$([MSBuild]::MakeRelative($(BaseIntermediateOutputPath), $(MSBuildProjectFullPath)))</_ProjectPathRelativeToIntermediateDirectory>
+  </PropertyGroup>
+  <!-- The condition here ensures that this doesn't run multiple times concurrently and cause a race condition when a project is built for all of its target frameworks -->
+  <Target Name="VerifyNoIntermediateDirCollisions" BeforeTargets="ResolvePackageAssets;Build" Condition="'$(TargetFrameworks)' == '' or $(TargetFrameworks.StartsWith('$(TargetFramework)'))">
+    <WriteLinesToFile File="$(_RelativeProjectPathFilePath)" Lines="$(_ProjectPathRelativeToIntermediateDirectory)" Condition="!Exists('$(_RelativeProjectPathFilePath)')" />
+    <ReadLinesFromFile File="$(_RelativeProjectPathFilePath)">
+      <Output TaskParameter="Lines" ItemName="_ReadProjectPathRelativeToIntermediateDirectory" />
+    </ReadLinesFromFile>
+    <Error Condition="'%(_ReadProjectPathRelativeToIntermediateDirectory.Identity)' != '$(_ProjectPathRelativeToIntermediateDirectory)'"
+      Text="Intermediate output directory collision between '%(_ReadProjectPathRelativeToIntermediateDirectory.Identity)' and '$(_ProjectPathRelativeToIntermediateDirectory)'" />
+  </Target>
+  <Target Name="CleanUpRelativeProjectPathFilePath" AfterTargets="Clean">
+    <Delete Files="$(_RelativeProjectPathFilePath)" />
+  </Target>
+
+  <!-- Check for stale bin/obj directories left over from before we switched to the central artifacts folder -->
+  <Target Name="CheckForStaleOutputDirectories" AfterTargets="Build" Condition="Exists('$(ProjectDir)bin') or Exists('$(ProjectDir)obj')">
+    <Warning Text="Stale bin/obj directories exist for $(MSBuildProjectName), deleting them is strongly recommended." />
+  </Target>
 </Project>
