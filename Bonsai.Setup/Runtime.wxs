@@ -4,7 +4,8 @@
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define Product32DisplayName="Bonsai (x86)"?>
-  <?define BonsaiBuildPath="..\artifacts\bin\Bonsai\release"?>
+  <?define BonsaiBuildPath="..\artifacts\bin\Bonsai\release-repacked"?>
+  <?define Bonsai32BuildPath="..\artifacts\bin\Bonsai\release"?>
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
@@ -21,7 +22,7 @@
 
       <Component Id="Bonsai32Executable" Guid="*" Win64="$(var.Win64)">
         <Condition>INSTALL64</Condition>
-        <File Id="Bonsai32EXE" Name="Bonsai32.exe" Source="$(var.BonsaiBuildPath)\Bonsai32.exe" KeyPath="yes">
+        <File Id="Bonsai32EXE" Name="Bonsai32.exe" Source="$(var.Bonsai32BuildPath)\Bonsai32.exe" KeyPath="yes">
           <Shortcut Id="startmenuBonsai32" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.Product32DisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
       </Component>
