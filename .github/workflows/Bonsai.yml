@@ -1,0 +1,460 @@
+# =======================================================================================================================================================================
+# Bonsai CI Infrastructure
+# =======================================================================================================================================================================
+# When updating this workflow, be mindful that the `latest` tag of must successfully build under this workflow too in order to determine which packages have changed.
+name: Bonsai
+on:
+  push:
+    # This prevents tag pushes from triggering this workflow
+    branches: ['*']
+  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        default: ""
+      will_publish_packages:
+        description: "Publish packages?"
+        default: "false"
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+  ContinuousIntegrationBuild: true
+jobs:
+  # =====================================================================================================================================================================
+  # Determine build matrix
+  # =====================================================================================================================================================================
+  # Some of the build matrix targets are conditional, and `jobs.<job_id>.if` is evaluated before `jobs.<job_id>.strategy.matrix`
+  # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idif
+  # As such we build the matrix programmatically in its own job and feed it into `build-and-test`.
+  create-build-matrix:
+    name: Create Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{steps.create-matrix.outputs.matrix}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Create build matrix
+        id: create-matrix
+        run: python .github/workflows/create-build-matrix.py
+
+  # =====================================================================================================================================================================
+  # Build, test, and package
+  # =====================================================================================================================================================================
+  build-and-test:
+    needs: create-build-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJSON(needs.create-build-matrix.outputs.matrix)}}
+    name: ${{matrix.platform.name}} ${{matrix.configuration}}
+    runs-on: ${{matrix.platform.os}}
+    env:
+      IsReferenceDummyBuild: ${{matrix.dummy-build}}
+      UseRepackForBootstrapperPackage: ${{matrix.collect-packages && !matrix.dummy-build}}
+    steps:
+      # ----------------------------------------------------------------------- Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{matrix.checkout-ref}}
+
+      # ----------------------------------------------------------------------- Setup tools
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Legacy .NET command line tools are only used for building the installer
+      - name: Setup MSBuild command line
+        if: matrix.create-installer
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup NuGet command line
+        if: matrix.create-installer
+        uses: NuGet/setup-nuget@v2
+        with:
+          nuget-version: 6.x
+
+      # ----------------------------------------------------------------------- Configure build
+      - name: Configure build
+        run: python .github/workflows/configure-build.py
+        env:
+          github_event_name: ${{github.event_name}}
+          github_ref: ${{github.ref}}
+          github_run_number: ${{github.run_number}}
+          release_is_prerelease: ${{github.event.release.prerelease}}
+          release_version: ${{github.event.release.tag_name}}
+          workflow_dispatch_version: ${{github.event.inputs.version}}
+          workflow_dispatch_will_publish_packages: ${{github.event.inputs.will_publish_packages}}
+   
+      # ----------------------------------------------------------------------- Build
+      - name: Restore
+        run: dotnet restore Bonsai.sln
+
+      - name: Build
+        run: dotnet build Bonsai.sln --no-restore --configuration ${{matrix.configuration}}
+
+      # ----------------------------------------------------------------------- Repack bootstrapper
+      # This happens before pack since the bootstrapper package uses it
+      - name: Repack bootstrapper
+        if: matrix.create-installer || env.UseRepackForBootstrapperPackage == 'true'
+        run: dotnet build Bonsai --no-restore --configuration ${{matrix.configuration}} -t:Repack
+
+      # ----------------------------------------------------------------------- Pack
+      # Since packages are core to Bonsai functionality we always pack them even if they won't be collected
+      - name: Pack
+        id: pack
+        run: dotnet pack Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}}
+
+      # ----------------------------------------------------------------------- Test
+      - name: Test
+        if: '!matrix.dummy-build'
+        run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal
+
+      # ----------------------------------------------------------------------- Create portable zip
+      - name: Create portable zip
+        id: create-portable-zip
+        if: matrix.create-installer
+        run: python .github/workflows/create-portable-zip.py artifacts/Bonsai.zip ${{matrix.configuration}}
+        env:
+          NUGET_API_URL: ${{vars.NUGET_API_URL}}
+          # This should be kept in sync with publish-packages-nuget-org
+          IS_FULL_RELEASE: ${{github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')}}
+
+      # ----------------------------------------------------------------------- Build Visual Studio templates
+      - name: Build Visual Studio templates
+        if: matrix.create-installer
+        run: msbuild /nologo /maxCpuCount Bonsai.Templates/Bonsai.Templates.sln /p:Configuration=${{matrix.configuration}} /p:DeployExtension=false
+
+      # ----------------------------------------------------------------------- Build setup
+      - name: Restore setup
+        if: matrix.create-installer
+        # Restoring the packages.config directly means we don't rely on the system-wide Wix install
+        run: |
+          nuget restore Bonsai.Setup/packages.config -SolutionDir .
+          nuget restore Bonsai.Setup.Bootstrapper/packages.config -SolutionDir .
+
+      - name: Build Setup
+        id: create-installer
+        if: matrix.create-installer
+        run: msbuild /nologo /maxCpuCount Bonsai.Setup.sln /p:Configuration=${{matrix.configuration}}
+      
+      # ----------------------------------------------------------------------- Collect artifacts
+      - name: Collect NuGet packages
+        uses: actions/upload-artifact@v4
+        if: matrix.collect-packages && steps.pack.outcome == 'success' && always()
+        with:
+          name: Packages${{matrix.artifacts-suffix}}
+          if-no-files-found: error
+          path: artifacts/package/${{matrix.configuration-lower}}/**
+
+      - name: Collect portable zip
+        uses: actions/upload-artifact@v4
+        if: steps.create-portable-zip.outcome == 'success' && always()
+        with:
+          name: PortableZip${{matrix.artifacts-suffix}}
+          if-no-files-found: error
+          path: artifacts/Bonsai.zip
+
+      - name: Collect installer
+        uses: actions/upload-artifact@v4
+        if: steps.create-installer.outcome == 'success' && always()
+        with:
+          name: Installer${{matrix.artifacts-suffix}}
+          if-no-files-found: error
+          path: artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration-lower}}-x86/**
+
+  # =====================================================================================================================================================================
+  # Determine which packages need to be published
+  # =====================================================================================================================================================================
+  determine-changed-packages:
+    name: Detect changed packages
+    runs-on: ubuntu-latest
+    # We technically only need the dummy build jobs, but GitHub Actions lacks the ability to depend on specific jobs in a matrix
+    needs: build-and-test
+    if: github.event_name != 'pull_request'
+    steps:
+      # ----------------------------------------------------------------------- Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------------------- Setup tools
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ----------------------------------------------------------------------- Download packages for comparison
+      - name: Download packages for comparison
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Packages*
+          path: artifacts
+
+      # ----------------------------------------------------------------------- Compare packages
+      - name: Compare packages
+        id: compare-packages
+        run: python .github/workflows/compare-nuget-packages.py artifacts/Packages-dummy-prev/ artifacts/Packages-dummy-next/ artifacts/Packages/ artifacts/ReleaseManifest
+
+      # ----------------------------------------------------------------------- Collect release manifest
+      - name: Collect release manifest
+        uses: actions/upload-artifact@v4
+        if: steps.compare-packages.outcome != 'skipped' && always()
+        with:
+          name: ReleaseManifest
+          if-no-files-found: error
+          path: artifacts/ReleaseManifest
+
+  # =====================================================================================================================================================================
+  # Publish to GitHub
+  # =====================================================================================================================================================================
+  publish-github:
+    name: Publish to GitHub
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to attach files to releases
+      contents: write
+      # Needed to upload to GitHub Packages
+      packages: write
+    needs: [build-and-test, determine-changed-packages]
+    # Pushes always publish CI packages (configure-build.py will add the branch name to the version string for branches besides main)
+    # Published releases always publish packages
+    # A manual workflow only publishes packages if explicitly enabled
+    if: github.event_name == 'push' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true')
+    steps:
+      # ----------------------------------------------------------------------- Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          sparse-checkout-cone-mode: false
+
+      # ----------------------------------------------------------------------- Setup tools
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ----------------------------------------------------------------------- Download artifacts
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: Packages
+
+      - name: Download release manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: ReleaseManifest
+
+      - name: Download portable zip
+        uses: actions/download-artifact@v4
+        if: github.event_name == 'release'
+        with:
+          name: PortableZip
+
+      - name: Download installer
+        uses: actions/download-artifact@v4
+        if: github.event_name == 'release'
+        with:
+          name: Installer
+
+      # ----------------------------------------------------------------------- Filter NuGet packages
+      - name: Filter NuGet packages
+        run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
+
+      # ----------------------------------------------------------------------- Upload release assets
+      - name: Upload release assets
+        if: github.event_name == 'release'
+        run: gh release upload ${{github.event.release.tag_name}} Bonsai.zip Bonsai-*.exe --clobber
+        env:
+          GH_TOKEN: ${{github.token}}
+
+      # ----------------------------------------------------------------------- Push to GitHub Packages
+      - name: Push to GitHub Packages
+        run: dotnet nuget push "Packages/*.nupkg" --skip-duplicate --no-symbols --api-key ${{secrets.GITHUB_TOKEN}} --source https://nuget.pkg.github.com/${{github.repository_owner}}
+        env:
+          # This is a workaround for https://github.com/NuGet/Home/issues/9775
+          DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
+
+  # =====================================================================================================================================================================
+  # Publish NuGet Packages to NuGet.org
+  # =====================================================================================================================================================================
+  publish-packages-nuget-org:
+    name: Publish to NuGet.org
+    runs-on: ubuntu-latest
+    environment: PublicRelease
+    needs: [build-and-test, determine-changed-packages]
+    # Release builds always publish packages to NuGet.org
+    # Workflow dispatch builds will only publish packages if enabled and an explicit version number is given
+    # This should be kept in sync with create-portable-zip
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')
+    steps:
+      # ----------------------------------------------------------------------- Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          sparse-checkout-cone-mode: false
+
+      # ----------------------------------------------------------------------- Setup tools
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ----------------------------------------------------------------------- Download artifacts
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: Packages
+
+      - name: Download release manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: ReleaseManifest
+
+      # ----------------------------------------------------------------------- Filter NuGet packages
+      - name: Filter NuGet packages
+        run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
+
+      # ----------------------------------------------------------------------- Push to NuGet.org
+      - name: Push to NuGet.org
+        run: dotnet nuget push "Packages/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source ${{vars.NUGET_API_URL}}
+        env:
+          # This is a workaround for https://github.com/NuGet/Home/issues/9775
+          DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
+
+      # ----------------------------------------------------------------------- Dispatch docs repo update
+      # This might seem like an odd spot to do this, but we need access to the PublicRelease environment for our secrets and using it in two jobs means two approvals are needed
+      - name: Update version and submodule in ${{vars.DOCS_REPO}}
+        if: github.event_name == 'release' && github.event.release.prerelease == false
+        run: gh workflow run --repo "$DOCS_REPO" version-bump.yml --raw-field "project=$PROJECT" --raw-field "version=$VERSION" --raw-field "project-fork-url=$PROJECT_FORK_URL"
+        env:
+          GH_TOKEN: ${{secrets.DOCS_UPDATE_GH_TOKEN}}
+          DOCS_REPO: ${{vars.DOCS_REPO}}
+          PROJECT: bonsai
+          VERSION: ${{github.event.release.tag_name}}
+          PROJECT_FORK_URL: ${{github.server_url}}/${{github.repository}}.git
+
+  # =====================================================================================================================================================================
+  # Finish up release
+  # =====================================================================================================================================================================
+  finish-up-release:
+    name: Finish up release
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to bump tags and version numbers
+      contents: write
+      # Needed to close milestones
+      issues: write
+    # It's important that this only happens when everything else happened successfully
+    # Otherwise it's possible for a partial release to occur and re-running the job wouldn't be possible due to the latest tag having already moved
+    # (This is also why this happens as its own job, it lets us ensure both publish paths happened successfully.)
+    needs: [publish-github, publish-packages-nuget-org]
+    # Only do finishing tasks when we're explicitly releasing
+    if: github.event_name == 'release' && github.event.release.prerelease == false
+    steps:
+      # ----------------------------------------------------------------------- Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+
+      # ----------------------------------------------------------------------- Update `latest` tag
+      - name: Update `latest` tag
+        run: git push --force origin ${{github.sha}}:refs/tags/latest
+
+      # ----------------------------------------------------------------------- Get the revision of the main branch
+      # We can't easily bump the version number unless the release happened at main
+      - name: Get the revision of the main branch
+        id: main-revision
+        run: python .github/workflows/gha.py set_output sha `git rev-parse refs/heads/main`
+
+      # ----------------------------------------------------------------------- Bump version number
+      - name: Warn if it doesn't match the release
+        if: steps.main-revision.outputs.sha != github.sha
+        run: python .github/workflows/gha.py print_warning "The main branch is at ${{steps.main-revision.outputs.sha}} but the release was made from ${{github.sha}}, the version number will not be automatically bumped."
+
+      # ----------------------------------------------------------------------- Bump version number
+      - name: Bump version number
+        if: steps.main-revision.outputs.sha == github.sha
+        run: |
+          python .github/workflows/bump-version.py
+          git add $version_file_path
+        env:
+          version_file_path: tooling/CurrentVersion.props
+          just_released_version: ${{github.event.release.tag_name}}
+      
+      # ----------------------------------------------------------------------- Commit and push changes
+      - name: Commit changes
+        if: steps.main-revision.outputs.sha == github.sha
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Bump to version \`$NEXT_VERSION\`" --allow-empty
+
+      - name: Push changes
+        if: steps.main-revision.outputs.sha == github.sha
+        run: git push
+
+      # ----------------------------------------------------------------------- Close milestone
+      - name: Close milestone
+        uses: actions/github-script@v7
+        if: always()
+        continue-on-error: true
+        env:
+          MILESTONE_NAME: ${{github.event.release.tag_name}}
+        with:
+          user-agent: actions/github-script for ${{github.repository}}
+          script: |
+            const milestoneToClose = process.env.MILESTONE_NAME;
+
+            response = await github.rest.issues.listMilestones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            milestones = response.data;
+
+            for (let milestone of milestones) {
+              if (milestone.title != milestoneToClose) {
+                continue;
+              }
+
+              core.info(`Closing milestone '${milestoneToClose}' #${milestone.number}...`);
+              await github.rest.issues.updateMilestone({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                milestone_number: milestone.number,
+                state: 'closed',
+              });
+
+              return;
+            }
+
+            core.warning(`Could not find any milestone associated with '${milestoneToClose}', the milestone for this release will not be closed.`);

@@ -8,13 +8,14 @@
     <ProductVersion>3.6</ProductVersion>
     <ProjectGuid>{da1c1aa7-15f6-4787-b441-e75bcffe680b}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>Bonsai-2.8.3</OutputName>
+    <OutputName>Bonsai-$(Version)</OutputName>
     <OutputType>Bundle</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">Debug</DefineConstants>
+    <DefineConstants>$(DefineConstants);BonsaiDisplayVersion=$(Version)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bundle.wxs" />

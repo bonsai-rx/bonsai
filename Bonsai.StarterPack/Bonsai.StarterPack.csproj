@@ -7,7 +7,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSymbols>false</IncludeSymbols>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.1</VersionPrefix>
 
     <!--
     This warning basically happens because this package has no assemblies but does have dependencies

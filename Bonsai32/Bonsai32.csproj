@@ -5,10 +5,9 @@
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IsPackable>false</IsPackable>
     <TargetFramework>net48</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
-    <VersionPrefix>2.8.3</VersionPrefix>
     <OutputType>Exe</OutputType>
     <OutputPath>$(ArtifactsPath)\bin\Bonsai\$(Configuration.ToLowerInvariant())\</OutputPath>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>

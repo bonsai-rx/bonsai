@@ -1,0 +1,62 @@
+<Project>
+  <Import Project="CurrentVersion.props" />
+
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' != 'true'">
+    <!-- When making local builds, developers can override DevVersion here or on the command line if they need multiple local versions of Bonsai for whatever reason -->
+    <DevVersion Condition="'$(DevVersion)' == ''">0</DevVersion>
+
+    <Version>$(BonsaiVersion)-dev$(DevVersion)</Version>
+    <_FileVersionRevision>$([MSBuild]::Add(60000, $(DevVersion)))</_FileVersionRevision>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <Version>$(BonsaiVersion)$(CiBuildVersionSuffix)</Version>
+    <Version Condition="'$(CiBuildVersion)' != ''">$(CiBuildVersion)</Version>
+    <_FileVersionRevision>0</_FileVersionRevision>
+    <_FileVersionRevision Condition="'$(CiIsForRelease)' != 'true' and '$(CiRunNumber)' != ''">$(CiRunNumber)</_FileVersionRevision>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Force malformed versions to be an error -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS7035</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!--
+    This explicit FileVersion mainly exists for the installer and the VSIX template extension, neither of which can take a prerelease suffix or build metadata
+    They also can't utilize GetAssemblyVersion to strip off the prerelease suffix becuase it only exists in the modern SDK so we have to do it manually
+  -->
+  <PropertyGroup>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).$(_FileVersionRevision)</FileVersion>
+  </PropertyGroup>
+
+  <!--
+    Reference dummy builds are used to compare NuGet packages to determine what actually changed and needs to be released when releases are published.
+    They work by building and packaging all packages for both the previous version and the next versions of everything and then comparing the results.
+    This means we need to eliminate meaningless differences between versions. We already implicitly use determinsitic builds, so most of this is already taken care of.
+    
+    Versions and the Git revision are obvious, but a more subtle one is skipping debug symbols. (Note also setting DebugType to `none` in the common props file.)
+    PDBs are built deterministically too, but they contain an ID. One component that feeds into that ID is the hash of each dependency.
+    However we don't want to release dependent packages when a dependency changes (otherwise we'd always release everything when Bonsai.Core changes and such.)
+    We can't just ignore the PDBs in our comparison because the ID of the PDB is also embedded in the assembly.
+    It isn't really expected that a PDB would change in a meaningful way when the assembly didn't, so ignoring them is fine.
+    As such the easiest strategy is to just skip building them in the first place for reference dummy builds.
+  -->
+  <PropertyGroup Condition="'$(IsReferenceDummyBuild)' == 'true'">
+    <Version>99.99.99</Version>
+    <FileVersion>99.99.99.0</FileVersion>
+    <SourceRevisionId>0000000000000000000000000000000000000000</SourceRevisionId>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <_UnchangedBonsaiVersion>$(Version)</_UnchangedBonsaiVersion>
+    <_UnchangedBonsaiFileVersion>$(FileVersion)</_UnchangedBonsaiFileVersion>
+  </PropertyGroup>
+
+  <Target Name="VersionSanityChecks" BeforeTargets="build">
+    <Error Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(CiBuildVersion)' == '' and '$(CiBuildVersionSuffix)' == ''" Text="CI version info not configured." />
+    <Error Condition="'$(IsReferenceDummyBuild)' == 'true' and '$(Version)' != '99.99.99'" Text="Reference dummy builds must use hard-coded verison numbers." />
+    <Error Condition="'$(Version)' != '$(_UnchangedBonsaiVersion)'" Text="Do not manually specify Version." />
+    <Error Condition="'$(FileVersion)' != '$(_UnchangedBonsaiFileVersion)'" Text="Do not manually specify FileVersion." />
+    <Error Condition="'$(PackageVersion)' != '' and '$(PackageVersion)' != '$(Version)'" Text="Do not manually specify PackageVersion." />
+  </Target>
+</Project>

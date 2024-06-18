@@ -4,7 +4,6 @@
     <Description>Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
     <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
-    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />

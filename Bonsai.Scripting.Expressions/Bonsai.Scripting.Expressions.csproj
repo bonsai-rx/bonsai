@@ -4,7 +4,6 @@
     <Description>Bonsai Scripting Library containing expression scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting Expressions</PackageTags>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />

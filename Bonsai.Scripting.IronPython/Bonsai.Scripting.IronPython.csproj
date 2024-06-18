@@ -4,7 +4,6 @@
     <Description>Bonsai Scripting Library containing IronPython scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting Iron Python</PackageTags>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="IronPython" Version="2.7.5" />

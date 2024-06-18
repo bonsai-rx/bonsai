@@ -12,9 +12,9 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <VersionSuffix></VersionSuffix>
+    <!-- Always pack NuGet packages (except on CI where it'll be done separately) -->
+    <GeneratePackageOnBuild Condition="'$(ContinuousIntegrationBuild)' != 'true'">true</GeneratePackageOnBuild>
 
     <!-- Emit modern symbol pacakges -->
     <IncludeSymbols>true</IncludeSymbols>
@@ -30,5 +30,10 @@
 
     <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+    <!-- This is detached from the rest of the IsReferenceDummyBuild stuff because the non-existent PDB will be
+      enumerated by the time it's evaluated and break NuGet packing -->
+    <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>
   </PropertyGroup>
+  <Import Project="Versioning.props" />
 </Project>

@@ -13,7 +13,7 @@
     <Error Condition="'%(_ReadProjectPathRelativeToIntermediateDirectory.Identity)' != '$(_ProjectPathRelativeToIntermediateDirectory)'"
       Text="Intermediate output directory collision between '%(_ReadProjectPathRelativeToIntermediateDirectory.Identity)' and '$(_ProjectPathRelativeToIntermediateDirectory)'" />
   </Target>
-  <Target Name="CleanUpRelativeProjectPathFilePath" AfterTargets="Clean">
+  <Target Name="CleanUpRelativeProjectPathFilePath" AfterTargets="Clean" Condition="Exists('$(_RelativeProjectPathFilePath)')">
     <Delete Files="$(_RelativeProjectPathFilePath)" />
   </Target>
 
