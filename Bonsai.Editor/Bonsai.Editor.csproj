@@ -6,7 +6,6 @@
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.8.2</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.svg" />

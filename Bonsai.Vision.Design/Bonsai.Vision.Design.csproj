@@ -5,7 +5,6 @@
     <PackageTags>Bonsai Rx Vision Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />

@@ -5,7 +5,6 @@
     <PackageTags>Bonsai Rx Dsp Signal Processing</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OpenCV.Net" Version="3.4.2" />

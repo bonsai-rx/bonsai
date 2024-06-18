@@ -5,7 +5,6 @@
     <PackageTags>Bonsai Rx Scripting</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>2.8.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />

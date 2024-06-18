@@ -4,7 +4,6 @@
     <Description>Bonsai Shaders Library containing modules for dynamic control of shader primitives.</Description>
     <PackageTags>Bonsai Rx Shaders Graphics OpenGL</PackageTags>
     <TargetFramework>net462</TargetFramework>
-    <VersionPrefix>0.27.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OpenCV.Net" Version="3.4.2" />

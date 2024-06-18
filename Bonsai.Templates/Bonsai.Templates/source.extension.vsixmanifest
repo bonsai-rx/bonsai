@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" ?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918" Version="2.8.2" Language="en-US" Publisher="Bonsai Foundation" />
+    <Identity Id="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="Bonsai Foundation" />
     <DisplayName>Bonsai Templates</DisplayName>
     <Description xml:space="preserve">A collection of project and item templates for extending the Bonsai programming language.</Description>
     <MoreInfo>http://bonsai-rx.org</MoreInfo>

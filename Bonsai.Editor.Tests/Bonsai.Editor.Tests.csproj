@@ -3,7 +3,6 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
-    <VersionPrefix>2.8.2</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.bonsai" />

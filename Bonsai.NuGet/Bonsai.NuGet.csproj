@@ -3,7 +3,6 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
-    <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="Rx-Main" Version="2.2.5" />

@@ -18,7 +18,7 @@
   <Page Name="Install">
     <Text X="11" Y="80" Width="-11" Height="-70" TabStop="no" FontId="2" HexStyle="0x800000" DisablePrefix="yes" />
     <Richedit Name="EulaRichedit" X="12" Y="81" Width="-12" Height="-71" TabStop="yes" FontId="0" />
-    <Text Name="InstallVersion" X="11" Y="-41" Width="210" Height="17" FontId="3" DisablePrefix="yes" HideWhenDisabled="yes">#(loc.InstallVersion)</Text>
+    <Text Name="InstallVersion" X="11" Y="-41" Width="210" Height="17" FontId="3" DisablePrefix="yes" HideWhenDisabled="yes">Version [BonsaiDisplayVersion]</Text>
     <Checkbox Name="EulaAcceptCheckbox" X="-11" Y="-41" Width="260" Height="17" TabStop="yes" FontId="3" HideWhenDisabled="yes">#(loc.InstallAcceptCheckbox)</Checkbox>
     <Button Name="OptionsButton" X="-171" Y="-11" Width="75" Height="23" TabStop="yes" FontId="0" HideWhenDisabled="yes">#(loc.InstallOptionsButton)</Button>
     <Button Name="InstallButton" X="-91" Y="-11" Width="75" Height="23" TabStop="yes" FontId="0">#(loc.InstallInstallButton)</Button>

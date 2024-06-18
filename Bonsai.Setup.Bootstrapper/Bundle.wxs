@@ -22,6 +22,7 @@
                                               LaunchWorkingFolder="[InstallFolder]"/>
     </BootstrapperApplicationRef>
 
+    <Variable Name="BonsaiDisplayVersion" Type="string" Value="$(var.BonsaiDisplayVersion)"/>
     <Variable Name="InstallFolder" Type="string" Value="[LocalAppDataFolder]Bonsai\"/>
     <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRTInstalled" Win64="no"/>
     <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRT64Installed" Win64="yes"/>
