@@ -6,6 +6,7 @@
     <PackageTags>Bonsai Rx Starter Pack</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>net462</TargetFramework>
     <VersionPrefix>2.8.1</VersionPrefix>
   </PropertyGroup>
