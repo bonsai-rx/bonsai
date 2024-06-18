@@ -14,8 +14,12 @@
     <OutputPath>..\Bonsai\bin\$(Configuration)\</OutputPath>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 </Project>

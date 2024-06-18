@@ -16,5 +16,13 @@
     <VersionSuffix></VersionSuffix>
     <LangVersion>9.0</LangVersion>
     <Features>strict</Features>
+
+    <GeneratePackageOnBuild Condition="'$(ContinuousIntegrationBuild)' != 'true'">true</GeneratePackageOnBuild>
+    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts/package/$(Configuration.ToLowerInvariant())</PackageOutputPath>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
 </Project>

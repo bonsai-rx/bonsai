@@ -4,4 +4,15 @@
     <DaysFromFirstRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse(2011/12/12))).Days)</DaysFromFirstRevision>
     <FileVersion>$(VersionPrefix).$(DaysFromFirstRevision)</FileVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(IsReferenceDummyBuild)' == 'true'">
+    <SourceRevisionId>0000000000000000000000000000000000000000</SourceRevisionId>
+    <IncludeSymbols>false</IncludeSymbols>
+    <Version>99.99.99</Version>
+    <FileVersion>99.99.99.0</FileVersion>
+    <PackageVersion>99.99.99</PackageVersion>
+  </PropertyGroup>
+
+  <Target Name="DontUseThisBranch" BeforeTargets="Build" Condition="'$(ContinuousIntegrationBuild)' != 'true'">
+    <Error Text="This branch should not generally be used, it exists only to support release automation infrastructure." />
+  </Target>
 </Project>
