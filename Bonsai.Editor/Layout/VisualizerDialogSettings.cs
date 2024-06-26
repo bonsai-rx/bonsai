@@ -38,9 +38,12 @@ namespace Bonsai.Design
         // [Obsolete]
         public Collection<int> Mashups { get; } = new Collection<int>();
 
-        public bool MashupsSpecified
-        {
-            get { return false; }
-        }
+        public bool LocationSpecified => !Location.IsEmpty;
+
+        public bool SizeSpecified => !Size.IsEmpty;
+
+        public bool WindowStateSpecified => WindowState != FormWindowState.Normal;
+
+        public bool MashupsSpecified => false;
     }
 }
