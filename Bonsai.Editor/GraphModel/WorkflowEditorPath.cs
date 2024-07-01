@@ -58,6 +58,70 @@ namespace Bonsai.Editor.GraphModel
             return builder;
         }
 
+        public static WorkflowEditorPath GetExceptionPath(WorkflowBuilder workflowBuilder, WorkflowException ex)
+        {
+            return GetExceptionPath(workflowBuilder.Workflow, ex, null);
+        }
+
+        static WorkflowEditorPath GetExceptionPath(ExpressionBuilderGraph workflow, WorkflowException ex, WorkflowEditorPath parent)
+        {
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                var builder = workflow[i].Value;
+                if (builder == ex.Builder)
+                {
+                    var path = new WorkflowEditorPath(i, parent);
+                    if (ex.InnerException is WorkflowException nestedEx &&
+                        ExpressionBuilder.Unwrap(ex.Builder) is IWorkflowExpressionBuilder workflowBuilder)
+                    {
+                        return GetExceptionPath(workflowBuilder.Workflow, nestedEx, path);
+                    }
+                    else return path;
+                }
+            }
+
+            return null;
+        }
+
+        public static WorkflowEditorPath GetBuilderPath(WorkflowBuilder workflowBuilder, ExpressionBuilder builder)
+        {
+            return GetBuilderPath(workflowBuilder.Workflow, ExpressionBuilder.Unwrap(builder), new List<int>());
+        }
+
+        static WorkflowEditorPath GetBuilderPath(ExpressionBuilderGraph workflow, ExpressionBuilder target, List<int> pathElements)
+        {
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                var builder = ExpressionBuilder.Unwrap(workflow[i].Value);
+                if (builder == target)
+                {
+                    pathElements.Add(i);
+                    return GetBuilderPath(pathElements);
+                }
+
+                if (builder is IWorkflowExpressionBuilder workflowBuilder)
+                {
+                    pathElements.Add(i);
+                    var path = GetBuilderPath(workflowBuilder.Workflow, target, pathElements);
+                    if (path is not null)
+                        return path;
+                    pathElements.RemoveAt(pathElements.Count - 1);
+                }
+            }
+
+            return null;
+        }
+
+        static WorkflowEditorPath GetBuilderPath(List<int> pathElements)
+        {
+            WorkflowEditorPath path = null;
+            foreach (var index in pathElements)
+            {
+                path = new WorkflowEditorPath(index, path);
+            }
+            return path;
+        }
+
         public override int GetHashCode()
         {
             var hash = 107;
