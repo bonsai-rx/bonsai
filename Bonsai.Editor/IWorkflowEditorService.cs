@@ -6,6 +6,8 @@ namespace Bonsai.Editor
 {
     interface IWorkflowEditorService
     {
+        string GetProjectDisplayName();
+
         void OnKeyDown(KeyEventArgs e);
 
         void OnKeyPress(KeyPressEventArgs e);
