@@ -1,4 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.Properties;
@@ -20,7 +23,6 @@ namespace Bonsai.Editor
                 TransparentColor = Color.Transparent
             };
             ImageList = iconList;
-            HideSelection = false;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
@@ -56,11 +58,12 @@ namespace Bonsai.Editor
         public void UpdateWorkflow(string name, WorkflowBuilder workflowBuilder)
         {
             BeginUpdate();
-
             Nodes.Clear();
+
             var rootNode = Nodes.Add(name);
             AddWorkflow(rootNode.Nodes, null, workflowBuilder.Workflow);
-            void AddWorkflow(TreeNodeCollection nodes, WorkflowEditorPath basePath, ExpressionBuilderGraph workflow)
+
+            static void AddWorkflow(TreeNodeCollection nodes, WorkflowEditorPath basePath, ExpressionBuilderGraph workflow)
             {
                 for (int i = 0; i < workflow.Count; i++)
                 {
@@ -103,5 +106,63 @@ namespace Bonsai.Editor
 
             return false;
         }
+
+        private static int GetImageIndex(ExplorerNodeStatus status)
+        {
+            return status switch
+            {
+                ExplorerNodeStatus.Ready => 0,
+                ExplorerNodeStatus.Blocked => 1,
+                _ => throw new ArgumentException("Invalid node status.", nameof(status))
+            };
+        }
+
+        public void SetNodeStatus(ExplorerNodeStatus status)
+        {
+            var imageIndex = GetImageIndex(status);
+            SetNodeImageIndex(Nodes, imageIndex);
+
+            static void SetNodeImageIndex(TreeNodeCollection nodes, int index)
+            {
+                foreach (TreeNode node in nodes)
+                {
+                    if (node.ImageIndex == index)
+                        continue;
+
+                    node.ImageIndex = node.SelectedImageIndex = index;
+                    SetNodeImageIndex(node.Nodes, index);
+                }
+            }
+        }
+
+        public void SetNodeStatus(IEnumerable<WorkflowEditorPath> pathElements, ExplorerNodeStatus status)
+        {
+            var nodes = Nodes;
+            var imageIndex = GetImageIndex(status);
+            foreach (var path in pathElements.Prepend(null))
+            {
+                var found = false;
+                for (int n = 0; n < nodes.Count; n++)
+                {
+                    var groupNode = nodes[n];
+                    if ((WorkflowEditorPath)groupNode.Tag == path)
+                    {
+                        groupNode.ImageIndex = groupNode.SelectedImageIndex = imageIndex;
+                        nodes = groupNode.Nodes;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    break;
+            }
+        }
+    }
+
+    enum ExplorerNodeStatus
+    {
+        Ready,
+        Blocked
     }
 }
