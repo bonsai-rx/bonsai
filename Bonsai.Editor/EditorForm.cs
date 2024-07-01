@@ -1577,6 +1577,13 @@ namespace Bonsai.Editor
             description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
         }
 
+        private string GetProjectDisplayName()
+        {
+            return !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
+                ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
+                : "Workflow";
+        }
+
         private void UpdatePropertyGrid()
         {
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
@@ -2488,6 +2495,11 @@ namespace Bonsai.Editor
             }
 
             public string Name { get; set; }
+
+            public string GetProjectDisplayName()
+            {
+                return siteForm.GetProjectDisplayName();
+            }
 
             public object GetService(Type serviceType)
             {
