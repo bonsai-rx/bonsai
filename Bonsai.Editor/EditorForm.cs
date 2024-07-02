@@ -839,6 +839,7 @@ namespace Bonsai.Editor
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
             editorControl.ResetNavigation();
+            editorSite.ValidateWorkflow();
             visualizerSettings.Clear();
             ResetProjectStatus();
             UpdateTitle();
