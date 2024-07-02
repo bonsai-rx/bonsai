@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
-using Bonsai.Design;
 using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphModel;
 
@@ -18,17 +17,12 @@ namespace Bonsai.Editor.GraphView
         Padding? adjustMargin;
 
         public WorkflowEditorControl(IServiceProvider provider)
-            : this(provider, false)
-        {
-        }
-
-        public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
         {
             InitializeComponent();
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
-            workflowTab = InitializeTab(workflowTabPage, readOnly, null);
+            workflowTab = InitializeTab(workflowTabPage);
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
@@ -60,16 +54,15 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public VisualizerLayout VisualizerLayout
+        public WorkflowEditorPath WorkflowPath
         {
-            get { return WorkflowGraphView.VisualizerLayout; }
-            set { WorkflowGraphView.VisualizerLayout = value; }
+            get { return WorkflowGraphView.WorkflowPath; }
+            set { WorkflowGraphView.WorkflowPath = value; }
         }
 
         public ExpressionBuilderGraph Workflow
         {
             get { return WorkflowGraphView.Workflow; }
-            set { WorkflowGraphView.Workflow = value; }
         }
 
         public void ExpandAnnotationPanel(ExpressionBuilder builder)
@@ -91,11 +84,6 @@ namespace Bonsai.Editor.GraphView
             annotationPanel.Tag = null;
         }
 
-        public void UpdateVisualizerLayout()
-        {
-            WorkflowGraphView.UpdateVisualizerLayout();
-        }
-
         public TabPageController ActiveTab { get; private set; }
 
         public int ItemHeight
@@ -103,9 +91,9 @@ namespace Bonsai.Editor.GraphView
             get { return tabControl.DisplayRectangle.Y; }
         }
 
-        TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
+        TabPageController InitializeTab(TabPage tabPage)
         {
-            var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
+            var workflowGraphView = new WorkflowGraphView(serviceProvider, this);
             workflowGraphView.BackColorChanged += (sender, e) =>
             {
                 tabPage.BackColor = workflowGraphView.BackColor;
@@ -118,40 +106,41 @@ namespace Bonsai.Editor.GraphView
             var tabState = new TabPageController(tabPage, workflowGraphView);
             tabPage.Tag = tabState;
             tabPage.SuspendLayout();
-            if (container != null)
+
+            var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
+            breadcrumbs.WorkflowPath = null;
+            breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
+            workflowGraphView.WorkflowPathChanged += (sender, e) =>
             {
-                container.TextChanged += (sender, e) => tabState.Text = container.Text;
-                container.Controls.Add(workflowGraphView);
-                tabPage.Controls.Add(container);
-            }
-            else tabPage.Controls.Add(workflowGraphView);
+                breadcrumbs.WorkflowPath = workflowGraphView.WorkflowPath;
+                tabState.Text = breadcrumbs.DisplayName;
+            };
+
+            var navigationPanel = new TableLayoutPanel();
+            navigationPanel.Dock = DockStyle.Fill;
+            navigationPanel.ColumnCount = 1;
+            navigationPanel.RowCount = 2;
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, breadcrumbs.Height));
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            navigationPanel.Controls.Add(breadcrumbs);
+            navigationPanel.Controls.Add(workflowGraphView);
+            tabPage.Controls.Add(navigationPanel);
             tabPage.BackColor = workflowGraphView.BackColor;
             tabPage.ResumeLayout(false);
             tabPage.PerformLayout();
             return tabState;
         }
 
-        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, bool readOnly, Control owner)
+        public TabPageController CreateTab(WorkflowEditorPath workflowPath)
         {
             var tabPage = new TabPage();
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
 
-            var tabState = InitializeTab(tabPage, readOnly || builder is IncludeWorkflowBuilder, owner);
-            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
-            tabState.WorkflowGraphView.Workflow = builder.Workflow;
-            tabState.Builder = builder;
+            var tabState = InitializeTab(tabPage);
+            tabState.WorkflowGraphView.WorkflowPath = workflowPath;
             tabControl.TabPages.Add(tabPage);
             return tabState;
-        }
-
-        public void SelectTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
-            {
-                tabControl.SelectTab(tabPage);
-            }
         }
 
         public void SelectTab(WorkflowGraphView workflowGraphView)
@@ -164,23 +153,10 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void CloseTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                CloseTab(tabState);
-            }
-        }
-
         void CloseTab(TabPage tabPage)
         {
             var tabState = (TabPageController)tabPage.Tag;
-            if (tabState.Builder != null)
-            {
-                CloseTab(tabState);
-            }
+            CloseTab(tabState);
         }
 
         void CloseTab(TabPageController tabState)
@@ -202,47 +178,12 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void RefreshTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                RefreshTab(tabState);
-            }
-        }
-
-        void RefreshTab(TabPageController tabState)
-        {
-            var builder = tabState.Builder;
-            var workflowGraphView = tabState.WorkflowGraphView;
-            if (builder != null && builder.Workflow != workflowGraphView.Workflow)
-            {
-                CloseTab(tabState);
-            }
-        }
-
-        TabPage FindTab(IWorkflowExpressionBuilder builder)
-        {
-            foreach (TabPage tabPage in tabControl.TabPages)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                if (tabState.Builder == builder)
-                {
-                    return tabPage;
-                }
-            }
-
-            return null;
-        }
-
         void ActivateTab(TabPage tabPage)
         {
             var tabState = tabPage != null ? (TabPageController)tabPage.Tag : null;
             if (tabState != null && ActiveTab != tabState)
             {
                 ActiveTab = tabState;
-                RefreshTab(ActiveTab);
                 ActiveTab.UpdateSelection();
             }
         }
@@ -285,8 +226,6 @@ namespace Bonsai.Editor.GraphView
 
             public TabPage TabPage { get; private set; }
 
-            public IWorkflowExpressionBuilder Builder { get; set; }
-
             public WorkflowGraphView WorkflowGraphView { get; private set; }
 
             public string Text
@@ -301,7 +240,8 @@ namespace Bonsai.Editor.GraphView
 
             void UpdateDisplayText()
             {
-                TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
+                //TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
+                TabPage.Text = displayText + (WorkflowGraphView.IsReadOnly ? ReadOnlySuffix : string.Empty);
             }
 
             public void UpdateSelection()
@@ -361,7 +301,7 @@ namespace Bonsai.Editor.GraphView
 
             var tabState = (TabPageController)selectedTab.Tag;
             var tabRect = tabControl.GetTabRect(tabControl.SelectedIndex);
-            if (tabState.Builder != null && tabRect.Contains(e.Location))
+            if (selectedTab != workflowTabPage && tabRect.Contains(e.Location))
             {
                 using (var graphics = selectedTab.CreateGraphics())
                 {
