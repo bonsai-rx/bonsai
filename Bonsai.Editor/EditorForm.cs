@@ -168,7 +168,6 @@ namespace Bonsai.Editor
             definitionsPath = Project.GetDefinitionsTempPath();
             editorControl = new WorkflowEditorControl(editorSite);
             editorControl.Enter += new EventHandler(editorControl_Enter);
-            editorControl.WorkflowPath = null;
             editorControl.Dock = DockStyle.Fill;
             workflowSplitContainer.Panel1.Controls.Add(editorControl);
             propertyGrid.BrowsableAttributes = browsableAttributes = DesignTimeAttributes;
@@ -773,7 +772,7 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            editorControl.WorkflowPath = null;
+            editorControl.ResetNavigation();
             visualizerSettings.Clear();
             ResetProjectStatus();
             UpdateTitle();
@@ -805,7 +804,7 @@ namespace Bonsai.Editor
             UpdateWorkflowDirectory(fileName, setWorkingDirectory);
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
-            editorControl.WorkflowPath = null;
+            editorControl.ResetNavigation();
             if (workflowBuilder.Workflow.Count > 0 && !editorControl.WorkflowGraphView.GraphView.Nodes.Any())
             {
                 try { workflowBuilder.Workflow.Build(); }
@@ -819,7 +818,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
-            editorControl.WorkflowPath = null;
+            editorControl.ResetNavigation();
             editorSite.ValidateWorkflow();
 
             var layoutPath = LayoutHelper.GetLayoutSettingsPath(fileName);
