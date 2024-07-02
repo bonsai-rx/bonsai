@@ -91,47 +91,6 @@ namespace Bonsai.Editor.GraphModel
                 }
             }
         }
-
-        public static ExpressionScope GetExpressionScope(this WorkflowBuilder source, ExpressionBuilder target)
-        {
-            return GetExpressionScope(source.Workflow, target);
-        }
-
-        static ExpressionScope GetExpressionScope(ExpressionBuilderGraph source, ExpressionBuilder target)
-        {
-            foreach (var node in source)
-            {
-                var builder = ExpressionBuilder.Unwrap(node.Value);
-                if (builder == target)
-                {
-                    return new ExpressionScope(node.Value, innerScope: null);
-                }
-
-                if (builder is IWorkflowExpressionBuilder workflowBuilder)
-                {
-                    var innerScope = GetExpressionScope(workflowBuilder.Workflow, target);
-                    if (innerScope != null)
-                    {
-                        return new ExpressionScope(node.Value, innerScope);
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
-
-    class ExpressionScope
-    {
-        public ExpressionScope(ExpressionBuilder value, ExpressionScope innerScope)
-        {
-            Value = value;
-            InnerScope = innerScope;
-        }
-
-        public ExpressionBuilder Value { get; }
-
-        public ExpressionScope InnerScope { get; }
     }
 
     class SubjectDefinition

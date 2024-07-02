@@ -287,6 +287,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified workflow path does not resolve to a workflow expression builder node..
+        /// </summary>
+        internal static string InvalidWorkflowPath_Error {
+            get {
+                return ResourceManager.GetString("InvalidWorkflowPath_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error opening the workflow {0}:
         ///{1}.
         /// </summary>
