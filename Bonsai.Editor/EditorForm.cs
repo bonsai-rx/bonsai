@@ -1818,19 +1818,6 @@ namespace Bonsai.Editor
             else UpdateDescriptionTextBox(string.Empty, string.Empty, toolboxDescriptionTextBox);
         }
 
-        void UpdateTreeViewSelection(bool focused)
-        {
-            var selectedNode = toolboxTreeView.SelectedNode;
-            if (toolboxTreeView.Tag != selectedNode)
-            {
-                if (toolboxTreeView.Tag is TreeNode previousNode) previousNode.BackColor = Color.Empty;
-                toolboxTreeView.Tag = selectedNode;
-            }
-
-            if (selectedNode == null) return;
-            selectedNode.BackColor = focused ? Color.Empty : themeRenderer.ToolStripRenderer.ColorTable.InactiveCaption;
-        }
-
         void SelectTreeViewSubjectNode(string subjectName)
         {
             var subjectCategory = toolboxCategories[SubjectCategoryName];
@@ -1979,7 +1966,6 @@ namespace Bonsai.Editor
         private void toolboxTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             UpdateTreeViewDescription();
-            UpdateTreeViewSelection(toolboxTreeView.Focused);
         }
 
         private void toolboxTreeView_MouseUp(object sender, MouseEventArgs e)
@@ -2030,16 +2016,6 @@ namespace Bonsai.Editor
                     }
                 }
             }
-        }
-
-        private void toolboxTreeView_Enter(object sender, EventArgs e)
-        {
-            UpdateTreeViewSelection(true);
-        }
-
-        private void toolboxTreeView_Leave(object sender, EventArgs e)
-        {
-            UpdateTreeViewSelection(false);
         }
 
         private void insertAfterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3044,8 +3020,7 @@ namespace Bonsai.Editor
             toolboxSplitContainer.BackColor = panelColor;
             toolboxLabel.BackColor = colorTable.SeparatorDark;
             toolboxLabel.ForeColor = ForeColor;
-            toolboxTreeView.BackColor = panelColor;
-            toolboxTreeView.ForeColor = windowText;
+            toolboxTreeView.Renderer = themeRenderer.ToolStripRenderer;
             toolboxDescriptionTextBox.BackColor = panelColor;
             toolboxDescriptionTextBox.ForeColor = ForeColor;
             propertiesDescriptionTextBox.BackColor = panelColor;
@@ -3064,7 +3039,6 @@ namespace Bonsai.Editor
             }
             propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
             toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
-            UpdateTreeViewSelection(toolboxTreeView.Focused);
             propertyGrid.Refresh();
         }
 
