@@ -38,6 +38,12 @@ namespace Bonsai.Editor.GraphModel
 
         public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder)
         {
+            return Resolve(workflowBuilder, out _);
+        }
+
+        public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder, out bool isReadOnly)
+        {
+            isReadOnly = false;
             var builder = default(ExpressionBuilder);
             var workflow = workflowBuilder.Workflow;
             foreach (var pathElement in GetPathElements())
@@ -51,6 +57,7 @@ namespace Bonsai.Editor.GraphModel
                 if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
                 {
                     workflow = nestedWorkflowBuilder.Workflow;
+                    isReadOnly |= nestedWorkflowBuilder is IncludeWorkflowBuilder;
                 }
                 else workflow = null;
             }
