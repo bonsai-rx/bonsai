@@ -54,17 +54,6 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public WorkflowEditorPath WorkflowPath
-        {
-            get { return WorkflowGraphView.WorkflowPath; }
-            set { WorkflowGraphView.WorkflowPath = value; }
-        }
-
-        public ExpressionBuilderGraph Workflow
-        {
-            get { return WorkflowGraphView.Workflow; }
-        }
-
         public void ExpandAnnotationPanel(ExpressionBuilder builder)
         {
             annotationPanel.Tag = builder;
@@ -150,6 +139,20 @@ namespace Bonsai.Editor.GraphView
             {
                 var tabIndex = tabControl.TabPages.IndexOf(tabPage);
                 if (tabIndex >= 0) tabControl.SelectTab(tabIndex);
+            }
+        }
+
+        public void ResetNavigation()
+        {
+            CloseAll();
+            WorkflowGraphView.Editor.ResetNavigation();
+        }
+
+        void CloseAll()
+        {
+            while (tabControl.TabCount > 1)
+            {
+                CloseTab(tabControl.TabPages[1]);
             }
         }
 
@@ -354,10 +357,7 @@ namespace Bonsai.Editor.GraphView
 
         private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            while (tabControl.TabCount > 1)
-            {
-                CloseTab(tabControl.TabPages[1]);
-            }
+            CloseAll();
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)

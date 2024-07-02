@@ -95,12 +95,7 @@ namespace Bonsai.Editor.GraphView
         public WorkflowEditorPath WorkflowPath
         {
             get { return Editor.WorkflowPath; }
-            set
-            {
-                Editor.WorkflowPath = value;
-                UpdateSelection(forceUpdate: true);
-                OnWorkflowPathChanged(EventArgs.Empty);
-            }
+            set { Editor.NavigateTo(value); }
         }
 
         public event EventHandler WorkflowPathChanged
@@ -537,7 +532,8 @@ namespace Bonsai.Editor.GraphView
                 EditorControl.SelectTab(this);
                 if (EditorControl.AnnotationPanel.Tag is ExpressionBuilder builder)
                 {
-                    if (!EditorControl.Workflow.Descendants().Contains(builder))
+                    var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+                    if (!workflowBuilder.Workflow.Descendants().Contains(builder))
                     {
                         EditorControl.AnnotationPanel.NavigateToString(string.Empty);
                         EditorControl.AnnotationPanel.Tag = null;
@@ -961,9 +957,15 @@ namespace Bonsai.Editor.GraphView
 
         private void InitializeViewBindings()
         {
-            Editor.Error.Subscribe(ex => uiService.ShowError(ex));
+            Editor.Error.Subscribe(uiService.ShowError);
             Editor.UpdateLayout.Subscribe(UpdateGraphLayout);
             Editor.InvalidateLayout.Subscribe(InvalidateGraphLayout);
+            Editor.WorkflowPathChanged.Subscribe(path =>
+            {
+                UpdateSelection(forceUpdate: true);
+                OnWorkflowPathChanged(EventArgs.Empty);
+            });
+
             Editor.UpdateSelection.Subscribe(selection =>
             {
                 var activeView = graphView;
@@ -974,6 +976,7 @@ namespace Bonsai.Editor.GraphView
                         return selection.Any(builder => ExpressionBuilder.Unwrap(builder) == nodeBuilder);
                     });
             });
+            Editor.ResetNavigation();
         }
 
         #endregion

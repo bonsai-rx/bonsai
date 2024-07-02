@@ -21,8 +21,8 @@ namespace Bonsai.Editor.GraphModel
         readonly Subject<Exception> error;
         readonly Subject<bool> updateLayout;
         readonly Subject<bool> invalidateLayout;
+        readonly Subject<WorkflowEditorPath> workflowPathChanged;
         readonly Subject<IEnumerable<ExpressionBuilder>> updateSelection;
-        readonly Subject<IWorkflowExpressionBuilder> closeWorkflowEditor;
         WorkflowEditorPath workflowPath;
 
         public WorkflowEditor(IServiceProvider provider, IGraphView view)
@@ -33,9 +33,9 @@ namespace Bonsai.Editor.GraphModel
             error = new Subject<Exception>();
             updateLayout = new Subject<bool>();
             invalidateLayout = new Subject<bool>();
+            workflowPathChanged = new Subject<WorkflowEditorPath>();
             updateSelection = new Subject<IEnumerable<ExpressionBuilder>>();
-            closeWorkflowEditor = new Subject<IWorkflowExpressionBuilder>();
-            WorkflowPath = null;
+            ResetNavigation();
         }
 
         public ExpressionBuilderGraph Workflow { get; private set; }
@@ -45,7 +45,7 @@ namespace Bonsai.Editor.GraphModel
         public WorkflowEditorPath WorkflowPath
         {
             get { return workflowPath; }
-            set
+            private set
             {
                 workflowPath = value;
                 var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
@@ -66,6 +66,7 @@ namespace Bonsai.Editor.GraphModel
                     IsReadOnly = false;
                 }
                 updateLayout.OnNext(false);
+                workflowPathChanged.OnNext(workflowPath);
             }
         }
 
@@ -75,9 +76,9 @@ namespace Bonsai.Editor.GraphModel
 
         public IObservable<bool> InvalidateLayout => invalidateLayout;
 
-        public IObservable<IEnumerable<ExpressionBuilder>> UpdateSelection => updateSelection;
+        public IObservable<WorkflowEditorPath> WorkflowPathChanged => workflowPathChanged;
 
-        public IObservable<IWorkflowExpressionBuilder> CloseWorkflowEditor => closeWorkflowEditor;
+        public IObservable<IEnumerable<ExpressionBuilder>> UpdateSelection => updateSelection;
 
         private static Node<ExpressionBuilder, ExpressionBuilderArgument> FindWorkflowValue(ExpressionBuilderGraph workflow, ExpressionBuilder value)
         {
@@ -1462,14 +1463,6 @@ namespace Bonsai.Editor.GraphModel
                 addNode();
                 removeEdge();
             });
-
-            var builder = ExpressionBuilder.Unwrap(workflowNode.Value);
-            var disableBuilder = builder as DisableBuilder;
-            var workflowExpressionBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null)
-            {
-                closeWorkflowEditor.OnNext(workflowExpressionBuilder);
-            }
         }
 
         public void DeleteGraphNodes(IEnumerable<GraphNode> nodes)
@@ -2108,6 +2101,11 @@ namespace Bonsai.Editor.GraphModel
                     WorkflowPath = previousPath;
                     restoreSelectedNodes();
                 });
+        }
+
+        public void ResetNavigation()
+        {
+            WorkflowPath = null;
         }
     }
 
