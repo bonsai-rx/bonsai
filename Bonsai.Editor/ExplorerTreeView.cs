@@ -22,7 +22,7 @@ namespace Bonsai.Editor
                 ImageSize = new Size(16, 16),
                 TransparentColor = Color.Transparent
             };
-            ImageList = iconList;
+            StateImageList = iconList;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
@@ -80,6 +80,7 @@ namespace Bonsai.Editor
                 }
             }
 
+            SetNodeStatus(ExplorerNodeStatus.Ready);
             rootNode.Expand();
             EndUpdate();
         }
@@ -126,10 +127,10 @@ namespace Bonsai.Editor
             {
                 foreach (TreeNode node in nodes)
                 {
-                    if (node.ImageIndex == index)
+                    if (node.StateImageIndex == index)
                         continue;
 
-                    node.ImageIndex = node.SelectedImageIndex = index;
+                    node.StateImageIndex = index;
                     SetNodeImageIndex(node.Nodes, index);
                 }
             }
@@ -147,7 +148,7 @@ namespace Bonsai.Editor
                     var groupNode = nodes[n];
                     if ((WorkflowEditorPath)groupNode.Tag == path)
                     {
-                        groupNode.ImageIndex = groupNode.SelectedImageIndex = imageIndex;
+                        groupNode.StateImageIndex = imageIndex;
                         nodes = groupNode.Nodes;
                         found = true;
                         break;
