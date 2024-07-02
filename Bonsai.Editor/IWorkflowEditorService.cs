@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
@@ -23,6 +24,8 @@ namespace Bonsai.Editor
         void OpenWorkflow(string fileName);
 
         void SelectNextControl(bool forward);
+
+        void SelectBuilderNode(ExpressionBuilder builder);
 
         bool ValidateWorkflow();
 

@@ -32,9 +32,11 @@ namespace Bonsai.Editor
 
             workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
             BuildAssignProperties(workflowBuilder, propertyAssignments);
+
+            var visualizerSettings = VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
+            var visualizerDialogs = visualizerSettings.CreateVisualizerDialogs(workflowBuilder);
             LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: false);
-            LayoutHelper.SetLayoutTags(workflowBuilder.Workflow, layout);
-            LayoutHelper.SetLayoutNotifications(layout);
+            LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerDialogs);
 
             var services = new System.ComponentModel.Design.ServiceContainer();
             services.AddService(typeof(WorkflowBuilder), workflowBuilder);
@@ -42,31 +44,14 @@ namespace Bonsai.Editor
 
             var cts = new CancellationTokenSource();
             var contextMenu = new ContextMenuStrip();
-            void CreateVisualizerMapping(ExpressionBuilderGraph workflow, VisualizerLayout layout)
+            foreach (var launcher in visualizerDialogs)
             {
-                var mapping = LayoutHelper.CreateVisualizerMapping(workflow, layout, typeVisualizers, services);
-                foreach (var launcher in mapping.Values.Where(launcher => launcher.Visualizer.IsValueCreated))
+                var activeLauncher = launcher;
+                contextMenu.Items.Add(new ToolStripMenuItem(launcher.Text, null, (sender, e) =>
                 {
-                    var activeLauncher = launcher;
-                    contextMenu.Items.Add(new ToolStripMenuItem(launcher.Text, null, (sender, e) =>
-                    {
-                        activeLauncher.Show(services);
-                    }));
-                }
-
-                foreach (var settings in layout.DialogSettings)
-                {
-                    if (settings is WorkflowEditorSettings editorSettings &&
-                        editorSettings.Tag is ExpressionBuilder builder &&
-                        ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
-                        editorSettings.EditorVisualizerLayout != null &&
-                        editorSettings.EditorDialogSettings.Visible)
-                    {
-                        CreateVisualizerMapping(workflowBuilder.Workflow, editorSettings.EditorVisualizerLayout);
-                    }
-                }
+                    activeLauncher.Show(services);
+                }));
             }
-            CreateVisualizerMapping(workflowBuilder.Workflow, layout);
             contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add(new ToolStripMenuItem("Stop", null, (sender, e) => cts.Cancel()));
 
@@ -76,6 +61,7 @@ namespace Bonsai.Editor
             notifyIcon.ContextMenuStrip = contextMenu;
             notifyIcon.Visible = true;
 
+            visualizerDialogs.Show(visualizerSettings, services);
             using var synchronizationContext = new WindowsFormsSynchronizationContext();
             runtimeWorkflow.Finally(() =>
             {
