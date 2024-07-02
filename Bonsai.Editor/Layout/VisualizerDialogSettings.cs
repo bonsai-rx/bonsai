@@ -6,9 +6,13 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
+#pragma warning disable CS0612 // Type or member is obsolete
     [XmlInclude(typeof(WorkflowEditorSettings))]
+#pragma warning restore CS0612 // Type or member is obsolete
     public class VisualizerDialogSettings
     {
+        public int? Index { get; set; }
+
         [XmlIgnore]
         public object Tag { get; set; }
 
@@ -34,6 +38,8 @@ namespace Bonsai.Design
         public string VisualizerTypeName { get; set; }
 
         public XElement VisualizerSettings { get; set; }
+
+        public VisualizerLayout NestedLayout { get; set; }
 
         // [Obsolete]
         public Collection<int> Mashups { get; } = new Collection<int>();

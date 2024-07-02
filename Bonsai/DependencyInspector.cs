@@ -34,10 +34,9 @@ namespace Bonsai
                 foreach (var settings in layout.DialogSettings)
                 {
                     yield return settings;
-                    var editorSettings = settings as WorkflowEditorSettings;
-                    if (editorSettings != null && editorSettings.EditorVisualizerLayout != null)
+                    if (settings.NestedLayout != null)
                     {
-                        stack.Push(editorSettings.EditorVisualizerLayout);
+                        stack.Push(settings.NestedLayout);
                     }
                 }
             }
