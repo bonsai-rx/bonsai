@@ -7,15 +7,23 @@
 
     <Version>$(BonsaiVersion)-dev$(DevVersion)</Version>
     <_FileVersionRevision>$([MSBuild]::Add(60000, $(DevVersion)))</_FileVersionRevision>
+    <BuildKindConstant>BUILD_KIND_DEV</BuildKindConstant>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
     <Version>$(BonsaiVersion)$(CiBuildVersionSuffix)</Version>
     <Version Condition="'$(CiBuildVersion)' != ''">$(CiBuildVersion)</Version>
     <_FileVersionRevision>0</_FileVersionRevision>
     <_FileVersionRevision Condition="'$(CiIsForRelease)' != 'true' and '$(CiRunNumber)' != ''">$(CiRunNumber)</_FileVersionRevision>
+
+    <BuildKindConstant Condition="'$(CiIsForRelease)' != 'true'">BUILD_KIND_UNSTABLE</BuildKindConstant>
+    <BuildKindConstant Condition="'$(CiIsForRelease)' == 'true'">BUILD_KIND_OFFICIAL_RELEASE</BuildKindConstant>
+    <BuildKindConstant Condition="'$(CiIsForRelease)' == 'true' and $(Version.Contains('-'))">BUILD_KIND_PREVIEW</BuildKindConstant>
   </PropertyGroup>
 
   <PropertyGroup>
+    <BuildKindConstant Condition="'$(BuildKindConstant)' == ''">BUILD_KIND_UNKNOWN</BuildKindConstant>
+    <DefineConstants>$(DefineConstants);$(BuildKindConstant)</DefineConstants>
+
     <!-- Force malformed versions to be an error -->
     <WarningsAsErrors>$(WarningsAsErrors);CS7035</WarningsAsErrors>
   </PropertyGroup>
