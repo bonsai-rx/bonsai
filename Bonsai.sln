@@ -67,12 +67,21 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4486E9B-95F2-482C-9190-59F76D2C859C}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		Bonsai.Tests.proj = Bonsai.Tests.proj
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Templates", "Bonsai.Templates\Bonsai.Templates.csproj", "{FD09545E-4FB8-4730-B936-FE0BCF43E883}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tooling", "tooling", "{69C99DD4-0616-43BB-82EC-EABE18279BCC}"
+	ProjectSection(SolutionItems) = preProject
+		tooling\Common.csproj.props = tooling\Common.csproj.props
+		tooling\Common.props = tooling\Common.props
+		tooling\Common.targets = tooling\Common.targets
+		tooling\Common.wixproj.props = tooling\Common.wixproj.props
+		tooling\CurrentVersion.props = tooling\CurrentVersion.props
+		tooling\Versioning.props = tooling\Versioning.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
