@@ -37,7 +37,7 @@ namespace Bonsai.Design
             var sb = new StringBuilder();
 
             // Trim old values if bufferSize was reduced
-            while (buffer.Count >= bufferSize)
+            while ((buffer.Count >= bufferSize) & (buffer.Count > 0))
                 buffer.Dequeue();
 
             // Add new values to the buffer (and only the ones which might appear)
