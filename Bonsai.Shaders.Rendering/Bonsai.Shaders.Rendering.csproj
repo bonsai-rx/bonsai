@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai - Shaders Rendering Library</Title>
     <Description>Bonsai Shaders Rendering Library containing modules for rendering complex 3D scenes.</Description>

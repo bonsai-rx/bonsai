@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai - Starter Pack</Title>
     <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>

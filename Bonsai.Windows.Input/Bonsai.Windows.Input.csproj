@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai - Windows Input Library</Title>
     <Description>Bonsai Windows Library containing reactive interfaces to the standard operating system input devices.</Description>
