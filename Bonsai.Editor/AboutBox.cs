@@ -11,12 +11,30 @@ namespace Bonsai.Editor
         public AboutBox()
         {
             InitializeComponent();
-            this.Text = String.Format("About {0}", AssemblyTitle);
+            this.Text = $"About {AssemblyTitle}{BuildKindTitleSuffix}";
             this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
+            this.labelVersion.Text = $"Version {AssemblyVersion}";
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription + Environment.NewLine + Resources.AttributionNotices;
+        }
+
+        internal static string BuildKindTitleSuffix
+        {
+            get
+            {
+#if BUILD_KIND_DEV
+                return " [Dev]";
+#elif BUILD_KIND_UNSTABLE
+                return " [Unstable]";
+#elif BUILD_KIND_PREVIEW
+                return " [Preview]";
+#elif BUILD_KIND_OFFICIAL_RELEASE
+                return "";
+#else
+#error "Unknown build kind!"
+#endif
+            }
         }
 
         #region Assembly Attribute Accessors

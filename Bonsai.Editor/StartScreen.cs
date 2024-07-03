@@ -36,6 +36,7 @@ namespace Bonsai.Editor
             openTreeView.Nodes.Add(galleryNode);
             openTreeView.Nodes.Add(packageManagerNode);
             FileName = string.Empty;
+            Text += AboutBox.BuildKindTitleSuffix;
         }
 
         public EditorResult EditorResult { get; private set; }

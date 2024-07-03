@@ -187,6 +187,8 @@ namespace Bonsai.Editor
                 editorControl.Leave += delegate { menuStrip.Enabled = true; };
             }
             components.Add(editorControl);
+
+            UpdateTitle();
         }
 
         #region Loading
@@ -1473,6 +1475,7 @@ namespace Bonsai.Editor
             if (modified) title.Append('*');
             if (workflowRunning) title.AppendFormat(" ({0})", Resources.RunningStatus);
             if (!emptyFileName) title.AppendFormat(" - {0}", Resources.BonsaiTitle);
+            title.Append(AboutBox.BuildKindTitleSuffix);
             Text = title.ToString();
         }
 
