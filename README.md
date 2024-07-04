@@ -1,5 +1,8 @@
 # Bonsai - Visual Reactive Programming
 
+[![Download Bonsai](https://img.shields.io/nuget/v/Bonsai?style=flat-square&label=Download%20Bonsai&labelColor=5e616c&color=ec2227)](https://bonsai-rx.org/docs/articles/installation.html)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/bonsai-rx/bonsai/Bonsai.yml?branch=main&style=flat-square&label=CI)](https://github.com/bonsai-rx/bonsai/actions)
+
 This is the main repository for the [Bonsai](https://bonsai-rx.org/) visual programming language. It contains source code for the compiler, IDE, and standard library.
 
 With Bonsai you tell your computer what to do not through long listings of text but by manipulating graphical elements in a workflow. Bonsai is built on top of [Rx.NET](http://reactivex.io/), and like in Rx, workflow elements in Bonsai represent asynchronous streams of data called [Observables](https://bonsai-rx.org/docs/articles/observables.html) which can be connected together to perform complex operations.

@@ -1,21 +1,34 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai32</Title>
     <Description>The x86 bootstrapper for the Bonsai environment.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IsPackable>false</IsPackable>
     <TargetFramework>net48</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
-    <VersionPrefix>2.8.3</VersionPrefix>
     <OutputType>Exe</OutputType>
-    <OutputPath>..\Bonsai\bin\$(Configuration)\</OutputPath>
+    <OutputPath>$(ArtifactsPath)\bin\Bonsai\$(Configuration.ToLowerInvariant())\</OutputPath>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
+
+    <!--
+      These along with the `Private="false"` on the ProjectReference below ensure that MSBuild does not attempt to copy
+      the main Bonsai.exe and its dependencies to the output of Bonsai32 since it will be output to the main bootstrapper's
+      output folder (which already has all of that.)
+    -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai\Bonsai.csproj" />
+    <ProjectReference Include="..\Bonsai\Bonsai.csproj" Private="false" />
+
+    <!--
+      This reference is necessary to work around an ambiguity in the NuGet restore graph.
+      If you get MSB3277 warnings referencing this or other packages, add explicit references here for the newest
+      version referenced by the warning.
+    -->
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 </Project>

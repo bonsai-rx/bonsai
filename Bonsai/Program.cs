@@ -41,6 +41,8 @@ namespace Bonsai
         [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
         internal static int Main(string[] args)
         {
+            SystemResourcesExtensionsSupport.Initialize();
+
             var start = false;
             var bootstrap = true;
             var debugging = false;
@@ -170,7 +172,11 @@ namespace Bonsai
             {
                 var bootstrapper = launchEditor ? (Bootstrapper)new EditorBootstrapper(editorRepositoryPath) : new ConsoleBootstrapper(editorRepositoryPath);
                 try { bootstrapper.RunAsync(Launcher.ProjectFramework, packageConfiguration, editorPath, editorPackageName).Wait(); }
-                catch (AggregateException) { return ErrorExitCode; }
+                catch (AggregateException ex)
+                {
+                    Console.Error.WriteLine(ex);
+                    return ErrorExitCode;
+                }
 
                 var startScreen = launchEditor;
                 var pipeName = Guid.NewGuid().ToString();

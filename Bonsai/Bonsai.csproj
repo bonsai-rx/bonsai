@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Bonsai</Title>
     <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
@@ -7,7 +6,6 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net48</TargetFramework>
-    <VersionPrefix>2.8.3</VersionPrefix>
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
@@ -15,9 +13,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="7.0.0" PrivateAssets="all" />
-    <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
+    <PackageReference Include="ILRepack" Version="2.0.34">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -40,45 +38,84 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Target Name="ILRepack" AfterTargets="Build">
-    <PropertyGroup>
-      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
-    </PropertyGroup>
-    <ItemGroup>
-      <InputAssemblies Include="System.Buffers.dll" />
-      <InputAssemblies Include="System.Memory.dll" />
-      <InputAssemblies Include="System.Numerics.Vectors.dll" />
-      <InputAssemblies Include="System.Collections.Immutable.dll" />
-      <InputAssemblies Include="System.Reflection.Metadata.dll" />
-      <InputAssemblies Include="System.Reflection.MetadataLoadContext.dll" />
-      <InputAssemblies Include="System.Runtime.CompilerServices.Unsafe.dll" />
-      <InputAssemblies Include="Bonsai.Configuration.dll" />
-      <InputAssemblies Include="Bonsai.NuGet.dll" />
-      <InputAssemblies Include="Bonsai.NuGet.Design.dll" />
-      <InputAssemblies Include="Newtonsoft.Json.dll" />
-      <InputAssemblies Include="NuGet.Common.dll" />
-      <InputAssemblies Include="NuGet.Configuration.dll" />
-      <InputAssemblies Include="NuGet.Frameworks.dll" />
-      <InputAssemblies Include="NuGet.Packaging.dll" />
-      <InputAssemblies Include="NuGet.Protocol.dll" />
-      <InputAssemblies Include="NuGet.Resolver.dll" />
-      <InputAssemblies Include="NuGet.Versioning.dll" />
-    </ItemGroup>
-    <ItemGroup>
-      <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
-    </ItemGroup>
-    <ILRepack Condition="'$(Configuration)'=='Release'"
-              OutputType="$(OutputType)"
-              MainAssembly="$(AssemblyName).exe"
-              OutputAssembly="$(AssemblyName).exe"
-              InputAssemblies="@(InputAssemblies)"
-              InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)"
-              WorkingDirectory="$(WorkingDirectory)" />
-  </Target>
+
+  <!-- Embed System.Resources.Extensions and its dependencies, see Bonsai.SystemResourcesExtensionsSupport -->
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Memory" Version="4.5.5" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <EmbeddedResource Include="$(PkgSystem_Resources_Extensions)/lib/net462/System.Resources.Extensions.dll" />
+    <EmbeddedResource Include="$(PkgSystem_Memory)/lib/net461/System.Memory.dll" />
+    <EmbeddedResource Include="$(PkgSystem_Buffers)/lib/net461/System.Buffers.dll" />
+    <EmbeddedResource Include="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll" />
+    <EmbeddedResource Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)/lib/net461/System.Runtime.CompilerServices.Unsafe.dll" />
+  </ItemGroup>
+
   <Target Name="NuGetConfig" AfterTargets="Build">
     <WriteLinesToFile File="$(TargetDir)NuGet.config"
-                      Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(ProjectDir)..\bin\$(Configuration)'))"
+                      Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(PackageOutputPath)'))"
                       Overwrite="true"
                       WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <!-- ================================================================================================================
+    IL Repack Infrastructure
+  ==================================================================================================================-->
+  <Target Name="ConfigureRepack">
+    <PropertyGroup>
+      <RepackedOutputPath>$(BaseOutputPath)$(ArtifactsPivots)-repacked\</RepackedOutputPath>
+      <RepackedOutputFilePath>$(RepackedOutputPath)$(TargetFileName)</RepackedOutputFilePath>
+      <RepackedOutputSymbolFilePath>$([System.IO.Path]::ChangeExtension('$(RepackedOutputFilePath)', '.pdb'))</RepackedOutputSymbolFilePath>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="Repack" DependsOnTargets="ConfigureRepack">
+    <Error Condition="!$([System.OperatingSystem]::IsWindows())" Text="Repacking is only supported on Windows." />
+    <Error Condition="!Exists('$(OutputPath)Bonsai.exe')" Text="Project must be built before repacking. '$(OutputPath)Bonsai.exe' not found." />
+    <Error Condition="'$(RepackedOutputPath)' == '' or '$(RepackedOutputFilePath)' == ''" Text="Repacked output path not configured." />
+
+    <MakeDir Directories="$(RepackedOutputPath)" />
+
+    <PropertyGroup>
+      <_IlRepackCommand>
+"$(ILRepack)"
+/verbose
+/out:"$(RepackedOutputFilePath)"
+/internalize:"$(MSBuildThisFileDirectory)InternalizeExcludePatterns"
+"$(OutputPath)Bonsai.exe"
+"$(OutputPath)System.Collections.Immutable.dll"
+"$(OutputPath)System.Reflection.Metadata.dll"
+"$(OutputPath)System.Reflection.MetadataLoadContext.dll"
+"$(OutputPath)Bonsai.Configuration.dll"
+"$(OutputPath)Bonsai.NuGet.dll"
+"$(OutputPath)Bonsai.NuGet.Design.dll"
+"$(OutputPath)Newtonsoft.Json.dll"
+"$(OutputPath)NuGet.Common.dll"
+"$(OutputPath)NuGet.Configuration.dll"
+"$(OutputPath)NuGet.Frameworks.dll"
+"$(OutputPath)NuGet.Packaging.dll"
+"$(OutputPath)NuGet.Protocol.dll"
+"$(OutputPath)NuGet.Resolver.dll"
+"$(OutputPath)NuGet.Versioning.dll"
+      </_IlRepackCommand>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$(RepackedOutputPath)" Command="$(_IlRepackCommand.Replace('%0D', ' ').Replace('%0A', ' '))" UseCommandProcessor="false" />
+  </Target>
+
+  <Target Name="UseRepackOutputForPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="BuiltProjectOutputGroup" DependsOnTargets="ConfigureRepack">
+    <Error Condition="!Exists('$(RepackedOutputFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+    <ItemGroup>
+      <BuiltProjectOutputGroupOutput Remove="@(BuiltProjectOutputGroupOutput)" />
+      <BuiltProjectOutputGroupOutput Include="$(RepackedOutputFilePath)" />
+    </ItemGroup>
+  </Target>
+  <Target Name="UseRepackOutputForSymbolPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="DebugSymbolsProjectOutputGroup" DependsOnTargets="ConfigureRepack">
+    <Error Condition="!Exists('$(RepackedOutputSymbolFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+    <ItemGroup>
+      <DebugSymbolsProjectOutputGroupOutput Remove="@(DebugSymbolsProjectOutputGroupOutput)" />
+      <DebugSymbolsProjectOutputGroupOutput Include="$(RepackedOutputSymbolFilePath)" />
+    </ItemGroup>
   </Target>
 </Project>

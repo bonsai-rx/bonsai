@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <!-- Common C# Properties -->
+    <LangVersion>9.0</LangVersion>
+    <Features>strict</Features>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Common NuGet Package Properties -->
+    <Authors>Bonsai Foundation</Authors>
+    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2024</Copyright>
+    <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
+    <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
+    <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Always pack NuGet packages (except on CI where it'll be done separately) -->
+    <GeneratePackageOnBuild Condition="'$(ContinuousIntegrationBuild)' != 'true'">true</GeneratePackageOnBuild>
+
+    <!-- Emit modern symbol packages -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols Condition="'$(Configuration)' != 'Release'">false</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
+    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
+
+    <!-- Embed untracked sources in the PDB when building from CI -->
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <EmbedUntrackedSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedUntrackedSources>
+
+    <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+    <!-- This is detached from the rest of the IsReferenceDummyBuild stuff because the non-existent PDB will be
+      enumerated by the time it's evaluated and break NuGet packing -->
+    <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>
+  </PropertyGroup>
+  <Import Project="Versioning.props" />
+</Project>
