@@ -45,6 +45,9 @@ jobs:
       - name: Create build matrix
         id: create-matrix
         run: python .github/workflows/create-build-matrix.py
+        env:
+          enable_package_comparison: ${{vars.ENABLE_PACKAGE_COMPARISON}}
+          will_publish_packages: ${{github.event.inputs.will_publish_packages}}
 
   # =====================================================================================================================================================================
   # Build, test, and package
@@ -184,7 +187,7 @@ jobs:
     runs-on: ubuntu-latest
     # We technically only need the dummy build jobs, but GitHub Actions lacks the ability to depend on specific jobs in a matrix
     needs: build-and-test
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && vars.ENABLE_PACKAGE_COMPARISON == 'true'
     steps:
       # ----------------------------------------------------------------------- Checkout
       - name: Checkout

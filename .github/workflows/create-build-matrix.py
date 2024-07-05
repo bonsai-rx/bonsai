@@ -43,9 +43,18 @@ def add_dummy(name: str, artifacts_suffix: str):
     dummy['artifacts-suffix'] = artifacts_suffix
     return dummy
 
-if os.getenv('GITHUB_EVENT_NAME') != 'pull_request':
+enable_package_comparison = os.getenv('enable_package_comparison') == 'true'
+github_event_name = os.getenv('GITHUB_EVENT_NAME')
+
+if github_event_name != 'pull_request' and enable_package_comparison:
     add_dummy('Previous Dummy', '-dummy-prev')['checkout-ref'] = 'refs/tags/latest'
     add_dummy('Next Dummy', '-dummy-next')
+
+# Fail early if we won't be able to do package comparison and the run must publish packages to make logical sense
+# Package comparison requires the `latest` tag to exist, but it will usually either be missing or invalid for forks so we require it to be opt-in
+if not enable_package_comparison:
+    if github_event_name == 'release' or (github_event_name == 'workflow_dispatch' and os.getenv('will_publish_packages') == 'true'):
+        gha.print_error('Release aborted. We would not be able to determine which packages need to be released as this repository is not configured for package comparison.')
 
 # Output
 matrix_json = json.dumps({ "include": matrix }, indent=2)
