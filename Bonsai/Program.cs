@@ -174,7 +174,8 @@ namespace Bonsai
                 try { bootstrapper.RunAsync(Launcher.ProjectFramework, packageConfiguration, editorPath, editorPackageName).Wait(); }
                 catch (AggregateException ex)
                 {
-                    Console.Error.WriteLine(ex);
+                    var error = ex.InnerExceptions.Count == 1 ? ex.InnerExceptions[0] : ex;
+                    Console.Error.WriteLine(error);
                     return ErrorExitCode;
                 }
 
