@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
+using System.Reflection;
 
 namespace Bonsai.Reactive
 {
@@ -62,13 +63,17 @@ namespace Bonsai.Reactive
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
                 return Expression.Call(
-                    typeof(Sink), nameof(Process),
-                    new [] { source.Type.GetGenericArguments()[0], selectorObservableType },
+                    GetProcessMethod(source.Type.GetGenericArguments()[0], selectorObservableType),
                     source, selector);
             });
         }
 
-        static IObservable<TSource> Process<TSource, TSink>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TSink>> sink)
+        internal virtual MethodInfo GetProcessMethod(params Type[] typeArguments)
+        {
+            return typeof(Sink).GetMethod(nameof(Process), BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(typeArguments);
+        }
+
+        internal static IObservable<TSource> Process<TSource, TSink>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TSink>> sink)
         {
             return source.Publish(ps => MergeDependencies(ps, sink(ps).IgnoreElements().Select(xs => default(TSource))));
         }
