@@ -117,6 +117,48 @@ namespace Bonsai.Core.Tests
             Assert.AreSame(target, visualizerElement.Builder);
         }
 
+        [TestMethod]
+        public void Build_SinkInspectBuilder_ReturnSourceVisualizerElement()
+        {
+            var workflow = Workflow
+                .New()
+                .AppendValue(1)
+                .AppendNested(
+                    input => input.AppendValue(string.Empty).AppendOutput(),
+                    workflow => new Reactive.Sink(workflow))
+                .AppendOutput()
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var sourceVisualizer = ExpressionBuilder.GetVisualizerElement(workflow[0].Value);
+            var outputVisualizer = ExpressionBuilder.GetVisualizerElement(workflow[workflow.Count - 1].Value);
+            Assert.AreSame(sourceVisualizer, outputVisualizer);
+        }
+
+        [TestMethod]
+        public void Build_VisualizerInspectBuilder_ReplaceSourceVisualizerElement()
+        {
+            var workflow = Workflow
+                .New()
+                .AppendValue(1)
+                .AppendNested(
+                    input => input.AppendValue(string.Empty).AppendOutput(),
+                    workflow => new Reactive.Visualizer(workflow))
+                .AppendOutput()
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var sourceBuilder = (InspectBuilder)workflow[0].Value;
+            var outputBuilder = (InspectBuilder)workflow[workflow.Count - 1].Value;
+            Assert.AreEqual(typeof(int), sourceBuilder.ObservableType);
+            Assert.AreEqual(sourceBuilder.ObservableType, outputBuilder.ObservableType);
+
+            var sourceVisualizer = ExpressionBuilder.GetVisualizerElement(sourceBuilder);
+            var outputVisualizer = ExpressionBuilder.GetVisualizerElement(outputBuilder);
+            Assert.AreNotSame(sourceVisualizer, outputVisualizer);
+            Assert.AreEqual(typeof(string), outputVisualizer.ObservableType);
+        }
+
         #region Error Classes
 
         class ErrorBuilder : ExpressionBuilder
