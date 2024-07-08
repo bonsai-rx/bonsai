@@ -300,7 +300,7 @@ namespace Bonsai.Expressions
             return path;
         }
 
-        static bool IsEmbeddedResourcePath(string path)
+        internal static bool IsEmbeddedResourcePath(string path)
         {
             var separatorIndex = path.IndexOf(AssemblySeparator);
             return separatorIndex >= 0 && !SystemPath.IsPathRooted(path);
@@ -318,7 +318,7 @@ namespace Bonsai.Expressions
             return name;
         }
 
-        static Stream GetWorkflowStream(string path, bool embeddedResource)
+        internal static Stream GetWorkflowStream(string path, bool embeddedResource)
         {
             if (embeddedResource)
             {
