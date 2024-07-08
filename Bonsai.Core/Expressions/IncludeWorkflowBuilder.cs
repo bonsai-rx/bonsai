@@ -344,12 +344,11 @@ namespace Bonsai.Expressions
             }
             else
             {
-                if (!File.Exists(path))
+                try { return File.OpenRead(path); }
+                catch (FileNotFoundException ex)
                 {
-                    throw new InvalidOperationException("The specified workflow could not be found.");
+                    throw new InvalidOperationException("The specified workflow could not be found.", ex);
                 }
-
-                return File.OpenRead(path);
             }
         }
 
