@@ -46,7 +46,7 @@ namespace Bonsai.Configuration
         public PackageConfigurationUpdater(NuGetFramework projectFramework, PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
         {
             packageManager = manager ?? throw new ArgumentNullException(nameof(manager));
-            packageConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            packageConfiguration = NormalizePathSeparators(configuration ?? throw new ArgumentNullException(nameof(configuration)));
             bootstrapperFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
             bootstrapperDirectory = Path.GetDirectoryName(bootstrapperExePath);
@@ -67,6 +67,36 @@ namespace Bonsai.Configuration
             var pathUri = new Uri(path);
             var relativeUri = rootUri.MakeRelativeUri(pathUri);
             return PathUtility.GetPathWithDirectorySeparator(relativeUri.ToString());
+        }
+
+        static string CombinePath(string path1, string path2)
+        {
+            return PathUtility.GetPathWithForwardSlashes(Path.Combine(path1, path2));
+        }
+
+        static PackageConfiguration NormalizePathSeparators(PackageConfiguration configuration)
+        {
+            var normalized = new PackageConfiguration();
+            normalized.ConfigurationFile = configuration.ConfigurationFile;
+            normalized.Packages.AddRange(configuration.Packages);
+            normalized.AssemblyReferences.AddRange(configuration.AssemblyReferences);
+
+            foreach (var assemblyLocation in configuration.AssemblyLocations)
+            {
+                normalized.AssemblyLocations.Add(
+                    assemblyLocation.AssemblyName,
+                    assemblyLocation.ProcessorArchitecture,
+                    PathUtility.GetPathWithForwardSlashes(assemblyLocation.Location));
+            }
+
+            foreach (var folder in configuration.LibraryFolders)
+            {
+                normalized.LibraryFolders.Add(
+                    PathUtility.GetPathWithForwardSlashes(folder.Path),
+                    folder.Platform);
+            }
+
+            return normalized;
         }
 
         static bool IsTaggedPackage(PackageReaderBase package)
@@ -123,7 +153,7 @@ namespace Bonsai.Configuration
             return from file in nearestFramework.Items
                    where Path.GetExtension(file) == AssemblyExtension &&
                          !string.IsNullOrEmpty(ResolvePathPlatformName(file))
-                   select PathUtility.GetPathWithDirectorySeparator(file);
+                   select PathUtility.GetPathWithForwardSlashes(file);
         }
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
@@ -143,7 +173,7 @@ namespace Bonsai.Configuration
                    group file by Path.GetDirectoryName(file) into folder
                    let platform = ResolvePathPlatformName(folder.Key)
                    where !string.IsNullOrWhiteSpace(platform)
-                   select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
+                   select new LibraryFolder(CombinePath(installPath, folder.Key), platform);
         }
 
         static IEnumerable<LibraryFolder> GetRuntimeLibraryFolders(PackageReaderBase package, string installPath)
@@ -154,14 +184,14 @@ namespace Bonsai.Configuration
                    where !string.IsNullOrWhiteSpace(platform)
                    from file in frameworkGroup.Items
                    group file by new { platform, path = Path.GetDirectoryName(file) } into folder
-                   select new LibraryFolder(Path.Combine(installPath, folder.Key.path), folder.Key.platform);
+                   select new LibraryFolder(CombinePath(installPath, folder.Key.path), folder.Key.platform);
         }
 
         static IEnumerable<string> GetCompatibleAssemblyReferences(NuGetFramework projectFramework, PackageReaderBase package)
         {
             var nearestFramework = package.GetReferenceItems().GetNearest(projectFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
-            return nearestFramework.Items.Select(PathUtility.GetPathWithDirectorySeparator);
+            return nearestFramework.Items.Select(PathUtility.GetPathWithForwardSlashes);
         }
 
         void RegisterAssemblyLocations(PackageReaderBase package, string installPath, string relativePath, bool addReferences)
@@ -174,10 +204,10 @@ namespace Bonsai.Configuration
         {
             foreach (var path in assemblyLocations)
             {
-                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyFile = CombinePath(installPath, path);
                 var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                var assemblyLocation = Path.Combine(relativePath, path);
-                var assemblyLocationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                var assemblyLocation = CombinePath(relativePath, path);
+                var assemblyLocationKey = (assemblyName.Name, assemblyName.ProcessorArchitecture);
                 if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
                 {
                     packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
@@ -204,11 +234,11 @@ namespace Bonsai.Configuration
         {
             foreach (var path in assemblyLocations)
             {
-                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyFile = CombinePath(installPath, path);
                 var location = packageConfiguration.AssemblyLocations.FirstOrDefault(item => item.Location == assemblyFile);
                 if (location != null)
                 {
-                    packageConfiguration.AssemblyLocations.Remove(Tuple.Create(location.AssemblyName, location.ProcessorArchitecture));
+                    packageConfiguration.AssemblyLocations.Remove((location.AssemblyName, location.ProcessorArchitecture));
                     if (removeReference)
                     {
                         packageConfiguration.AssemblyReferences.Remove(location.AssemblyName);
