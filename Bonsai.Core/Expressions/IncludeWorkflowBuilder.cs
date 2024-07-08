@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
         const char AssemblySeparator = ':';
+        const string DefaultSerializerPropertyName = "Property";
         static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
 
@@ -240,9 +241,12 @@ namespace Bonsai.Expressions
                 return;
             }
 
-            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
-            using (var reader = element.CreateReader())
+            var previousName = element.Name;
+            element.Name = XName.Get(DefaultSerializerPropertyName, element.Name.NamespaceName);
+            try
             {
+                var serializer = PropertySerializer.GetXmlSerializer(property.PropertyType);
+                using var reader = element.CreateReader();
                 var value = serializer.Deserialize(reader);
                 if (property.IsReadOnly)
                 {
@@ -263,6 +267,10 @@ namespace Bonsai.Expressions
                 }
                 else property.SetValue(this, value);
             }
+            finally
+            {
+                element.Name = previousName;
+            }
         }
 
         XElement SerializeProperty(ExternalizedPropertyDescriptor property)
@@ -271,12 +279,15 @@ namespace Bonsai.Expressions
             if (!allEqual) return null;
 
             var document = new XDocument();
-            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
+            var serializer = PropertySerializer.GetXmlSerializer(property.PropertyType);
             using (var writer = document.CreateWriter())
             {
                 serializer.Serialize(writer, value, DefaultSerializerNamespaces);
             }
-            return document.Root;
+
+            var element = document.Root;
+            element.Name = XName.Get(property.Name, element.Name.NamespaceName);
+            return element;
         }
 
         static string GetWorkflowPath(string path)
@@ -421,20 +432,19 @@ namespace Bonsai.Expressions
 
         static class PropertySerializer
         {
-            static readonly Dictionary<Tuple<string, Type>, XmlSerializer> serializerCache = new Dictionary<Tuple<string, Type>, XmlSerializer>();
-            static readonly object cacheLock = new object();
+            static readonly Dictionary<Type, XmlSerializer> serializerCache = new();
+            static readonly object cacheLock = new();
 
-            internal static XmlSerializer GetXmlSerializer(string name, Type type)
+            internal static XmlSerializer GetXmlSerializer(Type type)
             {
                 XmlSerializer serializer;
-                var serializerKey = Tuple.Create(name, type);
                 lock (cacheLock)
                 {
-                    if (!serializerCache.TryGetValue(serializerKey, out serializer))
+                    if (!serializerCache.TryGetValue(type, out serializer))
                     {
-                        var xmlRoot = new XmlRootAttribute(name) { Namespace = Constants.XmlNamespace };
+                        var xmlRoot = new XmlRootAttribute(DefaultSerializerPropertyName) { Namespace = Constants.XmlNamespace };
                         serializer = new XmlSerializer(type, xmlRoot);
-                        serializerCache.Add(serializerKey, serializer);
+                        serializerCache.Add(type, serializer);
                     }
                 }
 
