@@ -905,12 +905,23 @@ namespace Bonsai
                                          reader.GetAttribute(nameof(IncludeWorkflowBuilder.Path)) is string path &&
                                          visitedWorkflows.Add(path))
                                 {
-                                    var embeddedResource = IncludeWorkflowBuilder.IsEmbeddedResourcePath(path);
-                                    using var workflowStream = IncludeWorkflowBuilder.GetWorkflowStream(path, embeddedResource);
-                                    using var workflowReader = XmlReader.Create(workflowStream, null, path);
-                                    workflowReader.MoveToContent();
-                                    var nestedMetadata = ReadMetadata(workflowReader, visitedWorkflows);
-                                    types.UnionWith(nestedMetadata.Types);
+                                    // we don't want to fail in most cases while reading nested metadata, as this
+                                    // is an optional performance optimization and we would lose the visual context
+                                    // as to where exactly in the workflow the failure is happening
+                                    try
+                                    {
+                                        var embeddedResource = IncludeWorkflowBuilder.IsEmbeddedResourcePath(path);
+                                        using var workflowStream = IncludeWorkflowBuilder.GetWorkflowStream(path, embeddedResource);
+                                        using var workflowReader = XmlReader.Create(workflowStream, null, path);
+                                        workflowReader.MoveToContent();
+                                        var nestedMetadata = ReadMetadata(workflowReader, visitedWorkflows);
+                                        types.UnionWith(nestedMetadata.Types);
+                                    }
+                                    catch (IOException) { }
+                                    catch (XmlException) { }
+                                    catch (BadImageFormatException) { }
+                                    catch (InvalidOperationException) { }
+                                    catch (UnauthorizedAccessException) { }
                                 }
                             }
 
