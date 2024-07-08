@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
         const char AssemblySeparator = ':';
+        internal const string BuildUriPrefix = "::build:";
         const string DefaultSerializerPropertyName = "Property";
         static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
@@ -104,7 +105,7 @@ namespace Bonsai.Expressions
             {
                 if (workflow == null)
                 {
-                    try { EnsureWorkflow(); }
+                    try { EnsureWorkflow(null); }
                     catch (Exception) { }
                 }
                 return base.ArgumentRange;
@@ -119,7 +120,7 @@ namespace Bonsai.Expressions
                 buildContext = value;
                 if (buildContext != null)
                 {
-                    EnsureWorkflow();
+                    EnsureWorkflow(buildContext);
                     InternalXmlProperties = null;
                 }
             }
@@ -352,7 +353,7 @@ namespace Bonsai.Expressions
             }
         }
 
-        void EnsureWorkflow()
+        void EnsureWorkflow(IBuildContext buildContext)
         {
             var context = buildContext;
             while (context != null)
@@ -376,12 +377,13 @@ namespace Bonsai.Expressions
             else
             {
                 var embeddedResource = IsEmbeddedResourcePath(path);
+                var baseUri = buildContext != null ? $"{BuildUriPrefix}{path}" : path;
                 var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
                     var properties = workflow != null ? GetXmlProperties() : InternalXmlProperties;
                     using (var stream = GetWorkflowStream(path, embeddedResource))
-                    using (var reader = XmlReader.Create(stream))
+                    using (var reader = XmlReader.Create(stream, null, baseUri))
                     {
                         reader.MoveToContent();
                         var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);

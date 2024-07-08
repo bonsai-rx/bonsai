@@ -903,6 +903,7 @@ namespace Bonsai
                                 }
                                 else if (includeWorkflow &&
                                          reader.GetAttribute(nameof(IncludeWorkflowBuilder.Path)) is string path &&
+                                         !reader.BaseURI.StartsWith(IncludeWorkflowBuilder.BuildUriPrefix) &&
                                          visitedWorkflows.Add(path))
                                 {
                                     // we don't want to fail in most cases while reading nested metadata, as this
