@@ -23,7 +23,7 @@ namespace Bonsai.Design
         RichTextBox textBox;
         UserControl textPanel;
         Queue<string> buffer;
-        int bufferSize;
+        int bufferSize = 1;
 
         /// <inheritdoc/>
         protected override int TargetInterval => 1000 / 30;
@@ -164,7 +164,7 @@ namespace Bonsai.Design
         void textPanel_Paint(object sender, PaintEventArgs e)
         {
             var lineHeight = AutoScaleHeight * e.Graphics.DpiY / DefaultDpi;
-            bufferSize = (int)((textBox.ClientSize.Height - 2) / lineHeight);
+            bufferSize = Math.Max(1, (int)((textBox.ClientSize.Height - 2) / lineHeight));
             var textSize = TextRenderer.MeasureText(textBox.Text, textBox.Font);
             if (textBox.ClientSize.Width < textSize.Width)
             {
