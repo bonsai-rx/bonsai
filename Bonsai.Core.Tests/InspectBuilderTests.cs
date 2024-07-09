@@ -83,12 +83,15 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_GroupInspectBuilder_ReturnNestedVisualizerElement()
         {
-            ExpressionBuilder target = default;
-            var workflow = Workflow
+            ExpressionBuilder target = null;
+            var workflow = TestWorkflow
                 .New()
                 .AppendUnit()
                 .AppendNested(
-                    input => input.AppendUnit().Do(builder => target = builder).AppendOutput(),
+                    input => input
+                        .AppendUnit()
+                        .Capture(out target)
+                        .AppendOutput(),
                     workflow => new GroupWorkflowBuilder(workflow))
                 .ToInspectableGraph();
             workflow.Build();
@@ -101,13 +104,13 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_PropertyMappedInspectBuilderToWorkflowOutput_ReturnVisualizerElement()
         {
-            ExpressionBuilder target = default;
-            var workflow = Workflow
+            ExpressionBuilder target;
+            var workflow = TestWorkflow
                 .New()
                 .AppendValue(0)
                 .AppendPropertyMapping(nameof(Reactive.Range.Count))
                 .AppendCombinator(new Reactive.Range())
-                .Do(builder => target = builder)
+                .Capture(out target)
                 .AppendOutput()
                 .ToInspectableGraph();
             workflow.Build();
@@ -120,11 +123,13 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_SinkInspectBuilder_ReturnSourceVisualizerElement()
         {
-            var workflow = Workflow
+            var workflow = TestWorkflow
                 .New()
                 .AppendValue(1)
                 .AppendNested(
-                    input => input.AppendValue(string.Empty).AppendOutput(),
+                    input => input
+                        .AppendValue(string.Empty)
+                        .AppendOutput(),
                     workflow => new Reactive.Sink(workflow))
                 .AppendOutput()
                 .ToInspectableGraph();
@@ -138,11 +143,13 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_VisualizerInspectBuilder_ReplaceSourceVisualizerElement()
         {
-            var workflow = Workflow
+            var workflow = TestWorkflow
                 .New()
                 .AppendValue(1)
                 .AppendNested(
-                    input => input.AppendValue(string.Empty).AppendOutput(),
+                    input => input
+                        .AppendValue(string.Empty)
+                        .AppendOutput(),
                     workflow => new Reactive.Visualizer(workflow))
                 .AppendOutput()
                 .ToInspectableGraph();
