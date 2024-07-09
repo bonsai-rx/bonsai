@@ -121,6 +121,7 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_SinkInspectBuilder_ReturnSourceVisualizerElement()
         {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1860
             var workflow = new TestWorkflow()
                 .AppendValue(1)
                 .AppendNested(
@@ -140,6 +141,7 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_VisualizerInspectBuilder_ReplaceSourceVisualizerElement()
         {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1860
             var workflow = new TestWorkflow()
                 .AppendValue(1)
                 .AppendNested(
