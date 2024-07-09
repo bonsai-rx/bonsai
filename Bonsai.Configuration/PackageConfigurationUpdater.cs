@@ -46,7 +46,7 @@ namespace Bonsai.Configuration
         public PackageConfigurationUpdater(NuGetFramework projectFramework, PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, PackageIdentity bootstrapperName = null)
         {
             packageManager = manager ?? throw new ArgumentNullException(nameof(manager));
-            packageConfiguration = NormalizePathSeparators(configuration ?? throw new ArgumentNullException(nameof(configuration)));
+            packageConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             bootstrapperFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
             bootstrapperDirectory = Path.GetDirectoryName(bootstrapperExePath);
@@ -58,6 +58,7 @@ namespace Bonsai.Configuration
             var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
             var galleryPackageSource = new PackageSource(galleryPath);
             galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
+            NormalizePathSeparators(packageConfiguration);
         }
 
         string GetRelativePath(string path)
@@ -74,29 +75,21 @@ namespace Bonsai.Configuration
             return PathUtility.GetPathWithForwardSlashes(Path.Combine(path1, path2));
         }
 
-        static PackageConfiguration NormalizePathSeparators(PackageConfiguration configuration)
+        static void NormalizePathSeparators(PackageConfiguration configuration)
         {
-            var normalized = new PackageConfiguration();
-            normalized.ConfigurationFile = configuration.ConfigurationFile;
-            normalized.Packages.AddRange(configuration.Packages);
-            normalized.AssemblyReferences.AddRange(configuration.AssemblyReferences);
-
             foreach (var assemblyLocation in configuration.AssemblyLocations)
             {
-                normalized.AssemblyLocations.Add(
-                    assemblyLocation.AssemblyName,
-                    assemblyLocation.ProcessorArchitecture,
-                    PathUtility.GetPathWithForwardSlashes(assemblyLocation.Location));
+                assemblyLocation.Location = PathUtility.GetPathWithForwardSlashes(assemblyLocation.Location);
             }
 
-            foreach (var folder in configuration.LibraryFolders)
+            // cannot normalize in place since path is collection key
+            var libraryFolders = configuration.LibraryFolders.ToArray();
+            configuration.LibraryFolders.Clear();
+            foreach (var folder in libraryFolders)
             {
-                normalized.LibraryFolders.Add(
-                    PathUtility.GetPathWithForwardSlashes(folder.Path),
-                    folder.Platform);
+                folder.Path = PathUtility.GetPathWithForwardSlashes(folder.Path);
+                configuration.LibraryFolders.Add(folder);
             }
-
-            return normalized;
         }
 
         static bool IsTaggedPackage(PackageReaderBase package)
