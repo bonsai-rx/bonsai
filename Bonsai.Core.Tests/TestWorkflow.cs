@@ -21,11 +21,6 @@ namespace Bonsai.Core.Tests
 
         public Node<ExpressionBuilder, ExpressionBuilderArgument> Cursor { get; }
 
-        public static TestWorkflow FromGraph(ExpressionBuilderGraph workflow)
-        {
-            return new TestWorkflow(workflow, null);
-        }
-
         public TestWorkflow ResetCursor()
         {
             if (Cursor != null)
@@ -96,11 +91,6 @@ namespace Bonsai.Core.Tests
             nestedWorkflow = selector(nestedWorkflow);
             var workflowBuilder = constructor(nestedWorkflow.Workflow);
             return Append(workflowBuilder);
-        }
-
-        public ExpressionBuilderGraph ToGraph()
-        {
-            return Workflow;
         }
 
         public ExpressionBuilderGraph ToInspectableGraph()
