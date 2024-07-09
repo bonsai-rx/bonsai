@@ -84,8 +84,7 @@ namespace Bonsai.Core.Tests
         public void Build_GroupInspectBuilder_ReturnNestedVisualizerElement()
         {
             ExpressionBuilder target = null;
-            var workflow = TestWorkflow
-                .New()
+            var workflow = new TestWorkflow()
                 .AppendUnit()
                 .AppendNested(
                     input => input
@@ -105,8 +104,7 @@ namespace Bonsai.Core.Tests
         public void Build_PropertyMappedInspectBuilderToWorkflowOutput_ReturnVisualizerElement()
         {
             ExpressionBuilder target;
-            var workflow = TestWorkflow
-                .New()
+            var workflow = new TestWorkflow()
                 .AppendValue(0)
                 .AppendPropertyMapping(nameof(Reactive.Range.Count))
                 .AppendCombinator(new Reactive.Range())
@@ -123,8 +121,7 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_SinkInspectBuilder_ReturnSourceVisualizerElement()
         {
-            var workflow = TestWorkflow
-                .New()
+            var workflow = new TestWorkflow()
                 .AppendValue(1)
                 .AppendNested(
                     input => input
@@ -143,8 +140,7 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_VisualizerInspectBuilder_ReplaceSourceVisualizerElement()
         {
-            var workflow = TestWorkflow
-                .New()
+            var workflow = new TestWorkflow()
                 .AppendValue(1)
                 .AppendNested(
                     input => input

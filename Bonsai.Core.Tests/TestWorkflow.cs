@@ -6,6 +6,11 @@ namespace Bonsai.Core.Tests
 {
     public readonly struct TestWorkflow
     {
+        public TestWorkflow()
+            : this(new ExpressionBuilderGraph(), null)
+        {
+        }
+
         private TestWorkflow(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> cursor)
         {
             Workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
@@ -15,12 +20,6 @@ namespace Bonsai.Core.Tests
         public ExpressionBuilderGraph Workflow { get; }
 
         public Node<ExpressionBuilder, ExpressionBuilderArgument> Cursor { get; }
-
-        public static TestWorkflow New()
-        {
-            var workflow = new ExpressionBuilderGraph();
-            return FromGraph(workflow);
-        }
 
         public static TestWorkflow FromGraph(ExpressionBuilderGraph workflow)
         {
@@ -91,11 +90,11 @@ namespace Bonsai.Core.Tests
             Func<ExpressionBuilderGraph, TWorkflowExpressionBuilder> constructor)
             where TWorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder
         {
-            var nestedCursor = New();
+            var nestedWorkflow = new TestWorkflow();
             if (Cursor != null)
-                nestedCursor = nestedCursor.AppendInput();
-            nestedCursor = selector(nestedCursor);
-            var workflowBuilder = constructor(nestedCursor.Workflow);
+                nestedWorkflow = nestedWorkflow.AppendInput();
+            nestedWorkflow = selector(nestedWorkflow);
+            var workflowBuilder = constructor(nestedWorkflow.Workflow);
             return Append(workflowBuilder);
         }
 
