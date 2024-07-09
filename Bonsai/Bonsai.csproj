@@ -46,11 +46,11 @@
     <PackageReference Include="System.Buffers" Version="4.5.1" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <EmbeddedResource Include="$(PkgSystem_Resources_Extensions)/lib/net462/System.Resources.Extensions.dll" />
-    <EmbeddedResource Include="$(PkgSystem_Memory)/lib/net461/System.Memory.dll" />
-    <EmbeddedResource Include="$(PkgSystem_Buffers)/lib/net461/System.Buffers.dll" />
-    <EmbeddedResource Include="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll" />
-    <EmbeddedResource Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)/lib/net461/System.Runtime.CompilerServices.Unsafe.dll" />
+    <EmbeddedResource Include="$(PkgSystem_Resources_Extensions)/lib/net462/System.Resources.Extensions.dll" Visible="false" />
+    <EmbeddedResource Include="$(PkgSystem_Memory)/lib/net461/System.Memory.dll" Visible="false" />
+    <EmbeddedResource Include="$(PkgSystem_Buffers)/lib/net461/System.Buffers.dll" Visible="false" />
+    <EmbeddedResource Include="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll" Visible="false" />
+    <EmbeddedResource Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)/lib/net461/System.Runtime.CompilerServices.Unsafe.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="NuGetConfig" AfterTargets="Build">
