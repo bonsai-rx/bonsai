@@ -25,7 +25,7 @@ namespace Bonsai.Expressions
     {
         const char AssemblySeparator = ':';
         internal const string BuildUriPrefix = "::build:";
-        const string DefaultSerializerPropertyName = "Property";
+        const string PlaceholderSerializerPropertyName = "__Property__";
         static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
 
@@ -243,7 +243,7 @@ namespace Bonsai.Expressions
             }
 
             var previousName = element.Name;
-            element.Name = XName.Get(DefaultSerializerPropertyName, element.Name.NamespaceName);
+            element.Name = XName.Get(PlaceholderSerializerPropertyName, element.Name.NamespaceName);
             try
             {
                 var serializer = PropertySerializer.GetXmlSerializer(property.PropertyType);
@@ -431,6 +431,9 @@ namespace Bonsai.Expressions
             return workflow.BuildNested(arguments, includeContext);
         }
 
+        // We serialize all properties using the same placeholder root name to allow us to reuse
+        // a single serializer for each different property type. This means we need to rename
+        // the actual XElement name before or after serialization and deserialization.
         static class PropertySerializer
         {
             static readonly Dictionary<Type, XmlSerializer> serializerCache = new();
@@ -443,7 +446,7 @@ namespace Bonsai.Expressions
                 {
                     if (!serializerCache.TryGetValue(type, out serializer))
                     {
-                        var xmlRoot = new XmlRootAttribute(DefaultSerializerPropertyName) { Namespace = Constants.XmlNamespace };
+                        var xmlRoot = new XmlRootAttribute(PlaceholderSerializerPropertyName) { Namespace = Constants.XmlNamespace };
                         serializer = new XmlSerializer(type, xmlRoot);
                         serializerCache.Add(type, serializer);
                     }
