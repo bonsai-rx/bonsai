@@ -24,6 +24,8 @@ namespace Bonsai.Expressions
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
         const char AssemblySeparator = ':';
+        internal const string BuildUriPrefix = "::build:";
+        const string PlaceholderSerializerPropertyName = "__Property__";
         static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
 
@@ -103,7 +105,7 @@ namespace Bonsai.Expressions
             {
                 if (workflow == null)
                 {
-                    try { EnsureWorkflow(); }
+                    try { EnsureWorkflow(null); }
                     catch (Exception) { }
                 }
                 return base.ArgumentRange;
@@ -118,7 +120,7 @@ namespace Bonsai.Expressions
                 buildContext = value;
                 if (buildContext != null)
                 {
-                    EnsureWorkflow();
+                    EnsureWorkflow(buildContext);
                     InternalXmlProperties = null;
                 }
             }
@@ -157,7 +159,7 @@ namespace Bonsai.Expressions
                 if (InternalXmlProperties != null) return InternalXmlProperties;
                 else if (workflow != null)
                 {
-                    return GetXmlProperties();
+                    return GetXmlProperties(workflow);
                 }
                 else return EmptyProperties;
             }
@@ -173,18 +175,24 @@ namespace Bonsai.Expressions
             return serializerNamespaces;
         }
 
-        XElement[] GetXmlProperties()
+        static XElement[] GetXmlProperties(ExpressionBuilderGraph workflow)
         {
-            var properties = TypeDescriptor.GetProperties(this);
+            if (workflow is null)
+                throw new ArgumentNullException(nameof(workflow));
+
+            var properties = TypeDescriptor.GetProperties(workflow);
             return GetXmlSerializableProperties(properties)
-                .Select(SerializeProperty)
+                .Select(property => SerializeProperty(workflow, property))
                 .Where(element => element != null)
                 .ToArray();
         }
 
-        void SetXmlProperties(XElement[] xmlProperties)
+        static void SetXmlProperties(ExpressionBuilderGraph workflow, XElement[] xmlProperties)
         {
-            var properties = TypeDescriptor.GetProperties(this);
+            if (workflow is null)
+                throw new ArgumentNullException(nameof(workflow));
+
+            var properties = TypeDescriptor.GetProperties(workflow);
             var serializableProperties = GetXmlSerializableProperties(properties).ToDictionary(property => property.Name);
             for (int i = 0; i < xmlProperties.Length; i++)
             {
@@ -194,14 +202,14 @@ namespace Bonsai.Expressions
                     {
                         var value = xmlProperties[i].Value;
                         property = (ExternalizedPropertyDescriptor)properties[property.Name];
-                        property.SetValue(this, property.Converter.ConvertFromInvariantString(value));
+                        property.SetValue(workflow, property.Converter.ConvertFromInvariantString(value));
                     }
-                    else DeserializeProperty(xmlProperties[i], property);
+                    else DeserializeProperty(workflow, xmlProperties[i], property);
                 }
             }
         }
 
-        IEnumerable<ExternalizedPropertyDescriptor> GetXmlSerializableProperties(PropertyDescriptorCollection properties)
+        static IEnumerable<ExternalizedPropertyDescriptor> GetXmlSerializableProperties(PropertyDescriptorCollection properties)
         {
             return from property in properties.Cast<PropertyDescriptor>()
                    let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
@@ -209,7 +217,7 @@ namespace Bonsai.Expressions
                    select externalizedProperty;
         }
 
-        ExternalizedPropertyDescriptor EnsureXmlSerializable(ExternalizedPropertyDescriptor descriptor)
+        static ExternalizedPropertyDescriptor EnsureXmlSerializable(ExternalizedPropertyDescriptor descriptor)
         {
             if (descriptor == null) return null;
             var xmlIgnore = descriptor.Attributes[typeof(XmlIgnoreAttribute)];
@@ -232,21 +240,24 @@ namespace Bonsai.Expressions
             return descriptor;
         }
 
-        void DeserializeProperty(XElement element, PropertyDescriptor property)
+        static void DeserializeProperty(ExpressionBuilderGraph workflow, XElement element, PropertyDescriptor property)
         {
             if (property.PropertyType == typeof(XElement))
             {
-                property.SetValue(this, element);
+                property.SetValue(workflow, element);
                 return;
             }
 
-            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
-            using (var reader = element.CreateReader())
+            var previousName = element.Name;
+            element.Name = XName.Get(PlaceholderSerializerPropertyName, element.Name.NamespaceName);
+            try
             {
+                var serializer = PropertySerializer.GetXmlSerializer(property.PropertyType);
+                using var reader = element.CreateReader();
                 var value = serializer.Deserialize(reader);
                 if (property.IsReadOnly)
                 {
-                    var collection = (IList)property.GetValue(this);
+                    var collection = (IList)property.GetValue(workflow);
                     if (collection == null)
                     {
                         throw new InvalidOperationException("Collection reference not set to an instance of an object.");
@@ -261,22 +272,29 @@ namespace Bonsai.Expressions
                         }
                     }
                 }
-                else property.SetValue(this, value);
+                else property.SetValue(workflow, value);
+            }
+            finally
+            {
+                element.Name = previousName;
             }
         }
 
-        XElement SerializeProperty(ExternalizedPropertyDescriptor property)
+        static XElement SerializeProperty(ExpressionBuilderGraph workflow, ExternalizedPropertyDescriptor property)
         {
-            var value = property.GetValue(this, out bool allEqual);
+            var value = property.GetValue(workflow, out bool allEqual);
             if (!allEqual) return null;
 
             var document = new XDocument();
-            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
+            var serializer = PropertySerializer.GetXmlSerializer(property.PropertyType);
             using (var writer = document.CreateWriter())
             {
                 serializer.Serialize(writer, value, DefaultSerializerNamespaces);
             }
-            return document.Root;
+
+            var element = document.Root;
+            element.Name = XName.Get(property.Name, element.Name.NamespaceName);
+            return element;
         }
 
         static string GetWorkflowPath(string path)
@@ -289,7 +307,7 @@ namespace Bonsai.Expressions
             return path;
         }
 
-        static bool IsEmbeddedResourcePath(string path)
+        internal static bool IsEmbeddedResourcePath(string path)
         {
             var separatorIndex = path.IndexOf(AssemblySeparator);
             return separatorIndex >= 0 && !SystemPath.IsPathRooted(path);
@@ -307,7 +325,7 @@ namespace Bonsai.Expressions
             return name;
         }
 
-        static Stream GetWorkflowStream(string path, bool embeddedResource)
+        internal static Stream GetWorkflowStream(string path, bool embeddedResource)
         {
             if (embeddedResource)
             {
@@ -333,16 +351,15 @@ namespace Bonsai.Expressions
             }
             else
             {
-                if (!File.Exists(path))
+                try { return File.OpenRead(path); }
+                catch (FileNotFoundException ex)
                 {
-                    throw new InvalidOperationException("The specified workflow could not be found.");
+                    throw new InvalidOperationException("The specified workflow could not be found.", ex);
                 }
-
-                return File.OpenRead(path);
             }
         }
 
-        void EnsureWorkflow()
+        void EnsureWorkflow(IBuildContext buildContext)
         {
             var context = buildContext;
             while (context != null)
@@ -366,32 +383,30 @@ namespace Bonsai.Expressions
             else
             {
                 var embeddedResource = IsEmbeddedResourcePath(path);
+                var baseUri = buildContext != null ? $"{BuildUriPrefix}{path}" : path;
                 var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
-                    var properties = workflow != null ? GetXmlProperties() : InternalXmlProperties;
+                    WorkflowBuilder builder;
+                    var properties = workflow != null ? GetXmlProperties(workflow) : InternalXmlProperties;
                     using (var stream = GetWorkflowStream(path, embeddedResource))
-                    using (var reader = XmlReader.Create(stream))
+                    using (var reader = XmlReader.Create(stream, null, baseUri))
                     {
                         reader.MoveToContent();
                         var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
-                        var builder = (WorkflowBuilder)serializer.Deserialize(reader);
-                        description = builder.Description;
-                        workflow = builder.Workflow;
-                        writeTime = lastWriteTime;
-                    }
-
-                    var parameterCount = workflow.GetNestedParameters().Count();
-                    SetArgumentRange(0, parameterCount);
-                    if (inspectWorkflow)
-                    {
-                        workflow = workflow.ToInspectableGraph();
+                        builder = (WorkflowBuilder)serializer.Deserialize(reader);
                     }
 
                     if (properties != null)
                     {
-                        SetXmlProperties(properties);
+                        SetXmlProperties(builder.Workflow, properties);
                     }
+
+                    var parameterCount = builder.Workflow.GetNestedParameters().Count();
+                    workflow = inspectWorkflow ? builder.Workflow.ToInspectableGraph() : builder.Workflow;
+                    description = builder.Description;
+                    SetArgumentRange(0, parameterCount);
+                    writeTime = lastWriteTime;
                 }
             }
         }
@@ -419,22 +434,24 @@ namespace Bonsai.Expressions
             return workflow.BuildNested(arguments, includeContext);
         }
 
+        // We serialize all properties using the same placeholder root name to allow us to reuse
+        // a single serializer for each different property type. This means we need to rename
+        // the actual XElement name before or after serialization and deserialization.
         static class PropertySerializer
         {
-            static readonly Dictionary<Tuple<string, Type>, XmlSerializer> serializerCache = new Dictionary<Tuple<string, Type>, XmlSerializer>();
-            static readonly object cacheLock = new object();
+            static readonly Dictionary<Type, XmlSerializer> serializerCache = new();
+            static readonly object cacheLock = new();
 
-            internal static XmlSerializer GetXmlSerializer(string name, Type type)
+            internal static XmlSerializer GetXmlSerializer(Type type)
             {
                 XmlSerializer serializer;
-                var serializerKey = Tuple.Create(name, type);
                 lock (cacheLock)
                 {
-                    if (!serializerCache.TryGetValue(serializerKey, out serializer))
+                    if (!serializerCache.TryGetValue(type, out serializer))
                     {
-                        var xmlRoot = new XmlRootAttribute(name) { Namespace = Constants.XmlNamespace };
+                        var xmlRoot = new XmlRootAttribute(PlaceholderSerializerPropertyName) { Namespace = Constants.XmlNamespace };
                         serializer = new XmlSerializer(type, xmlRoot);
-                        serializerCache.Add(serializerKey, serializer);
+                        serializerCache.Add(type, serializer);
                     }
                 }
 
@@ -541,15 +558,17 @@ namespace Bonsai.Expressions
 
             public override object GetValue(object component)
             {
-                if (!(component is IncludeWorkflowBuilder includeWorkflow))
+                var workflow = component switch
                 {
-                    throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component));
-                }
+                    IncludeWorkflowBuilder includeWorkflow => includeWorkflow.Workflow,
+                    ExpressionBuilderGraph workflowComponent => workflowComponent,
+                    _ => throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component))
+                };
 
-                var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
+                var serializableProperty = EnsureXmlSerializable(property);
                 if (serializableProperty != null)
                 {
-                    return includeWorkflow.SerializeProperty(serializableProperty);
+                    return SerializeProperty(workflow, serializableProperty);
                 }
 
                 return null;
@@ -562,20 +581,22 @@ namespace Bonsai.Expressions
 
             public override void SetValue(object component, object value)
             {
-                if (!(value is XElement element))
+                if (value is not XElement element)
                 {
                     throw new ArgumentException("Incompatible types found in workflow property assignment.", nameof(value));
                 }
 
-                if (!(component is IncludeWorkflowBuilder includeWorkflow))
+                var workflow = component switch
                 {
-                    throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component));
-                }
+                    IncludeWorkflowBuilder includeWorkflow => includeWorkflow.Workflow,
+                    ExpressionBuilderGraph workflowComponent => workflowComponent,
+                    _ => throw new ArgumentException("Incompatible component type in workflow property assignment.", nameof(component))
+                };
 
-                var serializableProperty = includeWorkflow.EnsureXmlSerializable(property);
+                var serializableProperty = EnsureXmlSerializable(property);
                 if (serializableProperty != null)
                 {
-                    includeWorkflow.DeserializeProperty(element, serializableProperty);
+                    DeserializeProperty(workflow, element, serializableProperty);
                 }
             }
 

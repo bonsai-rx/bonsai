@@ -101,6 +101,12 @@ namespace Bonsai
         /// </returns>
         public static WorkflowMetadata ReadMetadata(XmlReader reader)
         {
+            var visitedWorkflows = new HashSet<string>();
+            return ReadMetadata(reader, visitedWorkflows);
+        }
+
+        static WorkflowMetadata ReadMetadata(XmlReader reader, HashSet<string> visitedWorkflows)
+        {
             var metadata = new WorkflowMetadata();
             var serializerNamespaces = new SerializerNamespaces();
             if (reader.MoveToFirstAttribute())
@@ -128,7 +134,7 @@ namespace Bonsai
                 {
                     workflowMarkup = ConvertDescriptorMarkup(reader.ReadOuterXml());
                 }
-                else workflowMarkup = ReadXmlExtensions(reader, types, serializerNamespaces);
+                else workflowMarkup = ReadXmlExtensions(reader, types, visitedWorkflows, serializerNamespaces);
             }
 
             if (reader.ReadToNextSibling(ExtensionTypeNodeName))
@@ -824,7 +830,14 @@ namespace Bonsai
             return null;
         }
 
-        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types, SerializerNamespaces namespaces, ref bool includeWorkflow)
+        static void WriteXmlAttributes(
+            XmlReader reader,
+            XmlWriter writer,
+            bool lookupTypes,
+            HashSet<Type> types,
+            HashSet<string> visitedWorkflows,
+            SerializerNamespaces namespaces,
+            ref bool includeWorkflow)
         {
             do
             {
@@ -888,6 +901,29 @@ namespace Bonsai
                                         value = XmlConvert.EncodeName(typeName);
                                     }
                                 }
+                                else if (includeWorkflow &&
+                                         reader.GetAttribute(nameof(IncludeWorkflowBuilder.Path)) is string path &&
+                                         !reader.BaseURI.StartsWith(IncludeWorkflowBuilder.BuildUriPrefix) &&
+                                         visitedWorkflows.Add(path))
+                                {
+                                    // we don't want to fail in most cases while reading nested metadata, as this
+                                    // is an optional performance optimization and we would lose the visual context
+                                    // as to where exactly in the workflow the failure is happening
+                                    try
+                                    {
+                                        var embeddedResource = IncludeWorkflowBuilder.IsEmbeddedResourcePath(path);
+                                        using var workflowStream = IncludeWorkflowBuilder.GetWorkflowStream(path, embeddedResource);
+                                        using var workflowReader = XmlReader.Create(workflowStream, null, path);
+                                        workflowReader.MoveToContent();
+                                        var nestedMetadata = ReadMetadata(workflowReader, visitedWorkflows);
+                                        types.UnionWith(nestedMetadata.Types);
+                                    }
+                                    catch (IOException) { }
+                                    catch (XmlException) { }
+                                    catch (BadImageFormatException) { }
+                                    catch (InvalidOperationException) { }
+                                    catch (UnauthorizedAccessException) { }
+                                }
                             }
 
                             writer.WriteString(value);
@@ -912,7 +948,7 @@ namespace Bonsai
             while (reader.MoveToNextAttribute());
         }
 
-        static string ReadXmlExtensions(XmlReader reader, HashSet<Type> types, SerializerNamespaces namespaces)
+        static string ReadXmlExtensions(XmlReader reader, HashSet<Type> types, HashSet<string> visitedWorkflows, SerializerNamespaces namespaces)
         {
             const int ChunkBufferSize = 1024;
             char[] chunkBuffer = null;
@@ -944,7 +980,7 @@ namespace Bonsai
                             {
                                 var includeWorkflow = includeDepth >= 0;
                                 var lookupTypes = elementNamespace == Constants.XmlNamespace;
-                                WriteXmlAttributes(reader, writer, lookupTypes, types, serializerNamespaces, ref includeWorkflow);
+                                WriteXmlAttributes(reader, writer, lookupTypes, types, visitedWorkflows, serializerNamespaces, ref includeWorkflow);
                                 reader.MoveToElement();
                                 if (lookupTypes && includeDepth < 0 && includeWorkflow)
                                 {
