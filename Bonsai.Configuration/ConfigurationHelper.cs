@@ -53,13 +53,13 @@ namespace Bonsai.Configuration
 
         public static string GetAssemblyLocation(this PackageConfiguration configuration, string assemblyName)
         {
-            var msilAssembly = Tuple.Create(assemblyName, ProcessorArchitecture.MSIL);
+            var msilAssembly = (assemblyName, ProcessorArchitecture.MSIL);
             if (configuration.AssemblyLocations.Contains(msilAssembly))
             {
                 return configuration.AssemblyLocations[msilAssembly].Location;
             }
 
-            var architectureSpecificAssembly = Tuple.Create(assemblyName, Environment.Is64BitProcess ? ProcessorArchitecture.Amd64 : ProcessorArchitecture.X86);
+            var architectureSpecificAssembly = (assemblyName, Environment.Is64BitProcess ? ProcessorArchitecture.Amd64 : ProcessorArchitecture.X86);
             if (configuration.AssemblyLocations.Contains(architectureSpecificAssembly))
             {
                 return configuration.AssemblyLocations[architectureSpecificAssembly].Location;
@@ -209,7 +209,7 @@ namespace Bonsai.Configuration
                 catch (BadImageFormatException) { continue; }
                 catch (IOException) { continue; }
 
-                var locationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                var locationKey = (assemblyName.Name, assemblyName.ProcessorArchitecture);
                 if (!configuration.AssemblyLocations.Contains(locationKey))
                 {
                     configuration.AssemblyReferences.Add(assemblyName.Name);

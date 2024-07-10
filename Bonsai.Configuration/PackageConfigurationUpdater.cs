@@ -58,6 +58,7 @@ namespace Bonsai.Configuration
             var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
             var galleryPackageSource = new PackageSource(galleryPath);
             galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
+            NormalizePathSeparators(packageConfiguration);
         }
 
         string GetRelativePath(string path)
@@ -67,6 +68,28 @@ namespace Bonsai.Configuration
             var pathUri = new Uri(path);
             var relativeUri = rootUri.MakeRelativeUri(pathUri);
             return PathUtility.GetPathWithDirectorySeparator(relativeUri.ToString());
+        }
+
+        static string CombinePath(string path1, string path2)
+        {
+            return PathUtility.GetPathWithForwardSlashes(Path.Combine(path1, path2));
+        }
+
+        static void NormalizePathSeparators(PackageConfiguration configuration)
+        {
+            foreach (var assemblyLocation in configuration.AssemblyLocations)
+            {
+                assemblyLocation.Location = PathUtility.GetPathWithForwardSlashes(assemblyLocation.Location);
+            }
+
+            // cannot normalize in place since path is collection key
+            var libraryFolders = configuration.LibraryFolders.ToArray();
+            configuration.LibraryFolders.Clear();
+            foreach (var folder in libraryFolders)
+            {
+                folder.Path = PathUtility.GetPathWithForwardSlashes(folder.Path);
+                configuration.LibraryFolders.Add(folder);
+            }
         }
 
         static bool IsTaggedPackage(PackageReaderBase package)
@@ -123,7 +146,7 @@ namespace Bonsai.Configuration
             return from file in nearestFramework.Items
                    where Path.GetExtension(file) == AssemblyExtension &&
                          !string.IsNullOrEmpty(ResolvePathPlatformName(file))
-                   select PathUtility.GetPathWithDirectorySeparator(file);
+                   select PathUtility.GetPathWithForwardSlashes(file);
         }
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
@@ -143,7 +166,7 @@ namespace Bonsai.Configuration
                    group file by Path.GetDirectoryName(file) into folder
                    let platform = ResolvePathPlatformName(folder.Key)
                    where !string.IsNullOrWhiteSpace(platform)
-                   select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
+                   select new LibraryFolder(CombinePath(installPath, folder.Key), platform);
         }
 
         static IEnumerable<LibraryFolder> GetRuntimeLibraryFolders(PackageReaderBase package, string installPath)
@@ -154,14 +177,14 @@ namespace Bonsai.Configuration
                    where !string.IsNullOrWhiteSpace(platform)
                    from file in frameworkGroup.Items
                    group file by new { platform, path = Path.GetDirectoryName(file) } into folder
-                   select new LibraryFolder(Path.Combine(installPath, folder.Key.path), folder.Key.platform);
+                   select new LibraryFolder(CombinePath(installPath, folder.Key.path), folder.Key.platform);
         }
 
         static IEnumerable<string> GetCompatibleAssemblyReferences(NuGetFramework projectFramework, PackageReaderBase package)
         {
             var nearestFramework = package.GetReferenceItems().GetNearest(projectFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
-            return nearestFramework.Items.Select(PathUtility.GetPathWithDirectorySeparator);
+            return nearestFramework.Items.Select(PathUtility.GetPathWithForwardSlashes);
         }
 
         void RegisterAssemblyLocations(PackageReaderBase package, string installPath, string relativePath, bool addReferences)
@@ -174,10 +197,10 @@ namespace Bonsai.Configuration
         {
             foreach (var path in assemblyLocations)
             {
-                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyFile = CombinePath(installPath, path);
                 var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                var assemblyLocation = Path.Combine(relativePath, path);
-                var assemblyLocationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                var assemblyLocation = CombinePath(relativePath, path);
+                var assemblyLocationKey = (assemblyName.Name, assemblyName.ProcessorArchitecture);
                 if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
                 {
                     packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
@@ -204,11 +227,11 @@ namespace Bonsai.Configuration
         {
             foreach (var path in assemblyLocations)
             {
-                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyFile = CombinePath(installPath, path);
                 var location = packageConfiguration.AssemblyLocations.FirstOrDefault(item => item.Location == assemblyFile);
                 if (location != null)
                 {
-                    packageConfiguration.AssemblyLocations.Remove(Tuple.Create(location.AssemblyName, location.ProcessorArchitecture));
+                    packageConfiguration.AssemblyLocations.Remove((location.AssemblyName, location.ProcessorArchitecture));
                     if (removeReference)
                     {
                         packageConfiguration.AssemblyReferences.Remove(location.AssemblyName);
