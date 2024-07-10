@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Reflection;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
 
@@ -32,6 +34,16 @@ namespace Bonsai.Reactive
         public Visualizer(ExpressionBuilderGraph workflow)
             : base(workflow)
         {
+        }
+
+        internal override MethodInfo GetProcessMethod(params Type[] typeArguments)
+        {
+            return typeof(Visualizer).GetMethod(nameof(Process), BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(typeArguments);
+        }
+
+        static new IObservable<TSource> Process<TSource, TSink>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TSink>> sink)
+        {
+            return Sink.Process(source, sink);
         }
     }
 }

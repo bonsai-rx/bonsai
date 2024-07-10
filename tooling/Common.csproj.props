@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- Common C# Properties -->
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Features>strict</Features>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 

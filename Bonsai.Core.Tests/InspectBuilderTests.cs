@@ -13,7 +13,7 @@ namespace Bonsai.Core.Tests
     [TestClass]
     public class InspectBuilderTests
     {
-        void RunInspector(params ExpressionBuilder[] builders)
+        static void RunInspector(params ExpressionBuilder[] builders)
         {
             var workflowBuilder = new WorkflowBuilder();
             var previous = default(Node<ExpressionBuilder, ExpressionBuilderArgument>);
@@ -83,42 +83,85 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_GroupInspectBuilder_ReturnNestedVisualizerElement()
         {
-            var workflowBuilder = new WorkflowBuilder();
-            var source = workflowBuilder.Workflow.Add(new UnitBuilder());
-            var group = workflowBuilder.Workflow.Add(new GroupWorkflowBuilder());
-            var groupBuilder = (GroupWorkflowBuilder)group.Value;
-            workflowBuilder.Workflow.AddEdge(source, group, new ExpressionBuilderArgument());
+            ExpressionBuilder target = null;
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .AppendNested(
+                    input => input
+                        .AppendUnit()
+                        .Capture(out target)
+                        .AppendOutput(),
+                    workflow => new GroupWorkflowBuilder(workflow))
+                .ToInspectableGraph();
+            workflow.Build();
 
-            var input = groupBuilder.Workflow.Add(new WorkflowInputBuilder());
-            var combinator = groupBuilder.Workflow.Add(new UnitBuilder());
-            var output = groupBuilder.Workflow.Add(new WorkflowOutputBuilder());
-            groupBuilder.Workflow.AddEdge(input, combinator, new ExpressionBuilderArgument());
-            groupBuilder.Workflow.AddEdge(combinator, output, new ExpressionBuilderArgument());
-
-            var inspectable = workflowBuilder.Workflow.ToInspectableGraph();
-            var inspectGroup = (InspectBuilder)inspectable.ElementAt(1).Value;
-            var result = inspectable.Build();
-            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectGroup);
-            Assert.AreEqual(combinator.Value, visualizerElement.Builder);
+            var output = workflow[workflow.Count - 1].Value;
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(output);
+            Assert.AreSame(target, visualizerElement.Builder);
         }
 
         [TestMethod]
         public void Build_PropertyMappedInspectBuilderToWorkflowOutput_ReturnVisualizerElement()
         {
-            var workflowBuilder = new WorkflowBuilder();
-            var source = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new Reactive.Range() });
-            var valueSource = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new IntProperty() });
-            var propertyMapping = workflowBuilder.Workflow.Add(new PropertyMappingBuilder { PropertyMappings = { new PropertyMapping { Name = "Count" } } });
-            var output = workflowBuilder.Workflow.Add(new WorkflowOutputBuilder());
-            workflowBuilder.Workflow.AddEdge(valueSource, propertyMapping, new ExpressionBuilderArgument());
-            workflowBuilder.Workflow.AddEdge(propertyMapping, source, new ExpressionBuilderArgument());
-            workflowBuilder.Workflow.AddEdge(source, output, new ExpressionBuilderArgument());
+            ExpressionBuilder target;
+            var workflow = new TestWorkflow()
+                .AppendValue(0)
+                .AppendPropertyMapping(nameof(Reactive.Range.Count))
+                .AppendCombinator(new Reactive.Range())
+                .Capture(out target)
+                .AppendOutput()
+                .ToInspectableGraph();
+            workflow.Build();
 
-            var inspectable = workflowBuilder.Workflow.ToInspectableGraph();
-            var inspectOutput = (InspectBuilder)inspectable.ElementAt(workflowBuilder.Workflow.Count - 1).Value;
-            inspectable.Build();
-            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectOutput);
-            Assert.AreEqual(source.Value, visualizerElement.Builder);
+            var output = workflow[workflow.Count - 1].Value;
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(output);
+            Assert.AreSame(target, visualizerElement.Builder);
+        }
+
+        [TestMethod]
+        public void Build_SinkInspectBuilder_ReturnSourceVisualizerElement()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1860
+            var workflow = new TestWorkflow()
+                .AppendValue(1)
+                .AppendNested(
+                    input => input
+                        .AppendValue(string.Empty)
+                        .AppendOutput(),
+                    workflow => new Reactive.Sink(workflow))
+                .AppendOutput()
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var sourceVisualizer = ExpressionBuilder.GetVisualizerElement(workflow[0].Value);
+            var outputVisualizer = ExpressionBuilder.GetVisualizerElement(workflow[workflow.Count - 1].Value);
+            Assert.AreSame(sourceVisualizer, outputVisualizer);
+        }
+
+        [TestMethod]
+        public void Build_VisualizerInspectBuilder_ReplaceSourceVisualizerElement()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1860
+            var workflow = new TestWorkflow()
+                .AppendValue(1)
+                .AppendNested(
+                    input => input
+                        .AppendValue(string.Empty)
+                        .AppendOutput(),
+                    workflow => new Reactive.Visualizer(workflow))
+                .AppendOutput()
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var sourceBuilder = (InspectBuilder)workflow[0].Value;
+            var outputBuilder = (InspectBuilder)workflow[workflow.Count - 1].Value;
+            Assert.AreEqual(typeof(int), sourceBuilder.ObservableType);
+            Assert.AreEqual(sourceBuilder.ObservableType, outputBuilder.ObservableType);
+
+            var sourceVisualizer = ExpressionBuilder.GetVisualizerElement(sourceBuilder);
+            var outputVisualizer = ExpressionBuilder.GetVisualizerElement(outputBuilder);
+            Assert.AreNotSame(sourceVisualizer, outputVisualizer);
+            Assert.AreEqual(typeof(string), outputVisualizer.ObservableType);
         }
 
         #region Error Classes
