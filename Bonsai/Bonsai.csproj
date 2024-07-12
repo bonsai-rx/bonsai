@@ -102,6 +102,7 @@
       </_IlRepackCommand>
     </PropertyGroup>
     <Exec WorkingDirectory="$(RepackedOutputPath)" Command="$(_IlRepackCommand.Replace('%0D', ' ').Replace('%0A', ' '))" UseCommandProcessor="false" />
+    <Copy SourceFiles="$(TargetDir)NuGet.config" DestinationFolder="$(RepackedOutputPath)" />
   </Target>
 
   <Target Name="UseRepackOutputForPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="BuiltProjectOutputGroup" DependsOnTargets="ConfigureRepack">
