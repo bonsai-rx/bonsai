@@ -3,8 +3,8 @@
     <Title>Bonsai - Design Library</Title>
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
+    <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="fernandreu.ScintillaNET" Version="4.2.0" />

@@ -4,8 +4,8 @@
     <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>

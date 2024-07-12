@@ -7,6 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>

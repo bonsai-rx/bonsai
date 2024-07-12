@@ -1,5 +1,4 @@
-﻿#if NET472_OR_GREATER
-using Microsoft.CSharp;
+﻿using Microsoft.CSharp;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
@@ -190,4 +189,3 @@ namespace Bonsai.Configuration
         }
     }
 }
-#endif
