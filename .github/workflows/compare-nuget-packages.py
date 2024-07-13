@@ -194,14 +194,17 @@ with gha.JobSummary() as md:
     def list_missing_peers(heading: str, md_heading: str, packages: set[str]) -> bool:
         if len(packages) == 0:
             return False
-        
+
+        sorted_packages = list(packages)
+        sorted_packages.sort()
+
         print()
         print(heading)
         md.write_line(f"# {md_heading}")
         md.write_line()
         md.write_line(heading)
         md.write_line()
-        for package in packages:
+        for package in sorted_packages:
             print(f"  {package}")
             md.write_line(f"* {package}")
         return True
