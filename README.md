@@ -1,7 +1,9 @@
 # Bonsai - Visual Reactive Programming
 
 [![Download Bonsai](https://img.shields.io/nuget/v/Bonsai?style=flat-square&label=Download%20Bonsai&labelColor=5e616c&color=ec2227)](https://bonsai-rx.org/docs/articles/installation.html)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/bonsai-rx/bonsai/Bonsai.yml?branch=main&style=flat-square&label=CI)](https://github.com/bonsai-rx/bonsai/actions)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/bonsai-rx/bonsai/Bonsai.yml?branch=main&style=flat-square&label=CI&labelColor=5e616c)](https://github.com/bonsai-rx/bonsai/actions)
+[![Discord Community](https://img.shields.io/discord/722881880122327101?style=flat-square&label=Discord&logo=discord&logoColor=white&labelColor=5e616c)](https://discord.gg/zUhuDcYuJH)
+[![GitHub Discussions](https://img.shields.io/github/discussions/bonsai-rx/bonsai?style=flat-square&logo=github&label=Discussions&labelColor=5e616c)](https://github.com/orgs/bonsai-rx/discussions)
 
 This is the main repository for the [Bonsai](https://bonsai-rx.org/) visual programming language. It contains source code for the compiler, IDE, and standard library.
 
