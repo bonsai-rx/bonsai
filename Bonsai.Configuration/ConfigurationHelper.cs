@@ -2,6 +2,7 @@
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -126,45 +127,42 @@ namespace Bonsai.Configuration
                 AddLibraryPath(path);
             }
 
-            Dictionary<string, Assembly> assemblyLoadCache = null;
-            ResolveEventHandler assemblyResolveHandler = (sender, args) =>
+            ConcurrentDictionary<string, Assembly> resolveCache = new();
+            AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name).Name;
+                if (resolveCache.TryGetValue(assemblyName, out var assembly))
+                    return assembly;
+
                 var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
                 if (assemblyLocation != null)
                 {
                     if (assemblyLocation.StartsWith(Uri.UriSchemeFile) && Uri.TryCreate(assemblyLocation, UriKind.Absolute, out Uri uri))
                     {
-                        assemblyLoadCache ??= new Dictionary<string, Assembly>();
-                        if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out Assembly assembly))
-                        {
-                            var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
-                            assembly = Assembly.Load(assemblyBytes);
-                            assemblyLoadCache.Add(uri.LocalPath, assembly);
-                        }
-                        return assembly;
+                        var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
+                        assembly = Assembly.Load(assemblyBytes);
                     }
-
-                    if (!Path.IsPathRooted(assemblyLocation))
+                    else
                     {
-                        assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);
-                    }
-
-                    if (File.Exists(assemblyLocation))
-                    {
-                        if (!assemblyLock)
+                        if (!Path.IsPathRooted(assemblyLocation))
                         {
-                            var assemblyBytes = File.ReadAllBytes(assemblyLocation);
-                            return Assembly.Load(assemblyBytes);
+                            assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);
                         }
-                        else return Assembly.LoadFrom(assemblyLocation);
+
+                        if (File.Exists(assemblyLocation))
+                        {
+                            if (!assemblyLock)
+                            {
+                                var assemblyBytes = File.ReadAllBytes(assemblyLocation);
+                                assembly = Assembly.Load(assemblyBytes);
+                            }
+                            else assembly = Assembly.LoadFrom(assemblyLocation);
+                        }
                     }
                 }
 
-                return null;
+                return resolveCache.GetOrAdd(assemblyName, assembly);
             };
-
-            AppDomain.CurrentDomain.AssemblyResolve += assemblyResolveHandler;
         }
 
         public static void SetAssemblyResolve()
