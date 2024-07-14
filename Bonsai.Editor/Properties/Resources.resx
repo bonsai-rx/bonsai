@@ -153,7 +153,7 @@
   <data name="StatusCriticalImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vQAADr0BR/uQrQAAANRJREFUOE+1U8ENwjAMzBAMwAiMwAJMAI98kfgzGx86QqbgU5CCeOSHgi/YlZNY
+        vAAADrwBlbxySQAAANRJREFUOE+1U8ENwjAMzBAMwAiMwAJMAI98kfgzGx86QqbgU5CCeOSHgi/YlZNY
         SFBx0qmNfXdtWse1SCl54kDMDVHzLOtBzSUxPM6nPG43+bJwFVFDDxpo2fYGm+N1v+uMLW/HA0JiFUKL
         gAYE43pV2Bp1nUOCmD1eTUTPeyzUIVadt+MRMMieRQiI2KoVLXngRcD0JCvEMgvh7QJAHQJYZvA/AdqM
         q75vQyRg9kec9xt5FoJMIQTaLNT1apAAWpRRlmn8RHOUAQ757TBpUPOL4+zcCzIffKHxkkn8AAAAAElF
@@ -163,7 +163,7 @@
   <data name="StatusRunningImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAMFJREFUOE9jQAffvn1LAOL9QPwfDYPEEqDKMAFQUgGIzx+9f/R/wbaC/8YzjVEw
+        vgAADr4B6kKxwAAAAMFJREFUOE9jQAffvn1LAOL9QPwfDYPEEqDKMAFQUgGIzx+9f/R/wbaC/8YzjVEw
         SAwkB1IDUgvVBgFQze9r9tRgaETHHYc6QIa8RzEEyDkPksCmARuGGnIepjkB5DR0RTff3PwfuSYSQxyG
         od5JABmwH5ufYWDmmZkYciAM0gPSCzIAqwJkgMs1IL1EGQAD6K6hnwGEvEBxIFIWjdC0cJ6YVAjDKAkJ
         BIAccFImJjViTcogADWEvMyEDICSJGRnBgYARwha+z9sKMcAAAAASUVORK5CYII=
@@ -219,7 +219,7 @@ Copyright (c) .NET Foundation and Contributors</value>
   <data name="StatusUpdateAvailable" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAKdJREFUOE+lkMEN
+        vQAADr0BR/uQrQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAKdJREFUOE+lkMEN
         wyAQBCktooV8U4KLyTuklnxSkJ0P300WaZ3jwDaSLY18HLeDTQDQkHPG7f5CuD4LrNnzc6Rp+PCRpFps
         hUVP8i9+Dzc1PD3eVVD1kEAn2ZAkjYANi8LECvyeKIKUEmKM5V1tOgHxs0ENiw1Y/Byz1S/0ZB6dLNbL
         UINDy/wpKGTXmlsv0QguowJlSFewx5Dg9BecFuxxKBhBGQDhC/DB5AQ227rCAAAAAElFTkSuQmCC
@@ -343,5 +343,22 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   </data>
   <data name="InvalidWorkflowPath_Error" xml:space="preserve">
     <value>The specified workflow path does not resolve to a workflow expression builder node.</value>
+  </data>
+  <data name="WorkflowReadOnlyImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wAAADsABataJCQAAAH9JREFUOE/VjdEJwCAMRB2ls7ih/+7gHG7hBrY/+mk9iWKNVAqF0oMjJHmXiFcV
+        Y9xCCCY7dTaYEzIXBb1SKkkpm9FjfnsAH8bgcMAQypWXDdZaJ2ttqXWGPaFcfdg5V2DUfkYoF+CVCeXC
+        sn6Z+VF498el/0l49DK8MqGfSogTPS0oz8b0R/8AAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="WorkflowEditableImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wQAADsEBuJFr7QAAAJVJREFUOE+9kLENAyEQBCnFJbgEi1qoggKok4yAwAmCEHssTkL4/3UE9kob8Ghm
+        xZu/pJRyp+O4F8Ba65NuSwQOIXS6JZmWP7C1Vi9Zl3PO3Tmnk8wwgEAioaeCI3iVpJSuYe/9F0wvlwmX
+        7/YjAfDpsgR4fusWTBAArD9MBRMRyGqMUQ8TBEv1sASgtfYYvY3Pv4wxL5igM/WVQzVaAAAAAElFTkSu
+        QmCC
+</value>
   </data>
 </root>

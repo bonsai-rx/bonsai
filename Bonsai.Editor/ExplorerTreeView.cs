@@ -12,24 +12,25 @@ namespace Bonsai.Editor
     class ExplorerTreeView : ToolboxTreeView
     {
         bool activeDoubleClick;
-        readonly ImageList iconList;
+        readonly ImageList imageList;
+        readonly ImageList stateImageList;
 
         public ExplorerTreeView()
         {
-            iconList = new()
-            {
-                ColorDepth = ColorDepth.Depth8Bit,
-                ImageSize = new Size(16, 16),
-                TransparentColor = Color.Transparent
-            };
-            StateImageList = iconList;
+            imageList = new();
+            stateImageList = new();
+            StateImageList = stateImageList;
+            ImageList = imageList;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            iconList.Images.Clear();
-            iconList.Images.Add(Resources.StatusReadyImage);
-            iconList.Images.Add(Resources.StatusBlockedImage);
+            imageList.Images.Clear();
+            stateImageList.Images.Clear();
+            imageList.Images.Add(Resources.WorkflowEditableImage);
+            imageList.Images.Add(Resources.WorkflowReadOnlyImage);
+            stateImageList.Images.Add(Resources.StatusReadyImage);
+            stateImageList.Images.Add(Resources.StatusBlockedImage);
             base.ScaleControl(factor, specified);
         }
 
@@ -61,9 +62,13 @@ namespace Bonsai.Editor
             Nodes.Clear();
 
             var rootNode = Nodes.Add(name);
-            AddWorkflow(rootNode.Nodes, null, workflowBuilder.Workflow);
+            AddWorkflow(rootNode.Nodes, null, workflowBuilder.Workflow, ExplorerNodeType.Editable);
 
-            static void AddWorkflow(TreeNodeCollection nodes, WorkflowEditorPath basePath, ExpressionBuilderGraph workflow)
+            static void AddWorkflow(
+                TreeNodeCollection nodes,
+                WorkflowEditorPath basePath,
+                ExpressionBuilderGraph workflow,
+                ExplorerNodeType parentNodeType)
             {
                 for (int i = 0; i < workflow.Count; i++)
                 {
@@ -71,11 +76,15 @@ namespace Bonsai.Editor
                     if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
                         workflowBuilder.Workflow != null)
                     {
+                        var nodeType = parentNodeType == ExplorerNodeType.ReadOnly || workflowBuilder is IncludeWorkflowBuilder
+                            ? ExplorerNodeType.ReadOnly
+                            : ExplorerNodeType.Editable;
                         var displayName = ExpressionBuilder.GetElementDisplayName(builder);
                         var builderPath = new WorkflowEditorPath(i, basePath);
                         var node = nodes.Add(displayName);
+                        node.ImageIndex = node.SelectedImageIndex = GetImageIndex(nodeType);
                         node.Tag = builderPath;
-                        AddWorkflow(node.Nodes, builderPath, workflowBuilder.Workflow);
+                        AddWorkflow(node.Nodes, builderPath, workflowBuilder.Workflow, nodeType);
                     }
                 }
             }
@@ -108,7 +117,17 @@ namespace Bonsai.Editor
             return false;
         }
 
-        private static int GetImageIndex(ExplorerNodeStatus status)
+        private static int GetImageIndex(ExplorerNodeType status)
+        {
+            return status switch
+            {
+                ExplorerNodeType.Editable => 0,
+                ExplorerNodeType.ReadOnly => 1,
+                _ => throw new ArgumentException("Invalid node type.", nameof(status))
+            };
+        }
+
+        private static int GetStateImageIndex(ExplorerNodeStatus status)
         {
             return status switch
             {
@@ -120,7 +139,7 @@ namespace Bonsai.Editor
 
         public void SetNodeStatus(ExplorerNodeStatus status)
         {
-            var imageIndex = GetImageIndex(status);
+            var imageIndex = GetStateImageIndex(status);
             SetNodeImageIndex(Nodes, imageIndex);
 
             static void SetNodeImageIndex(TreeNodeCollection nodes, int index)
@@ -139,7 +158,7 @@ namespace Bonsai.Editor
         public void SetNodeStatus(IEnumerable<WorkflowEditorPath> pathElements, ExplorerNodeStatus status)
         {
             var nodes = Nodes;
-            var imageIndex = GetImageIndex(status);
+            var imageIndex = GetStateImageIndex(status);
             foreach (var path in pathElements.Prepend(null))
             {
                 var found = false;
@@ -159,6 +178,12 @@ namespace Bonsai.Editor
                     break;
             }
         }
+    }
+
+    enum ExplorerNodeType
+    {
+        Editable,
+        ReadOnly
     }
 
     enum ExplorerNodeStatus
