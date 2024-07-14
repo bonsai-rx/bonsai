@@ -131,7 +131,7 @@ namespace Bonsai.Editor
         {
             return status switch
             {
-                ExplorerNodeStatus.Ready => 0,
+                ExplorerNodeStatus.Ready => -1,
                 ExplorerNodeStatus.Blocked => 1,
                 _ => throw new ArgumentException("Invalid node status.", nameof(status))
             };
