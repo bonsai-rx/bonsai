@@ -33,6 +33,21 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_MulticastSourceToObjectSubject_PreservesTypeOfSourceSequence()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1914
+            var workflow = new TestWorkflow()
+                .Append(new BehaviorSubject<object> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new IntProperty())
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) })
+                .AppendOutput()
+                .Workflow;
+            var expression = workflow.Build();
+            Assert.AreEqual(typeof(IObservable<int>), expression.Type);
+        }
+
+        [TestMethod]
         public void ResourceSubject_SourceTerminatesExceptionally_ShouldNotTryToDispose()
         {
             var workflowBuilder = new TestWorkflow()
