@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Bonsai.Expressions;
 using Bonsai.Reactive;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,6 +21,38 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        class ConstantExpressionBuilder : ZeroArgumentExpressionBuilder
+        {
+            public Expression Expression { get; set; }
+
+            public override Expression Build(IEnumerable<Expression> arguments)
+            {
+                return Expression;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void Build_MulticastSubjectMissingBuildContext_ThrowsBuildException()
+        {
+            var source = new UnitBuilder().Build();
+            var builder = new MulticastSubject { Name = nameof(BehaviorSubject) };
+            builder.Build(source);
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Build_MulticastSubjectMissingName_ReturnsSameSequence()
+        {
+            var source = Expression.Constant(Observable.Return(0));
+            var builder = new TestWorkflow()
+                .Append(new ConstantExpressionBuilder { Expression = source })
+                .Append(new MulticastSubject())
+                .AppendOutput();
+            var expression = builder.Workflow.Build();
+            Assert.AreSame(source, expression);
+        }
+
         [TestMethod]
         [ExpectedException(typeof(WorkflowBuildException))]
         public void Build_MulticastInterfaceToSubjectOfDifferentInterface_ThrowsBuildException()
@@ -33,7 +68,21 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void Build_MulticastSourceToObjectSubject_PreservesTypeOfSourceSequence()
+        public async Task Build_MulticastSourceToSubject_ReturnsSameValue()
+        {
+            var value = 32;
+            var workflow = new TestWorkflow()
+                .Append(new BehaviorSubject<int> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new IntProperty { Value = value })
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) })
+                .AppendOutput();
+            var observable = workflow.BuildObservable<int>();
+            Assert.AreEqual(value, await observable.Take(1));
+        }
+
+        [TestMethod]
+        public async Task Build_MulticastSourceToObjectSubject_PreservesTypeOfSourceSequence()
         {
             // related to https://github.com/bonsai-rx/bonsai/issues/1914
             var workflow = new TestWorkflow()
@@ -41,10 +90,9 @@ namespace Bonsai.Core.Tests
                 .ResetCursor()
                 .AppendCombinator(new IntProperty())
                 .Append(new MulticastSubject { Name = nameof(BehaviorSubject) })
-                .AppendOutput()
-                .Workflow;
-            var expression = workflow.Build();
-            Assert.AreEqual(typeof(IObservable<int>), expression.Type);
+                .AppendOutput();
+            var observable = workflow.BuildObservable<int>();
+            Assert.AreEqual(0, await observable.Take(1));
         }
 
         [TestMethod]
