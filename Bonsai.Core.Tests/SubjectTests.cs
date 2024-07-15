@@ -22,13 +22,12 @@ namespace Bonsai.Core.Tests
         [ExpectedException(typeof(WorkflowBuildException))]
         public void Build_MulticastInterfaceToSubjectOfDifferentInterface_ThrowsBuildException()
         {
-            var builder = new WorkflowBuilder();
-            builder.Workflow.Add(new BehaviorSubject<IDisposable> { Name = nameof(BehaviorSubject) });
-            var source = builder.Workflow.Add(new CombinatorBuilder { Combinator = new DoubleProperty { Value = 5.5 } });
-            var convert1 = builder.Workflow.Add(new CombinatorBuilder { Combinator = new TypeCombinatorMock<IComparable>() });
-            var convert2 = builder.Workflow.Add(new MulticastSubject { Name = nameof(BehaviorSubject) });
-            builder.Workflow.AddEdge(source, convert1, new ExpressionBuilderArgument());
-            builder.Workflow.AddEdge(convert1, convert2, new ExpressionBuilderArgument());
+            var builder = new TestWorkflow()
+                .Append(new BehaviorSubject<IDisposable> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new DoubleProperty { Value = 5.5 })
+                .AppendCombinator(new TypeCombinatorMock<IComparable>())
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) });
             var expression = builder.Workflow.Build();
             Assert.IsNotNull(expression);
         }
@@ -36,12 +35,10 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void ResourceSubject_SourceTerminatesExceptionally_ShouldNotTryToDispose()
         {
-            var workflowBuilder = new WorkflowBuilder();
-            var source = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new ThrowSource() });
-            var subject = workflowBuilder.Workflow.Add(new ResourceSubject { Name = nameof(ResourceSubject) });
-            var sink = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new CatchSink() });
-            workflowBuilder.Workflow.AddEdge(source, subject, new ExpressionBuilderArgument());
-            workflowBuilder.Workflow.AddEdge(subject, sink, new ExpressionBuilderArgument());
+            var workflowBuilder = new TestWorkflow()
+                .AppendCombinator(new ThrowSource())
+                .Append(new ResourceSubject { Name = nameof(ResourceSubject) })
+                .AppendCombinator(new CatchSink());
             var observable = workflowBuilder.Workflow.BuildObservable();
             observable.FirstOrDefaultAsync().Wait();
         }
@@ -58,7 +55,7 @@ namespace Bonsai.Core.Tests
         {
             public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
             {
-                return source.Catch<TSource>(Observable.Empty<TSource>());
+                return source.Catch(Observable.Empty<TSource>());
             }
         }
 
