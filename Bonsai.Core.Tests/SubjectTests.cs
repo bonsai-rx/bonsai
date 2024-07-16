@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Bonsai.Expressions;
 using Bonsai.Reactive;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,30 +21,87 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        class ConstantExpressionBuilder : ZeroArgumentExpressionBuilder
+        {
+            public Expression Expression { get; set; }
+
+            public override Expression Build(IEnumerable<Expression> arguments)
+            {
+                return Expression;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void Build_MulticastSubjectMissingBuildContext_ThrowsBuildException()
+        {
+            var source = new UnitBuilder().Build();
+            var builder = new MulticastSubject { Name = nameof(BehaviorSubject) };
+            builder.Build(source);
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Build_MulticastSubjectMissingName_ReturnsSameSequence()
+        {
+            var source = Expression.Constant(Observable.Return(0));
+            var builder = new TestWorkflow()
+                .Append(new ConstantExpressionBuilder { Expression = source })
+                .Append(new MulticastSubject())
+                .AppendOutput();
+            var expression = builder.Workflow.Build();
+            Assert.AreSame(source, expression);
+        }
+
         [TestMethod]
         [ExpectedException(typeof(WorkflowBuildException))]
         public void Build_MulticastInterfaceToSubjectOfDifferentInterface_ThrowsBuildException()
         {
-            var builder = new WorkflowBuilder();
-            builder.Workflow.Add(new BehaviorSubject<IDisposable> { Name = nameof(BehaviorSubject) });
-            var source = builder.Workflow.Add(new CombinatorBuilder { Combinator = new DoubleProperty { Value = 5.5 } });
-            var convert1 = builder.Workflow.Add(new CombinatorBuilder { Combinator = new TypeCombinatorMock<IComparable>() });
-            var convert2 = builder.Workflow.Add(new MulticastSubject { Name = nameof(BehaviorSubject) });
-            builder.Workflow.AddEdge(source, convert1, new ExpressionBuilderArgument());
-            builder.Workflow.AddEdge(convert1, convert2, new ExpressionBuilderArgument());
+            var builder = new TestWorkflow()
+                .Append(new BehaviorSubject<IDisposable> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new DoubleProperty { Value = 5.5 })
+                .AppendCombinator(new TypeCombinatorMock<IComparable>())
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) });
             var expression = builder.Workflow.Build();
             Assert.IsNotNull(expression);
         }
 
         [TestMethod]
+        public async Task Build_MulticastSourceToSubject_ReturnsSameValue()
+        {
+            var value = 32;
+            var workflow = new TestWorkflow()
+                .Append(new BehaviorSubject<int> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new IntProperty { Value = value })
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) })
+                .AppendOutput();
+            var observable = workflow.BuildObservable<int>();
+            Assert.AreEqual(value, await observable.Take(1));
+        }
+
+        [TestMethod]
+        public async Task Build_MulticastSourceToObjectSubject_PreservesTypeOfSourceSequence()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1914
+            var workflow = new TestWorkflow()
+                .Append(new BehaviorSubject<object> { Name = nameof(BehaviorSubject) })
+                .ResetCursor()
+                .AppendCombinator(new IntProperty())
+                .Append(new MulticastSubject { Name = nameof(BehaviorSubject) })
+                .AppendOutput();
+            var observable = workflow.BuildObservable<int>();
+            Assert.AreEqual(0, await observable.Take(1));
+        }
+
+        [TestMethod]
         public void ResourceSubject_SourceTerminatesExceptionally_ShouldNotTryToDispose()
         {
-            var workflowBuilder = new WorkflowBuilder();
-            var source = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new ThrowSource() });
-            var subject = workflowBuilder.Workflow.Add(new ResourceSubject { Name = nameof(ResourceSubject) });
-            var sink = workflowBuilder.Workflow.Add(new CombinatorBuilder { Combinator = new CatchSink() });
-            workflowBuilder.Workflow.AddEdge(source, subject, new ExpressionBuilderArgument());
-            workflowBuilder.Workflow.AddEdge(subject, sink, new ExpressionBuilderArgument());
+            var workflowBuilder = new TestWorkflow()
+                .AppendCombinator(new ThrowSource())
+                .Append(new ResourceSubject { Name = nameof(ResourceSubject) })
+                .AppendCombinator(new CatchSink());
             var observable = workflowBuilder.Workflow.BuildObservable();
             observable.FirstOrDefaultAsync().Wait();
         }
@@ -58,7 +118,7 @@ namespace Bonsai.Core.Tests
         {
             public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
             {
-                return source.Catch<TSource>(Observable.Empty<TSource>());
+                return source.Catch(Observable.Empty<TSource>());
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Bonsai.Dag;
 using Bonsai.Expressions;
 
@@ -96,6 +97,13 @@ namespace Bonsai.Core.Tests
         public ExpressionBuilderGraph ToInspectableGraph()
         {
             return Workflow.ToInspectableGraph();
+        }
+
+        public IObservable<T> BuildObservable<T>()
+        {
+            var expression = Workflow.Build();
+            var observableFactory = Expression.Lambda<Func<IObservable<T>>>(expression).Compile();
+            return observableFactory();
         }
     }
 }

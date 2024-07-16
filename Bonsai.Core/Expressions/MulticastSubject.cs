@@ -67,8 +67,16 @@ namespace Bonsai.Expressions
                     );
                 }
 
-                source = CoerceMethodArgument(typeof(IObservable<>).MakeGenericType(subjectType), source);
-                observableType = subjectType;
+                var conversionParameter = Expression.Parameter(observableType);
+                var conversionBody = Expression.Convert(conversionParameter, subjectType);
+                var conversion = Expression.Lambda(conversionBody, conversionParameter);
+                return Expression.Call(
+                    typeof(MulticastSubject),
+                    nameof(Process),
+                    new[] { observableType, subjectType },
+                    source,
+                    subjectExpression,
+                    conversion);
             }
 
             return Expression.Call(typeof(MulticastSubject), nameof(Process), new[] { observableType }, source, subjectExpression);
@@ -77,6 +85,17 @@ namespace Bonsai.Expressions
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObserver<TSource> subject)
         {
             return source.Do(subject);
+        }
+
+        static IObservable<TSource> Process<TSource, TSubject>(
+            IObservable<TSource> source,
+            IObserver<TSubject> subject,
+            Func<TSource, TSubject> conversion)
+        {
+            return source.Do(
+                value => subject.OnNext(conversion(value)),
+                subject.OnError,
+                subject.OnCompleted);
         }
 
         class MulticastSubjectTypeDescriptionProvider : TypeDescriptionProvider
