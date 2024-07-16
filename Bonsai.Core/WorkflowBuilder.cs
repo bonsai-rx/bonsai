@@ -200,8 +200,14 @@ namespace Bonsai
             writer = new XmlExtensionWriter(writer, genericTypes);
 
             var assembly = Assembly.GetExecutingAssembly();
-            var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
+            var version = FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+#if BUILD_KIND_OFFICIAL_RELEASE
+            // Drop build metadata for official releases
+            var plus = version.IndexOf('+');
+            if (plus >= 0)
+                version = version.Substring(0, plus);
+#endif
+            writer.WriteAttributeString(VersionAttributeName, version);
 
             var namespaceDeclarations = GetXmlSerializerNamespaces(types);
             foreach (var qname in namespaceDeclarations)

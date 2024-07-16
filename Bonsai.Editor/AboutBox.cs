@@ -60,7 +60,12 @@ namespace Bonsai.Editor
         {
             get
             {
-                return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+                var productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+#if BUILD_KIND_OFFICIAL_RELEASE
+                return SemanticVersion.Parse(productVersion).ToString();
+#else
+                return productVersion;
+#endif
             }
         }
 
