@@ -7,9 +7,6 @@
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Scripting.Expressions\Bonsai.Scripting.Expressions.csproj" />
   </ItemGroup>
