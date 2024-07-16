@@ -191,7 +191,7 @@ namespace Bonsai.Dag
             ThrowIfEdgeVerticesNullOrNotInGraph(from, to, nameof(to));
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
+                throw new ArgumentOutOfRangeException(nameof(edgeIndex), "The specified edge index is out of range.");
             }
 
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
@@ -216,7 +216,7 @@ namespace Bonsai.Dag
             ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
+                throw new ArgumentOutOfRangeException(nameof(edgeIndex), "The specified edge index is out of range.");
             }
 
             from.Successors.Insert(edgeIndex, edge);
@@ -238,7 +238,7 @@ namespace Bonsai.Dag
             ThrowIfEdgeVerticesNullOrNotInGraph(from, to, nameof(to));
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
+                throw new ArgumentOutOfRangeException(nameof(edgeIndex), "The specified edge index is out of range.");
             }
 
             var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
@@ -263,7 +263,7 @@ namespace Bonsai.Dag
             ThrowIfEdgeVerticesNullOrNotInGraph(from, edge?.Target, nameof(edge));
             if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", nameof(edgeIndex));
+                throw new ArgumentOutOfRangeException(nameof(edgeIndex), "The specified edge index is out of range.");
             }
 
             from.Successors[edgeIndex] = edge;
@@ -313,7 +313,7 @@ namespace Bonsai.Dag
         {
             if (index < 0 || index > nodes.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), "The specified index is out of range.");
             }
 
             var node = new Node<TNodeValue, TEdgeLabel>(value);
@@ -343,7 +343,7 @@ namespace Bonsai.Dag
 
             if (index < 0 || index > nodes.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), "The specified index is out of range.");
             }
 
             InsertInternal(index, new[] { node });
@@ -375,7 +375,7 @@ namespace Bonsai.Dag
 
             if (index < 0 || index > nodes.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), "The specified index is out of range.");
             }
 
             InsertInternal(index, collection);
@@ -471,7 +471,7 @@ namespace Bonsai.Dag
         {
             if (index < 0 || index >= nodes.Count)
             {
-                throw new ArgumentOutOfRangeException("The specified index is out of range.", nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), "The specified index is out of range.");
             }
 
             var node = nodes[index];
@@ -524,19 +524,19 @@ namespace Bonsai.Dag
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("The specified index is less than zero.", nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), "The specified index is less than zero.");
             }
 
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("The count of elements to remove is less than zero.", nameof(count));
+                throw new ArgumentOutOfRangeException(nameof(count), "The count of elements to remove is less than zero.");
             }
 
             if (nodes.Count - index < count)
             {
                 throw new ArgumentOutOfRangeException(
-                    "The index and count were out of bounds or count is greater than the number of nodes from index.",
-                    nameof(count));
+                    nameof(count),
+                    "The index and count were out of bounds or count is greater than the number of nodes from index.");
             }
 
             var removed = new HashSet<Node<TNodeValue, TEdgeLabel>>();

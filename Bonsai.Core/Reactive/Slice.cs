@@ -46,19 +46,19 @@ namespace Bonsai.Reactive
             var start = Start;
             if (start < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(start));
+                throw new InvalidOperationException("The specified start index is less than zero.");
             }
 
             var step = Step;
             if (step <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(step));
+                throw new InvalidOperationException("Step size must be a positive number.");
             }
 
             var stop = Stop;
             if (stop < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(stop));
+                throw new InvalidOperationException("The specified stop index is less than zero.");
             }
 
             return (stop - start) <= 0 ? Observable.Empty<TSource>() : Observable.Create<TSource>(observer =>
