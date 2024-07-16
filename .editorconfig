@@ -34,3 +34,6 @@ dotnet_sort_system_directives_first = true
 # Predefined for members, etc does not create a message because the explicitly sized types are conveient in interop scenarios where the bit size matters.
 dotnet_style_predefined_type_for_locals_parameters_members = true:none
 dotnet_style_predefined_type_for_member_access = true:suggestion
+
+# Instantiate argument exceptions correctly
+dotnet_diagnostic.CA2208.severity = warning
