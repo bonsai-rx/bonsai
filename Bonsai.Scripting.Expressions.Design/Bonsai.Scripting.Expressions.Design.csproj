@@ -4,7 +4,7 @@
     <Description>Bonsai Design Library containing editor classes for expression scripting in Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting Expressions Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />

@@ -3,7 +3,7 @@
     <Title>Bonsai - Expression Scripting Library</Title>
     <Description>Bonsai Scripting Library containing expression scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting Expressions</PackageTags>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
