@@ -222,7 +222,7 @@ namespace Bonsai.Expressions
                              methodCall.Arguments.Count == 1 &&
                              methodCall.Arguments[0] is LambdaExpression lambda)
                     {
-                        source = lambda.Body;
+                        return GetInspectBuilder(lambda.Body);
                     }
                     else break;
                 }
