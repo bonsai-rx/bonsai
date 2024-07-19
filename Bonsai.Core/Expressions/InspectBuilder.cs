@@ -217,6 +217,13 @@ namespace Bonsai.Expressions
                     {
                         source = methodCall.Arguments[0];
                     }
+                    // If multicasting into a defer combinator, recurse on the main output
+                    else if (methodCall.Method.DeclaringType == typeof(Reactive.Defer) &&
+                             methodCall.Arguments.Count == 1 &&
+                             methodCall.Arguments[0] is LambdaExpression lambda)
+                    {
+                        source = lambda.Body;
+                    }
                     else break;
                 }
                 else if (methodCall.Object.Type == typeof(InspectBuilder))
