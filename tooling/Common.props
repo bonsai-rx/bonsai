@@ -34,4 +34,9 @@
 
     <PackageOutputPath>$(ArtifactsPath)/package/$(Configuration.ToLowerInvariant())</PackageOutputPath>
   </PropertyGroup>
+
+  <!-- For configuring launchSettings.json we cannot use property functions so we need to resolve the bootstrapper output path here -->
+  <PropertyGroup>
+    <BonsaiExecutablePath>$(ArtifactsPath)/bin/Bonsai/$(Configuration.ToLowerInvariant())/Bonsai.exe</BonsaiExecutablePath>
+  </PropertyGroup>
 </Project>
