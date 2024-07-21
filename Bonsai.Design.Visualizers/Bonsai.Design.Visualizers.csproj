@@ -4,7 +4,7 @@
     <Description>Bonsai Visualizers Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Rx Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ZedGraph" Version="5.1.7" />

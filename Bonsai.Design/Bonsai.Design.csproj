@@ -4,10 +4,10 @@
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
+    <PackageReference Include="fernandreu.ScintillaNET" Version="4.2.0" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
   </ItemGroup>
   <ItemGroup>

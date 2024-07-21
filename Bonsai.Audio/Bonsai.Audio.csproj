@@ -3,7 +3,7 @@
     <Title>Bonsai - Audio Library</Title>
     <Description>Bonsai Audio Library containing modules for sound capture and playback.</Description>
     <PackageTags>Bonsai Rx Audio</PackageTags>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="openal.redist" Version="2.0.7" />

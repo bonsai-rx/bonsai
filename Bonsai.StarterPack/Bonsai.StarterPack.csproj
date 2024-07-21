@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSymbols>false</IncludeSymbols>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
 
     <!--
     This warning basically happens because this package has no assemblies but does have dependencies

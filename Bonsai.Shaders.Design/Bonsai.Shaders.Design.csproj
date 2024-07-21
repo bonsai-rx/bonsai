@@ -4,11 +4,8 @@
     <Description>Bonsai Design Library containing editor classes for shader configuration.</Description>
     <PackageTags>Bonsai Rx Shaders Design Graphics OpenGL</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Shaders\Bonsai.Shaders.csproj" />
