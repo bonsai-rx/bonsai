@@ -7,23 +7,28 @@
     <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="**\*.svg" />
     <EmbeddedResource Include="**\*.css" />
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="SvgNet" Version="3.3.3" />
     <PackageReference Include="YamlDotNet" Version="13.1.1" />
     <PackageReference Include="Markdig" Version="0.18.1" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1823.32" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
   </ItemGroup>
-  <ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
