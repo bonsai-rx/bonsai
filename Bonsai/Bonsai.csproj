@@ -9,8 +9,12 @@
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="7.0.0" PrivateAssets="all" />
     <PackageReference Include="ILRepack" Version="2.0.34">
