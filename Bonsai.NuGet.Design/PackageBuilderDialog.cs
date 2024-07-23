@@ -520,14 +520,9 @@ namespace Bonsai.NuGet.Design
                     readonly object constant;
 
                     public ConstantPropertyDescriptor(string name, object value)
-                        : base(name, new Attribute[0])
+                        : base(name, Array.Empty<Attribute>())
                     {
-                        if (value == null)
-                        {
-                            throw new ArgumentNullException("value");
-                        }
-
-                        constant = value;
+                        constant = value ?? throw new ArgumentNullException(nameof(value));
                     }
 
                     public override bool CanResetValue(object component)

@@ -80,7 +80,7 @@ namespace Bonsai.Design
         {
             if (componentType == null)
             {
-                throw new ArgumentNullException("componentType");
+                throw new ArgumentNullException(nameof(componentType));
             }
 
             componentType.VisitMember((member, memberType) => EnsureNode(nodes, member.Name, memberType));

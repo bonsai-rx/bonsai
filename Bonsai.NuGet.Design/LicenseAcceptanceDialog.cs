@@ -15,7 +15,7 @@ namespace Bonsai.NuGet.Design
         {
             if (licensePackages == null)
             {
-                throw new ArgumentNullException("licensePackages");
+                throw new ArgumentNullException(nameof(licensePackages));
             }
 
             InitializeComponent();

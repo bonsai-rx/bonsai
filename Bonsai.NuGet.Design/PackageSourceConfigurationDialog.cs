@@ -16,7 +16,7 @@ namespace Bonsai.NuGet.Design
         {
             if (sourceProvider == null)
             {
-                throw new ArgumentNullException("sourceProvider");
+                throw new ArgumentNullException(nameof(sourceProvider));
             }
 
             InitializeComponent();

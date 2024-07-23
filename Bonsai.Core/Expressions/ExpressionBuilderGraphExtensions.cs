@@ -1106,7 +1106,7 @@ namespace Bonsai.Expressions
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             if (builder is InspectBuilder inspectBuilder)
