@@ -2,17 +2,12 @@
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
 using NuGet.Frameworks;
-using NuGet.Packaging;
 using NuGet.Protocol.Core.Types;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -24,11 +19,7 @@ namespace Bonsai.NuGet.Design
     class PackageViewController
     {
         const int PackagesPerPage = 10;
-        static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
-        static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
-        static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
-        readonly ConcurrentDictionary<Uri, IObservable<Image>> iconCache;
-        readonly IObservable<Image> defaultIcon;
+        readonly IconReader iconReader;
 
         bool loaded;
         readonly string packageManagerPath;
@@ -81,8 +72,7 @@ namespace Bonsai.NuGet.Design
             packagePageSelector.Visible = false;
 
             packageManagerPath = path;
-            iconCache = new ConcurrentDictionary<Uri, IObservable<Image>>();
-            defaultIcon = GetPackageIcon(PackageDefaultIconUrl);
+            iconReader = new IconReader(packageIcons.ImageSize);
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
@@ -177,7 +167,7 @@ namespace Bonsai.NuGet.Design
 
         public void UpdatePackageQuery()
         {
-            iconCache.Clear();
+            iconReader.ClearCache();
             var prefix = SearchPrefix;
             var updateFeed = getUpdateFeed();
             var searchTerm = searchComboBox.Text;
@@ -227,68 +217,9 @@ namespace Bonsai.NuGet.Design
             return result;
         }
 
-        IObservable<Image> GetPackageIconFileRequest(Uri iconUrl)
-        {
-            return Observable.Defer(() =>
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(iconUrl.Fragment)) return defaultIcon;
-                    using var packageReader = new PackageArchiveReader(iconUrl.AbsolutePath);
-                    using var iconStream = packageReader.GetStream(iconUrl.Fragment.Substring(1));
-                    using var image = Image.FromStream(iconStream);
-                    return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
-                }
-                catch (IOException) { return defaultIcon; }
-                catch (ArgumentException) { return defaultIcon; }
-                catch (UnauthorizedAccessException) { return defaultIcon; }
-            });
-        }
-
-        IObservable<Image> GetPackageIconWebRequest(Uri iconUrl)
-        {
-            WebRequest imageRequest;
-            try { imageRequest = WebRequest.Create(iconUrl); }
-            catch (InvalidOperationException) { return defaultIcon; }
-            return (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
-                    from image in Observable.If(
-                        () => response.ContentType.StartsWith("image/") ||
-                            response.ContentType.StartsWith("application/octet-stream"),
-                        Observable.Using(
-                            () => response.GetResponseStream(),
-                            stream =>
-                            {
-                                try
-                                {
-                                    using var image = Image.FromStream(stream);
-                                    return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
-                                }
-                                catch (ArgumentException) { return defaultIcon; }
-                            }),
-                        defaultIcon)
-                    select image)
-                    .Catch<Image, WebException>(ex => defaultIcon)
-                    .Timeout(DefaultIconTimeout, defaultIcon ?? Observable.Return(DefaultIconImage));
-        }
-
         IObservable<Image> GetPackageIcon(Uri iconUrl)
         {
-            if (iconUrl == null) return defaultIcon;
-            if (!iconCache.TryGetValue(iconUrl, out IObservable<Image> result))
-            {
-                var iconStream = (iconUrl.IsFile
-                    ? GetPackageIconFileRequest(iconUrl)
-                    : GetPackageIconWebRequest(iconUrl))
-                    .PublishLast();
-                result = iconCache.GetOrAdd(iconUrl, iconStream);
-                if (iconStream == result)
-                {
-                    var iconRequest = iconStream.Connect();
-                    if (defaultIcon != null) activeRequests.Add(iconRequest);
-                }
-            }
-
-            return result;
+            return iconReader.GetAsync(iconUrl).ToObservable();
         }
 
         public void SetPackageViewStatus(string text, Image image = null)
@@ -357,7 +288,7 @@ namespace Bonsai.NuGet.Design
             {
                 if (packageIcons.Images.Count == 0)
                 {
-                    var defaultImage = defaultIcon.Wait();
+                    var defaultImage = iconReader.GetDefaultIconAsync().Result;
                     packageIcons.Images.Add(defaultImage);
                 }
                 packageIcons.Images.Add(package.Identity.Id, image);
