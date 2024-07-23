@@ -363,6 +363,7 @@ namespace Bonsai.Editor
             toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * toolboxSplitterScale * factor.Height);
             workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
 
+#if NETFRAMEWORK
             var imageSize = toolStrip.ImageScalingSize;
             var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
             if (scalingFactor > 1)
@@ -373,6 +374,7 @@ namespace Bonsai.Editor
                 statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
                 propertyGrid.LargeButtons = scalingFactor >= 2;
             }
+#endif
             base.ScaleControl(factor, specified);
         }
 
@@ -398,7 +400,7 @@ namespace Bonsai.Editor
             iconRenderer.Dispose();
         }
 
-        #endregion
+#endregion
 
         #region Toolbox
 
