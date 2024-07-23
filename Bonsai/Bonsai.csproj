@@ -57,7 +57,7 @@
     <EmbeddedResource Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)/lib/net461/System.Runtime.CompilerServices.Unsafe.dll" Visible="false" />
   </ItemGroup>
 
-  <Target Name="NuGetConfig" AfterTargets="Build">
+  <Target Name="NuGetConfig" AfterTargets="PostBuildEvent">
     <WriteLinesToFile File="$(TargetDir)NuGet.config"
                       Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(PackageOutputPath)'))"
                       Overwrite="true"
