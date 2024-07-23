@@ -4,7 +4,8 @@
     <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks Condition="'$(ContinuousIntegrationBuild)' != 'true'">net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework Condition="'$(ContinuousIntegrationBuild)' == 'true'">net48</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
@@ -110,14 +111,14 @@
   </Target>
 
   <Target Name="UseRepackOutputForPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="BuiltProjectOutputGroup" DependsOnTargets="ConfigureRepack">
-    <Error Condition="!Exists('$(RepackedOutputFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+    <Error Condition="!Exists('$(RepackedOutputFilePath)')" Text="Project must be repacked before packing. '$(RepackedOutputFilePath)' not found." />
     <ItemGroup>
       <BuiltProjectOutputGroupOutput Remove="@(BuiltProjectOutputGroupOutput)" />
       <BuiltProjectOutputGroupOutput Include="$(RepackedOutputFilePath)" />
     </ItemGroup>
   </Target>
   <Target Name="UseRepackOutputForSymbolPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="DebugSymbolsProjectOutputGroup" DependsOnTargets="ConfigureRepack">
-    <Error Condition="!Exists('$(RepackedOutputSymbolFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+    <Error Condition="!Exists('$(RepackedOutputSymbolFilePath)')" Text="Project must be repacked before packing. '$(RepackedOutputFilePath)' not found." />
     <ItemGroup>
       <DebugSymbolsProjectOutputGroupOutput Remove="@(DebugSymbolsProjectOutputGroupOutput)" />
       <DebugSymbolsProjectOutputGroupOutput Include="$(RepackedOutputSymbolFilePath)" />
