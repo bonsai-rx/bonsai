@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
+using System.Net.Http;
 using System.Threading.Tasks;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
@@ -13,6 +13,19 @@ namespace Bonsai.Editor
 {
     static class DocumentationHelper
     {
+        static readonly HttpClient httpClient = GetHttpClient();
+
+        static HttpClient GetHttpClient()
+        {
+            var client = new HttpClient(new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate //TODO: Use DecompressionMethods.All upon .NET modernization
+            });
+            client.DefaultRequestHeaders.CacheControl = new() { MustRevalidate = true };
+            client.Timeout = TimeSpan.FromSeconds(10);
+            return client;
+        }
+
         public static async Task<Uri> GetDocumentationAsync(this IDocumentationProvider provider, string assemblyName, string uid)
         {
             var baseUrl = provider.GetDocumentationUrl(assemblyName);
@@ -52,14 +65,10 @@ namespace Bonsai.Editor
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl)
         {
-            const int ReadWriteTimeout = 10000;
             var requestUrl = $"{baseUrl}/xrefmap.yml";
-            var request = WebRequest.CreateHttp(requestUrl);
-            request.ReadWriteTimeout = ReadWriteTimeout;
-            request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate; //TODO: Use DecompressionMethods.All upon .NET modernization
-            using var response = await request.GetResponseAsync();
-            var stream = response.GetResponseStream();
+            using var response = await httpClient.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
             using var reader = new StreamReader(stream);
 
             if (reader.ReadLine().Trim() != "### YamlMime:XRefMap")
