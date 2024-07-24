@@ -101,6 +101,54 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_DeferInspectBuilder_ReturnNestedVisualizerElement()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1896
+            ExpressionBuilder target = null;
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .AppendNested(
+                    input => input
+                        .AppendUnit()
+                        .Capture(out target)
+                        .AppendOutput(),
+                    workflow => new Reactive.Defer(workflow))
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var output = workflow[workflow.Count - 1].Value;
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(output);
+            Assert.AreSame(target, visualizerElement.Builder);
+        }
+
+        [TestMethod]
+        public void Build_DeferWithNestedVisualizerInspectBuilder_ReturnNestedVisualizerElement()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1896
+            ExpressionBuilder target = null;
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .AppendNested(
+                    input => input
+                        .AppendUnit()
+                        .AppendSubject<Reactive.BehaviorSubject>(nameof(System.Reactive.Unit))
+                        .AppendNested(
+                            input => input
+                                .AppendUnit()
+                                .Capture(out target)
+                                .AppendOutput(),
+                            workflow => new Reactive.Visualizer(workflow))
+                        .AppendOutput(),
+                    workflow => new Reactive.Defer(workflow))
+                .ToInspectableGraph();
+            workflow.Build();
+
+            var output = workflow[workflow.Count - 1].Value;
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(output);
+            Assert.AreSame(target, visualizerElement.Builder);
+        }
+
+        [TestMethod]
         public void Build_PropertyMappedInspectBuilderToWorkflowOutput_ReturnVisualizerElement()
         {
             ExpressionBuilder target;

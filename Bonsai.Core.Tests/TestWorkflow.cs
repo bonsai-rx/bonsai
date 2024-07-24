@@ -94,6 +94,13 @@ namespace Bonsai.Core.Tests
             return Append(workflowBuilder);
         }
 
+        public TestWorkflow AppendSubject<TSubjectBuilder>(string name)
+            where TSubjectBuilder : SubjectExpressionBuilder, new()
+        {
+            var subjectBuilder = new TSubjectBuilder { Name = name };
+            return Append(subjectBuilder);
+        }
+
         public ExpressionBuilderGraph ToInspectableGraph()
         {
             return Workflow.ToInspectableGraph();

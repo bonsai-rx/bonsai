@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Reactive.Linq;
 using System;
 using Bonsai.Expressions;
@@ -18,12 +16,6 @@ namespace Bonsai.Reactive
     [Description("Creates a new observable sequence for each subscription using the encapsulated workflow.")]
     public class Defer : WorkflowExpressionBuilder
     {
-        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Defer" &&
-                                                                                m.GetParameters()[0].ParameterType
-                                                                                 .GetGenericArguments()[0]
-                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Defer"/> class.
         /// </summary>
@@ -59,8 +51,13 @@ namespace Bonsai.Reactive
             {
                 var factory = Expression.Lambda(selectorBody);
                 var resultType = selectorBody.Type.GetGenericArguments()[0];
-                return Expression.Call(deferMethod.MakeGenericMethod(resultType), factory);
+                return Expression.Call(typeof(Defer), nameof(Process), new[] { resultType }, factory);
             });
+        }
+
+        static IObservable<TResult> Process<TResult>(Func<IObservable<TResult>> factory)
+        {
+            return Observable.Defer(factory);
         }
     }
 }
