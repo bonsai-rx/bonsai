@@ -13,9 +13,8 @@ namespace Bonsai.NuGet.Design
 {
     class IconReader
     {
-        static readonly HttpClient httpClient = new();
-        static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
-        static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
+        static readonly HttpClient httpClient = GetHttpClient();
+        static readonly Uri PackageDefaultIconUrl = new("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
         static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
         readonly ConcurrentDictionary<Uri, Lazy<Task<Image>>> iconCache = new();
         readonly Task<Image> defaultIcon;
@@ -25,6 +24,14 @@ namespace Bonsai.NuGet.Design
         {
             targetSize = size;
             defaultIcon = GetAsync(PackageDefaultIconUrl);
+        }
+
+        static HttpClient GetHttpClient()
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.CacheControl = new() { MustRevalidate = true };
+            client.Timeout = TimeSpan.FromSeconds(10);
+            return client;
         }
 
         public void ClearCache()
@@ -71,10 +78,7 @@ namespace Bonsai.NuGet.Design
         {
             try
             {
-                using var requestCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                requestCancellation.CancelAfter(DefaultIconTimeout);
-
-                using var response = await httpClient.GetAsync(requestUri, requestCancellation.Token);
+                using var response = await httpClient.GetAsync(requestUri, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
                     var mediaType = response.Content.Headers.ContentType.MediaType;
