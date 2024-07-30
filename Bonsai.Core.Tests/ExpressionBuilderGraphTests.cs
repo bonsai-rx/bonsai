@@ -238,6 +238,16 @@ namespace Bonsai.Core.Tests
                 .BuildObservable<Unit>();
         }
 
+        [TestMethod]
+        public void BuildObservable_CovariantWorkflowType_IsCompatibleAssignment()
+        {
+            var workflow = new TestWorkflow()
+                .AppendValue("")
+                .AppendOutput()
+                .BuildObservable<object>();
+            Assert.IsNotNull(workflow);
+        }
+
         class MergeBranchVisitor : ExpressionVisitor
         {
             public int BranchCount { get; private set; }

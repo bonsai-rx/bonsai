@@ -1039,9 +1039,9 @@ namespace Bonsai.Expressions
         public static IObservable<TResult> BuildObservable<TResult>(this ExpressionBuilderGraph source)
         {
             var workflow = source.Build();
-            if (workflow.Type != typeof(IObservable<TResult>))
+            if (!typeof(IObservable<TResult>).IsAssignableFrom(workflow.Type))
             {
-                throw new ArgumentException("The compiled observable sequence does not match the specified element type.", nameof(source));
+                throw new ArgumentException("The type of the compiled observable sequence is not assignable to the specified sequence type.", nameof(source));
             }
 
             var observableFactory = Expression.Lambda<Func<IObservable<TResult>>>(workflow).Compile();
