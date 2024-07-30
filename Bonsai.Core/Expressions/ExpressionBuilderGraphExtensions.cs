@@ -1023,6 +1023,31 @@ namespace Bonsai.Expressions
             return observableFactory();
         }
 
+        /// <summary>
+        /// Builds and compiles an expression builder workflow into an observable sequence
+        /// with the specified element type.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the elements in the observable sequence.</typeparam>
+        /// <param name="source">The expression builder workflow to compile.</param>
+        /// <returns>
+        /// An observable sequence with the specified element type.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// The specified expression builder workflow does not compile into an observable sequence
+        /// with the expected element type.
+        /// </exception>
+        public static IObservable<TResult> BuildObservable<TResult>(this ExpressionBuilderGraph source)
+        {
+            var workflow = source.Build();
+            if (workflow.Type != typeof(IObservable<TResult>))
+            {
+                throw new ArgumentException("The compiled observable sequence does not match the specified element type.", nameof(source));
+            }
+
+            var observableFactory = Expression.Lambda<Func<IObservable<TResult>>>(workflow).Compile();
+            return observableFactory();
+        }
+
         static WorkflowExpressionBuilder Clone(this WorkflowExpressionBuilder builder, ExpressionBuilderGraph workflow)
         {
             var workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(builder.GetType(), workflow);

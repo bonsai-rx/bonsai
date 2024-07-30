@@ -228,6 +228,16 @@ namespace Bonsai.Core.Tests
             Assert.IsFalse(visitor.HasPublishBranch);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
+        {
+            new TestWorkflow()
+                .AppendValue(0)
+                .AppendOutput()
+                .BuildObservable<Unit>();
+        }
+
         class MergeBranchVisitor : ExpressionVisitor
         {
             public int BranchCount { get; private set; }
