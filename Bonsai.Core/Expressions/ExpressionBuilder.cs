@@ -493,7 +493,8 @@ namespace Bonsai.Expressions
         {
             if (argument.Type.IsGenericType && parameterType.IsGenericType &&
                 argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
-                parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                parameterType.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                !parameterType.IsAssignableFrom(argument.Type))
             {
                 var argumentObservableType = argument.Type.GetGenericArguments()[0];
                 var parameterObservableType = parameterType.GetGenericArguments()[0];
