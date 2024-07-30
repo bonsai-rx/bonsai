@@ -1041,7 +1041,7 @@ namespace Bonsai.Expressions
             var workflow = source.Build();
             if (!typeof(IObservable<TResult>).IsAssignableFrom(workflow.Type))
             {
-                throw new ArgumentException("The type of the compiled observable sequence is not assignable to the specified sequence type.", nameof(source));
+                workflow = ExpressionBuilder.CoerceMethodArgument(typeof(IObservable<TResult>), workflow);
             }
 
             var observableFactory = Expression.Lambda<Func<IObservable<TResult>>>(workflow).Compile();

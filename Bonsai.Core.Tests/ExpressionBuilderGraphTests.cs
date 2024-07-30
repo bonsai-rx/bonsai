@@ -229,7 +229,7 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
         {
             new TestWorkflow()
@@ -245,6 +245,16 @@ namespace Bonsai.Core.Tests
                 .AppendValue("")
                 .AppendOutput()
                 .BuildObservable<object>();
+            Assert.IsNotNull(workflow);
+        }
+
+        [TestMethod]
+        public void BuildObservable_ConvertibleWorkflowType_IsCompatibleAssignment()
+        {
+            var workflow = new TestWorkflow()
+                .AppendValue(1)
+                .AppendOutput()
+                .BuildObservable<double>();
             Assert.IsNotNull(workflow);
         }
 
