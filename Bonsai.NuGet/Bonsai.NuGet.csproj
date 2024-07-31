@@ -4,10 +4,10 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="Rx-Main" Version="2.2.5" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
     <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>

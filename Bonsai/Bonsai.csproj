@@ -14,6 +14,7 @@
     <ArtifactsPivots Condition="'$(TargetFramework)' == 'net48'">$(Configuration.ToLowerInvariant())</ArtifactsPivots>
   </PropertyGroup>
 
+  <!-- App.manifest is required in .NETFramework but discouraged in .NETCoreApp see WFAC010 warning -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
