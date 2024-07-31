@@ -207,11 +207,18 @@ namespace Bonsai.Configuration
                 catch (BadImageFormatException) { continue; }
                 catch (IOException) { continue; }
 
-                var locationKey = (assemblyName.Name, assemblyName.ProcessorArchitecture);
+#if NET7_0_OR_GREATER
+                // Support for ProcessorArchitecture was removed in NET7 so assume MSIL for now
+                var processorArchitecture = ProcessorArchitecture.MSIL;
+#else
+                var processorArchitecture = assemblyName.ProcessorArchitecture;
+#endif
+
+                var locationKey = (assemblyName.Name, processorArchitecture);
                 if (!configuration.AssemblyLocations.Contains(locationKey))
                 {
                     configuration.AssemblyReferences.Add(assemblyName.Name);
-                    configuration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyFile);
+                    configuration.AssemblyLocations.Add(assemblyName.Name, processorArchitecture, assemblyFile);
                 }
             }
         }
