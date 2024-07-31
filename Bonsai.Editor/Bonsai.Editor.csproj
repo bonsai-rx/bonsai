@@ -14,10 +14,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="SvgNet" Version="3.3.3" />
-    <PackageReference Include="YamlDotNet" Version="13.1.1" />
-    <PackageReference Include="Markdig" Version="0.18.1" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1823.32" />
+    <PackageReference Include="SvgNet" Version="3.3.8" />
+    <PackageReference Include="YamlDotNet" Version="16.0.0" />
+    <PackageReference Include="Markdig" Version="0.37.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
   </ItemGroup>
   
   <ItemGroup>
