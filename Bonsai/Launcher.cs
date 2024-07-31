@@ -25,7 +25,7 @@ namespace Bonsai
 #if NETFRAMEWORK
         internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net48");
 #else
-        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net6.0-windows7.0");
+        internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net8.0-windows7.0");
 #endif
 
         internal static int LaunchPackageManager(

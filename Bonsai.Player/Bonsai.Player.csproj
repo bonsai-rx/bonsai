@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <Title>Bonsai - Player</Title>
     <ToolCommandName>bonsai</ToolCommandName>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <Description>A tool for running Bonsai workflows from the command-line.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>

@@ -4,7 +4,7 @@
     <Description>An integrated development environment for the Bonsai visual programming language.</Description>
     <PackageTags>Bonsai Editor Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   

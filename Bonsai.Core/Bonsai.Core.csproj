@@ -3,14 +3,14 @@
     <Title>Bonsai - Core Library</Title>
     <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
-    <TargetFrameworks>net472;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0;net8.0</TargetFrameworks>
     <RootNamespace>Bonsai</RootNamespace>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="Rx-Linq" Version="2.2.5" />
     <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Include="System.CodeDom" Version="6.0.0" />
   </ItemGroup>

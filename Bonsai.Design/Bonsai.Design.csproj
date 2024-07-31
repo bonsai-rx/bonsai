@@ -3,7 +3,7 @@
     <Title>Bonsai - Design Library</Title>
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
-    <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   
