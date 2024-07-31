@@ -180,8 +180,9 @@ namespace Bonsai.Configuration
                 else
                 {
                     var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                    var assemblyUri = new Uri(assemblyFile).AbsoluteUri;
                     configuration.AssemblyReferences.Add(assemblyName.Name);
-                    configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyName.CodeBase);
+                    configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyUri);
                     scriptEnvironment.AssemblyName = assemblyName;
                 }
                 return scriptEnvironment;
