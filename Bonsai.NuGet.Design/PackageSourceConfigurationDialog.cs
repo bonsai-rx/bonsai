@@ -1,5 +1,7 @@
 ﻿using NuGet.Configuration;
 using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -10,6 +12,7 @@ namespace Bonsai.NuGet.Design
         const string NuGetSourceName = "nuget.org";
         const string DefaultPackageSourceName = "Package source";
         const string DefaultPackageSource = "http://packagesource";
+        readonly ComponentResourceManager resources = new(typeof(PackageSourceConfigurationDialog));
         readonly IPackageSourceProvider provider;
 
         public PackageSourceConfigurationDialog(IPackageSourceProvider sourceProvider)
@@ -21,6 +24,15 @@ namespace Bonsai.NuGet.Design
 
             InitializeComponent();
             provider = sourceProvider;
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            var uncheckedImage = (Image)resources.GetObject("unchecked.Image");
+            var checkedImage = (Image)resources.GetObject("checked.Image");
+            checkBoxesImageList.Images.Add("unchecked", uncheckedImage);
+            checkBoxesImageList.Images.Add("checked", checkedImage);
+            base.ScaleControl(factor, specified);
         }
 
         static PackageSource GetItemPackageSource(ListViewItem item)

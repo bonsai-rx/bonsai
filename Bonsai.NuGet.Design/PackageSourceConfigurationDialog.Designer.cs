@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PackageSourceConfigurationDialog));
             this.moveDownButton = new System.Windows.Forms.Button();
             this.moveUpButton = new System.Windows.Forms.Button();
             this.removeButton = new System.Windows.Forms.Button();
@@ -207,10 +206,9 @@
             // 
             // checkBoxesImageList
             // 
-            this.checkBoxesImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("checkBoxesImageList.ImageStream")));
+            this.checkBoxesImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.checkBoxesImageList.ImageSize = new System.Drawing.Size(16, 16);
             this.checkBoxesImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.checkBoxesImageList.Images.SetKeyName(0, "unchecked");
-            this.checkBoxesImageList.Images.SetKeyName(1, "checked");
             // 
             // machineWideListLabel
             // 
