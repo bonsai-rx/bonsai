@@ -400,7 +400,7 @@ namespace Bonsai.Editor
             iconRenderer.Dispose();
         }
 
-#endregion
+        #endregion
 
         #region Toolbox
 
