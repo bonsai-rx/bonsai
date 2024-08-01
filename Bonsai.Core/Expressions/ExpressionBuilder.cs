@@ -474,7 +474,7 @@ namespace Bonsai.Expressions
                 var argument = arguments[k + offset];
                 if (argument.Type != arrayType)
                 {
-                    argument = CoerceMethodArgument(arrayType, argument);
+                    argument = ConvertExpression(argument, arrayType);
                 }
                 initializers[k] = argument;
             }
@@ -489,22 +489,23 @@ namespace Bonsai.Expressions
             return expandedArguments;
         }
 
-        internal static Expression CoerceMethodArgument(Type parameterType, Expression argument)
+        internal static Expression ConvertExpression(Expression expression, Type parameterType)
         {
-            if (argument.Type.IsGenericType && parameterType.IsGenericType &&
-                argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
-                parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
+            if (expression.Type.IsGenericType && parameterType.IsGenericType &&
+                expression.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                parameterType.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                !parameterType.IsAssignableFrom(expression.Type))
             {
-                var argumentObservableType = argument.Type.GetGenericArguments()[0];
+                var argumentObservableType = expression.Type.GetGenericArguments()[0];
                 var parameterObservableType = parameterType.GetGenericArguments()[0];
                 var conversionParameter = Expression.Parameter(argumentObservableType);
                 var conversion = Expression.Convert(conversionParameter, parameterObservableType);
                 var select = selectMethod.MakeGenericMethod(argumentObservableType, parameterObservableType);
-                return Expression.Call(select, argument, Expression.Lambda(conversion, conversionParameter));
+                return Expression.Call(select, expression, Expression.Lambda(conversion, conversionParameter));
             }
             else
             {
-                return Expression.Convert(argument, parameterType);
+                return Expression.Convert(expression, parameterType);
             }
         }
 
@@ -518,7 +519,7 @@ namespace Bonsai.Expressions
                 if (argument.Type != parameterType)
                 {
                     isCoerced |= !parameterType.IsAssignableFrom(argument.Type);
-                    argument = CoerceMethodArgument(parameterType, argument);
+                    argument = ConvertExpression(argument, parameterType);
                 }
                 return argument;
             });

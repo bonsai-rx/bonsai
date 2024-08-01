@@ -108,9 +108,7 @@ namespace Bonsai.Core.Tests
 
         public IObservable<T> BuildObservable<T>()
         {
-            var expression = Workflow.Build();
-            var observableFactory = Expression.Lambda<Func<IObservable<T>>>(expression).Compile();
-            return observableFactory();
+            return Workflow.BuildObservable<T>();
         }
     }
 }
