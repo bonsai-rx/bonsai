@@ -8,21 +8,21 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents an operator that converts element-timestamp pairs of an observable
-    /// sequence into proper timestamped elements.
+    /// Represents an operator that converts element-timestamp pairs in an observable
+    /// sequence into <see cref="Timestamped{T}"/> values.
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Converts a pair of element and timestamp into a proper timestamped type.")]
+    [Description("Converts a sequence of element-timestamp pairs into a sequence of timestamped values.")]
     public class CreateTimestamped
     {
         /// <summary>
-        /// Converts element-timestamp pairs of an observable sequence into proper
-        /// timestamped elements.
+        /// Converts element-timestamp pairs in an observable sequence into
+        /// <see cref="Timestamped{T}"/> values.
         /// </summary>
         /// <typeparam name="TSource">The type of the value being timestamped.</typeparam>
         /// <param name="source">The sequence of element-timestamp pairs.</param>
-        /// <returns>An observable sequence of timestamped values.</returns>
+        /// <returns>An observable sequence of <see cref="Timestamped{T}"/> values.</returns>
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<Tuple<TSource, DateTimeOffset>> source)
         {
             return source.Select(xs => new Timestamped<TSource>(xs.Item1, xs.Item2));
