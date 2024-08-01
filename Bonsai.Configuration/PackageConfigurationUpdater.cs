@@ -98,7 +98,7 @@ namespace Bonsai.Configuration
             return tags != null && tags.Contains(PackageTagFilter);
         }
 
-        static string ResolvePlatformNameAlias(string name)
+        static ProcessorArchitecture ResolveArchitectureAlias(string name)
         {
             switch (name)
             {
@@ -108,20 +108,20 @@ namespace Bonsai.Configuration
                 case "intel64":
                 case "x86-64":
                 case "x86_64":
-                    return "x64";
+                    return ProcessorArchitecture.Amd64;
                 case "win32":
                 case "x86":
                 case "ia32":
                 case "386":
-                    return "x86";
+                    return ProcessorArchitecture.X86;
                 default:
-                    return string.Empty;
+                    return ProcessorArchitecture.None;
             }
         }
 
-        static string ResolvePathPlatformName(string path)
+        static ProcessorArchitecture ResolvePathArchitecture(string path)
         {
-            var platformName = string.Empty;
+            var architecture = ProcessorArchitecture.None;
             var components = path.Split(DirectorySeparators, StringSplitOptions.RemoveEmptyEntries);
             components = Array.ConvertAll(components, name => name.ToLower());
 
@@ -130,23 +130,24 @@ namespace Bonsai.Configuration
             {
                 for (int i = 3; i < components.Length; i++)
                 {
-                    platformName = ResolvePlatformNameAlias(components[i]);
-                    if (!string.IsNullOrEmpty(platformName)) break;
+                    architecture = ResolveArchitectureAlias(components[i]);
+                    if (architecture != ProcessorArchitecture.None) break;
                 }
             }
 
-            return platformName;
+            return architecture;
         }
 
-        static IEnumerable<string> GetAssemblyLocations(NuGetFramework projectFramework, PackageReaderBase package)
+        static IEnumerable<IGrouping<ProcessorArchitecture, string>> GetArchitectureSpecificAssemblyLocations(NuGetFramework projectFramework, PackageReaderBase package)
         {
             var nearestFramework = package.GetItems(PackagingConstants.Folders.Build).GetNearest(projectFramework);
-            if (nearestFramework == null) return Enumerable.Empty<string>();
+            if (nearestFramework == null) return Enumerable.Empty<IGrouping<ProcessorArchitecture, string>>();
 
             return from file in nearestFramework.Items
-                   where Path.GetExtension(file) == AssemblyExtension &&
-                         !string.IsNullOrEmpty(ResolvePathPlatformName(file))
-                   select PathUtility.GetPathWithForwardSlashes(file);
+                   where Path.GetExtension(file) == AssemblyExtension
+                   let architecture = ResolvePathArchitecture(file)
+                   where architecture != ProcessorArchitecture.None
+                   group PathUtility.GetPathWithForwardSlashes(file) by architecture;
         }
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
@@ -164,9 +165,11 @@ namespace Bonsai.Configuration
 
             return from file in nativeFramework.Items
                    group file by Path.GetDirectoryName(file) into folder
-                   let platform = ResolvePathPlatformName(folder.Key)
-                   where !string.IsNullOrWhiteSpace(platform)
-                   select new LibraryFolder(CombinePath(installPath, folder.Key), platform);
+                   let architecture = ResolvePathArchitecture(folder.Key)
+                   where architecture != ProcessorArchitecture.None
+                   select new LibraryFolder(
+                       CombinePath(installPath, folder.Key),
+                       architecture == ProcessorArchitecture.X86 ? "x86" : "x64");
         }
 
         static IEnumerable<LibraryFolder> GetRuntimeLibraryFolders(PackageReaderBase package, string installPath)
@@ -189,21 +192,39 @@ namespace Bonsai.Configuration
 
         void RegisterAssemblyLocations(PackageReaderBase package, string installPath, string relativePath, bool addReferences)
         {
-            var assemblyLocations = GetAssemblyLocations(bootstrapperFramework, package);
-            RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, addReferences);
+            var platformSpecificLocations = GetArchitectureSpecificAssemblyLocations(bootstrapperFramework, package);
+            foreach (var assemblyLocations in platformSpecificLocations)
+            {
+                RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, addReferences, assemblyLocations.Key);
+            }
         }
 
-        void RegisterAssemblyLocations(IEnumerable<string> assemblyLocations, string installPath, string relativePath, bool addReferences)
+        void RegisterAssemblyLocations(
+            IEnumerable<string> assemblyLocations,
+            string installPath,
+            string relativePath,
+            bool addReferences,
+            ProcessorArchitecture processorArchitecture = ProcessorArchitecture.None)
         {
             foreach (var path in assemblyLocations)
             {
                 var assemblyFile = CombinePath(installPath, path);
                 var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                if (processorArchitecture == ProcessorArchitecture.None)
+                {
+#if NET7_0_OR_GREATER
+                    // Support for ProcessorArchitecture was removed in NET7 so assume MSIL for now
+                    processorArchitecture = ProcessorArchitecture.MSIL;
+#else
+                    processorArchitecture = assemblyName.ProcessorArchitecture;
+#endif
+                }
+
                 var assemblyLocation = CombinePath(relativePath, path);
-                var assemblyLocationKey = (assemblyName.Name, assemblyName.ProcessorArchitecture);
+                var assemblyLocationKey = (assemblyName.Name, processorArchitecture);
                 if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
                 {
-                    packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
+                    packageConfiguration.AssemblyLocations.Add(assemblyName.Name, processorArchitecture, assemblyLocation);
                 }
                 else if (packageConfiguration.AssemblyLocations[assemblyLocationKey].Location != assemblyLocation)
                 {
@@ -219,8 +240,11 @@ namespace Bonsai.Configuration
 
         void RemoveAssemblyLocations(PackageReaderBase package, string installPath, bool removeReference)
         {
-            var assemblyLocations = GetAssemblyLocations(bootstrapperFramework, package);
-            RemoveAssemblyLocations(assemblyLocations, installPath, removeReference);
+            var platformSpecificLocations = GetArchitectureSpecificAssemblyLocations(bootstrapperFramework, package);
+            foreach (var assemblyLocations in platformSpecificLocations)
+            {
+                RemoveAssemblyLocations(assemblyLocations, installPath, removeReference);
+            }
         }
 
         void RemoveAssemblyLocations(IEnumerable<string> assemblyLocations, string installPath, bool removeReference)
@@ -462,6 +486,13 @@ namespace Bonsai.Configuration
                     }
                 }
 
+                // Reference assemblies should generally always be MSIL but for backwards compatibility
+                // we allow the processor architecture to be set by the assembly for .NET Framework.
+                // In future releases of the modern .NET bootstrapper we need to revisit this entirely
+                // and ensure that none of these considerations impact on the Bonsai.config file,
+                // most likely by removing all platform-specific paths and references. Runtime assembly
+                // resolution is OS-specific and architecture-specific and should not be versioned together
+                // with the package dependency graph.
                 var assemblyLocations = GetCompatibleAssemblyReferences(projectFramework, packageReader);
                 Owner.RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, taggedPackage);
                 packageConfiguration.Save();
