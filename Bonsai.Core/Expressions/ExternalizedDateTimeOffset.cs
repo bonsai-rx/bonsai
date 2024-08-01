@@ -60,7 +60,7 @@ namespace Bonsai.Expressions
                 var propertySourceType = typeof(IObservable<DateTimeOffset>);
                 if (source.Type != propertySourceType)
                 {
-                    source = CoerceMethodArgument(propertySourceType, source);
+                    source = ConvertExpression(source, propertySourceType);
                 }
 
                 return source;

@@ -1041,7 +1041,7 @@ namespace Bonsai.Expressions
             var workflow = source.Build();
             if (!typeof(IObservable<TResult>).IsAssignableFrom(workflow.Type))
             {
-                workflow = ExpressionBuilder.CoerceMethodArgument(typeof(IObservable<TResult>), workflow);
+                workflow = ExpressionBuilder.ConvertExpression(workflow, typeof(IObservable<TResult>));
             }
 
             var observableFactory = Expression.Lambda<Func<IObservable<TResult>>>(workflow).Compile();
