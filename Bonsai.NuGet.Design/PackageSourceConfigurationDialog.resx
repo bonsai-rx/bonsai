@@ -121,7 +121,7 @@
   <data name="moveDownButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vgAADr4B6kKxwAAAAKFJREFUOE+lkUEKwzAMBPM2P87f6C99dbPCKrOKS1K6IGI5O0NpjjnnX+MLMsaY
+        vQAADr0BR/uQrQAAAKFJREFUOE+lkUEKwzAMBPM2P87f6C99dbPCKrOKS1K6IGI5O0NpjjnnX+MLMsaY
         nHUdMcYWRFBrLeax4Cy+VuerQB0yVaBySHYCvdOZzE4QEj0pyDsNmYug955AFXzekbkIBGSRAt3lmcxW
         kJLd+VbAcp38ZWSqIP6onSRhdciYgJ+KEsLqGGPLCiUVVoyxBUlJhRVjbClZEoMVY7j8PvN4A80ziomU
         990nAAAAAElFTkSuQmCC
@@ -130,7 +130,7 @@
   <data name="moveUpButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vgAADr4B6kKxwAAAAJlJREFUOE+lktENgCAMRJmN4VjDLfmttmnJXalR4yWXUOQ9E6WJyK/ykDLnPLQ+
+        vQAADr0BR/uQrQAAAJlJREFUOE+lktENgCAMRJmN4VjDLfmttmnJXalR4yWXUOQ9E6WJyK/ykDLnPLQ+
         rhBDA8Rh8ZKEGBo8AY8xrFlCDA1XEO69W7OEGBwquJIgkwUlHA0JMpsAD1frV4J4E0IheRQEnAX4DJlN
         4LWPmQTrXiBTCexX6RoFvmcSZLJgXZZKoNEzyJAAcyfQEEMDRCGsb1uIweF7pZ0wbIqJ5IDpuQAAAABJ
         RU5ErkJggg==
@@ -139,7 +139,7 @@
   <data name="removeButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vgAADr4B6kKxwAAAAUlJREFUOE+lU6GOg1AQ5BP6Cf2E+4QLnqQWV4EHjUJhGzxJJbICDxpFQvCHg4DA
+        vQAADr0BR/uQrQAAAUlJREFUOE+lU6GOg1AQ5BP6Cf2E+4QLnqQWV4EHjUJhGzxJJbICDxpFQvCHg4DA
         Yd/tLPvK4wJ34iaZ9GVndxh4WwtYluVCfBIVcSYGLPwA1SPp0bxpIaiqSjmOw2zbdhMJdL4S6yzLlG3b
         qigK6JHI3FCmacoi6HmeGscRSZAswDmOY9bQR7WXjK5AExJoAzBJEjTOXdexIWowoVpNvMjoChQg5Hm+
         M8HT8Eo4G6muMrbHmQkIk2ma8PRPaT8G3Ikc1TSAKdWf0nYMGT5M4Lrun/E/iDM+nDlofgPf9/kDysgG
@@ -151,30 +151,14 @@
   <data name="addButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vgAADr4B6kKxwAAAAEZJREFUOE/dkTEKADAIxHyb/3+Pa4twQ4WAnS+QKXIdGkRVHVJ5p48zc+g80IGk
+        vQAADr0BR/uQrQAAAEZJREFUOE/dkTEKADAIxHyb/3+Pa4twQ4WAnS+QKXIdGkRVHVJ5p48zc+g80IGk
         ARJf+9VpgKRjUn8x6UADyjsmA6TyQ8QFk1WSrGFXjdQAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="checkBoxesImageList.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  <metadata name="checkBoxesImageList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>180, 17</value>
-  </data>
-  <data name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  </metadata>
+  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
-  </data>
-  <data name="checked.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAJpJREFUOE+lzgEJwCAQhWFT2MEIhjCDMWxgB2uYwwoWsMSNd+xExpQ5fxDm2H07
-        RYcxEELYPlIHdvoFxBip1srP20DOmZRSpLXm+xbQWuNBANgCLQF8VEq5b0TOOR42xtxvFkBKqa8KRFbH
-        GdEpgHXxJxl6ri5NAQTEWtuRcXVpCUjeewbG1aVPAHobRp+BWa/A7pEYOOkQILoAJ5VmTOFnoT4AAAAA
-        SUVORK5CYII=
-</value>
-  </data>
-  <data name="unchecked.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAC1JREFUOE9j+E8hABtQXl5OMoYBuAGkgFEDRg0AgUFqAKkYBsAGUAIoNOD/fwB6
-        Pq+umpazgQAAAABJRU5ErkJggg==
-</value>
-  </data>
+  </metadata>
 </root>

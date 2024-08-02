@@ -70,6 +70,16 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap CheckedImage {
+            get {
+                object obj = ResourceManager.GetObject("CheckedImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No existing package metadata file exists. Do you want to create a new file?.
         /// </summary>
         internal static string CreatePackageMetadata {
@@ -402,6 +412,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap SettingsImage {
             get {
                 object obj = ResourceManager.GetObject("SettingsImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UncheckedImage {
+            get {
+                object obj = ResourceManager.GetObject("UncheckedImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
