@@ -1114,9 +1114,10 @@ namespace Bonsai.Editor.GraphModel
             CreateGraphNodeType nodeType)
         {
             // Estimate number of inputs to the nested node
-            var inputCount = workflowBuilder.ArgumentRange.LowerBound;
-            if (nodeType == CreateGraphNodeType.Successor) inputCount = Math.Max(inputCount, selectedNodes.Count());
-            else inputCount = Math.Max(inputCount, selectedNodes.Sum(node => workflow.PredecessorEdges(node).Count()));
+            var inputCount = nodeType == CreateGraphNodeType.Successor
+                ? selectedNodes.Count(node => !node.Value.IsBuildDependency())
+                : selectedNodes.Sum(node => workflow.PredecessorEdges(node).Count(edge => !edge.Item1.Value.IsBuildDependency()));
+            inputCount = Math.Max(workflowBuilder.ArgumentRange.LowerBound, inputCount);
 
             // Limit number of inputs depending on nested operator argument range
             if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder.GetType() == typeof(Defer)))
