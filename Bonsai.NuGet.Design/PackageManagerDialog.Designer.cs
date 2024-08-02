@@ -241,7 +241,7 @@
             // packageSourceLabel
             // 
             this.packageSourceLabel.Location = new System.Drawing.Point(4, 0);
-            this.packageSourceLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.packageSourceLabel.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
             this.packageSourceLabel.Name = "packageSourceLabel";
             this.packageSourceLabel.Size = new System.Drawing.Size(120, 27);
             this.packageSourceLabel.TabIndex = 3;
