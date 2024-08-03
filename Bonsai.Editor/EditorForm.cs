@@ -350,14 +350,10 @@ namespace Bonsai.Editor
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
 #if NETFRAMEWORK
-            const float DefaultToolboxSplitterDistance = 245f;
             var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f / factor.Width : 1.0f;
-            var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f / factor.Height : 1.0f;
-            toolboxSplitterScale *= DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * workflowSplitterScale * factor.Height);
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
-            toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * toolboxSplitterScale * factor.Height);
             workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
 
             var imageSize = toolStrip.ImageScalingSize;
@@ -371,6 +367,8 @@ namespace Bonsai.Editor
                 propertyGrid.LargeButtons = scalingFactor >= 2;
             }
 #endif
+            var toolboxBottomMargin = toolboxSplitContainer.Margin.Bottom;
+            toolboxSplitContainer.SplitterDistance = toolboxSplitContainer.Height - propertiesSplitContainer.SplitterDistance - toolboxBottomMargin;
             base.ScaleControl(factor, specified);
         }
 
