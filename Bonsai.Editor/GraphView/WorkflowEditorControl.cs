@@ -97,6 +97,7 @@ namespace Bonsai.Editor.GraphView
             tabPage.SuspendLayout();
 
             var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
+            breadcrumbs.Dock = DockStyle.Fill;
             breadcrumbs.WorkflowPath = null;
             breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
             workflowGraphView.WorkflowPathChanged += (sender, e) =>
