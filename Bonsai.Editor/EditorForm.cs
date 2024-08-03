@@ -366,6 +366,9 @@ namespace Bonsai.Editor
                 statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
                 propertyGrid.LargeButtons = scalingFactor >= 2;
             }
+#else
+            const float PropertiesSplitterScale = 0.4f; // correct for overshoot rescaling in .NET core
+            propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * PropertiesSplitterScale * factor.Height);
 #endif
             var toolboxBottomMargin = toolboxSplitContainer.Margin.Bottom;
             toolboxSplitContainer.SplitterDistance = toolboxSplitContainer.Height - propertiesSplitContainer.SplitterDistance - toolboxBottomMargin;
