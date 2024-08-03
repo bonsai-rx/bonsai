@@ -502,7 +502,8 @@ namespace Bonsai.Editor
             var workflowValidated = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(WorkflowValidated, handler),
                 handler => Events.RemoveHandler(WorkflowValidated, handler))
-                .Select(evt => selectionModel.SelectedView);
+                .Select(evt => selectionModel.SelectedView)
+                .Merge(Observable.Return(selectionModel.SelectedView));
             return Observable.Merge(selectedViewChanged, workflowValidated.Do(view =>
             {
                 if (workflowBuilder.Workflow == null)
