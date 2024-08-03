@@ -19,19 +19,37 @@ namespace Bonsai.Editor
         {
             imageList = new();
             stateImageList = new();
-            StateImageList = stateImageList;
-            ImageList = imageList;
-        }
-
-        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
-        {
-            imageList.Images.Clear();
-            stateImageList.Images.Clear();
             imageList.Images.Add(Resources.WorkflowEditableImage);
             imageList.Images.Add(Resources.WorkflowReadOnlyImage);
+#if NETFRAMEWORK
             stateImageList.Images.Add(Resources.StatusReadyImage);
             stateImageList.Images.Add(Resources.StatusBlockedImage);
-            base.ScaleControl(factor, specified);
+#else
+            // TreeView.StateImageList.ImageSize is internally scaled according to initial system DPI (not font).
+            // To avoid excessive scaling of images we must prepare correctly sized ImageList beforehand.
+            const float DefaultDpi = 96f;
+            using var graphics = CreateGraphics();
+            var dpiScale = graphics.DpiY / DefaultDpi;
+            stateImageList.ImageSize = new Size(
+                (int)(16 * dpiScale),
+                (int)(16 * dpiScale));
+            stateImageList.Images.Add(ResizeMakeBorder(Resources.StatusReadyImage, stateImageList.ImageSize));
+            stateImageList.Images.Add(ResizeMakeBorder(Resources.StatusBlockedImage, stateImageList.ImageSize));
+
+            static Bitmap ResizeMakeBorder(Bitmap original, Size newSize)
+            {
+                //TODO: DrawImageUnscaledAndClipped gives best results but blending is not great
+                var image = new Bitmap(newSize.Width, newSize.Height, original.PixelFormat);
+                using var graphics = Graphics.FromImage(image);
+                var offsetX = (newSize.Width - original.Width) / 2;
+                var offsetY = (newSize.Height - original.Height) / 2;
+                graphics.DrawImageUnscaledAndClipped(original, new Rectangle(offsetX, offsetY, original.Width, original.Height));
+                return image;
+            }
+#endif
+
+            StateImageList = stateImageList;
+            ImageList = imageList;
         }
 
         protected override void OnBeforeCollapse(TreeViewCancelEventArgs e)
