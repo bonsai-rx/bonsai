@@ -258,6 +258,8 @@ namespace Bonsai.Editor
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
             editorControl.AnnotationPanelSize = (int)Math.Round(
                 EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
+            explorerSplitContainer.SplitterDistance = (int)Math.Round(
+                EditorSettings.Instance.ExplorerSplitterDistance * scaleFactor.Width);
         }
 
         void CloseEditorForm()
@@ -265,6 +267,8 @@ namespace Bonsai.Editor
             Application.RemoveMessageFilter(hotKeys);
             EditorSettings.Instance.AnnotationPanelSize = (int)Math.Round(
                 editorControl.AnnotationPanelSize * inverseScaleFactor.Width);
+            EditorSettings.Instance.ExplorerSplitterDistance = (int)Math.Round(
+                explorerSplitContainer.SplitterDistance * inverseScaleFactor.Width);
             var desktopBounds = WindowState != FormWindowState.Normal ? RestoreBounds : Bounds;
             EditorSettings.Instance.DesktopBounds = ScaleBounds(desktopBounds, inverseScaleFactor);
             if (WindowState == FormWindowState.Minimized)
