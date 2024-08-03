@@ -17,6 +17,9 @@ namespace Bonsai
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+#if NETCOREAPP
+                Application.SetHighDpiMode(HighDpiMode.SystemAware);
+#endif
                 visualStylesEnabled = true;
             }
         }

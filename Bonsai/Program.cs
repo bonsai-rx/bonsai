@@ -220,7 +220,11 @@ namespace Bonsai
                     editorArgs.AddRange(new[] { PipeCommand, pipeName });
 
                     var setupInfo = new ProcessStartInfo();
+#if NETFRAMEWORK
                     setupInfo.FileName = Assembly.GetEntryAssembly().Location;
+#else
+                    setupInfo.FileName = Environment.ProcessPath;
+#endif
                     setupInfo.Arguments = string.Join(" ", editorArgs);
                     setupInfo.WorkingDirectory = workingDirectory;
                     setupInfo.UseShellExecute = false;

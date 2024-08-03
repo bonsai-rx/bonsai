@@ -76,6 +76,7 @@ namespace Bonsai
         {
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="WorkflowBuildException"/> class with
         /// serialized data.
@@ -92,5 +93,6 @@ namespace Bonsai
             : base(info, context)
         {
         }
+#endif
     }
 }

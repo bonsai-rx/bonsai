@@ -1,5 +1,4 @@
-﻿#if NET472_OR_GREATER
-using Microsoft.CSharp;
+﻿using Microsoft.CSharp;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
@@ -181,8 +180,9 @@ namespace Bonsai.Configuration
                 else
                 {
                     var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                    var assemblyUri = new Uri(assemblyFile).AbsoluteUri;
                     configuration.AssemblyReferences.Add(assemblyName.Name);
-                    configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyName.CodeBase);
+                    configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyUri);
                     scriptEnvironment.AssemblyName = assemblyName;
                 }
                 return scriptEnvironment;
@@ -190,4 +190,3 @@ namespace Bonsai.Configuration
         }
     }
 }
-#endif

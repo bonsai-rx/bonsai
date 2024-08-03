@@ -616,7 +616,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (node == null)
             {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             var icon = node.Icon;
@@ -661,7 +661,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (icon == null)
             {
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             }
 
             if (!rendererCache.TryGetValue(icon.Name, out renderer))

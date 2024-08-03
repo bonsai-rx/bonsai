@@ -1,5 +1,6 @@
 ﻿using NuGet.Configuration;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -16,11 +17,19 @@ namespace Bonsai.NuGet.Design
         {
             if (sourceProvider == null)
             {
-                throw new ArgumentNullException("sourceProvider");
+                throw new ArgumentNullException(nameof(sourceProvider));
             }
 
             InitializeComponent();
             provider = sourceProvider;
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            checkBoxesImageList.Images.Clear();
+            checkBoxesImageList.Images.Add("unchecked", Properties.Resources.UncheckedImage);
+            checkBoxesImageList.Images.Add("checked", Properties.Resources.CheckedImage);
+            base.ScaleControl(factor, specified);
         }
 
         static PackageSource GetItemPackageSource(ListViewItem item)

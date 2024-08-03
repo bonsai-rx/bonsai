@@ -113,7 +113,7 @@ jobs:
       # This happens before pack since the bootstrapper package uses it
       - name: Repack bootstrapper
         if: matrix.create-installer || env.UseRepackForBootstrapperPackage == 'true'
-        run: dotnet build Bonsai --no-restore --configuration ${{matrix.configuration}} -t:Repack
+        run: dotnet build Bonsai --no-restore --configuration ${{matrix.configuration}} -t:Repack -p:TargetFramework=net48
 
       # ----------------------------------------------------------------------- Pack
       # Since packages are core to Bonsai functionality we always pack them even if they won't be collected

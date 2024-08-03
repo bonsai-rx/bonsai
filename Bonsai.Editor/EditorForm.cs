@@ -353,6 +353,7 @@ namespace Bonsai.Editor
             scaleFactor = factor;
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
+#if NETFRAMEWORK
             const float DefaultToolboxSplitterDistance = 245f;
             var workflowSplitterScale = EditorSettings.IsRunningOnMono ? 0.5f / factor.Width : 1.0f;
             var toolboxSplitterScale = EditorSettings.IsRunningOnMono ? 0.75f / factor.Height : 1.0f;
@@ -373,6 +374,7 @@ namespace Bonsai.Editor
                 statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
                 propertyGrid.LargeButtons = scalingFactor >= 2;
             }
+#endif
             base.ScaleControl(factor, specified);
         }
 

@@ -207,10 +207,9 @@
             // 
             // checkBoxesImageList
             // 
-            this.checkBoxesImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("checkBoxesImageList.ImageStream")));
+            this.checkBoxesImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.checkBoxesImageList.ImageSize = new System.Drawing.Size(16, 16);
             this.checkBoxesImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.checkBoxesImageList.Images.SetKeyName(0, "unchecked");
-            this.checkBoxesImageList.Images.SetKeyName(1, "checked");
             // 
             // machineWideListLabel
             // 

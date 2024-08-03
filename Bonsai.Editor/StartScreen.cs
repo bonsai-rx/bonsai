@@ -125,8 +125,8 @@ namespace Bonsai.Editor
             var newFileImage = (Image)resources.GetObject("newToolStripMenuItem.Image");
             var openFileImage = (Image)resources.GetObject("openFileToolStripMenuItem.Image");
             var openFolderImage = (Image)resources.GetObject("openToolStripMenuItem.Image");
-            var galleryItemImage = (Image)(resources.GetObject("galleryToolStripMenuItem.Image"));
-            var packageManagerItemImage = (Image)(resources.GetObject("packageManagerToolStripMenuItem.Image"));
+            var galleryItemImage = (Image)resources.GetObject("galleryToolStripMenuItem.Image");
+            var packageManagerItemImage = (Image)resources.GetObject("packageManagerToolStripMenuItem.Image");
             var editorTheme = EditorSettings.Instance.EditorTheme;
             if (editorTheme == ColorTheme.Dark)
             {

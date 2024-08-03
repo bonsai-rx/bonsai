@@ -31,6 +31,9 @@
     <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 
+    <!-- Enable windows targeting (required when building from non-Windows platforms) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
     <!-- This is detached from the rest of the IsReferenceDummyBuild stuff because the non-existent PDB will be
       enumerated by the time it's evaluated and break NuGet packing -->
     <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>

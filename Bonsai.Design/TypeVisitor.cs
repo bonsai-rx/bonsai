@@ -23,7 +23,7 @@ namespace Bonsai.Design
         {
             if (type == null)
             {
-                throw new ArgumentNullException("componentType");
+                throw new ArgumentNullException(nameof(type));
             }
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)

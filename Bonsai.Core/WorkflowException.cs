@@ -78,6 +78,7 @@ namespace Bonsai
             Builder = builder;
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="WorkflowException"/> class with
         /// serialized data.
@@ -94,6 +95,7 @@ namespace Bonsai
             : base(info, context)
         {
         }
+#endif
 
         /// <summary>
         /// Gets the <see cref="ExpressionBuilder"/> instance that was the cause for the exception.

@@ -4,15 +4,23 @@
     <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
+
+    <!-- The installer and CI scripts rely on the output path, don't include the target framework in the pivot for the primary target  -->
+    <ArtifactsPivots Condition="'$(TargetFramework)' == 'net48'">$(Configuration.ToLowerInvariant())</ArtifactsPivots>
+  </PropertyGroup>
+
+  <!-- App.manifest is required in .NETFramework but discouraged in .NETCoreApp see WFAC010 warning -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="7.0.0" PrivateAssets="all" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="ILRepack" Version="2.0.34">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -54,7 +62,7 @@
   </ItemGroup>
 
   <Target Name="NuGetConfig" AfterTargets="Build">
-    <WriteLinesToFile File="$(TargetDir)NuGet.config"
+    <WriteLinesToFile File="$(OutputPath)NuGet.config"
                       Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(PackageOutputPath)'))"
                       Overwrite="true"
                       WriteOnlyWhenDifferent="true" />
@@ -75,6 +83,7 @@
     <Error Condition="!$([System.OperatingSystem]::IsWindows())" Text="Repacking is only supported on Windows." />
     <Error Condition="!Exists('$(OutputPath)Bonsai.exe')" Text="Project must be built before repacking. '$(OutputPath)Bonsai.exe' not found." />
     <Error Condition="'$(RepackedOutputPath)' == '' or '$(RepackedOutputFilePath)' == ''" Text="Repacked output path not configured." />
+    <Error Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Text="Repacking is only supported when targeting .NET Framework." />
 
     <MakeDir Directories="$(RepackedOutputPath)" />
 
@@ -105,15 +114,15 @@
     <Copy SourceFiles="$(TargetDir)NuGet.config" DestinationFolder="$(RepackedOutputPath)" />
   </Target>
 
-  <Target Name="UseRepackOutputForPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="BuiltProjectOutputGroup" DependsOnTargets="ConfigureRepack">
-    <Error Condition="!Exists('$(RepackedOutputFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+  <Target Name="UseRepackOutputForPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true' and '$(TargetFrameworkIdentifier)' == '.NETFramework'" AfterTargets="BuiltProjectOutputGroup" DependsOnTargets="ConfigureRepack">
+    <Error Condition="!Exists('$(RepackedOutputFilePath)')" Text="Project must be repacked before packing. '$(RepackedOutputFilePath)' not found." />
     <ItemGroup>
       <BuiltProjectOutputGroupOutput Remove="@(BuiltProjectOutputGroupOutput)" />
       <BuiltProjectOutputGroupOutput Include="$(RepackedOutputFilePath)" />
     </ItemGroup>
   </Target>
-  <Target Name="UseRepackOutputForSymbolPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true'" AfterTargets="DebugSymbolsProjectOutputGroup" DependsOnTargets="ConfigureRepack">
-    <Error Condition="!Exists('$(RepackedOutputSymbolFilePath)')" Text="Project must be repacked before repacking. '$(RepackedOutputFilePath)' not found." />
+  <Target Name="UseRepackOutputForSymbolPackage" Condition="'$(UseRepackForBootstrapperPackage)' == 'true' and '$(TargetFrameworkIdentifier)' == '.NETFramework'" AfterTargets="DebugSymbolsProjectOutputGroup" DependsOnTargets="ConfigureRepack">
+    <Error Condition="!Exists('$(RepackedOutputSymbolFilePath)')" Text="Project must be repacked before packing. '$(RepackedOutputFilePath)' not found." />
     <ItemGroup>
       <DebugSymbolsProjectOutputGroupOutput Remove="@(DebugSymbolsProjectOutputGroupOutput)" />
       <DebugSymbolsProjectOutputGroupOutput Include="$(RepackedOutputSymbolFilePath)" />

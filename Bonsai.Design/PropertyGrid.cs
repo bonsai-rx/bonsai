@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -16,6 +17,7 @@ namespace Bonsai.Design
             base.ScaleControl(factor, specified);
         }
 
+        [Conditional("NETFRAMEWORK")]
         internal static void ScaleDescriptionPanel(System.Windows.Forms.PropertyGrid propertyGrid, SizeF factor)
         {
             foreach (Control control in propertyGrid.Controls)

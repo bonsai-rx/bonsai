@@ -173,7 +173,7 @@
   <data name="PackageViewNodeCheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
+        wQAADsEBuJFr7QAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
         cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
         Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
         1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
@@ -198,7 +198,7 @@
   <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
+        wAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
         y23DMAyGM0JH6QhF7hkgm6RZwsgMzQa5uyPk3Pba9uoWyOOo6gtElZEpy3aBuAQ+IBHJn4xedmbOuUkx
         B2/J74eCHQ6H+9PpVHn2HmfAeEVcSMnaoAbO5/PD8Xh8Top1Qjx5QaJlvRvwYvxis0hPqiB1ZcUGmqa5
         88mtqd7tdm69Xrv5fN6CcfxpjmePXpC+WLEBkrRIXdduuVyahVOII17ne/ZB+mKdDfjgq2nfbDZmoRLk
@@ -275,15 +275,31 @@
   </data>
   <data name="SettingsImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAADYSURBVDhPpVOxEYMwDGQUZqGnd0nhsegZI00oXDkjeAOS
-        htbRK3qfQ4ocWHd/Z0n/byzs7hj7vk+CmyAfgNpktN+QZi+IRs4ppTwMgwJr1o3Tm+wTKAi2ZVlyCEGJ
-        WNNgnmetoYc6uNCYXA1iLfDe53EcS441aszNJFKMM6s7Cf/Ar4QWBmVg3AU7rvc1P7eXAmt+ETjkQwsD
-        HRLOSRLFMT4UNKE5uBysGqBRg2LmNKk5wGkD59wXrxi0HqF5iG2/0e7C9YuEkKTtKiNQEFx7THVI88Rz
-        7ro3JJCBt2M2zxYAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAANhJREFUOE+lU7ERgzAMZBRmoad3SeGx6BkjTShcOSN4A5KG1tErep9DihxYd39n
+        Sf9vLOzuGPu+T4KbIB+A2mS035BmL4hGzimlPAyDAmvWjdOb7BMoCLZlWXIIQYlY02CeZ62hhzq40Jhc
+        DWIt8N7ncRxLjjVqzM0kUowzqzsJ/8CvhBYGZWDcBTuu9zU/t5cCa34ROORDCwMdEs5JEsUxPhQ0oTm4
+        HKwaoFGDYuY0qTnAaQPn3BevGLQeoXmIbb/R7sL1i4SQpO0qI1AQXHtMdUjzxHPuujckkIG3YzbPFgAA
+        AABJRU5ErkJggg==
 </value>
   </data>
   <data name="InvalidGalleryPackage" xml:space="preserve">
     <value>The package '{0}' is not a gallery package. Please install this package through the package manager dialog.</value>
+  </data>
+  <data name="CheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wQAADsEBuJFr7QAAAJpJREFUOE+lzgEJwCAQhWFT2MEIhjCDMWxgB2uYwwoWsMSNd+xExpQ5fxDm2H07
+        RYcxEELYPlIHdvoFxBip1srP20DOmZRSpLXm+xbQWuNBANgCLQF8VEq5b0TOOR42xtxvFkBKqa8KRFbH
+        GdEpgHXxJxl6ri5NAQTEWtuRcXVpCUjeewbG1aVPAHobRp+BWa/A7pEYOOkQILoAJ5VmTOFnoT4AAAAA
+        SUVORK5CYII=
+</value>
+  </data>
+  <data name="UncheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wQAADsEBuJFr7QAAAC1JREFUOE9j+E8hABtQXl5OMoYBuAGkgFEDRg0AgUFqAKkYBsAGUAIoNOD/fwB6
+        Pq+umpazgQAAAABJRU5ErkJggg==
+</value>
   </data>
 </root>
