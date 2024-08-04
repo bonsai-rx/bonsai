@@ -33,18 +33,17 @@
             // 
             // flowLayoutPanel
             // 
-            this.flowLayoutPanel.AutoSize = true;
             this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
             this.flowLayoutPanel.Size = new System.Drawing.Size(452, 29);
             this.flowLayoutPanel.TabIndex = 0;
+            this.flowLayoutPanel.WrapContents = false;
             // 
             // EditorPathNavigationControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.Controls.Add(this.flowLayoutPanel);
             this.Name = "EditorPathNavigationControl";
             this.Size = new System.Drawing.Size(452, 29);
