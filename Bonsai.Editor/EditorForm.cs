@@ -260,6 +260,8 @@ namespace Bonsai.Editor
                 EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
             explorerSplitContainer.SplitterDistance = (int)Math.Round(
                 EditorSettings.Instance.ExplorerSplitterDistance * scaleFactor.Width);
+            var toolboxBottomMargin = toolboxSplitContainer.Margin.Bottom;
+            toolboxSplitContainer.SplitterDistance = toolboxSplitContainer.Height - propertiesSplitContainer.SplitterDistance - toolboxBottomMargin;
         }
 
         void CloseEditorForm()
@@ -370,8 +372,6 @@ namespace Bonsai.Editor
             const float PropertiesSplitterScale = 0.4f; // correct for overshoot rescaling in .NET core
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * PropertiesSplitterScale * factor.Height);
 #endif
-            var toolboxBottomMargin = toolboxSplitContainer.Margin.Bottom;
-            toolboxSplitContainer.SplitterDistance = toolboxSplitContainer.Height - propertiesSplitContainer.SplitterDistance - toolboxBottomMargin;
             base.ScaleControl(factor, specified);
         }
 
