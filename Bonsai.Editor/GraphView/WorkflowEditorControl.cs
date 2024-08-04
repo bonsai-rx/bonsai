@@ -102,7 +102,6 @@ namespace Bonsai.Editor.GraphView
             workflowGraphView.WorkflowPathChanged += (sender, e) =>
             {
                 breadcrumbs.WorkflowPath = workflowGraphView.WorkflowPath;
-                tabState.Text = breadcrumbs.DisplayName;
             };
 
             var navigationPanel = new TableLayoutPanel();
@@ -248,7 +247,6 @@ namespace Bonsai.Editor.GraphView
 
             void UpdateDisplayText()
             {
-                //TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
                 TabPage.Text = displayText + (WorkflowGraphView.IsReadOnly ? ReadOnlySuffix : string.Empty);
             }
 
