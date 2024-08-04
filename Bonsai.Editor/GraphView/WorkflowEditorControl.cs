@@ -97,7 +97,6 @@ namespace Bonsai.Editor.GraphView
             tabPage.SuspendLayout();
 
             var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
-            breadcrumbs.Dock = DockStyle.Fill;
             breadcrumbs.WorkflowPath = null;
             breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
             workflowGraphView.WorkflowPathChanged += (sender, e) =>
@@ -114,6 +113,11 @@ namespace Bonsai.Editor.GraphView
             navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             navigationPanel.Controls.Add(breadcrumbs);
             navigationPanel.Controls.Add(workflowGraphView);
+
+            // TODO: This should be handled by docking, but some strange interaction prevents shrinking to min size
+            navigationPanel.Layout += (sender, e) => breadcrumbs.Width = navigationPanel.Width;
+            breadcrumbs.Width = navigationPanel.Width;
+
             tabPage.Controls.Add(navigationPanel);
             tabPage.BackColor = workflowGraphView.BackColor;
             tabPage.ResumeLayout(false);

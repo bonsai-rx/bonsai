@@ -15,6 +15,7 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly ThemeRenderer themeRenderer;
         WorkflowEditorPath workflowPath;
+        int totalPathWidth;
 
         public WorkflowPathNavigationControl(IServiceProvider provider)
         {
@@ -78,33 +79,85 @@ namespace Bonsai.Editor.GraphView
         private void SetPath(IEnumerable<KeyValuePair<string, WorkflowEditorPath>> pathElements)
         {
             SuspendLayout();
-            var rootButton = CreateButton(editorService.GetProjectDisplayName(), null);
+            totalPathWidth = 0;
             flowLayoutPanel.Controls.Clear();
-            flowLayoutPanel.Controls.Add(rootButton);
+            AddPathButton("...", null, createEvent: false, visible: false);
+            AddPathButton(editorService.GetProjectDisplayName(), null);
             foreach (var path in pathElements)
             {
-                var separator = CreateButton(">", null, createEvent: false);
-                var pathButton = CreateButton(path.Key, path.Value);
-                flowLayoutPanel.Controls.Add(separator);
-                flowLayoutPanel.Controls.Add(pathButton);
+                AddPathButton(">", null, createEvent: false);
+                AddPathButton(path.Key, path.Value);
             }
+            CompressPath();
             ResumeLayout(true);
         }
 
-        private Button CreateButton(string text, WorkflowEditorPath path, bool createEvent = true)
+        private void CompressPath()
+        {
+            if (flowLayoutPanel.Controls.Count <= 4)
+                return;
+
+            bool compressPath = false;
+            var totalWidth = totalPathWidth;
+            if (totalWidth > Width)
+            {
+                // adjust for inserting the ellipsis button
+                totalWidth -= flowLayoutPanel.Controls[1].Width;
+                totalWidth += flowLayoutPanel.Controls[0].Width;
+                compressPath = true;
+            }
+
+            var excessWidth = totalWidth - Width;
+            for (int i = 2; i < flowLayoutPanel.Controls.Count - 4; i++)
+            {
+                // separator and breadcrumb buttons are hidden together
+                var visible = !compressPath || excessWidth <= 0;
+                if (i % 2 != 0) visible &= flowLayoutPanel.Controls[i - 1].Visible;
+
+                // hide excess breadcrumb levels
+                flowLayoutPanel.Controls[i].Visible = visible;
+                if (excessWidth > 0)
+                {
+                    excessWidth -= GetControlWidth(flowLayoutPanel.Controls[i]);
+                }
+            }
+
+            // either the root or ellipsis button is shown
+            flowLayoutPanel.Controls[0].Visible = compressPath;
+            flowLayoutPanel.Controls[1].Visible = !compressPath;
+        }
+
+        private int GetControlWidth(Control control)
+        {
+            return control.Width + control.Margin.Horizontal + flowLayoutPanel.Padding.Right;
+        }
+
+        private BreadcrumbButtton AddPathButton(string text, WorkflowEditorPath path, bool createEvent = true, bool visible = true)
         {
             var breadcrumbButton = new BreadcrumbButtton
             {
                 AutoSize = true,
                 Locked = !createEvent,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Visible = visible,
                 Text = text,
                 Tag = path
             };
             if (createEvent)
                 breadcrumbButton.MouseClick += BreadcrumbButton_MouseClick;
+            breadcrumbButton.ParentChanged += BreadcrumbButton_ParentChanged;
             SetBreadcrumbTheme(breadcrumbButton, themeRenderer);
+            flowLayoutPanel.Controls.Add(breadcrumbButton);
+            if (flowLayoutPanel.Controls.Count > 1)
+                totalPathWidth += GetControlWidth(breadcrumbButton);
             return breadcrumbButton;
+        }
+
+        private void BreadcrumbButton_ParentChanged(object sender, EventArgs e)
+        {
+            var button = (Button)sender;
+            if (button.Parent == null)
+                button.Dispose();
         }
 
         private void BreadcrumbButton_MouseClick(object sender, MouseEventArgs e)
@@ -112,6 +165,12 @@ namespace Bonsai.Editor.GraphView
             var button = (Button)sender;
             var path = (WorkflowEditorPath)button.Tag;
             OnWorkflowPathMouseClick(new WorkflowPathMouseEventArgs(path, e.Button, e.Clicks, e.X, e.Y, e.Delta));
+        }
+
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            CompressPath();
+            base.OnLayout(e);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
