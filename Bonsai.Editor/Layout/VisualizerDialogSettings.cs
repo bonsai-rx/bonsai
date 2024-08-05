@@ -11,7 +11,15 @@ namespace Bonsai.Design
 #pragma warning restore CS0612 // Type or member is obsolete
     public class VisualizerDialogSettings
     {
+        [XmlIgnore]
         public int? Index { get; set; }
+
+        [XmlAttribute(nameof(Index))]
+        public string IndexXml
+        {
+            get => Index.HasValue ? Index.GetValueOrDefault().ToString() : null;
+            set => Index = !string.IsNullOrEmpty(value) ? int.Parse(value) : null;
+        }
 
         [XmlIgnore]
         public object Tag { get; set; }
@@ -44,11 +52,15 @@ namespace Bonsai.Design
         // [Obsolete]
         public Collection<int> Mashups { get; } = new Collection<int>();
 
+        public bool VisibleSpecified => Visible;
+
         public bool LocationSpecified => !Location.IsEmpty;
 
         public bool SizeSpecified => !Size.IsEmpty;
 
         public bool WindowStateSpecified => WindowState != FormWindowState.Normal;
+
+        public bool NestedLayoutSpecified => NestedLayout?.DialogSettings.Count > 0;
 
         public bool MashupsSpecified => false;
     }
