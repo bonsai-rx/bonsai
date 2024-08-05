@@ -27,7 +27,7 @@ namespace Bonsai.Reactive
 
         /// <summary>
         /// Gets or sets the period to produce subsequent values. If this value is equal
-        /// to <see cref="TimeSpan.Zero"/> the timer will recur as fast as possible.
+        /// to <see cref="TimeSpan.Zero"/> the timer will only fire once.
         /// </summary>
         [XmlIgnore]
         [Description("The period to produce subsequent values. If this value is equal to zero the timer will recur as fast as possible.")]
