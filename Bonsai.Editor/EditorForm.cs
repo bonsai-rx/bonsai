@@ -32,11 +32,9 @@ namespace Bonsai.Editor
         const float DefaultEditorScale = 1.0f;
         const string EditorUid = "editor";
         const string BonsaiPackageName = "Bonsai";
-        const string ExtensionsDirectory = "Extensions";
         const string DefinitionsDirectory = "Definitions";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
-        const string DefaultWorkflowNamespace = "Unspecified";
         static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
         static readonly AttributeCollection RuntimeAttributes = AttributeCollection.FromExisting(DesignTimeAttributes, DesignOnlyAttribute.No);
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
@@ -307,7 +305,7 @@ namespace Bonsai.Editor
 
             directoryToolStripItem.Text = currentDirectory;
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = currentDirectory;
-            extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, ExtensionsDirectory));
+            extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, Project.ExtensionsDirectory));
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
@@ -506,7 +504,7 @@ namespace Bonsai.Editor
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
                 .Select(evt => workflowExtensions
-                    .Concat(FindWorkflows(ExtensionsDirectory))
+                    .Concat(Project.EnumerateExtensionWorkflows(extensionsPath.FullName))
                     .GroupBy(x => x.Namespace)
                     .ToList())
                 .ObserveOn(formScheduler)
@@ -544,57 +542,6 @@ namespace Bonsai.Editor
                 })
                 .IgnoreElements()
                 .Select(xs => Unit.Default);
-        }
-
-        static IEnumerable<WorkflowElementDescriptor> FindWorkflows(string basePath)
-        {
-            int basePathLength;
-            string[] workflowFiles;
-            if (!Path.IsPathRooted(basePath))
-            {
-                var currentDirectory = Environment.CurrentDirectory;
-                basePath = Path.Combine(currentDirectory, basePath);
-                basePathLength = currentDirectory.Length;
-            }
-            else basePathLength = basePath.Length;
-
-            try { workflowFiles = Directory.GetFiles(basePath, "*" + Project.BonsaiExtension, SearchOption.AllDirectories); }
-            catch (UnauthorizedAccessException) { yield break; }
-            catch (DirectoryNotFoundException) { yield break; }
-
-            foreach (var fileName in workflowFiles)
-            {
-                var description = string.Empty;
-                try
-                {
-                    using (var reader = XmlReader.Create(fileName, new XmlReaderSettings { IgnoreWhitespace = true }))
-                    {
-                        reader.ReadStartElement(typeof(WorkflowBuilder).Name);
-                        if (reader.Name == nameof(WorkflowBuilder.Description))
-                        {
-                            reader.ReadStartElement();
-                            description = reader.Value;
-                        }
-                    }
-                }
-                catch (SystemException) { continue; }
-                
-                var relativePath = fileName.Substring(basePathLength)
-                                           .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                var fileNamespace = Path.GetDirectoryName(relativePath)
-                                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                        .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
-                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
-
-                yield return new WorkflowElementDescriptor
-                {
-                    Name = Path.GetFileNameWithoutExtension(relativePath),
-                    Namespace = fileNamespace,
-                    FullyQualifiedName = relativePath,
-                    Description = description,
-                    ElementTypes = new[] { ~ElementCategory.Workflow }
-                };
-            }
         }
 
         IObservable<Unit> InitializeTypeVisualizers()
@@ -643,7 +590,7 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
-            if (packageKey == null) return ExtensionsDirectory;
+            if (packageKey == null) return Project.ExtensionsDirectory;
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
