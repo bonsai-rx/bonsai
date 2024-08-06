@@ -31,7 +31,6 @@ namespace Bonsai.Editor
     {
         const float DefaultEditorScale = 1.0f;
         const string EditorUid = "editor";
-        const string BonsaiExtension = ".bonsai";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
         const string DefinitionsDirectory = "Definitions";
@@ -288,7 +287,7 @@ namespace Bonsai.Editor
             var initialFileName = FileName;
             var validFileName =
                 !string.IsNullOrEmpty(initialFileName) &&
-                Path.GetExtension(initialFileName) == BonsaiExtension &&
+                Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
             var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
@@ -298,19 +297,8 @@ namespace Bonsai.Editor
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
 
-            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
-            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
-            if (!EditorSettings.IsRunningOnMono)
-            {
-                var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-                var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-                currentDirectoryRestricted |= currentDirectory == systemPath || currentDirectory == systemX86Path;
-            }
-
-            var workflowBaseDirectory = validFileName
-                ? Path.GetDirectoryName(initialFileName)
-                : (!currentDirectoryRestricted ? currentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
+            var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
             if (currentDirectoryRestricted)
             {
                 currentDirectory = workflowBaseDirectory;
@@ -570,7 +558,7 @@ namespace Bonsai.Editor
             }
             else basePathLength = basePath.Length;
 
-            try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
+            try { workflowFiles = Directory.GetFiles(basePath, "*" + Project.BonsaiExtension, SearchOption.AllDirectories); }
             catch (UnauthorizedAccessException) { yield break; }
             catch (DirectoryNotFoundException) { yield break; }
 
@@ -2287,7 +2275,7 @@ namespace Bonsai.Editor
             {
                 const char AssemblySeparator = ':';
                 var separatorIndex = path.IndexOf(AssemblySeparator);
-                if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(BonsaiExtension))
+                if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(Project.BonsaiExtension))
                 {
                     path = Path.ChangeExtension(path, null);
                     var nameElements = path.Split(new[] { AssemblySeparator }, 2);
