@@ -1,12 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Xml;
+using Bonsai.Design;
 
 namespace Bonsai.Editor
 {
     static class Project
     {
+        const string DefaultWorkflowNamespace = "Unspecified";
         internal const string BonsaiExtension = ".bonsai";
         internal const string LayoutExtension = ".layout";
+        internal const string ExtensionsDirectory = "Extensions";
 
         public static string GetCurrentBaseDirectory()
         {
@@ -49,6 +55,45 @@ namespace Bonsai.Editor
         internal static string GetLegacyLayoutConfigPath(string fileName)
         {
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
+        }
+
+        public static IEnumerable<WorkflowElementDescriptor> EnumerateExtensionWorkflows(string basePath)
+        {
+            IEnumerable<string> workflowFiles;
+            try { workflowFiles = Directory.EnumerateFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
+            catch (UnauthorizedAccessException) { yield break; }
+            catch (DirectoryNotFoundException) { yield break; }
+
+            foreach (var fileName in workflowFiles)
+            {
+                var description = string.Empty;
+                try
+                {
+                    using var reader = XmlReader.Create(fileName, new XmlReaderSettings { IgnoreWhitespace = true });
+                    reader.ReadStartElement(typeof(WorkflowBuilder).Name);
+                    if (reader.Name == nameof(WorkflowBuilder.Description))
+                    {
+                        reader.ReadStartElement();
+                        description = reader.Value;
+                    }
+                }
+                catch (SystemException) { continue; }
+
+                var relativePath = PathConvert.GetProjectPath(fileName);
+                var fileNamespace = Path.GetDirectoryName(relativePath)
+                                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                        .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
+                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
+
+                yield return new WorkflowElementDescriptor
+                {
+                    Name = Path.GetFileNameWithoutExtension(relativePath),
+                    Namespace = fileNamespace,
+                    FullyQualifiedName = relativePath,
+                    Description = description,
+                    ElementTypes = new[] { ~ElementCategory.Workflow }
+                };
+            }
         }
     }
 }
