@@ -13,6 +13,7 @@ namespace Bonsai.Editor
         internal const string BonsaiExtension = ".bonsai";
         internal const string LayoutExtension = ".layout";
         internal const string ExtensionsDirectory = "Extensions";
+        internal const string DefinitionsDirectory = "Definitions";
 
         public static string GetCurrentBaseDirectory()
         {
@@ -55,6 +56,11 @@ namespace Bonsai.Editor
         internal static string GetLegacyLayoutConfigPath(string fileName)
         {
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
+        }
+
+        internal static string GetDefinitionsTempPath()
+        {
+            return Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
         }
 
         public static IEnumerable<WorkflowElementDescriptor> EnumerateExtensionWorkflows(string basePath)

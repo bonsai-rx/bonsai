@@ -32,7 +32,6 @@ namespace Bonsai.Editor
         const float DefaultEditorScale = 1.0f;
         const string EditorUid = "editor";
         const string BonsaiPackageName = "Bonsai";
-        const string DefinitionsDirectory = "Definitions";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
         static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
@@ -162,7 +161,7 @@ namespace Bonsai.Editor
                 documentationProvider = (IDocumentationProvider)serviceProvider.GetService(typeof(IDocumentationProvider));
             }
 
-            definitionsPath = Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
+            definitionsPath = Project.GetDefinitionsTempPath();
             editorControl = new WorkflowEditorControl(editorSite);
             editorControl.Enter += new EventHandler(editorControl_Enter);
             editorControl.Workflow = workflowBuilder.Workflow;
@@ -2736,7 +2735,7 @@ namespace Bonsai.Editor
                         extension = provider.FileExtension;
                     }
 
-                    var directory = Directory.CreateDirectory(Path.Combine(siteForm.definitionsPath, DefinitionsDirectory));
+                    var directory = Directory.CreateDirectory(Path.Combine(siteForm.definitionsPath, Project.DefinitionsDirectory));
                     var sourceFile = Path.Combine(directory.FullName, type.FullName + "." + extension);
                     File.WriteAllText(sourceFile, source);
                     ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, sourceFile);
