@@ -6,6 +6,7 @@ namespace Bonsai.Editor
     static class Project
     {
         internal const string BonsaiExtension = ".bonsai";
+        internal const string LayoutExtension = ".layout";
 
         public static string GetCurrentBaseDirectory()
         {
@@ -32,6 +33,22 @@ namespace Bonsai.Editor
         public static string GetWorkflowBaseDirectory(string fileName)
         {
             return Path.GetDirectoryName(fileName);
+        }
+
+        public static string GetWorkflowSettingsDirectory(string fileName)
+        {
+            return Path.Combine(BonsaiExtension, Path.GetFileNameWithoutExtension(fileName));
+        }
+
+        public static string GetLayoutConfigPath(string fileName)
+        {
+            return Path.Combine(GetWorkflowSettingsDirectory(fileName), LayoutExtension);
+        }
+
+        [Obsolete]
+        internal static string GetLegacyLayoutConfigPath(string fileName)
+        {
+            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
     }
 }
