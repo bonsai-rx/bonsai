@@ -26,12 +26,12 @@ namespace Bonsai.Reactive
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the period to produce subsequent values. If this value is equal
-        /// to <see cref="TimeSpan.Zero"/> the timer will recur as fast as possible.
+        /// Gets or sets the period to produce subsequent values. If this value is not specified
+        /// or equal to <see cref="TimeSpan.Zero"/> the timer will only fire once.
         /// </summary>
         [XmlIgnore]
-        [Description("The period to produce subsequent values. If this value is equal to zero the timer will recur as fast as possible.")]
-        public TimeSpan Period { get; set; }
+        [Description("The period to produce subsequent values. If this value is not specified or equal to zero the timer will only fire once.")]
+        public TimeSpan? Period { get; set; }
 
         /// <summary>
         /// Gets or sets an XML representation of the due time for serialization.
@@ -53,8 +53,8 @@ namespace Bonsai.Reactive
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string PeriodXml
         {
-            get { return XmlConvert.ToString(Period); }
-            set { Period = XmlConvert.ToTimeSpan(value); }
+            get { return Period > TimeSpan.Zero ? XmlConvert.ToString(Period.GetValueOrDefault()) : null; }
+            set { Period = string.IsNullOrEmpty(value) ? null : XmlConvert.ToTimeSpan(value); }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Bonsai.Reactive
         {
             var period = Period;
             return period > TimeSpan.Zero
-                ? Observable.Timer(DueTime, period)
+                ? Observable.Timer(DueTime, period.GetValueOrDefault())
                 : Observable.Timer(DueTime);
         }
     }

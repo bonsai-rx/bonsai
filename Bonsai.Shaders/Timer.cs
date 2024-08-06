@@ -29,10 +29,10 @@ namespace Bonsai.Shaders
 
         /// <summary>
         /// Gets or sets the period to produce subsequent values. If this value
-        /// is undefined or equal to zero the timer will only fire once.
+        /// is not specified or equal to zero the timer will only fire once.
         /// </summary>
         [XmlIgnore]
-        [Description("The period to produce subsequent values. If this value is equal to zero the timer will recur as fast as possible.")]
+        [Description("The period to produce subsequent values. If this value is not specified or equal to zero the timer will only fire once.")]
         public TimeSpan? Period { get; set; }
 
         /// <summary>
