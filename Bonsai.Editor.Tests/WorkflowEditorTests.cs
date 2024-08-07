@@ -48,12 +48,6 @@ namespace Bonsai.Editor.Tests
             ExpressionBuilderGraph workflow = null,
             MockGraphView graphView = null)
         {
-            if (workflow != null)
-            {
-                // Workflows must be topologically sorted to ensure all editor operations are reversible
-                workflow.InsertRange(0, workflow.TopologicalSort());
-            }
-
             graphView ??= new MockGraphView(workflow);
             var editor = new WorkflowEditor(graphView.ServiceProvider, graphView);
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
@@ -236,7 +230,7 @@ namespace Bonsai.Editor.Tests
                 .AppendBranch(source => source
                     .AppendSubject<Reactive.PublishSubject>("P")
                     .AddArguments(source.Append(new VisualizerMappingBuilder())))
-                .Workflow
+                .TopologicalSort()
                 .ToInspectableGraph();
 
             var (editor, assertIsReversible) = CreateMockEditor(workflow);
