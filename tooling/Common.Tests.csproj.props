@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <!-- Common test properties -->
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <Target Name="VerifyTestTargetFramework" BeforeTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <ItemGroup>
+      <!--
+        Due to limitations in `dotnet test`, tests must only target specific target frameworks which are explicitly ran by CI.
+        Do not add any target frameworks to this list without also updating the CI workflow.
+      -->
+      <_PermittedTestFramework Remove="*" />
+      <_PermittedTestFramework Include="net472" />
+      <_PermittedTestFramework Include="net8.0" />
+      <_PermittedTestFramework Include="net8.0-windows" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_IsPermittedTestFramework>false</_IsPermittedTestFramework>
+      <_IsPermittedTestFramework Condition="'%(_PermittedTestFramework.Identity)' == '$(TargetFramework)'">true</_IsPermittedTestFramework>
+    </PropertyGroup>
+    <Error Condition="'$(_IsPermittedTestFramework)' != 'true'" Text="Test project targets '$(TargetFramework)', which is not permitted for test projects." />
+  </Target>
+</Project>

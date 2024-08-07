@@ -101,7 +101,7 @@ jobs:
           release_version: ${{github.event.release.tag_name}}
           workflow_dispatch_version: ${{github.event.inputs.version}}
           workflow_dispatch_will_publish_packages: ${{github.event.inputs.will_publish_packages}}
-   
+
       # ----------------------------------------------------------------------- Build
       - name: Restore
         run: dotnet restore Bonsai.sln
@@ -122,9 +122,15 @@ jobs:
         run: dotnet pack Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}}
 
       # ----------------------------------------------------------------------- Test
-      - name: Test
+      - name: Test .NET Framework 4.7.2
         if: '!matrix.dummy-build'
-        run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal
+        run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net472
+      - name: Test .NET 8
+        if: '!matrix.dummy-build'
+        run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net8.0
+      - name: Test .NET 8 Windows
+        if: ${{!matrix.dummy-build && matrix.platform.rid == 'win-x64'}}
+        run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net8.0-windows
 
       # ----------------------------------------------------------------------- Create portable zip
       - name: Create portable zip
@@ -153,7 +159,7 @@ jobs:
         id: create-installer
         if: matrix.create-installer
         run: msbuild /nologo /maxCpuCount Bonsai.Setup.sln /p:Configuration=${{matrix.configuration}}
-      
+
       # ----------------------------------------------------------------------- Collect artifacts
       - name: Collect NuGet packages
         uses: actions/upload-artifact@v4
@@ -412,7 +418,7 @@ jobs:
         env:
           version_file_path: tooling/CurrentVersion.props
           just_released_version: ${{github.event.release.tag_name}}
-      
+
       # ----------------------------------------------------------------------- Commit and push changes
       - name: Commit changes
         if: steps.main-revision.outputs.sha == github.sha
