@@ -246,6 +246,7 @@ namespace Bonsai.Editor.Tests
             var groupBuilder = ExpressionBuilder.Unwrap(groupNode?.Value) as GroupWorkflowBuilder;
             Assert.IsInstanceOfType(groupBuilder, typeof(GroupWorkflowBuilder));
             Assert.AreEqual(expected: 2, groupBuilder.Workflow.Count);
+            Assert.IsInstanceOfType(ExpressionBuilder.Unwrap(groupBuilder.Workflow[0].Value), typeof(WorkflowInputBuilder));
             Assert.IsInstanceOfType(ExpressionBuilder.Unwrap(groupBuilder.Workflow[1].Value), typeof(WorkflowOutputBuilder));
             assertIsReversible();
         }
