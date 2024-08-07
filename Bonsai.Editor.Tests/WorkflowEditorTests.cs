@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Bonsai.Core.Tests;
 using Bonsai.Dag;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
@@ -47,6 +48,12 @@ namespace Bonsai.Editor.Tests
             ExpressionBuilderGraph workflow = null,
             MockGraphView graphView = null)
         {
+            if (workflow != null)
+            {
+                // Workflows must be topologically sorted to ensure all editor operations are reversible
+                workflow.InsertRange(0, workflow.TopologicalSort());
+            }
+
             graphView ??= new MockGraphView(workflow);
             var editor = new WorkflowEditor(graphView.ServiceProvider, graphView);
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
@@ -217,6 +224,35 @@ namespace Bonsai.Editor.Tests
             var annotationBuilder = new AnnotationBuilder();
             editor.CreateGraphNode(annotationBuilder, null, CreateGraphNodeType.Successor, branch: false);
             Assert.AreEqual(expected: editor.Workflow.Count - 1, editor.FindNode(annotationBuilder).Index);
+            assertIsReversible();
+        }
+
+        [TestMethod]
+        public void ReplaceGraphNode_SingleInputWithVisualizerMapping_GroupWorkflowHasSingleSourceNode()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1792
+            var workflow = new TestWorkflow()
+                .AppendValue(0)
+                .AppendBranch(source => source
+                    .AppendSubject<Reactive.PublishSubject>("P")
+                    .AddArguments(source.Append(new VisualizerMappingBuilder())))
+                .Workflow
+                .ToInspectableGraph();
+
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var targetNode = editor.FindNode("P");
+            editor.ReplaceGraphNode(
+                targetNode,
+                typeof(GroupWorkflowBuilder).AssemblyQualifiedName,
+                ElementCategory.Nested,
+                arguments: "N");
+            Assert.AreEqual(expected: 3, workflow.Count);
+
+            var groupNode = editor.FindNode("N");
+            var groupBuilder = ExpressionBuilder.Unwrap(groupNode?.Value) as GroupWorkflowBuilder;
+            Assert.IsInstanceOfType(groupBuilder, typeof(GroupWorkflowBuilder));
+            Assert.AreEqual(expected: 2, groupBuilder.Workflow.Count);
+            Assert.IsInstanceOfType(ExpressionBuilder.Unwrap(groupBuilder.Workflow[1].Value), typeof(WorkflowOutputBuilder));
             assertIsReversible();
         }
     }
