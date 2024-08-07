@@ -24,6 +24,9 @@
     <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
     <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
 
+    <!-- Error when restore graph contains mismatched target frameworks -->
+    <WarningsAsErrors>$(WarningsAsErrors);NU1701</WarningsAsErrors>
+
     <!-- Embed untracked sources in the PDB when building from CI -->
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
     <EmbedUntrackedSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedUntrackedSources>
