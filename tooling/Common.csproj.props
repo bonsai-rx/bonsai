@@ -42,4 +42,5 @@
     <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>
   </PropertyGroup>
   <Import Project="Versioning.props" />
+  <Import Project="Common.Tests.csproj.props" Condition="$(MSBuildProjectName.EndsWith('.Tests'))" />
 </Project>
