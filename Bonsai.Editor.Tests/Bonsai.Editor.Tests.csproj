@@ -15,6 +15,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Core.Tests\Bonsai.Core.Tests.csproj" />
     <ProjectReference Include="..\Bonsai.Editor\Bonsai.Editor.csproj" />
   </ItemGroup>
 </Project>

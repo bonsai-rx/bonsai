@@ -12,15 +12,21 @@ namespace Bonsai.Core.Tests
         {
         }
 
-        private TestWorkflow(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> cursor)
+        private TestWorkflow(
+            ExpressionBuilderGraph workflow,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> cursor,
+            int argumentIndex = 0)
         {
             Workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
+            ArgumentIndex = argumentIndex;
             Cursor = cursor;
         }
 
         public ExpressionBuilderGraph Workflow { get; }
 
         public Node<ExpressionBuilder, ExpressionBuilderArgument> Cursor { get; }
+
+        public int ArgumentIndex { get; }
 
         public TestWorkflow ResetCursor()
         {
@@ -41,7 +47,17 @@ namespace Bonsai.Core.Tests
             var node = Workflow.Add(builder);
             if (Cursor != null)
                 Workflow.AddEdge(Cursor, node, new ExpressionBuilderArgument());
-            return new TestWorkflow(Workflow, node);
+            return new TestWorkflow(Workflow, node, argumentIndex: 1);
+        }
+
+        public TestWorkflow AddArguments(params TestWorkflow[] arguments)
+        {
+            var argumentIndex = ArgumentIndex;
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                Workflow.AddEdge(arguments[i].Cursor, Cursor, new ExpressionBuilderArgument(argumentIndex++));
+            }
+            return new TestWorkflow(Workflow, Cursor, argumentIndex);
         }
 
         public TestWorkflow AppendCombinator<TCombinator>(TCombinator combinator) where TCombinator : new()
@@ -79,6 +95,11 @@ namespace Bonsai.Core.Tests
                 mappingBuilder.PropertyMappings.Add(new PropertyMapping { Name = name });
             }
             return Append(mappingBuilder);
+        }
+
+        public TestWorkflow AppendBranch(Func<TestWorkflow, TestWorkflow> selector)
+        {
+            return selector(this);
         }
 
         public TestWorkflow AppendNested<TWorkflowExpressionBuilder>(
