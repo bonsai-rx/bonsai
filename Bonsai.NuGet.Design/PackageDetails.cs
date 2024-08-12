@@ -9,6 +9,7 @@ using NuGet.Packaging;
 using System.IO;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
+using System.Drawing;
 
 namespace Bonsai.NuGet.Design
 {
@@ -49,6 +50,19 @@ namespace Bonsai.NuGet.Design
             SetLinkLabelUri(reportAbuseLinkLabel, package.ReportAbuseUrl, false);
             descriptionLabel.Text = package.Description;
             tagsLabel.Text = package.Tags;
+
+            var deprecationMetadata = package.GetDeprecationMetadataAsync().Result;
+            if (deprecationMetadata != null)
+            {
+                deprecationMetadataPanel.Visible = true;
+                deprecationMetadataLabel.Text = deprecationMetadata.Message;
+            }
+            else
+            {
+                deprecationMetadataPanel.Visible = false;
+                deprecationMetadataLabel.Text = string.Empty;
+            }
+
             var nearestDependencyGroup = package.DependencySets.GetNearest(ProjectFramework);
             dependenciesTextBox.Lines = (from dependency in ((nearestDependencyGroup?.Packages) ?? Enumerable.Empty<PackageDependency>())
                                          select dependency.ToString()).ToArray();
@@ -104,6 +118,23 @@ namespace Bonsai.NuGet.Design
             var textSize = TextRenderer.MeasureText(dependenciesTextBox.Text, dependenciesTextBox.Font);
             textSize.Height += TextHeightMargin;
             dependenciesTextBox.Size = textSize;
+        }
+
+        private void SetImageLabel(Label label, Image image)
+        {
+            label.AutoSize = true;
+            label.Image = Resources.WarningImage;
+            using var graphics = CreateGraphics();
+            var imageSize = graphics.GetImageSize(label.Image);
+            var textWidth = label.Width;
+            label.AutoSize = false;
+            label.Width = textWidth + (int)Math.Ceiling(imageSize.Width);
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            base.ScaleControl(factor, specified);
+            SetImageLabel(warningImageLabel, Resources.WarningImage);
         }
     }
 }
