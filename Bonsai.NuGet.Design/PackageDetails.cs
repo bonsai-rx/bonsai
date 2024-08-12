@@ -119,22 +119,5 @@ namespace Bonsai.NuGet.Design
             textSize.Height += TextHeightMargin;
             dependenciesTextBox.Size = textSize;
         }
-
-        private void SetImageLabel(Label label, Image image)
-        {
-            label.AutoSize = true;
-            label.Image = Resources.WarningImage;
-            using var graphics = CreateGraphics();
-            var imageSize = graphics.GetImageSize(label.Image);
-            var textWidth = label.Width;
-            label.AutoSize = false;
-            label.Width = textWidth + (int)Math.Ceiling(imageSize.Width);
-        }
-
-        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
-        {
-            base.ScaleControl(factor, specified);
-            SetImageLabel(warningImageLabel, Resources.WarningImage);
-        }
     }
 }

@@ -48,6 +48,7 @@
             this.projectLinkLabel = new System.Windows.Forms.LinkLabel();
             this.reportAbuseLinkLabel = new System.Windows.Forms.LinkLabel();
             this.deprecationMetadataPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.warningImageLabel = new Bonsai.NuGet.Design.ImageLabel();
             this.deprecationMetadataLabel = new System.Windows.Forms.Label();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
@@ -60,7 +61,6 @@
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.dependenciesTextBox = new System.Windows.Forms.TextBox();
             this.dependencyWarningLabel = new System.Windows.Forms.Label();
-            this.warningImageLabel = new System.Windows.Forms.Label();
             this.detailsLayoutPanel.SuspendLayout();
             this.createdByLayoutPanel.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -293,13 +293,26 @@
             this.deprecationMetadataPanel.Controls.Add(this.deprecationMetadataLabel);
             this.deprecationMetadataPanel.Location = new System.Drawing.Point(3, 137);
             this.deprecationMetadataPanel.Name = "deprecationMetadataPanel";
-            this.deprecationMetadataPanel.Size = new System.Drawing.Size(124, 13);
+            this.deprecationMetadataPanel.Size = new System.Drawing.Size(141, 13);
             this.deprecationMetadataPanel.TabIndex = 15;
+            // 
+            // warningImageLabel
+            // 
+            this.warningImageLabel.AutoSize = true;
+            this.warningImageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.warningImageLabel.Image = global::Bonsai.NuGet.Design.Properties.Resources.WarningImage;
+            this.warningImageLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.warningImageLabel.Location = new System.Drawing.Point(3, 0);
+            this.warningImageLabel.Name = "warningImageLabel";
+            this.warningImageLabel.Size = new System.Drawing.Size(94, 13);
+            this.warningImageLabel.TabIndex = 11;
+            this.warningImageLabel.Text = "Deprecated:";
+            this.warningImageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // deprecationMetadataLabel
             // 
             this.deprecationMetadataLabel.AutoSize = true;
-            this.deprecationMetadataLabel.Location = new System.Drawing.Point(86, 0);
+            this.deprecationMetadataLabel.Location = new System.Drawing.Point(103, 0);
             this.deprecationMetadataLabel.Name = "deprecationMetadataLabel";
             this.deprecationMetadataLabel.Size = new System.Drawing.Size(35, 13);
             this.deprecationMetadataLabel.TabIndex = 8;
@@ -415,18 +428,6 @@
             this.dependencyWarningLabel.Size = new System.Drawing.Size(0, 13);
             this.dependencyWarningLabel.TabIndex = 14;
             // 
-            // warningImageLabel
-            // 
-            this.warningImageLabel.AutoSize = true;
-            this.warningImageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.warningImageLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.warningImageLabel.Location = new System.Drawing.Point(3, 0);
-            this.warningImageLabel.Name = "warningImageLabel";
-            this.warningImageLabel.Size = new System.Drawing.Size(77, 13);
-            this.warningImageLabel.TabIndex = 10;
-            this.warningImageLabel.Text = "Deprecated:";
-            this.warningImageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // PackageDetails
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -494,6 +495,6 @@
         private System.Windows.Forms.Label dependencyWarningLabel;
         private System.Windows.Forms.FlowLayoutPanel deprecationMetadataPanel;
         private System.Windows.Forms.Label deprecationMetadataLabel;
-        private System.Windows.Forms.Label warningImageLabel;
+        private ImageLabel warningImageLabel;
     }
 }
