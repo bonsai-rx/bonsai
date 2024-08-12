@@ -47,6 +47,8 @@
             this.licenseLinkLabel = new System.Windows.Forms.LinkLabel();
             this.projectLinkLabel = new System.Windows.Forms.LinkLabel();
             this.reportAbuseLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.deprecationMetadataPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.deprecationMetadataLabel = new System.Windows.Forms.Label();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.descriptionLabel = new System.Windows.Forms.Label();
@@ -58,12 +60,14 @@
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.dependenciesTextBox = new System.Windows.Forms.TextBox();
             this.dependencyWarningLabel = new System.Windows.Forms.Label();
+            this.warningImageLabel = new System.Windows.Forms.Label();
             this.detailsLayoutPanel.SuspendLayout();
             this.createdByLayoutPanel.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
             this.flowLayoutPanel7.SuspendLayout();
+            this.deprecationMetadataPanel.SuspendLayout();
             this.flowLayoutPanel6.SuspendLayout();
             this.flowLayoutPanel5.SuspendLayout();
             this.flowLayoutPanel8.SuspendLayout();
@@ -81,6 +85,7 @@
             this.detailsLayoutPanel.Controls.Add(this.licenseLinkLabel);
             this.detailsLayoutPanel.Controls.Add(this.projectLinkLabel);
             this.detailsLayoutPanel.Controls.Add(this.reportAbuseLinkLabel);
+            this.detailsLayoutPanel.Controls.Add(this.deprecationMetadataPanel);
             this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel6);
             this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel5);
             this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel8);
@@ -246,7 +251,8 @@
             // 
             this.licenseLinkLabel.AutoSize = true;
             this.licenseLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.licenseLinkLabel.Location = new System.Drawing.Point(3, 95);
+            this.licenseLinkLabel.Location = new System.Drawing.Point(6, 95);
+            this.licenseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.licenseLinkLabel.Name = "licenseLinkLabel";
             this.licenseLinkLabel.Size = new System.Drawing.Size(102, 13);
             this.licenseLinkLabel.TabIndex = 4;
@@ -258,7 +264,8 @@
             // 
             this.projectLinkLabel.AutoSize = true;
             this.projectLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.projectLinkLabel.Location = new System.Drawing.Point(3, 108);
+            this.projectLinkLabel.Location = new System.Drawing.Point(6, 108);
+            this.projectLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.projectLinkLabel.Name = "projectLinkLabel";
             this.projectLinkLabel.Size = new System.Drawing.Size(95, 13);
             this.projectLinkLabel.TabIndex = 5;
@@ -270,7 +277,8 @@
             // 
             this.reportAbuseLinkLabel.AutoSize = true;
             this.reportAbuseLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.reportAbuseLinkLabel.Location = new System.Drawing.Point(3, 121);
+            this.reportAbuseLinkLabel.Location = new System.Drawing.Point(6, 121);
+            this.reportAbuseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.reportAbuseLinkLabel.Name = "reportAbuseLinkLabel";
             this.reportAbuseLinkLabel.Size = new System.Drawing.Size(72, 13);
             this.reportAbuseLinkLabel.TabIndex = 6;
@@ -278,14 +286,33 @@
             this.reportAbuseLinkLabel.Text = "Report Abuse";
             this.reportAbuseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
             // 
+            // deprecationMetadataPanel
+            // 
+            this.deprecationMetadataPanel.AutoSize = true;
+            this.deprecationMetadataPanel.Controls.Add(this.warningImageLabel);
+            this.deprecationMetadataPanel.Controls.Add(this.deprecationMetadataLabel);
+            this.deprecationMetadataPanel.Location = new System.Drawing.Point(3, 137);
+            this.deprecationMetadataPanel.Name = "deprecationMetadataPanel";
+            this.deprecationMetadataPanel.Size = new System.Drawing.Size(124, 13);
+            this.deprecationMetadataPanel.TabIndex = 15;
+            // 
+            // deprecationMetadataLabel
+            // 
+            this.deprecationMetadataLabel.AutoSize = true;
+            this.deprecationMetadataLabel.Location = new System.Drawing.Point(86, 0);
+            this.deprecationMetadataLabel.Name = "deprecationMetadataLabel";
+            this.deprecationMetadataLabel.Size = new System.Drawing.Size(35, 13);
+            this.deprecationMetadataLabel.TabIndex = 8;
+            this.deprecationMetadataLabel.Text = "label9";
+            // 
             // flowLayoutPanel6
             // 
             this.flowLayoutPanel6.AutoSize = true;
             this.flowLayoutPanel6.Controls.Add(this.label5);
             this.flowLayoutPanel6.Controls.Add(this.descriptionLabel);
-            this.flowLayoutPanel6.Location = new System.Drawing.Point(3, 137);
+            this.flowLayoutPanel6.Location = new System.Drawing.Point(3, 156);
             this.flowLayoutPanel6.Name = "flowLayoutPanel6";
-            this.flowLayoutPanel6.Size = new System.Drawing.Size(87, 13);
+            this.flowLayoutPanel6.Size = new System.Drawing.Size(122, 13);
             this.flowLayoutPanel6.TabIndex = 10;
             // 
             // label5
@@ -303,15 +330,16 @@
             this.descriptionLabel.AutoSize = true;
             this.descriptionLabel.Location = new System.Drawing.Point(84, 0);
             this.descriptionLabel.Name = "descriptionLabel";
-            this.descriptionLabel.Size = new System.Drawing.Size(0, 13);
+            this.descriptionLabel.Size = new System.Drawing.Size(35, 13);
             this.descriptionLabel.TabIndex = 8;
+            this.descriptionLabel.Text = "label6";
             // 
             // flowLayoutPanel5
             // 
             this.flowLayoutPanel5.AutoSize = true;
             this.flowLayoutPanel5.Controls.Add(this.label6);
             this.flowLayoutPanel5.Controls.Add(this.tagsLabel);
-            this.flowLayoutPanel5.Location = new System.Drawing.Point(3, 156);
+            this.flowLayoutPanel5.Location = new System.Drawing.Point(3, 175);
             this.flowLayoutPanel5.Name = "flowLayoutPanel5";
             this.flowLayoutPanel5.Size = new System.Drawing.Size(86, 13);
             this.flowLayoutPanel5.TabIndex = 9;
@@ -339,7 +367,7 @@
             // 
             this.flowLayoutPanel8.AutoSize = true;
             this.flowLayoutPanel8.Controls.Add(this.label8);
-            this.flowLayoutPanel8.Location = new System.Drawing.Point(3, 175);
+            this.flowLayoutPanel8.Location = new System.Drawing.Point(3, 194);
             this.flowLayoutPanel8.Name = "flowLayoutPanel8";
             this.flowLayoutPanel8.Size = new System.Drawing.Size(98, 13);
             this.flowLayoutPanel8.TabIndex = 12;
@@ -358,9 +386,9 @@
             // 
             this.flowLayoutPanel9.AutoSize = true;
             this.flowLayoutPanel9.Controls.Add(this.dependenciesTextBox);
-            this.flowLayoutPanel9.Location = new System.Drawing.Point(3, 194);
+            this.flowLayoutPanel9.Location = new System.Drawing.Point(3, 213);
             this.flowLayoutPanel9.Name = "flowLayoutPanel9";
-            this.flowLayoutPanel9.Size = new System.Drawing.Size(185, 26);
+            this.flowLayoutPanel9.Size = new System.Drawing.Size(188, 26);
             this.flowLayoutPanel9.TabIndex = 13;
             // 
             // dependenciesTextBox
@@ -369,7 +397,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dependenciesTextBox.BackColor = System.Drawing.SystemColors.Control;
             this.dependenciesTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dependenciesTextBox.Location = new System.Drawing.Point(3, 3);
+            this.dependenciesTextBox.Location = new System.Drawing.Point(6, 3);
+            this.dependenciesTextBox.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.dependenciesTextBox.MinimumSize = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.Multiline = true;
             this.dependenciesTextBox.Name = "dependenciesTextBox";
@@ -381,10 +410,22 @@
             // 
             this.dependencyWarningLabel.AutoSize = true;
             this.dependencyWarningLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dependencyWarningLabel.Location = new System.Drawing.Point(3, 223);
+            this.dependencyWarningLabel.Location = new System.Drawing.Point(3, 242);
             this.dependencyWarningLabel.Name = "dependencyWarningLabel";
             this.dependencyWarningLabel.Size = new System.Drawing.Size(0, 13);
             this.dependencyWarningLabel.TabIndex = 14;
+            // 
+            // warningImageLabel
+            // 
+            this.warningImageLabel.AutoSize = true;
+            this.warningImageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.warningImageLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.warningImageLabel.Location = new System.Drawing.Point(3, 0);
+            this.warningImageLabel.Name = "warningImageLabel";
+            this.warningImageLabel.Size = new System.Drawing.Size(77, 13);
+            this.warningImageLabel.TabIndex = 10;
+            this.warningImageLabel.Text = "Deprecated:";
+            this.warningImageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // PackageDetails
             // 
@@ -405,6 +446,8 @@
             this.flowLayoutPanel4.PerformLayout();
             this.flowLayoutPanel7.ResumeLayout(false);
             this.flowLayoutPanel7.PerformLayout();
+            this.deprecationMetadataPanel.ResumeLayout(false);
+            this.deprecationMetadataPanel.PerformLayout();
             this.flowLayoutPanel6.ResumeLayout(false);
             this.flowLayoutPanel6.PerformLayout();
             this.flowLayoutPanel5.ResumeLayout(false);
@@ -449,5 +492,8 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel9;
         private System.Windows.Forms.TextBox dependenciesTextBox;
         private System.Windows.Forms.Label dependencyWarningLabel;
+        private System.Windows.Forms.FlowLayoutPanel deprecationMetadataPanel;
+        private System.Windows.Forms.Label deprecationMetadataLabel;
+        private System.Windows.Forms.Label warningImageLabel;
     }
 }

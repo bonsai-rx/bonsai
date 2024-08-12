@@ -270,6 +270,13 @@ namespace Bonsai.NuGet.Design
             node.Checked = installCheck;
             node.Tag = package;
 
+            var deprecationMetadata = package.GetDeprecationMetadataAsync().Result;
+            if (deprecationMetadata != null)
+            {
+                var deprecationMetadataNode = node.Nodes.Add(Resources.PackageWarningKey, deprecationMetadata.Message);
+                deprecationMetadataNode.Tag = deprecationMetadata;
+            }
+
             var requestIcon = GetPackageIcon(package.IconUrl);
             var iconRequest = requestIcon.ObserveOn(control).Subscribe(image =>
             {
