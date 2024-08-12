@@ -73,7 +73,7 @@ namespace Bonsai.NuGet.Design
             packageViewController.ClearActiveRequests();
             if (installedButton.Checked)
             {
-                packageView.OperationText = Resources.UninstallOperationName;
+                packageView.Operation = PackageOperationType.Uninstall;
                 packageViewController.SelectedRepository = PackageManager.LocalRepository;
             }
             else
@@ -87,9 +87,9 @@ namespace Bonsai.NuGet.Design
 
                 if (updatesButton.Checked)
                 {
-                    packageView.OperationText = Resources.UpdateOperationName;
+                    packageView.Operation = PackageOperationType.Update;
                 }
-                else packageView.OperationText = Resources.InstallOperationName;
+                else packageView.Operation = PackageOperationType.Install;
             }
 
             searchComboBox.Text = string.Empty;
@@ -138,7 +138,7 @@ namespace Bonsai.NuGet.Design
 
         private void multiOperationButton_Click(object sender, EventArgs e)
         {
-            if (packageView.OperationText == Resources.UpdateOperationName)
+            if (packageView.Operation == PackageOperationType.Update)
             {
                 var packages = packageView.Nodes.Cast<TreeNode>()
                     .Select(node => node.Tag as IPackageSearchMetadata)

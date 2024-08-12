@@ -129,17 +129,11 @@
   <data name="InstallOperationLabel" xml:space="preserve">
     <value>Installing...</value>
   </data>
-  <data name="InstallOperationName" xml:space="preserve">
-    <value>Install</value>
-  </data>
   <data name="OnlineNodeName" xml:space="preserve">
     <value>Online</value>
   </data>
   <data name="UninstallOperationLabel" xml:space="preserve">
     <value>Uninstalling...</value>
-  </data>
-  <data name="UninstallOperationName" xml:space="preserve">
-    <value>Uninstall</value>
   </data>
   <data name="UpdatesNodeName" xml:space="preserve">
     <value>Updates</value>
@@ -166,14 +160,11 @@
   <data name="UpdateOperationLabel" xml:space="preserve">
     <value>Updating...</value>
   </data>
-  <data name="UpdateOperationName" xml:space="preserve">
-    <value>Update</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="PackageViewNodeCheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
+        vAAADrwBlbxySQAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
         cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
         Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
         1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
@@ -198,7 +189,7 @@
   <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
+        vAAADrwBlbxySQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
         y23DMAyGM0JH6QhF7hkgm6RZwsgMzQa5uyPk3Pba9uoWyOOo6gtElZEpy3aBuAQ+IBHJn4xedmbOuUkx
         B2/J74eCHQ6H+9PpVHn2HmfAeEVcSMnaoAbO5/PD8Xh8Top1Qjx5QaJlvRvwYvxis0hPqiB1ZcUGmqa5
         88mtqd7tdm69Xrv5fN6CcfxpjmePXpC+WLEBkrRIXdduuVyahVOII17ne/ZB+mKdDfjgq2nfbDZmoRLk
@@ -220,9 +211,6 @@
   </data>
   <data name="ExportOperationLabel" xml:space="preserve">
     <value>Exporting...</value>
-  </data>
-  <data name="OpenOperationName" xml:space="preserve">
-    <value>Open</value>
   </data>
   <data name="MissingWorkflowEntryPoint" xml:space="preserve">
     <value>Unable to open gallery package. No '{0}' was found in package contents.</value>
@@ -276,7 +264,7 @@
   <data name="SettingsImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wwAADsMBx2+oZAAAANhJREFUOE+lU7ERgzAMZBRmoad3SeGx6BkjTShcOSN4A5KG1tErep9DihxYd39n
+        vAAADrwBlbxySQAAANhJREFUOE+lU7ERgzAMZBRmoad3SeGx6BkjTShcOSN4A5KG1tErep9DihxYd39n
         Sf9vLOzuGPu+T4KbIB+A2mS035BmL4hGzimlPAyDAmvWjdOb7BMoCLZlWXIIQYlY02CeZ62hhzq40Jhc
         DWIt8N7ncRxLjjVqzM0kUowzqzsJ/8CvhBYGZWDcBTuu9zU/t5cCa34ROORDCwMdEs5JEsUxPhQ0oTm4
         HKwaoFGDYuY0qTnAaQPn3BevGLQeoXmIbb/R7sL1i4SQpO0qI1AQXHtMdUjzxHPuujckkIG3YzbPFgAA
@@ -289,7 +277,7 @@
   <data name="CheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAJpJREFUOE+lzgEJwCAQhWFT2MEIhjCDMWxgB2uYwwoWsMSNd+xExpQ5fxDm2H07
+        vAAADrwBlbxySQAAAJpJREFUOE+lzgEJwCAQhWFT2MEIhjCDMWxgB2uYwwoWsMSNd+xExpQ5fxDm2H07
         RYcxEELYPlIHdvoFxBip1srP20DOmZRSpLXm+xbQWuNBANgCLQF8VEq5b0TOOR42xtxvFkBKqa8KRFbH
         GdEpgHXxJxl6ri5NAQTEWtuRcXVpCUjeewbG1aVPAHobRp+BWa/A7pEYOOkQILoAJ5VmTOFnoT4AAAAA
         SUVORK5CYII=
@@ -298,8 +286,58 @@
   <data name="UncheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAC1JREFUOE9j+E8hABtQXl5OMoYBuAGkgFEDRg0AgUFqAKkYBsAGUAIoNOD/fwB6
+        vAAADrwBlbxySQAAAC1JREFUOE9j+E8hABtQXl5OMoYBuAGkgFEDRg0AgUFqAKkYBsAGUAIoNOD/fwB6
         Pq+umpazgQAAAABJRU5ErkJggg==
 </value>
+  </data>
+  <data name="WarningImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1
+        MAAA6mAAADqYAAAXb5JfxUYAAAAJcEhZcwAADr8AAA6/ATgFUyQAAACgSURBVDhPpZCBEcMgCEUd1YG7
+        QwfIEJRPkAMBm2u9e7mI+vg6iOgv7k8z6DXeQKdpHAV8cDKkTC2H8U2A7ktQpmgF6OgOL1KKk0C64xeo
+        IKUoBeikB3YBCCk6gd0dU7DmWJNNOpKAN4S7owR8jbEUlcC/fCewFEHAC9XLd0iKXRC6A5Rl31ZnJIUJ
+        uFB2PwjA9ILU/RFOcKXFJ5jgZ2h8ADPx6vIlyTDgAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="DownloadImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vwAADr8BOAVTJAAAAKFJREFUOE+lkUEKwzAMBPM2P87f6C99dbPCKrOKS1K6IGI5O0NpjjnnX+MLMsaY
+        nHUdMcYWRFBrLeax4Cy+VuerQB0yVaBySHYCvdOZzE4QEj0pyDsNmYug955AFXzekbkIBGSRAt3lmcxW
+        kJLd+VbAcp38ZWSqIP6onSRhdciYgJ+KEsLqGGPLCiUVVoyxBUlJhRVjbClZEoMVY7j8PvN4A80ziomU
+        990nAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="RemoveImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wAAADsABataJCQAAAHxJREFUOE/NjLENgDAMBLMAG1CzAAMjGoahYQs2cA16FAfHeiMQBZxkQV73n/6H
+        iAy4/CxEeQWEdZk3nJWjvEKlqW+PUznKc+3EimPXFJlldACwkdtlxY88KoNXA76Mr/2/HGFlvFlGR+yA
+        FaM812pU9lKUUyAwKcq/JqUdDDg6HDyy1HgAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="UpdateImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wQAADsEBuJFr7QAAARRJREFUOE+dk09qAjEYxecEXkBBcNcLzMazeRF3ooOrXqFLS8G1OxH8QymKKzuF
+        2cT8xu9JkqZCffAgyffem3yZpEhR13XpOfbceDZGxqyVJvsNX+x4VuvTxY3ej274enD96bYlY9aooUFr
+        thvM/DFbnd1gtnPdyTZLamjQRiF+UlFIDW+7b7f8+nG9ZN1CKplLtpZ+GbOQhqC1dkoCxvT3l1lIQ/Dg
+        JWDDIT0yC4RIhwcvAQ0nrYKAWFh81jZydx0evNkAbVd4me/vO8sFRC3wNfUqEMCcEOnCFqJDDA9KUEDI
+        8BCzvxEKaUD0G+0uVNPMRRLSALR4WjPwk/YqU8jtRKRm5vgqAwt57jGF8MV/POeiuAIJP8MXc9uPMgAA
+        AABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="OpenImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAAQJJREFUOE9jIBZ8+/aNA8okHQA1VwDxZSAWhQoRD0CaL99/+b9v44X/JBsCVJz8
+        /M2H/1Ipy/4zBM/537TyDHGGABVwArEAEKsC8R2QRpABeA0BCmgC8VIgfg3EIEUoGK8hQEbwi7cfv+fP
+        PfpfInkpXCE+DDMEbDNIs07BGqwKcWFkA5aCbAYJgmxff/zOf1DAoePi+ccwNAOxKMiA1zBngzQD+V1A
+        zAP1migQXybkf7gkyCYgXwIsAQRANuFoBHKwuUAEiDmh8vgTElAAIwzefvgMUjwBqgRsCFbNIAAUxIiF
+        7FmHUQwAASAfd2YCSqKkA2wGEAQglwAxckokwgAGBgCkhsE8CrHMLAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="PackageWarningKey" xml:space="preserve">
+    <value>Warning</value>
   </data>
 </root>

@@ -233,7 +233,7 @@ namespace Bonsai.NuGet.Design
             if (packages.Count > 0)
             {
                 if (packages.Count > 1 && packagePageSelector.SelectedPage == 0 &&
-                    packageView.OperationText == Resources.UpdateOperationName)
+                    packageView.Operation == PackageOperationType.Update)
                 {
                     setMultiOperationVisible(true);
                 }
@@ -254,7 +254,7 @@ namespace Bonsai.NuGet.Design
         {
             var installCheck = false;
             if (SelectedRepository != PackageManager.LocalRepository &&
-                packageView.OperationText != Resources.UpdateOperationName)
+                packageView.Operation != PackageOperationType.Update)
             {
                 var installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
                 installCheck = installedPackage != null && installedPackage.Identity.Version >= package.Identity.Version;
@@ -318,7 +318,7 @@ namespace Bonsai.NuGet.Design
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
-                        else if (packageView.OperationText == Resources.UpdateOperationName)
+                        else if (packageView.Operation == PackageOperationType.Update)
                         {
                             SetPackageViewStatus(Resources.NoUpdatesAvailableLabel);
                         }
@@ -338,7 +338,7 @@ namespace Bonsai.NuGet.Design
 
                 IObservable<Unit> operation;
                 var uninstallOperation = SelectedRepository == PackageManager.LocalRepository;
-                var update = packageView.OperationText == Resources.UpdateOperationName;
+                var update = packageView.Operation == PackageOperationType.Update;
                 if (uninstallOperation)
                 {
                     operation = Observable.FromAsync(async token =>
