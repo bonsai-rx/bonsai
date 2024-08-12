@@ -376,7 +376,7 @@
             this.packageView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.packageView.CanSelectNodes = false;
             this.packageView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawAll;
             this.packageView.FullRowSelect = true;
             this.packageView.ImageIndex = 0;
             this.packageView.ImageList = this.packageIcons;
@@ -384,7 +384,7 @@
             this.packageView.Location = new System.Drawing.Point(4, 40);
             this.packageView.Margin = new System.Windows.Forms.Padding(4);
             this.packageView.Name = "packageView";
-            this.packageView.OperationText = null;
+            this.packageView.Operation = PackageOperationType.Install;
             this.packageView.SelectedImageIndex = 0;
             this.packageView.ShowLines = false;
             this.packageView.ShowRootLines = false;

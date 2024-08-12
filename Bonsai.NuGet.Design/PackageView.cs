@@ -1,18 +1,14 @@
 ﻿using Bonsai.NuGet.Design.Properties;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace Bonsai.NuGet.Design
 {
     class PackageView : TreeView
     {
-        const int WM_NCMOUSEHOVER = 0x02a0;
-        const int WM_MOUSEHOVER = 0x02a1;
-        const int WM_NCMOUSELEAVE = 0x02a2;
-        const int WM_MOUSELEAVE = 0x02a3;
         const int WM_NOTIFY = 0x004e;
         const int WM_LBUTTONDOWN = 0x0201;
         const int WM_LBUTTONDBLCLK = 0x0203;
@@ -23,22 +19,28 @@ namespace Bonsai.NuGet.Design
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
         Font boldFont;
+        SolidBrush nodeHighlight;
         int boundsMargin;
+        SizeF buttonSize;
         int verticalScrollBarWidth;
-        Rectangle operationButtonBounds;
-        readonly Image packageViewNodeCheckedImage;
-        static readonly Rectangle DefaultOperationButtonBounds = new Rectangle(10, 2, 75, 23);
-        const int DefaultBoundsMargin = 5;
+        PackageOperationType operation;
+        TreeNode operationHoverNode;
+        bool operationButtonState;
+        readonly Image packageCheckedImage;
+        readonly Image packageWarningImage;
+        const int DefaultBoundsMargin = 6;
 
         public PackageView()
         {
             ShowLines = false;
+            HotTracking = true;
             FullRowSelect = true;
-            DrawMode = TreeViewDrawMode.OwnerDrawText;
-            packageViewNodeCheckedImage = Resources.PackageViewNodeCheckedImage;
+            DrawMode = TreeViewDrawMode.OwnerDrawAll;
+            packageCheckedImage = Resources.PackageViewNodeCheckedImage;
+            packageWarningImage = Resources.WarningImage;
             boundsMargin = DefaultBoundsMargin;
             verticalScrollBarWidth = SystemInformation.VerticalScrollBarWidth;
-            operationButtonBounds = DefaultOperationButtonBounds;
+            nodeHighlight = new SolidBrush(ControlPaint.LightLight(SystemColors.Highlight));
         }
 
         public override Font Font
@@ -54,7 +56,23 @@ namespace Bonsai.NuGet.Design
         [Category("Action")]
         public event TreeViewEventHandler OperationClick;
 
-        public string OperationText { get; set; }
+        private Image OperationImage { get; set; }
+
+        public PackageOperationType Operation
+        {
+            get => operation;
+            set
+            {
+                operation = value;
+                OperationImage = operation switch
+                {
+                    PackageOperationType.Open => Resources.OpenImage,
+                    PackageOperationType.Update => Resources.UpdateImage,
+                    PackageOperationType.Uninstall => Resources.RemoveImage,
+                    PackageOperationType.Install or _ => Resources.DownloadImage
+                };
+            }
+        }
 
         public bool CanSelectNodes { get; set; }
 
@@ -79,11 +97,8 @@ namespace Bonsai.NuGet.Design
             var widthScaleFactor = factor.Height * 0.5f + 0.5f;
             verticalScrollBarWidth = (int)(SystemInformation.VerticalScrollBarWidth * widthScaleFactor);
             boundsMargin = (int)(DefaultBoundsMargin * factor.Height);
-            operationButtonBounds = new Rectangle(
-                (int)(DefaultOperationButtonBounds.X * factor.Height),
-                (int)(DefaultOperationButtonBounds.Y * factor.Height),
-                (int)(DefaultOperationButtonBounds.Width * factor.Height),
-                (int)(DefaultOperationButtonBounds.Height * factor.Height));
+            using var graphics = CreateGraphics();
+            buttonSize = graphics.GetImageSize(OperationImage);
             base.ScaleControl(factor, specified);
         }
 
@@ -101,10 +116,6 @@ namespace Bonsai.NuGet.Design
         {
             switch (m.Msg)
             {
-                case WM_MOUSELEAVE:
-                case WM_NCMOUSELEAVE:
-                case WM_MOUSEHOVER:
-                case WM_NCMOUSEHOVER:
                 case WM_NOTIFY:
                     return;
                 case WM_LBUTTONDOWN:
@@ -129,6 +140,30 @@ namespace Bonsai.NuGet.Design
                 }
             }
             base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            var node = GetNodeAt(e.Location);
+            if (operationHoverNode != node)
+                operationButtonState = false;
+
+            if (node != null)
+            {
+                var buttonBounds = GetOperationButtonBounds(node.Bounds);
+                var hoverState = buttonBounds.Contains(e.Location);
+                if (operationButtonState != hoverState)
+                {
+                    var nodeBounds = node.Bounds;
+                    nodeBounds.Width = Width - nodeBounds.X;
+                    Invalidate(nodeBounds);
+                }
+
+                operationButtonState = hoverState;
+            }
+
+            operationHoverNode = node;
+            base.OnMouseMove(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -158,16 +193,39 @@ namespace Bonsai.NuGet.Design
             get { return Width - verticalScrollBarWidth; }
         }
 
-        private Rectangle GetOperationButtonBounds(Rectangle nodeBounds)
+        private RectangleF GetOperationButtonBounds(Rectangle nodeBounds)
         {
-            nodeBounds.X = RightMargin - operationButtonBounds.Width - operationButtonBounds.X;
-            nodeBounds.Y += operationButtonBounds.Y;
-            nodeBounds.Size = operationButtonBounds.Size;
-            return nodeBounds;
+            // Node bounds span the full text area but we need to account for scroll bar
+            return new(
+                x: RightMargin - buttonSize.Width - boundsMargin,
+                y: nodeBounds.Y + boundsMargin,
+                width: buttonSize.Width,
+                height: buttonSize.Height);
+        }
+
+        private void FillImageBounds(Graphics graphics, Brush brush, Image image, ref Rectangle bounds)
+        {
+            var imageSize = graphics.GetImageSize(image);
+            RectangleF imageBounds = new(
+                x: bounds.Right - imageSize.Width,
+                y: bounds.Y + boundsMargin,
+                width: imageSize.Width,
+                height: imageSize.Height);
+            graphics.FillRectangle(brush, imageBounds);
+        }
+
+        private void DrawPackageImage(Graphics graphics, Image image, ref Rectangle bounds)
+        {
+            var imageWidth = image.Width * graphics.DpiX / image.HorizontalResolution;
+            var imageX = bounds.Right - imageWidth;
+            var imageY = bounds.Y + boundsMargin;
+            graphics.DrawImage(image, imageX, imageY);
+            bounds.Width -= image.Width + boundsMargin;
         }
 
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
         {
+            e.DrawDefault = false;
             var bounds = e.Bounds;
             bounds.Width = RightMargin - bounds.X;
             var color = (e.State & TreeNodeStates.Selected) != 0
@@ -180,50 +238,92 @@ namespace Bonsai.NuGet.Design
             }
             else
             {
-                if (NativeMethods.IsRunningOnMono && (e.State & TreeNodeStates.Selected) != 0)
+                var nodeHot = (e.State & TreeNodeStates.Hot) != 0;
+                var nodeSelected = (e.State & TreeNodeStates.Selected) != 0;
+                if (nodeSelected)
                 {
                     e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
                 }
 
-                if (e.Node.Checked)
+                if (!nodeSelected && nodeHot)
                 {
-                    var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - boundsMargin;
-                    var checkedImageY = bounds.Y + operationButtonBounds.Y;
-                    e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
-                    bounds.Width -= packageViewNodeCheckedImage.Width;
+                    e.Graphics.FillRectangle(nodeHighlight, bounds);
                 }
-                else if ((e.State & TreeNodeStates.Selected) != 0)
-                {
-                    var font = Font;
-                    var buttonBounds = GetOperationButtonBounds(bounds);
-                    bounds.Width -= buttonBounds.Width + boundsMargin * 2;
 
-                    if (VisualStyleRenderer.IsSupported)
-                    {
-                        ButtonRenderer.DrawButton(e.Graphics, buttonBounds, OperationText, font, false, PushButtonState.Normal);
-                    }
-                    else
-                    {
-                        var buttonTextSize = TextRenderer.MeasureText(OperationText, font);
-                        var buttonTextOffset = new Point(
-                            buttonBounds.Location.X + (buttonBounds.Size.Width - buttonTextSize.Width) / 2,
-                            buttonBounds.Location.Y + (buttonBounds.Size.Height - buttonTextSize.Height) / 2);
-                        ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Normal);
-                        TextRenderer.DrawText(e.Graphics, OperationText, font, buttonTextOffset, SystemColors.ControlText);
-                    }
+                // Draw package icon
+                var nodeImage = ImageList.Images[e.Node.ImageKey];
+                if (nodeImage != null)
+                {
+                    var imageX = e.Bounds.X + Margin.Left;
+                    var imageY = e.Bounds.Top + (e.Bounds.Height - ImageList.ImageSize.Height) / 2;
+                    e.Graphics.DrawImage(nodeImage, imageX, imageY);
                 }
+                bounds.X += ImageList.ImageSize.Width + Margin.Horizontal;
+                bounds.Width -= ImageList.ImageSize.Width + Margin.Horizontal;
+
+                // Draw operation image
+                bounds.Width -= boundsMargin;
+                if (e.Node.Checked)
+                    DrawPackageImage(e.Graphics, packageCheckedImage, ref bounds);
+                else if (nodeHot && OperationImage != null)
+                {
+                    var mousePosition = PointToClient(MousePosition);
+                    var buttonBounds = GetOperationButtonBounds(e.Node.Bounds);
+                    if (buttonBounds.Contains(mousePosition))
+                    {
+                        FillImageBounds(
+                            e.Graphics,
+                            SystemBrushes.ControlLight,
+                            OperationImage,
+                            ref bounds);
+                    }
+                    DrawPackageImage(e.Graphics, OperationImage, ref bounds);
+                }
+                else
+                    bounds.Width -= OperationImage.Width + boundsMargin;
+
+                // Draw package version
+                var packageVersion = ((IPackageSearchMetadata)e.Node.Tag).Identity.Version.ToString();
+                var textSize = TextRenderer.MeasureText(e.Graphics, packageVersion, Font);
+                var textPosition = new Point(bounds.Right - textSize.Width - boundsMargin, bounds.Y + boundsMargin);
+                TextRenderer.DrawText(e.Graphics, packageVersion, Font, textPosition, color);
+                bounds.Width -= textSize.Width + boundsMargin;
+
+                // Draw package warnings
+                if (e.Node.Nodes.Count > 0 && e.Node.Nodes[Resources.PackageWarningKey] != null)
+                    DrawPackageImage(e.Graphics, packageWarningImage, ref bounds);
+
+                // Add spacing between text boxes
+                bounds.Y += boundsMargin;
+                bounds.Height -= boundsMargin;
 
                 var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 TextRenderer.DrawText(e.Graphics, lines[0], boldFont, bounds, color, TextFormatFlags.WordEllipsis);
 
                 if (lines.Length > 1)
                 {
-                    bounds.Y += TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis).Height;
-                    TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
+                    var titleSize = TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis);
+                    bounds.Y += titleSize.Height;
+                    bounds.Height -= titleSize.Height;
+                    TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color,
+                        TextFormatFlags.TextBoxControl
+                        | TextFormatFlags.WordBreak
+                        | TextFormatFlags.EndEllipsis);
                 }
             }
 
             base.OnDrawNode(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && nodeHighlight != null)
+            {
+                nodeHighlight.Dispose();
+                nodeHighlight = null;
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

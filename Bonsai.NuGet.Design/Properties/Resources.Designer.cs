@@ -98,6 +98,16 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DownloadImage {
+            get {
+                object obj = ResourceManager.GetObject("DownloadImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exporting....
         /// </summary>
         internal static string ExportOperationLabel {
@@ -148,15 +158,6 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static string InstallOperationLabel {
             get {
                 return ResourceManager.GetString("InstallOperationLabel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Install.
-        /// </summary>
-        internal static string InstallOperationName {
-            get {
-                return ResourceManager.GetString("InstallOperationName", resourceCulture);
             }
         }
         
@@ -287,11 +288,12 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static string OpenOperationName {
+        internal static System.Drawing.Bitmap OpenImage {
             get {
-                return ResourceManager.GetString("OpenOperationName", resourceCulture);
+                object obj = ResourceManager.GetObject("OpenImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -334,6 +336,15 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        internal static string PackageWarningKey {
+            get {
+                return ResourceManager.GetString("PackageWarningKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  (Prerelease).
         /// </summary>
         internal static string PrereleaseLabel {
@@ -348,6 +359,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap RefreshImage {
             get {
                 object obj = ResourceManager.GetObject("RefreshImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RemoveImage {
+            get {
+                object obj = ResourceManager.GetObject("RemoveImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -436,15 +457,6 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Uninstall.
-        /// </summary>
-        internal static string UninstallOperationName {
-            get {
-                return ResourceManager.GetString("UninstallOperationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to (unpublished).
         /// </summary>
         internal static string UnpublishedLabel {
@@ -454,20 +466,21 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UpdateImage {
+            get {
+                object obj = ResourceManager.GetObject("UpdateImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Updating....
         /// </summary>
         internal static string UpdateOperationLabel {
             get {
                 return ResourceManager.GetString("UpdateOperationLabel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update.
-        /// </summary>
-        internal static string UpdateOperationName {
-            get {
-                return ResourceManager.GetString("UpdateOperationName", resourceCulture);
             }
         }
         
@@ -486,6 +499,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap WaitImage {
             get {
                 object obj = ResourceManager.GetObject("WaitImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WarningImage {
+            get {
+                object obj = ResourceManager.GetObject("WarningImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
