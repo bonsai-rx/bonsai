@@ -35,7 +35,7 @@ namespace Bonsai.NuGet.Design
             ShowLines = false;
             HotTracking = true;
             FullRowSelect = true;
-            DrawMode = TreeViewDrawMode.OwnerDrawAll;
+            DrawMode = TreeViewDrawMode.OwnerDrawText;
             packageCheckedImage = Resources.PackageViewNodeCheckedImage;
             packageWarningImage = Resources.WarningImage;
             boundsMargin = DefaultBoundsMargin;
@@ -238,34 +238,16 @@ namespace Bonsai.NuGet.Design
             }
             else
             {
-                var nodeHot = (e.State & TreeNodeStates.Hot) != 0;
-                var nodeSelected = (e.State & TreeNodeStates.Selected) != 0;
-                if (nodeSelected)
+                if (NativeMethods.IsRunningOnMono && (e.State & TreeNodeStates.Selected) != 0)
                 {
                     e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
                 }
-
-                if (!nodeSelected && nodeHot)
-                {
-                    e.Graphics.FillRectangle(nodeHighlight, bounds);
-                }
-
-                // Draw package icon
-                var nodeImage = ImageList.Images[e.Node.ImageKey];
-                if (nodeImage != null)
-                {
-                    var imageX = e.Bounds.X + Margin.Left;
-                    var imageY = e.Bounds.Top + (e.Bounds.Height - ImageList.ImageSize.Height) / 2;
-                    e.Graphics.DrawImage(nodeImage, imageX, imageY);
-                }
-                bounds.X += ImageList.ImageSize.Width + Margin.Horizontal;
-                bounds.Width -= ImageList.ImageSize.Width + Margin.Horizontal;
 
                 // Draw operation image
                 bounds.Width -= boundsMargin;
                 if (e.Node.Checked)
                     DrawPackageImage(e.Graphics, packageCheckedImage, ref bounds);
-                else if (nodeHot && OperationImage != null)
+                else if (OperationImage != null)
                 {
                     var mousePosition = PointToClient(MousePosition);
                     var buttonBounds = GetOperationButtonBounds(e.Node.Bounds);
