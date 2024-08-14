@@ -29,6 +29,7 @@ namespace Bonsai.NuGet.Design
         readonly Image packageCheckedImage;
         readonly Image packageWarningImage;
         const int DefaultBoundsMargin = 6;
+        static readonly object OperationClickEvent = new();
 
         public PackageView()
         {
@@ -54,7 +55,11 @@ namespace Bonsai.NuGet.Design
         }
 
         [Category("Action")]
-        public event TreeViewEventHandler OperationClick;
+        public event PackageViewEventHandler OperationClick
+        {
+            add { Events.AddHandler(OperationClickEvent, value); }
+            remove { Events.RemoveHandler(OperationClickEvent, value); }
+        }
 
         private Image OperationImage { get; set; }
 
@@ -76,9 +81,9 @@ namespace Bonsai.NuGet.Design
 
         public bool CanSelectNodes { get; set; }
 
-        private void OnOperationClick(TreeViewEventArgs e)
+        private void OnOperationClick(PackageViewEventArgs e)
         {
-            OperationClick?.Invoke(this, e);
+            (Events[OperationClickEvent] as PackageViewEventHandler)?.Invoke(this, e);
         }
 
         protected override CreateParams CreateParams
@@ -168,17 +173,20 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            if (OperationHitTest(e.Location) && e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left &&
+                OperationHitTest(e.Location, out TreeViewHitTestInfo hitTestInfo))
             {
-                OnOperationClick(new TreeViewEventArgs(SelectedNode, TreeViewAction.ByMouse));
+                OnOperationClick(new PackageViewEventArgs(
+                    (IPackageSearchMetadata)hitTestInfo.Node.Tag,
+                    Operation));
             }
             base.OnMouseClick(e);
         }
 
-        private bool OperationHitTest(Point pt)
+        private bool OperationHitTest(Point pt, out TreeViewHitTestInfo hitTestInfo)
         {
-            var hitTestInfo = HitTest(pt);
-            if (hitTestInfo.Node != null && !hitTestInfo.Node.Checked && hitTestInfo.Node == SelectedNode)
+            hitTestInfo = HitTest(pt);
+            if (hitTestInfo.Node != null && !hitTestInfo.Node.Checked)
             {
                 if (hitTestInfo.Node.Tag == null) return false;
                 var buttonBounds = GetOperationButtonBounds(hitTestInfo.Node.Bounds);

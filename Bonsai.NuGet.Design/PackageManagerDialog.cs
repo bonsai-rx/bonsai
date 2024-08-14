@@ -148,10 +148,10 @@ namespace Bonsai.NuGet.Design
             }
         }
 
-        private void packageView_OperationClick(object sender, TreeViewEventArgs e)
+        private void packageView_OperationClick(object sender, PackageViewEventArgs e)
         {
             bool handleDependencies = true;
-            var package = (IPackageSearchMetadata)e.Node.Tag;
+            var package = e.Package;
             if (package != null)
             {
                 if (packageViewController.SelectedRepository == PackageManager.LocalRepository)

@@ -83,9 +83,9 @@ namespace Bonsai.NuGet.Design
             base.OnResizeEnd(e);
         }
 
-        private void packageView_OperationClick(object sender, TreeViewEventArgs e)
+        private void packageView_OperationClick(object sender, PackageViewEventArgs e)
         {
-            var package = (IPackageSearchMetadata)e.Node.Tag;
+            var package = e.Package;
             if (package != null)
             {
                 if (!package.Tags.Contains(Constants.GalleryDirectory))
