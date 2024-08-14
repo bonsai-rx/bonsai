@@ -390,7 +390,7 @@
             this.packageView.ShowRootLines = false;
             this.packageView.Size = new System.Drawing.Size(711, 424);
             this.packageView.TabIndex = 2;
-            this.packageView.OperationClick += new System.Windows.Forms.TreeViewEventHandler(this.packageView_OperationClick);
+            this.packageView.OperationClick += new System.EventHandler<PackageViewEventArgs>(this.packageView_OperationClick);
             // 
             // packageDetails
             // 
