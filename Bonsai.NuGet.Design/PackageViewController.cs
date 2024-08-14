@@ -82,6 +82,7 @@ namespace Bonsai.NuGet.Design
             searchComboBox.CueBanner = Resources.SearchCueBanner;
             packageDetails.ProjectFramework = ProjectFramework;
             packageDetails.PathResolver = PackageManager.PathResolver;
+            Operation = packageView.Operation;
         }
 
         public string SearchPrefix { get; set; }
@@ -91,6 +92,12 @@ namespace Bonsai.NuGet.Design
         public NuGetFramework ProjectFramework { get; private set; }
 
         public LicenseAwarePackageManager PackageManager { get; private set; }
+
+        public PackageOperationType Operation
+        {
+            get => packageView.Operation;
+            set => packageView.Operation = packageDetails.Operation = value;
+        }
 
         public void ClearActiveRequests()
         {
@@ -138,7 +145,7 @@ namespace Bonsai.NuGet.Design
         {
             var selectHandler = SelectPackageDetails()
                 .ObserveOn(control)
-                .Do(package => packageDetails.SetPackage(package))
+                .Do(item => packageDetails.SetPackage(item))
                 .Select(result => Unit.Default);
             var searchHandler = Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
@@ -411,7 +418,7 @@ namespace Bonsai.NuGet.Design
             }
         }
 
-        private IObservable<IPackageSearchMetadata> SelectPackageDetails()
+        private IObservable<PackageViewItem> SelectPackageDetails()
         {
             return Observable.FromEventPattern<TreeViewEventHandler, TreeViewEventArgs>(
                 handler => packageView.AfterSelect += handler,
@@ -429,9 +436,10 @@ namespace Bonsai.NuGet.Design
                             var metadata = await repository.GetMetadataAsync(package.Identity, cacheContext);
                             if (metadata != null)
                             {
+                                var imageIndex = packageView.ImageList.Images.IndexOfKey(evt.EventArgs.Node.ImageKey);
                                 var result = (PackageSearchMetadataBuilder.ClonedPackageSearchMetadata)PackageSearchMetadataBuilder.FromMetadata(metadata).Build();
                                 result.DownloadCount = package.DownloadCount;
-                                return result;
+                                return new PackageViewItem(result, packageView.ImageList, imageIndex);
                             }
                         }
 
