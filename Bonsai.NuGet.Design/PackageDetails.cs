@@ -9,14 +9,16 @@ using NuGet.Packaging;
 using System.IO;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
-using System.Drawing;
+using System.ComponentModel;
 
 namespace Bonsai.NuGet.Design
 {
-    public partial class PackageDetails : UserControl
+    internal partial class PackageDetails : UserControl
     {
+        PackageViewItem selectedItem;
+        PackageOperationType operation;
         const int TextHeightMargin = 7;
-        static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/packages/");
+        static readonly object OperationClickEvent = new();
 
         public PackageDetails()
         {
@@ -25,24 +27,53 @@ namespace Bonsai.NuGet.Design
             SetPackage(null);
         }
 
+        public PackageOperationType Operation
+        {
+            get => operation;
+            set
+            {
+                operation = value;
+                operationButton.Text = value.ToString();
+            }
+        }
+
+        [Category("Action")]
+        public event PackageViewEventHandler OperationClick
+        {
+            add { Events.AddHandler(OperationClickEvent, value); }
+            remove { Events.RemoveHandler(OperationClickEvent, value); }
+        }
+
         public NuGetFramework ProjectFramework { get; set; }
 
         public PackagePathResolver PathResolver { get; set; }
 
-        public void SetPackage(IPackageSearchMetadata package)
+        private void OnOperationClick(PackageViewEventArgs e)
+        {
+            (Events[OperationClickEvent] as PackageViewEventHandler)?.Invoke(this, e);
+        }
+
+        public void SetPackage(PackageViewItem item)
         {
             SuspendLayout();
-            detailsLayoutPanel.Visible = package != null;
-            if (package == null) return;
+            selectedItem = item;
+            detailsLayoutPanel.Visible = item != null;
+            if (item == null)
+            {
+                packageIdLabel.ImageList = null;
+                packageIdLabel.ImageIndex = 0;
+                ResumeLayout();
+                return;
+            }
+
+            var package = item.Package;
+            packageIdLabel.Text = package.Identity.Id;
+            packageIdLabel.ImageList = item.ImageList;
+            packageIdLabel.ImageIndex = item.ImageIndex;
 
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
-            idLinkLabel.Text = package.Identity.Id;
-            var packageUri = package.PackageDetailsUrl ?? new Uri(NugetPackageRepository, package.Identity.Id + "/" + package.Identity.Version.ToString());
-            SetLinkLabelUri(idLinkLabel, packageUri, false);
-            versionLabel.Text = string.Format(
-                "{0}{1}",
-                package.Identity.Version.ToString(),
-                package.Identity.Version.IsPrerelease ? Resources.PrereleaseLabel : string.Empty);
+            SetLinkLabelUri(detailsLinkLabel, package.PackageDetailsUrl, true);
+            versionLabel.Text = package.Identity.Version.ToString();
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = package.DownloadCount.ToString();
             SetLinkLabelLicense(licenseLinkLabel, package, true);
@@ -113,11 +144,28 @@ namespace Bonsai.NuGet.Design
             }
         }
 
+        private void linkLabel_MouseEnter(object sender, EventArgs e)
+        {
+            var linkLabel = (LinkLabel)sender;
+            linkLabel.LinkColor = ControlPaint.Light(linkLabel.ForeColor);
+        }
+
+        private void linkLabel_MouseLeave(object sender, EventArgs e)
+        {
+            var linkLabel = (LinkLabel)sender;
+            linkLabel.LinkColor = linkLabel.ForeColor;
+        }
+
         private void dependenciesTextBox_TextChanged(object sender, EventArgs e)
         {
             var textSize = TextRenderer.MeasureText(dependenciesTextBox.Text, dependenciesTextBox.Font);
             textSize.Height += TextHeightMargin;
             dependenciesTextBox.Size = textSize;
+        }
+
+        private void operationButton_Click(object sender, EventArgs e)
+        {
+            OnOperationClick(new PackageViewEventArgs(selectedItem.Package, Operation));
         }
     }
 }

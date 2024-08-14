@@ -198,6 +198,16 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LicenseImage {
+            get {
+                object obj = ResourceManager.GetObject("LicenseImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to View License.
         /// </summary>
         internal static string LicenseViewLicenseLabel {
@@ -322,6 +332,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static string PackageExported {
             get {
                 return ResourceManager.GetString("PackageExported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -509,6 +529,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap WarningImage {
             get {
                 object obj = ResourceManager.GetObject("WarningImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WebImage {
+            get {
+                object obj = ResourceManager.GetObject("WebImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
