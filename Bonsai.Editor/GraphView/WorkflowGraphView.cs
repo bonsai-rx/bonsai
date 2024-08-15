@@ -88,6 +88,9 @@ namespace Bonsai.Editor.GraphView
                 {
                     foreach (var node in layers[i])
                     {
+                        if (node.Value is null)
+                            continue;
+
                         if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
                         {
                             node.Status = counter.GetStatus();
