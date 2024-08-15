@@ -36,13 +36,16 @@ namespace Bonsai.Editor.Diagnostics
                     }
 
                     var inspectBuilder = (InspectBuilder)nodeEnumerator.Current.Value;
-                    yield return inspectBuilder;
-
-                    if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
-                        workflowBuilder.Workflow != null)
+                    if (inspectBuilder.Output != null)
                     {
-                        stack.Push(workflowBuilder.Workflow.GetEnumerator());
-                        break;
+                        yield return inspectBuilder;
+
+                        if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
+                            workflowBuilder.Workflow != null)
+                        {
+                            stack.Push(workflowBuilder.Workflow.GetEnumerator());
+                            break;
+                        }
                     }
                 }
             }
