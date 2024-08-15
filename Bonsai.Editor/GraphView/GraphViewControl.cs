@@ -413,7 +413,7 @@ namespace Bonsai.Editor.GraphView
             EntryOffset = new SizeF(-2 * PenWidth, HalfSize);
             ExitOffset = new SizeF(NodeSize + 2 * PenWidth, HalfSize);
             InputPortOffset = new SizeF(-PortSize / 2, EntryOffset.Height - PortSize / 2);
-            OutputPortOffset = new SizeF(NodeSize - PortSize / 2, ExitOffset.Height - PortSize / 2);
+            OutputPortOffset = new SizeF(ExitOffset.Width - PortSize / 2, ExitOffset.Height - PortSize / 2);
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
