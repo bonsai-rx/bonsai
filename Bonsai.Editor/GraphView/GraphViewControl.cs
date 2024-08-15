@@ -64,6 +64,7 @@ namespace Bonsai.Editor.GraphView
         SizeF EntryOffset;
         SizeF ExitOffset;
         SizeF InputPortOffset;
+        SizeF OutputPortOffset;
         Pen SolidPen;
         Pen DashPen;
         Font DefaultIconFont;
@@ -412,6 +413,7 @@ namespace Bonsai.Editor.GraphView
             EntryOffset = new SizeF(-2 * PenWidth, HalfSize);
             ExitOffset = new SizeF(NodeSize + 2 * PenWidth, HalfSize);
             InputPortOffset = new SizeF(-PortSize / 2, EntryOffset.Height - PortSize / 2);
+            OutputPortOffset = new SizeF(NodeSize - PortSize / 2, ExitOffset.Height - PortSize / 2);
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
@@ -1145,6 +1147,34 @@ namespace Bonsai.Editor.GraphView
                 graphics.DrawEllipse(iconRendererState.StrokeStyle(NodeEdgeColor, PenWidth), inputPortRectangle);
                 graphics.FillEllipse(inputPortBrush, inputPortRectangle);
             }
+
+            if (layout.Node.Status != null)
+            {
+                var nodeStatus = layout.Node.Status.GetValueOrDefault();
+                var outputPortRectangle = layout.OutputPortRectangle;
+                var outputPortBrush = nodeStatus switch
+                {
+                    Diagnostics.WorkflowElementStatus.Completed => Brushes.Green,
+                    Diagnostics.WorkflowElementStatus.Error => Brushes.Red,
+                    _ => Brushes.White
+                };
+                outputPortRectangle.Offset(offset.Width, offset.Height);
+
+                var active = nodeStatus == Diagnostics.WorkflowElementStatus.Active ||
+                             nodeStatus == Diagnostics.WorkflowElementStatus.Notifying;
+                var terminated = nodeStatus == Diagnostics.WorkflowElementStatus.Completed ||
+                                 nodeStatus == Diagnostics.WorkflowElementStatus.Error;
+                var edgeColor = active || terminated ? CursorColor : NodeEdgeColor;
+
+                graphics.DrawEllipse(iconRendererState.StrokeStyle(edgeColor, PenWidth), outputPortRectangle);
+                graphics.FillEllipse(outputPortBrush, outputPortRectangle);
+                if (active && layout.Node.NotifyingCounter != 0)
+                {
+                    var notify1 = new PointF(outputPortRectangle.X + PortSize / 2, outputPortRectangle.Top + PenWidth);
+                    var notify2 = new PointF(outputPortRectangle.X + PortSize / 2, outputPortRectangle.Bottom - PenWidth);
+                    graphics.DrawLine(iconRendererState.StrokeStyle(CursorDark, PenWidth), notify1, notify2);
+                }
+            }
         }
 
         private void DrawDummyNode(IGraphics graphics, LayoutNode layout, Size offset)
@@ -1395,6 +1425,11 @@ namespace Bonsai.Editor.GraphView
                 get { return PointF.Add(Location, View.InputPortOffset); }
             }
 
+            public PointF OutputPortLocation
+            {
+                get { return PointF.Add(Location, View.OutputPortOffset); }
+            }
+
             public RectangleF BoundingRectangle
             {
                 get
@@ -1411,6 +1446,16 @@ namespace Bonsai.Editor.GraphView
                 {
                     return new RectangleF(
                         InputPortLocation,
+                        new SizeF(View.PortSize, View.PortSize));
+                }
+            }
+
+            public RectangleF OutputPortRectangle
+            {
+                get
+                {
+                    return new RectangleF(
+                        OutputPortLocation,
                         new SizeF(View.PortSize, View.PortSize));
                 }
             }

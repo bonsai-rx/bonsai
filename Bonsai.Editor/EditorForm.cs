@@ -72,6 +72,7 @@ namespace Bonsai.Editor
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
         readonly CancellationTokenSource formCancellation;
+        readonly WorkflowWatch workflowWatch;
         readonly string definitionsPath;
         AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
@@ -152,6 +153,7 @@ namespace Bonsai.Editor
             }
 
             serviceProvider = provider;
+            workflowWatch = new WorkflowWatch();
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
@@ -1294,6 +1296,7 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
+                workflowWatch.Stop();
                 if (visualizerWindows != null)
                 {
                     visualizerSettings.Update(visualizerWindows);
@@ -1323,6 +1326,7 @@ namespace Bonsai.Editor
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         Invoke(() =>
                         {
+                            if (debug) workflowWatch.Start(workflowBuilder.Workflow);
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
                             visualizerWindows.Show(visualizerSettings, editorSite, this);
@@ -2618,6 +2622,11 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(SvgRendererFactory))
                 {
                     return siteForm.iconRenderer;
+                }
+
+                if (serviceType == typeof(WorkflowWatch))
+                {
+                    return siteForm.workflowWatch;
                 }
 
                 if (serviceType == typeof(DialogTypeVisualizer))
