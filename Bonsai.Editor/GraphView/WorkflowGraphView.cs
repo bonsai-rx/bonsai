@@ -107,17 +107,17 @@ namespace Bonsai.Editor.GraphView
                             node.Status = counter.GetStatus();
                             if (node.Status == WorkflowElementStatus.Notifying)
                             {
-                                node.NotifyingCounter = (node.NotifyingCounter + 1) % 2;
+                                node.NotifyingCounter++;
                             }
                             else if (node.Status != WorkflowElementStatus.Active)
                             {
-                                node.NotifyingCounter = 0;
+                                node.NotifyingCounter = -1;
                             }
                         }
                         else
                         {
                             node.Status = null;
-                            node.NotifyingCounter = 0;
+                            node.NotifyingCounter = -1;
                         }
                     }
                 }

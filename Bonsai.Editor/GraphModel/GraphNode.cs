@@ -159,8 +159,7 @@ namespace Bonsai.Editor.GraphModel
 
         public WorkflowElementStatus? Status { get; set; }
 
-        public int NotifyingCounter { get; set; }
-
+        public int NotifyingCounter { get; set; } = -1;
 
         /// <summary>
         /// Returns a string that represents the value of this <see cref="GraphNode"/> instance.
