@@ -22,6 +22,7 @@ namespace Bonsai.Editor.GraphView
         const float DefaultNodeAirspace = 80;
         const float DefaultPortSize = 6;
         const float DefaultLabelTextOffset = 5;
+        static readonly float SpinnerRotation = (float)Math.Cos(Math.PI / 4);
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
         static readonly Color NodeEdgeColor = Color.DarkGray;
@@ -57,14 +58,17 @@ namespace Bonsai.Editor.GraphView
         float PenWidth;
         float NodeAirspace;
         float NodeSize;
-        float HalfSize;
         float PortSize;
+        float HalfNodeSize;
+        float HalfPortSize;
+        float HalfPenWidth;
         float LabelTextOffset;
         SizeF VectorTextOffset;
         SizeF EntryOffset;
         SizeF ExitOffset;
         SizeF InputPortOffset;
         SizeF OutputPortOffset;
+        SpinnerOffset[] SpinnerOffsets;
         Pen SolidPen;
         Pen DashPen;
         Font DefaultIconFont;
@@ -406,14 +410,28 @@ namespace Bonsai.Editor.GraphView
             PenWidth = DefaultPenWidth * drawScale;
             NodeAirspace = DefaultNodeAirspace * drawScale;
             NodeSize = DefaultNodeSize * drawScale;
-            HalfSize = NodeSize / 2;
             PortSize = DefaultPortSize * drawScale;
+            HalfNodeSize = NodeSize / 2;
+            HalfPortSize = PortSize / 2;
+            HalfPenWidth = PenWidth / 2;
             LabelTextOffset = DefaultLabelTextOffset * drawScale;
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
-            EntryOffset = new SizeF(-2 * PenWidth, HalfSize);
-            ExitOffset = new SizeF(NodeSize + 2 * PenWidth, HalfSize);
-            InputPortOffset = new SizeF(-PortSize / 2, EntryOffset.Height - PortSize / 2);
-            OutputPortOffset = new SizeF(ExitOffset.Width - PortSize / 2, ExitOffset.Height - PortSize / 2);
+            EntryOffset = new SizeF(-2 * PenWidth, HalfNodeSize);
+            ExitOffset = new SizeF(NodeSize + 2 * PenWidth, HalfNodeSize);
+            InputPortOffset = new SizeF(-HalfPortSize, EntryOffset.Height - HalfPortSize);
+            OutputPortOffset = new SizeF(ExitOffset.Width - HalfPortSize, ExitOffset.Height - HalfPortSize);
+
+            var spinnerTilt = (HalfPortSize - HalfPenWidth) * SpinnerRotation;
+            SpinnerOffsets = new SpinnerOffset[]
+            {
+                new(x1: HalfPortSize, y1: HalfPenWidth, x2: HalfPortSize, y2: PortSize - HalfPenWidth),
+                new(x1: HalfPortSize + spinnerTilt, y1: HalfPortSize - spinnerTilt,
+                    x2: HalfPortSize - spinnerTilt, y2: HalfPortSize + spinnerTilt),
+                new(x1: HalfPenWidth, y1: HalfPortSize, x2: PortSize - HalfPenWidth, y2: HalfPortSize),
+                new(x1: HalfPortSize + spinnerTilt, y1: HalfPortSize + spinnerTilt,
+                    x2: HalfPortSize - spinnerTilt, y2: HalfPortSize - spinnerTilt)
+            };
+
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
@@ -584,7 +602,7 @@ namespace Bonsai.Editor.GraphView
             {
                 if (layout.Node.Value != null)
                 {
-                    var selected = CircleIntersect(layout.Center, HalfSize, selectionRect);
+                    var selected = CircleIntersect(layout.Center, HalfNodeSize, selectionRect);
                     if (selected)
                     {
                         yield return layout.Node;
@@ -725,7 +743,7 @@ namespace Bonsai.Editor.GraphView
             {
                 if (layout.Node.Value == null) continue;
 
-                if (CircleIntersect(layout.Center, HalfSize, point))
+                if (CircleIntersect(layout.Center, HalfNodeSize, point))
                 {
                     return layout.Node;
                 }
@@ -1168,10 +1186,11 @@ namespace Bonsai.Editor.GraphView
 
                 graphics.DrawEllipse(iconRendererState.StrokeStyle(edgeColor, PenWidth), outputPortRectangle);
                 graphics.FillEllipse(outputPortBrush, outputPortRectangle);
-                if (active && layout.Node.NotifyingCounter != 0)
+                if (active && layout.Node.NotifyingCounter >= 0)
                 {
-                    var notify1 = new PointF(outputPortRectangle.X + PortSize / 2, outputPortRectangle.Top + PenWidth);
-                    var notify2 = new PointF(outputPortRectangle.X + PortSize / 2, outputPortRectangle.Bottom - PenWidth);
+                    var spinnerIndex = layout.Node.NotifyingCounter % SpinnerOffsets.Length;
+                    var notify1 = outputPortRectangle.Location + SpinnerOffsets[spinnerIndex].Offset1;
+                    var notify2 = outputPortRectangle.Location + SpinnerOffsets[spinnerIndex].Offset2;
                     graphics.DrawLine(iconRendererState.StrokeStyle(CursorDark, PenWidth), notify1, notify2);
                 }
             }
@@ -1407,7 +1426,7 @@ namespace Bonsai.Editor.GraphView
 
             public PointF Center
             {
-                get { return PointF.Add(Location, new SizeF(View.HalfSize, View.HalfSize)); }
+                get { return PointF.Add(Location, new SizeF(View.HalfNodeSize, View.HalfNodeSize)); }
             }
 
             public PointF EntryPoint
@@ -1436,7 +1455,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     return new RectangleF(
                         InputPortLocation.X - View.PenWidth, Location.Y - View.PenWidth,
-                        View.PortSize / 2 + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
+                        View.HalfPortSize + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
                 }
             }
 
@@ -1479,6 +1498,18 @@ namespace Bonsai.Editor.GraphView
                 Label = labelBuilder.ToString();
                 LabelRectangle = new RectangleF(labelLocation, labelSize);
             }
+        }
+
+        struct SpinnerOffset
+        {
+            public SpinnerOffset(float x1, float y1, float x2, float y2)
+            {
+                Offset1 = new SizeF(x1, y1);
+                Offset2 = new SizeF(x2, y2);
+            }
+
+            public SizeF Offset1;
+            public SizeF Offset2;
         }
     }
 }
