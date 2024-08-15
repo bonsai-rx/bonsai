@@ -20,7 +20,7 @@ namespace Bonsai.Editor.GraphView
         const float DefaultPenWidth = 2;
         const float DefaultNodeSize = 30;
         const float DefaultNodeAirspace = 80;
-        const float DefaultConnectorSize = 6;
+        const float DefaultPortSize = 6;
         const float DefaultLabelTextOffset = 5;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
@@ -34,36 +34,36 @@ namespace Bonsai.Editor.GraphView
         static readonly Color RubberBandPenColor = Color.FromArgb(51, 153, 255);
         static readonly Color RubberBandBrushColor = Color.FromArgb(128, 170, 204, 238);
         static readonly Color HotBrushColor = Color.FromArgb(128, 229, 243, 251);
-        static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
-        static readonly StringFormat CenteredTextFormat = new StringFormat(StringFormat.GenericTypographic)
+        static readonly StringFormat TextFormat = new(StringFormatFlags.NoWrap);
+        static readonly StringFormat CenteredTextFormat = new(StringFormat.GenericTypographic)
         {
             Alignment = StringAlignment.Center,
             LineAlignment = StringAlignment.Center
         };
-        static readonly StringFormat VectorTextFormat = new StringFormat(StringFormat.GenericTypographic)
+        static readonly StringFormat VectorTextFormat = new(StringFormat.GenericTypographic)
         {
             FormatFlags = StringFormatFlags.NoWrap,
             Trimming = StringTrimming.Character
         };
 
-        static readonly object EventItemDrag = new object();
-        static readonly object EventNodeMouseClick = new object();
-        static readonly object EventNodeMouseDoubleClick = new object();
-        static readonly object EventNodeMouseEnter = new object();
-        static readonly object EventNodeMouseLeave = new object();
-        static readonly object EventNodeMouseHover = new object();
-        static readonly object EventSelectedNodeChanged = new object();
+        static readonly object EventItemDrag = new();
+        static readonly object EventNodeMouseClick = new();
+        static readonly object EventNodeMouseDoubleClick = new();
+        static readonly object EventNodeMouseEnter = new();
+        static readonly object EventNodeMouseLeave = new();
+        static readonly object EventNodeMouseHover = new();
+        static readonly object EventSelectedNodeChanged = new();
 
         float PenWidth;
         float NodeAirspace;
         float NodeSize;
         float HalfSize;
-        float ConnectorSize;
+        float PortSize;
         float LabelTextOffset;
         SizeF VectorTextOffset;
         SizeF EntryOffset;
         SizeF ExitOffset;
-        SizeF ConnectorOffset;
+        SizeF InputPortOffset;
         Pen SolidPen;
         Pen DashPen;
         Font DefaultIconFont;
@@ -75,9 +75,9 @@ namespace Bonsai.Editor.GraphView
         RectangleF previousRectangle;
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
-        readonly LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
-        readonly HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
-        readonly SvgRendererState iconRendererState = new SvgRendererState();
+        readonly LayoutNodeCollection layoutNodes = new();
+        readonly HashSet<GraphNode> selectedNodes = new();
+        readonly SvgRendererState iconRendererState = new();
         IReadOnlyList<GraphNodeGrouping> nodes;
         GraphNode pivot;
         GraphNode hot;
@@ -401,12 +401,12 @@ namespace Bonsai.Editor.GraphView
             NodeAirspace = DefaultNodeAirspace * drawScale;
             NodeSize = DefaultNodeSize * drawScale;
             HalfSize = NodeSize / 2;
-            ConnectorSize = DefaultConnectorSize * drawScale;
+            PortSize = DefaultPortSize * drawScale;
             LabelTextOffset = DefaultLabelTextOffset * drawScale;
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
-            EntryOffset = new SizeF(-2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
-            ExitOffset = new SizeF(NodeSize + 2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
-            ConnectorOffset = new SizeF(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
+            EntryOffset = new SizeF(-2 * PenWidth, HalfSize);
+            ExitOffset = new SizeF(NodeSize + 2 * PenWidth, HalfSize);
+            InputPortOffset = new SizeF(-PortSize / 2, EntryOffset.Height - PortSize / 2);
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
@@ -426,11 +426,9 @@ namespace Bonsai.Editor.GraphView
             var labelRectangle = nodeLayout.LabelRectangle;
             if (nodeText != nodeLayout.Text)
             {
-                using (var graphics = CreateVectorGraphics())
-                {
-                    nodeLayout.SetNodeLabel(nodeText, Font, graphics);
-                    labelRectangle = RectangleF.Union(labelRectangle, nodeLayout.LabelRectangle);
-                }
+                using var graphics = CreateVectorGraphics();
+                nodeLayout.SetNodeLabel(nodeText, Font, graphics);
+                labelRectangle = RectangleF.Union(labelRectangle, nodeLayout.LabelRectangle);
             }
 
             labelRectangle.Offset(offset);
@@ -594,11 +592,11 @@ namespace Bonsai.Editor.GraphView
             if (rect.HasValue)
             {
                 var selection = new HashSet<GraphNode>(GetRubberBandSelection(rect.Value));
-                if (Control.ModifierKeys.HasFlag(Keys.Control))
+                if (ModifierKeys.HasFlag(Keys.Control))
                 {
                     selection.SymmetricExceptWith(selectionBeforeDrag);
                 }
-                else if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                else if (ModifierKeys.HasFlag(Keys.Shift))
                 {
                     selection.UnionWith(selectionBeforeDrag);
                 }
@@ -645,7 +643,7 @@ namespace Bonsai.Editor.GraphView
             return point;
         }
 
-        Rectangle GetNormalizedRectangle(Point p1, Point p2)
+        static Rectangle GetNormalizedRectangle(Point p1, Point p2)
         {
             return new Rectangle(
                 Math.Min(p1.X, p2.X),
@@ -654,19 +652,19 @@ namespace Bonsai.Editor.GraphView
                 Math.Abs(p2.Y - p1.Y));
         }
 
-        float SquaredDistance(ref PointF point, ref PointF center)
+        static float SquaredDistance(ref PointF point, ref PointF center)
         {
             var xdiff = point.X - center.X;
             var ydiff = point.Y - center.Y;
             return xdiff * xdiff + ydiff * ydiff;
         }
 
-        bool CircleIntersect(PointF center, float radius, PointF point)
+        static bool CircleIntersect(PointF center, float radius, PointF point)
         {
             return SquaredDistance(ref point, ref center) <= radius * radius;
         }
 
-        bool CircleIntersect(PointF center, float radius, RectangleF rect)
+        static bool CircleIntersect(PointF center, float radius, RectangleF rect)
         {
             float closestX = Math.Max(rect.Left, Math.Min(center.X, rect.Right));
             float closestY = Math.Max(rect.Top, Math.Min(center.Y, rect.Bottom));
@@ -758,7 +756,7 @@ namespace Bonsai.Editor.GraphView
             return source;
         }
 
-        GraphNode ResolveDummySuccessor(GraphNode source)
+        static GraphNode ResolveDummySuccessor(GraphNode source)
         {
             while (source.Value == null)
             {
@@ -768,7 +766,7 @@ namespace Bonsai.Editor.GraphView
             return source;
         }
 
-        GraphNode GetDefaultSuccessor(GraphNode node)
+        static GraphNode GetDefaultSuccessor(GraphNode node)
         {
             return (from successor in node.Successors
                     orderby successor.Node.LayerIndex ascending
@@ -935,7 +933,7 @@ namespace Bonsai.Editor.GraphView
             if (!any) foreach (var xs in second) yield return xs;
         }
 
-        private IEnumerable<GraphNode> GetSelectionRange(GraphNode from, GraphNode to)
+        static private IEnumerable<GraphNode> GetSelectionRange(GraphNode from, GraphNode to)
         {
             return ConcatEmpty(
                 ConcatEmpty(GetAllPaths(from, to), GetAllPaths(to, from)),
@@ -1134,12 +1132,12 @@ namespace Bonsai.Editor.GraphView
             if (hot) graphics.FillEllipse(iconRendererState.FillStyle(HotBrushColor), nodeRectangle);
             if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
             {
-                var connectorRectangle = layout.ConnectorRectangle;
+                var inputPortRectangle = layout.InputPortRectangle;
                 var argumentRequired = layout.Node.ArgumentCount < layout.Node.ArgumentRange.LowerBound;
-                var connectorBrush = argumentRequired ? Brushes.Black : Brushes.White;
-                connectorRectangle.Offset(offset.Width, offset.Height);
-                graphics.DrawEllipse(iconRendererState.StrokeStyle(NodeEdgeColor, PenWidth), connectorRectangle);
-                graphics.FillEllipse(connectorBrush, connectorRectangle);
+                var inputPortBrush = argumentRequired ? Brushes.Black : Brushes.White;
+                inputPortRectangle.Offset(offset.Width, offset.Height);
+                graphics.DrawEllipse(iconRendererState.StrokeStyle(NodeEdgeColor, PenWidth), inputPortRectangle);
+                graphics.FillEllipse(inputPortBrush, inputPortRectangle);
             }
         }
 
@@ -1174,36 +1172,31 @@ namespace Bonsai.Editor.GraphView
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.Clear(Color.White);
 
-            using (var measureGraphics = CreateVectorGraphics())
+            var font = Font;
+            using var measureGraphics = CreateVectorGraphics();
+            using var fill = new SolidBrush(Color.White);
+            using var stroke = new Pen(NodeEdgeColor, PenWidth);
+            DrawEdges(graphics, Size.Empty);
+            foreach (var layout in layoutNodes)
             {
-                var font = Font;
-                using (var fill = new SolidBrush(Color.White))
-                using (var stroke = new Pen(NodeEdgeColor, PenWidth))
+                if (layout.Node.Value != null)
                 {
-                    DrawEdges(graphics, Size.Empty);
-                    foreach (var layout in layoutNodes)
+                    DrawNode(graphics, layout, Size.Empty, null, fill, stroke, Color.White, vectorFont: font);
+                    var labelRect = layout.LabelRectangle;
+                    foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
+                                                            StringSplitOptions.RemoveEmptyEntries))
                     {
-                        if (layout.Node.Value != null)
-                        {
-                            DrawNode(graphics, layout, Size.Empty, null, fill, stroke, Color.White, vectorFont: font);
-                            var labelRect = layout.LabelRectangle;
-                            foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
-                                                                    StringSplitOptions.RemoveEmptyEntries))
-                            {
-                                int charactersFitted, linesFilled;
-                                var size = measureGraphics.MeasureString(
-                                    line, font,
-                                    labelRect.Size,
-                                    VectorTextFormat,
-                                    out charactersFitted, out linesFilled);
-                                var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
-                                graphics.DrawString(lineLabel, font, Brushes.Black, labelRect);
-                                labelRect.Y += size.Height;
-                            }
-                        }
-                        else DrawDummyNode(graphics, layout, Size.Empty);
+                        var size = measureGraphics.MeasureString(
+                            line, font,
+                            labelRect.Size,
+                            VectorTextFormat,
+                            out int charactersFitted, out _);
+                        var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
+                        graphics.DrawString(lineLabel, font, Brushes.Black, labelRect);
+                        labelRect.Y += size.Height;
                     }
                 }
+                else DrawDummyNode(graphics, layout, Size.Empty);
             }
         }
 
@@ -1256,12 +1249,10 @@ namespace Bonsai.Editor.GraphView
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
             {
-                using (var rubberBandPen = new Pen(RubberBandPenColor))
-                using (var rubberBandBrush = new SolidBrush(RubberBandBrushColor))
-                {
-                    e.Graphics.FillRectangle(rubberBandBrush, rubberBand);
-                    e.Graphics.DrawRectangle(rubberBandPen, rubberBand.X, rubberBand.Y, rubberBand.Width, rubberBand.Height);
-                }
+                using var rubberBandPen = new Pen(RubberBandPenColor);
+                using var rubberBandBrush = new SolidBrush(RubberBandBrushColor);
+                e.Graphics.FillRectangle(rubberBandBrush, rubberBand);
+                e.Graphics.DrawRectangle(rubberBandPen, rubberBand.X, rubberBand.Y, rubberBand.Width, rubberBand.Height);
             }
         }
 
@@ -1393,9 +1384,9 @@ namespace Bonsai.Editor.GraphView
                 get { return PointF.Add(Location, View.ExitOffset); }
             }
 
-            public PointF ConnectorLocation
+            public PointF InputPortLocation
             {
-                get { return PointF.Add(Location, View.ConnectorOffset); }
+                get { return PointF.Add(Location, View.InputPortOffset); }
             }
 
             public RectangleF BoundingRectangle
@@ -1403,18 +1394,18 @@ namespace Bonsai.Editor.GraphView
                 get
                 {
                     return new RectangleF(
-                        ConnectorLocation.X - View.PenWidth, Location.Y - View.PenWidth,
-                        View.ConnectorSize / 2 + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
+                        InputPortLocation.X - View.PenWidth, Location.Y - View.PenWidth,
+                        View.PortSize / 2 + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
                 }
             }
 
-            public RectangleF ConnectorRectangle
+            public RectangleF InputPortRectangle
             {
                 get
                 {
                     return new RectangleF(
-                        ConnectorLocation,
-                        new SizeF(View.ConnectorSize, View.ConnectorSize));
+                        InputPortLocation,
+                        new SizeF(View.PortSize, View.PortSize));
                 }
             }
 
