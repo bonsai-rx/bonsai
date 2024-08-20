@@ -62,14 +62,15 @@ namespace Bonsai.NuGet.Design
             {
                 packageIdLabel.ImageList = null;
                 packageIdLabel.ImageIndex = 0;
+                packageIdLabel.Text = string.Empty;
                 ResumeLayout();
                 return;
             }
 
             var package = item.Package;
-            packageIdLabel.Text = package.Identity.Id;
             packageIdLabel.ImageList = item.ImageList;
             packageIdLabel.ImageIndex = item.ImageIndex;
+            packageIdLabel.Text = package.Identity.Id;
 
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
             SetLinkLabelUri(detailsLinkLabel, package.PackageDetailsUrl, true);
