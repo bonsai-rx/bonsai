@@ -20,6 +20,7 @@ namespace Bonsai.NuGet.Design
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
         Font boldFont;
+        Font hyperlinkFont;
         Brush nodeHighlight;
         int boundsMargin;
         SizeF buttonSize;
@@ -127,6 +128,7 @@ namespace Bonsai.NuGet.Design
                 NativeMethods.SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
             }
             boldFont = new Font(Font, FontStyle.Bold);
+            hyperlinkFont = new Font(Font, FontStyle.Bold | FontStyle.Underline);
             base.OnHandleCreated(e);
         }
 
@@ -253,6 +255,28 @@ namespace Bonsai.NuGet.Design
             bounds.Width -= image.Width + boundsMargin;
         }
 
+        private void DrawInlineText(
+            Graphics graphics,
+            string text,
+            Font font,
+            Color color,
+            ref Rectangle bounds)
+        {
+            if (bounds.Width <= 0)
+                return;
+
+            var textFormatFlags = TextFormatFlags.NoPadding;
+            var textSize = TextRenderer.MeasureText(graphics, text, font, bounds.Size, textFormatFlags);
+            if (textSize.Width > bounds.Width)
+            {
+                textFormatFlags |= TextFormatFlags.WordEllipsis;
+            }
+
+            TextRenderer.DrawText(graphics, text, font, bounds, color, textFormatFlags);
+            bounds.X += textSize.Width;
+            bounds.Width -= textSize.Width;
+        }
+
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
         {
             e.DrawDefault = false;
@@ -345,13 +369,43 @@ namespace Bonsai.NuGet.Design
                 bounds.Y += titleSize.Height;
                 bounds.Height -= titleSize.Height;
 
+                // Measure package deprecation notice
+                var deprecationSize = Size.Empty;
+                var deprecationMetadata = warningNode?.Tag as PackageDeprecationMetadata;
+                if (deprecationMetadata != null)
+                {
+                    var notice = Resources.PackageDeprecationNotice;
+                    deprecationSize = TextRenderer.MeasureText(notice, boldFont, bounds.Size, TextFormatFlags.WordEllipsis);
+                    bounds.Height -= deprecationSize.Height;
+                }
+
                 // Draw package description
                 if (lines.Length > 1)
                 {
-                    TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color,
+                    const TextFormatFlags DescriptionFlags =
                         TextFormatFlags.TextBoxControl
                         | TextFormatFlags.WordBreak
-                        | TextFormatFlags.EndEllipsis);
+                        | TextFormatFlags.EndEllipsis;
+                    var descriptionSize = TextRenderer.MeasureText(e.Graphics, lines[1], Font, bounds.Size, DescriptionFlags);
+                    TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, DescriptionFlags);
+                    bounds.Y += descriptionSize.Height;
+                    bounds.Height -= descriptionSize.Height;
+                }
+
+                // Draw package deprecation message
+                if (deprecationMetadata != null)
+                {
+                    bounds.Height += deprecationSize.Height;
+                    var notice = Resources.PackageDeprecationNotice;
+                    DrawInlineText(e.Graphics, notice, boldFont, color, ref bounds);
+                    if (deprecationMetadata.AlternatePackage != null && bounds.Width > 0)
+                    {
+                        var alternatePackageId = deprecationMetadata.AlternatePackage.PackageId;
+                        var alternateNoticeParts = Resources.PackageDeprecationAlternateNotice.Split('|');
+                        DrawInlineText(e.Graphics, alternateNoticeParts[0], boldFont, color, ref bounds);
+                        DrawInlineText(e.Graphics, alternatePackageId, hyperlinkFont, color, ref bounds);
+                        DrawInlineText(e.Graphics, alternateNoticeParts[1], boldFont, color, ref bounds);
+                    }
                 }
             }
 

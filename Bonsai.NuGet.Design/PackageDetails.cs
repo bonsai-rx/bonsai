@@ -19,6 +19,7 @@ namespace Bonsai.NuGet.Design
         PackageViewItem selectedItem;
         const int TextHeightMargin = 7;
         static readonly object OperationClickEvent = new();
+        static readonly object PackageLinkClickedEvent = new();
 
         public PackageDetails()
         {
@@ -37,6 +38,13 @@ namespace Bonsai.NuGet.Design
             remove { Events.RemoveHandler(OperationClickEvent, value); }
         }
 
+        [Category("Action")]
+        public event PackageSearchEventHandler PackageLinkClicked
+        {
+            add { Events.AddHandler(PackageLinkClickedEvent, value); }
+            remove { Events.RemoveHandler(PackageLinkClickedEvent, value); }
+        }
+
         public NuGetFramework ProjectFramework { get; set; }
 
         public PackagePathResolver PathResolver { get; set; }
@@ -44,6 +52,11 @@ namespace Bonsai.NuGet.Design
         private void OnOperationClick(PackageViewEventArgs e)
         {
             (Events[OperationClickEvent] as PackageViewEventHandler)?.Invoke(this, e);
+        }
+
+        private void OnPackageLinkClicked(PackageSearchEventArgs e)
+        {
+            (Events[PackageLinkClickedEvent] as PackageSearchEventHandler)?.Invoke(this, e);
         }
 
         public void SetPackage(PackageViewItem item)
@@ -113,10 +126,21 @@ namespace Bonsai.NuGet.Design
             if (deprecationMetadata != null)
             {
                 deprecationMetadataPanel.Visible = true;
-                deprecationMetadataLabel.Text = deprecationMetadata.Message;
+                deprecationMetadataLabel.Text = string.IsNullOrEmpty(deprecationMetadata.Message)
+                    ? Resources.PackageDeprecationDefaultMessage
+                    : deprecationMetadata.Message;
+
+                alternatePackagePanel.Visible = deprecationMetadata.AlternatePackage != null;
+                if (alternatePackagePanel.Visible)
+                {
+                    var alternatePackageId = deprecationMetadata.AlternatePackage.PackageId;
+                    alternatePackageLinkLabel.Text = alternatePackageId;
+                    alternatePackageLinkLabel.Links[0].LinkData = $"packageid:{alternatePackageId}";
+                }
             }
             else
             {
+                alternatePackagePanel.Visible = false;
                 deprecationMetadataPanel.Visible = false;
                 deprecationMetadataLabel.Text = string.Empty;
             }
@@ -202,6 +226,12 @@ namespace Bonsai.NuGet.Design
         {
             var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(selectedItem.LocalPackage.Identity);
             OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
+        }
+
+        private void alternatePackageLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var searchTerm = (string)e.Link.LinkData;
+            OnPackageLinkClicked(new PackageSearchEventArgs(searchTerm));
         }
 
         private async void versionComboBox_SelectedIndexChanged(object sender, EventArgs e)
