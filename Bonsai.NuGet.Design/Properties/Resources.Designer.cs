@@ -327,6 +327,33 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  Use | instead..
+        /// </summary>
+        internal static string PackageDeprecationAlternateNotice {
+            get {
+                return ResourceManager.GetString("PackageDeprecationAlternateNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This package has been deprecated as it is legacy and is no longer maintained..
+        /// </summary>
+        internal static string PackageDeprecationDefaultMessage {
+            get {
+                return ResourceManager.GetString("PackageDeprecationDefaultMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This package version is deprecated..
+        /// </summary>
+        internal static string PackageDeprecationNotice {
+            get {
+                return ResourceManager.GetString("PackageDeprecationNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Package &apos;{0} {1}&apos; exported successfully..
         /// </summary>
         internal static string PackageExported {

@@ -67,6 +67,7 @@ namespace Bonsai.NuGet.Design
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
             packageTypes = packageTypeFilter;
             control.KeyDown += control_KeyDown;
+            packageDetails.PackageLinkClicked += packageDetails_PackageLinkClicked;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
             packagePageSelector.SelectedIndexChanged += packagePageSelector_SelectedIndexChanged;
             packagePageSelector.Visible = false;
@@ -419,6 +420,11 @@ namespace Bonsai.NuGet.Design
             {
                 searchComboBox.Select();
             }
+        }
+
+        private void packageDetails_PackageLinkClicked(object sender, PackageSearchEventArgs e)
+        {
+            searchComboBox.Text = e.SearchTerm;
         }
 
         private IObservable<PackageViewItem> SelectPackageDetails()
