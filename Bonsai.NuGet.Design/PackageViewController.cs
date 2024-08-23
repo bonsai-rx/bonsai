@@ -2,11 +2,11 @@
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -259,23 +259,26 @@ namespace Bonsai.NuGet.Design
 
         private void AddPackage(IPackageSearchMetadata package)
         {
-            var installCheck = false;
-            if (SelectedRepository != PackageManager.LocalRepository &&
-                packageView.Operation != PackageOperationType.Update)
+            LocalPackageInfo installedPackage = null;
+            if (SelectedRepository != PackageManager.LocalRepository)
             {
-                var installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
-                installCheck = installedPackage != null && installedPackage.Identity.Version >= package.Identity.Version;
+                installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
             }
 
-            var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Identity.Id;
+            var nodeTitle = package.Identity.Id;
             var nodeText = string.Join(
                 Environment.NewLine, nodeTitle,
                 package.Summary ?? package.Description.Split(
                     new[] { Environment.NewLine, "\n", "\r" },
                     StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
             var node = packageView.Nodes.Add(package.Identity.Id, nodeText);
-            node.Checked = installCheck;
             node.Tag = package;
+
+            if (installedPackage != null)
+            {
+                var installedPackageNode = node.Nodes.Add(Resources.UpdatesNodeName, installedPackage.Identity.Version.ToString());
+                installedPackageNode.Tag = installedPackage;
+            }
 
             var deprecationMetadata = package.GetDeprecationMetadataAsync().Result;
             if (deprecationMetadata != null)
@@ -425,21 +428,35 @@ namespace Bonsai.NuGet.Design
                 handler => packageView.AfterSelect -= handler)
                 .Select(evt => Observable.StartAsync(async token =>
                 {
+                    var selectedNode = evt.EventArgs.Node;
                     var selectedRepository = SelectedRepository;
-                    var package = (IPackageSearchMetadata)evt.EventArgs.Node.Tag;
-                    if (package == null) return null;
+                    var selectedPackage = (IPackageSearchMetadata)selectedNode.Tag;
+                    if (selectedPackage == null) return null;
+
+                    var localPackageNode = selectedNode.Nodes.Count > 0 ? selectedNode.Nodes[Resources.UpdatesNodeName] : null;
+                    var localPackage = (LocalPackageInfo)localPackageNode?.Tag;
+
                     var repositories = selectedRepository == null ? PackageManager.SourceRepositoryProvider.GetRepositories() : new[] { selectedRepository };
                     using (var cacheContext = new SourceCacheContext())
                     {
                         foreach (var repository in repositories)
                         {
-                            var metadata = await repository.GetMetadataAsync(package.Identity, cacheContext);
+                            var metadata = await repository.GetMetadataAsync(selectedPackage.Identity, cacheContext);
                             if (metadata != null)
                             {
-                                var imageIndex = packageView.ImageList.Images.IndexOfKey(evt.EventArgs.Node.ImageKey);
+                                var imageIndex = packageView.ImageList.Images.IndexOfKey(selectedNode.ImageKey);
                                 var result = (PackageSearchMetadataBuilder.ClonedPackageSearchMetadata)PackageSearchMetadataBuilder.FromMetadata(metadata).Build();
-                                result.DownloadCount = package.DownloadCount;
-                                return new PackageViewItem(result, packageView.ImageList, imageIndex);
+                                var packageVersions = await selectedPackage.GetVersionsAsync();
+                                var deprecationMetadata = await result.GetDeprecationMetadataAsync();
+                                result.DownloadCount = selectedPackage.DownloadCount;
+                                return new PackageViewItem(
+                                    selectedPackage: result,
+                                    packageVersions,
+                                    deprecationMetadata,
+                                    repository,
+                                    localPackage,
+                                    packageView.ImageList,
+                                    imageIndex);
                             }
                         }
 

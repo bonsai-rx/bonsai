@@ -184,7 +184,6 @@
             this.packageView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.packageView.CanSelectNodes = false;
             this.packageView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.packageView.FullRowSelect = true;
             this.packageView.HotTracking = true;
             this.packageView.ImageIndex = 0;

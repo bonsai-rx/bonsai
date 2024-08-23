@@ -1,4 +1,5 @@
 ﻿using Bonsai.NuGet.Design.Properties;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System;
 using System.ComponentModel;
@@ -19,7 +20,7 @@ namespace Bonsai.NuGet.Design
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
         Font boldFont;
-        SolidBrush nodeHighlight;
+        Brush nodeHighlight;
         int boundsMargin;
         SizeF buttonSize;
         int verticalScrollBarWidth;
@@ -28,6 +29,7 @@ namespace Bonsai.NuGet.Design
         bool operationButtonState;
         readonly Image packageCheckedImage;
         readonly Image packageWarningImage;
+        readonly Image packageUpdateImage;
         const int DefaultBoundsMargin = 6;
         static readonly object OperationClickEvent = new();
 
@@ -36,12 +38,23 @@ namespace Bonsai.NuGet.Design
             ShowLines = false;
             HotTracking = true;
             FullRowSelect = true;
-            DrawMode = TreeViewDrawMode.OwnerDrawText;
+            DrawMode = TreeViewDrawMode.OwnerDrawAll;
             packageCheckedImage = Resources.PackageViewNodeCheckedImage;
             packageWarningImage = Resources.WarningImage;
+            packageUpdateImage = Resources.UpdateImage;
             boundsMargin = DefaultBoundsMargin;
             verticalScrollBarWidth = SystemInformation.VerticalScrollBarWidth;
             nodeHighlight = new SolidBrush(ControlPaint.LightLight(SystemColors.Highlight));
+            SetStyle(ControlStyles.ResizeRedraw, false);
+        }
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new TreeViewDrawMode DrawMode
+        {
+            get => base.DrawMode;
+            set => base.DrawMode = value;
         }
 
         public override Font Font
@@ -222,7 +235,16 @@ namespace Bonsai.NuGet.Design
             graphics.FillRectangle(brush, imageBounds);
         }
 
-        private void DrawPackageImage(Graphics graphics, Image image, ref Rectangle bounds)
+        private void DrawImageOverlay(Graphics graphics, Image overlay, float imageX, float imageY)
+        {
+            var imageWidth = packageCheckedImage.Width * graphics.DpiX / overlay.HorizontalResolution;
+            var imageHeight = packageCheckedImage.Height * graphics.DpiY / overlay.VerticalResolution;
+            var overlayX = imageX + ImageList.ImageSize.Width - imageWidth / 2 - Margin.Horizontal;
+            var overlayY = imageY + ImageList.ImageSize.Height - imageHeight / 2 - Margin.Vertical;
+            graphics.DrawImage(overlay, overlayX, overlayY);
+        }
+
+        private void DrawInlineImage(Graphics graphics, Image image, ref Rectangle bounds)
         {
             var imageWidth = image.Width * graphics.DpiX / image.HorizontalResolution;
             var imageX = bounds.Right - imageWidth;
@@ -246,16 +268,44 @@ namespace Bonsai.NuGet.Design
             }
             else
             {
-                if (NativeMethods.IsRunningOnMono && (e.State & TreeNodeStates.Selected) != 0)
+                var nodeHot = (e.State & TreeNodeStates.Hot) != 0;
+                var nodeSelected = (e.State & TreeNodeStates.Selected) != 0;
+                if (nodeSelected)
                 {
                     e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
                 }
 
+                if (!nodeSelected && nodeHot)
+                {
+                    e.Graphics.FillRectangle(nodeHighlight, bounds);
+                }
+
+                // Get source and local package info
+                var packageMetadata = (IPackageSearchMetadata)e.Node.Tag;
+                var localPackageNode = e.Node.Nodes.Count > 0 ? e.Node.Nodes[Resources.UpdatesNodeName] : null;
+                var localPackageMetadata = (LocalPackageInfo)localPackageNode?.Tag;
+
+                // Draw package icon
+                var imageIndex = ImageList.Images.IndexOfKey(e.Node.ImageKey);
+                if (imageIndex >= 0)
+                {
+                    var imageX = e.Bounds.X + Margin.Left;
+                    var imageY = e.Bounds.Top + (e.Bounds.Height - ImageList.ImageSize.Height) / 2;
+                    ImageList.Draw(e.Graphics, imageX, imageY, imageIndex);
+                    if (localPackageMetadata != null)
+                    {
+                        var imageOverlay = localPackageMetadata.Identity.Version < packageMetadata.Identity.Version
+                            ? packageUpdateImage
+                            : packageCheckedImage;
+                        DrawImageOverlay(e.Graphics, imageOverlay, imageX, imageY);
+                    }
+                }
+                bounds.X += ImageList.ImageSize.Width + Margin.Horizontal;
+                bounds.Width -= ImageList.ImageSize.Width + Margin.Horizontal;
+
                 // Draw operation image
                 bounds.Width -= boundsMargin;
-                if (e.Node.Checked)
-                    DrawPackageImage(e.Graphics, packageCheckedImage, ref bounds);
-                else if (OperationImage != null)
+                if (nodeHot && OperationImage != null)
                 {
                     var mousePosition = PointToClient(MousePosition);
                     var buttonBounds = GetOperationButtonBounds(e.Node.Bounds);
@@ -263,38 +313,41 @@ namespace Bonsai.NuGet.Design
                     {
                         FillImageBounds(
                             e.Graphics,
-                            SystemBrushes.ControlLight,
+                            SystemBrushes.ButtonHighlight,
                             OperationImage,
                             ref bounds);
                     }
-                    DrawPackageImage(e.Graphics, OperationImage, ref bounds);
+                    DrawInlineImage(e.Graphics, OperationImage, ref bounds);
                 }
                 else
                     bounds.Width -= OperationImage.Width + boundsMargin;
 
                 // Draw package version
-                var packageVersion = ((IPackageSearchMetadata)e.Node.Tag).Identity.Version.ToString();
+                var packageVersion = packageMetadata.Identity.Version.ToString();
                 var textSize = TextRenderer.MeasureText(e.Graphics, packageVersion, Font);
                 var textPosition = new Point(bounds.Right - textSize.Width - boundsMargin, bounds.Y + boundsMargin);
                 TextRenderer.DrawText(e.Graphics, packageVersion, Font, textPosition, color);
                 bounds.Width -= textSize.Width + boundsMargin;
 
                 // Draw package warnings
-                if (e.Node.Nodes.Count > 0 && e.Node.Nodes[Resources.PackageWarningKey] != null)
-                    DrawPackageImage(e.Graphics, packageWarningImage, ref bounds);
+                var warningNode = e.Node.Nodes.Count > 0 ? e.Node.Nodes[Resources.PackageWarningKey] : null;
+                if (warningNode != null)
+                    DrawInlineImage(e.Graphics, packageWarningImage, ref bounds);
 
                 // Add spacing between text boxes
                 bounds.Y += boundsMargin;
                 bounds.Height -= boundsMargin;
 
+                // Draw package title
                 var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var titleSize = TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis);
                 TextRenderer.DrawText(e.Graphics, lines[0], boldFont, bounds, color, TextFormatFlags.WordEllipsis);
+                bounds.Y += titleSize.Height;
+                bounds.Height -= titleSize.Height;
 
+                // Draw package description
                 if (lines.Length > 1)
                 {
-                    var titleSize = TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis);
-                    bounds.Y += titleSize.Height;
-                    bounds.Height -= titleSize.Height;
                     TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color,
                         TextFormatFlags.TextBoxControl
                         | TextFormatFlags.WordBreak
