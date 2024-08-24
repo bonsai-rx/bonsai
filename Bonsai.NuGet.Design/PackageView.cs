@@ -377,6 +377,19 @@ namespace Bonsai.NuGet.Design
                     titleBounds.X += imageSize.Width + imagePadding;
                     titleBounds.Width -= imageSize.Width;
                 }
+
+                // Draw package authors and download count
+                var hasDownloadCount = packageMetadata.DownloadCount.HasValue;
+                var downloadSeparator = hasDownloadCount ? ", " : string.Empty;
+                DrawInlineText(e.Graphics, $"by {packageMetadata.Authors}{downloadSeparator}", Font, color, ref titleBounds);
+                if (hasDownloadCount)
+                {
+                    var downloadCount = packageMetadata.DownloadCount.GetValueOrDefault();
+                    DrawInlineText(e.Graphics, FormatHelper.ToLargeSuffix(downloadCount), boldFont, color, ref titleBounds);
+                    DrawInlineText(e.Graphics, " downloads", Font, color, ref titleBounds);
+                }
+
+                // Line break after title
                 bounds.Y += titleSize.Height;
                 bounds.Height -= titleSize.Height;
 
