@@ -454,6 +454,7 @@ namespace Bonsai.NuGet.Design
                                 var result = (PackageSearchMetadataBuilder.ClonedPackageSearchMetadata)PackageSearchMetadataBuilder.FromMetadata(metadata).Build();
                                 var packageVersions = await selectedPackage.GetVersionsAsync();
                                 var deprecationMetadata = await result.GetDeprecationMetadataAsync();
+                                result.PrefixReserved = selectedPackage.PrefixReserved;
                                 result.DownloadCount = selectedPackage.DownloadCount;
                                 return new PackageViewItem(
                                     selectedPackage: result,

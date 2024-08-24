@@ -28,9 +28,6 @@ namespace Bonsai.NuGet.Design
         PackageOperationType operation;
         TreeNode operationHoverNode;
         bool operationButtonState;
-        readonly Image packageCheckedImage;
-        readonly Image packageWarningImage;
-        readonly Image packageUpdateImage;
         const int DefaultBoundsMargin = 6;
         static readonly object OperationClickEvent = new();
 
@@ -40,9 +37,6 @@ namespace Bonsai.NuGet.Design
             HotTracking = true;
             FullRowSelect = true;
             DrawMode = TreeViewDrawMode.OwnerDrawAll;
-            packageCheckedImage = Resources.PackageViewNodeCheckedImage;
-            packageWarningImage = Resources.WarningImage;
-            packageUpdateImage = Resources.UpdateImage;
             boundsMargin = DefaultBoundsMargin;
             verticalScrollBarWidth = SystemInformation.VerticalScrollBarWidth;
             nodeHighlight = new SolidBrush(ControlPaint.LightLight(SystemColors.Highlight));
@@ -86,8 +80,8 @@ namespace Bonsai.NuGet.Design
                 OperationImage = operation switch
                 {
                     PackageOperationType.Open => Resources.OpenImage,
-                    PackageOperationType.Update => Resources.UpdateImage,
-                    PackageOperationType.Uninstall => Resources.RemoveImage,
+                    PackageOperationType.Update => Resources.PackageUpdateImage,
+                    PackageOperationType.Uninstall => Resources.PackageRemoveImage,
                     PackageOperationType.Install or _ => Resources.DownloadImage
                 };
             }
@@ -231,7 +225,7 @@ namespace Bonsai.NuGet.Design
             var imageSize = graphics.GetImageSize(image);
             RectangleF imageBounds = new(
                 x: bounds.Right - imageSize.Width,
-                y: bounds.Y + boundsMargin,
+                y: bounds.Y,
                 width: imageSize.Width,
                 height: imageSize.Height);
             graphics.FillRectangle(brush, imageBounds);
@@ -239,20 +233,19 @@ namespace Bonsai.NuGet.Design
 
         private void DrawImageOverlay(Graphics graphics, Image overlay, float imageX, float imageY)
         {
-            var imageWidth = packageCheckedImage.Width * graphics.DpiX / overlay.HorizontalResolution;
-            var imageHeight = packageCheckedImage.Height * graphics.DpiY / overlay.VerticalResolution;
-            var overlayX = imageX + ImageList.ImageSize.Width - imageWidth / 2 - Margin.Horizontal;
-            var overlayY = imageY + ImageList.ImageSize.Height - imageHeight / 2 - Margin.Vertical;
+            var imageSize = graphics.GetImageSize(overlay);
+            var overlayX = imageX + ImageList.ImageSize.Width - imageSize.Width / 2 - Margin.Horizontal;
+            var overlayY = imageY + ImageList.ImageSize.Height - imageSize.Height / 2 - Margin.Vertical;
             graphics.DrawImage(overlay, overlayX, overlayY);
         }
 
         private void DrawInlineImage(Graphics graphics, Image image, ref Rectangle bounds)
         {
-            var imageWidth = image.Width * graphics.DpiX / image.HorizontalResolution;
-            var imageX = bounds.Right - imageWidth;
-            var imageY = bounds.Y + boundsMargin;
-            graphics.DrawImage(image, imageX, imageY);
-            bounds.Width -= image.Width + boundsMargin;
+            float imageX;
+            var imageSize = Size.Round(graphics.GetImageSize(image));
+            imageX = bounds.Right - imageSize.Width;
+            graphics.DrawImage(image, imageX, bounds.Y);
+            bounds.Width -= imageSize.Width + boundsMargin;
         }
 
         private void DrawInlineText(
@@ -319,13 +312,17 @@ namespace Bonsai.NuGet.Design
                     if (localPackageMetadata != null)
                     {
                         var imageOverlay = localPackageMetadata.Identity.Version < packageMetadata.Identity.Version
-                            ? packageUpdateImage
-                            : packageCheckedImage;
+                            ? Resources.PackageUpdateImage
+                            : Resources.PackageInstalledImage;
                         DrawImageOverlay(e.Graphics, imageOverlay, imageX, imageY);
                     }
                 }
                 bounds.X += ImageList.ImageSize.Width + Margin.Horizontal;
                 bounds.Width -= ImageList.ImageSize.Width + Margin.Horizontal;
+
+                // Add spacing between text boxes
+                bounds.Y += boundsMargin;
+                bounds.Height -= boundsMargin;
 
                 // Draw operation image
                 bounds.Width -= boundsMargin;
@@ -344,28 +341,42 @@ namespace Bonsai.NuGet.Design
                     DrawInlineImage(e.Graphics, OperationImage, ref bounds);
                 }
                 else
-                    bounds.Width -= OperationImage.Width + boundsMargin;
+                    bounds.Width -= Size.Round(e.Graphics.GetImageSize(OperationImage)).Width + boundsMargin;
 
                 // Draw package version
                 var packageVersion = packageMetadata.Identity.Version.ToString();
                 var textSize = TextRenderer.MeasureText(e.Graphics, packageVersion, Font);
-                var textPosition = new Point(bounds.Right - textSize.Width - boundsMargin, bounds.Y + boundsMargin);
+                var textPosition = new Point(bounds.Right - textSize.Width - boundsMargin, bounds.Y);
                 TextRenderer.DrawText(e.Graphics, packageVersion, Font, textPosition, color);
                 bounds.Width -= textSize.Width + boundsMargin;
 
                 // Draw package warnings
                 var warningNode = e.Node.Nodes.Count > 0 ? e.Node.Nodes[Resources.PackageWarningKey] : null;
                 if (warningNode != null)
-                    DrawInlineImage(e.Graphics, packageWarningImage, ref bounds);
-
-                // Add spacing between text boxes
-                bounds.Y += boundsMargin;
-                bounds.Height -= boundsMargin;
+                    DrawInlineImage(e.Graphics, Resources.WarningImage, ref bounds);
 
                 // Draw package title
+                var titleBounds = bounds;
+                var titleTextFlags = TextFormatFlags.Default;
                 var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                var titleSize = TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis);
-                TextRenderer.DrawText(e.Graphics, lines[0], boldFont, bounds, color, TextFormatFlags.WordEllipsis);
+                var titleSize = TextRenderer.MeasureText(e.Graphics, lines[0], boldFont, bounds.Size, titleTextFlags);
+                TextRenderer.DrawText(e.Graphics, lines[0], boldFont, titleBounds, color, titleTextFlags);
+                titleBounds.X += titleSize.Width;
+                titleBounds.Width -= titleSize.Width;
+                if (packageMetadata.PrefixReserved)
+                {
+                    var image = Resources.PrefixReservedMediumImage;
+                    var imageSize = Size.Truncate(e.Graphics.GetImageSize(image));
+                    var imagePadding = imageSize.Width / 8;
+                    titleBounds.X -= imagePadding;
+                    var imageY = titleBounds.Y + titleSize.Height - imageSize.Height;
+#if NETFRAMEWORK
+                    imageY += imagePadding;
+#endif
+                    e.Graphics.DrawImage(image, titleBounds.X, imageY);
+                    titleBounds.X += imageSize.Width + imagePadding;
+                    titleBounds.Width -= imageSize.Width;
+                }
                 bounds.Y += titleSize.Height;
                 bounds.Height -= titleSize.Height;
 
