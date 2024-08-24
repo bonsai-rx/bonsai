@@ -28,8 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.detailsLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.packageIdPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.packageIdLabel = new Bonsai.NuGet.Design.ImageLabel();
+            this.prefixReservedIcon = new System.Windows.Forms.PictureBox();
             this.installedVersionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.installedHeader = new System.Windows.Forms.Label();
             this.installedVersionTextBox = new System.Windows.Forms.TextBox();
@@ -41,6 +44,9 @@
             this.deprecationMetadataPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.warningImageLabel = new Bonsai.NuGet.Design.ImageLabel();
             this.deprecationMetadataLabel = new System.Windows.Forms.Label();
+            this.alternatePackagePanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.alternatePackageHeader = new System.Windows.Forms.Label();
+            this.alternatePackageLinkLabel = new System.Windows.Forms.LinkLabel();
             this.descriptionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.descriptionHeader = new System.Windows.Forms.Label();
             this.descriptionLabel = new System.Windows.Forms.Label();
@@ -65,13 +71,14 @@
             this.dependenciesLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.dependenciesTextBox = new System.Windows.Forms.TextBox();
             this.dependencyWarningLabel = new System.Windows.Forms.Label();
-            this.alternatePackageLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.alternatePackageHeader = new System.Windows.Forms.Label();
-            this.alternatePackagePanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.detailsLayoutPanel.SuspendLayout();
+            this.packageIdPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.prefixReservedIcon)).BeginInit();
             this.installedVersionLayoutPanel.SuspendLayout();
             this.versionLayoutPanel.SuspendLayout();
             this.deprecationMetadataPanel.SuspendLayout();
+            this.alternatePackagePanel.SuspendLayout();
             this.descriptionLayoutPanel.SuspendLayout();
             this.createdByLayoutPanel.SuspendLayout();
             this.lastPublishedLayoutPanel.SuspendLayout();
@@ -79,13 +86,12 @@
             this.tagsLayoutPanel.SuspendLayout();
             this.dependenciesHeaderLayoutPanel.SuspendLayout();
             this.dependenciesLayoutPanel.SuspendLayout();
-            this.alternatePackagePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // detailsLayoutPanel
             // 
             this.detailsLayoutPanel.AutoScroll = true;
-            this.detailsLayoutPanel.Controls.Add(this.packageIdLabel);
+            this.detailsLayoutPanel.Controls.Add(this.packageIdPanel);
             this.detailsLayoutPanel.Controls.Add(this.installedVersionLayoutPanel);
             this.detailsLayoutPanel.Controls.Add(this.versionLayoutPanel);
             this.detailsLayoutPanel.Controls.Add(this.deprecationMetadataPanel);
@@ -110,6 +116,17 @@
             this.detailsLayoutPanel.TabIndex = 0;
             this.detailsLayoutPanel.WrapContents = false;
             // 
+            // packageIdPanel
+            // 
+            this.packageIdPanel.AutoSize = true;
+            this.packageIdPanel.Controls.Add(this.packageIdLabel);
+            this.packageIdPanel.Controls.Add(this.prefixReservedIcon);
+            this.packageIdPanel.Location = new System.Drawing.Point(0, 0);
+            this.packageIdPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.packageIdPanel.Name = "packageIdPanel";
+            this.packageIdPanel.Size = new System.Drawing.Size(88, 24);
+            this.packageIdPanel.TabIndex = 20;
+            // 
             // packageIdLabel
             // 
             this.packageIdLabel.AutoSize = true;
@@ -118,12 +135,25 @@
             this.packageIdLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.packageIdLabel.ImageIndex = 0;
             this.packageIdLabel.Location = new System.Drawing.Point(3, 3);
-            this.packageIdLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.packageIdLabel.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.packageIdLabel.Name = "packageIdLabel";
             this.packageIdLabel.Size = new System.Drawing.Size(66, 18);
             this.packageIdLabel.TabIndex = 12;
             this.packageIdLabel.Text = "Package";
             this.packageIdLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // prefixReservedIcon
+            // 
+            this.prefixReservedIcon.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.prefixReservedIcon.Image = global::Bonsai.NuGet.Design.Properties.Resources.PrefixReservedImage;
+            this.prefixReservedIcon.Location = new System.Drawing.Point(69, 3);
+            this.prefixReservedIcon.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.prefixReservedIcon.Name = "prefixReservedIcon";
+            this.prefixReservedIcon.Size = new System.Drawing.Size(16, 18);
+            this.prefixReservedIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.prefixReservedIcon.TabIndex = 13;
+            this.prefixReservedIcon.TabStop = false;
             // 
             // installedVersionLayoutPanel
             // 
@@ -248,6 +278,44 @@
             this.deprecationMetadataLabel.Size = new System.Drawing.Size(84, 13);
             this.deprecationMetadataLabel.TabIndex = 8;
             this.deprecationMetadataLabel.Text = "deprecationText";
+            // 
+            // alternatePackagePanel
+            // 
+            this.alternatePackagePanel.AutoSize = true;
+            this.alternatePackagePanel.Controls.Add(this.alternatePackageHeader);
+            this.alternatePackagePanel.Controls.Add(this.alternatePackageLinkLabel);
+            this.alternatePackagePanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.alternatePackagePanel.Location = new System.Drawing.Point(3, 174);
+            this.alternatePackagePanel.Name = "alternatePackagePanel";
+            this.alternatePackagePanel.Size = new System.Drawing.Size(117, 38);
+            this.alternatePackagePanel.TabIndex = 19;
+            // 
+            // alternatePackageHeader
+            // 
+            this.alternatePackageHeader.AutoSize = true;
+            this.alternatePackageHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.alternatePackageHeader.Location = new System.Drawing.Point(3, 3);
+            this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3);
+            this.alternatePackageHeader.Name = "alternatePackageHeader";
+            this.alternatePackageHeader.Size = new System.Drawing.Size(111, 13);
+            this.alternatePackageHeader.TabIndex = 7;
+            this.alternatePackageHeader.Text = "Alternate package";
+            // 
+            // alternatePackageLinkLabel
+            // 
+            this.alternatePackageLinkLabel.AutoSize = true;
+            this.alternatePackageLinkLabel.ForeColor = System.Drawing.Color.Blue;
+            this.alternatePackageLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.alternatePackageLinkLabel.Location = new System.Drawing.Point(3, 22);
+            this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.alternatePackageLinkLabel.Name = "alternatePackageLinkLabel";
+            this.alternatePackageLinkLabel.Size = new System.Drawing.Size(100, 13);
+            this.alternatePackageLinkLabel.TabIndex = 6;
+            this.alternatePackageLinkLabel.TabStop = true;
+            this.alternatePackageLinkLabel.Text = "alternatePackageId";
+            this.alternatePackageLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.alternatePackageLinkLabel_LinkClicked);
+            this.alternatePackageLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.alternatePackageLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // descriptionLayoutPanel
             // 
@@ -518,44 +586,6 @@
             this.dependencyWarningLabel.Size = new System.Drawing.Size(0, 13);
             this.dependencyWarningLabel.TabIndex = 14;
             // 
-            // alternatePackageLinkLabel
-            // 
-            this.alternatePackageLinkLabel.AutoSize = true;
-            this.alternatePackageLinkLabel.ForeColor = System.Drawing.Color.Blue;
-            this.alternatePackageLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.alternatePackageLinkLabel.Location = new System.Drawing.Point(3, 22);
-            this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3);
-            this.alternatePackageLinkLabel.Name = "alternatePackageLinkLabel";
-            this.alternatePackageLinkLabel.Size = new System.Drawing.Size(100, 13);
-            this.alternatePackageLinkLabel.TabIndex = 6;
-            this.alternatePackageLinkLabel.TabStop = true;
-            this.alternatePackageLinkLabel.Text = "alternatePackageId";
-            this.alternatePackageLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.alternatePackageLinkLabel_LinkClicked);
-            this.alternatePackageLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
-            this.alternatePackageLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
-            // 
-            // alternatePackageHeader
-            // 
-            this.alternatePackageHeader.AutoSize = true;
-            this.alternatePackageHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.alternatePackageHeader.Location = new System.Drawing.Point(3, 3);
-            this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3);
-            this.alternatePackageHeader.Name = "alternatePackageHeader";
-            this.alternatePackageHeader.Size = new System.Drawing.Size(111, 13);
-            this.alternatePackageHeader.TabIndex = 7;
-            this.alternatePackageHeader.Text = "Alternate package";
-            // 
-            // alternatePackagePanel
-            // 
-            this.alternatePackagePanel.AutoSize = true;
-            this.alternatePackagePanel.Controls.Add(this.alternatePackageHeader);
-            this.alternatePackagePanel.Controls.Add(this.alternatePackageLinkLabel);
-            this.alternatePackagePanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.alternatePackagePanel.Location = new System.Drawing.Point(3, 174);
-            this.alternatePackagePanel.Name = "alternatePackagePanel";
-            this.alternatePackagePanel.Size = new System.Drawing.Size(117, 38);
-            this.alternatePackagePanel.TabIndex = 19;
-            // 
             // PackageDetails
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -565,11 +595,16 @@
             this.Size = new System.Drawing.Size(240, 450);
             this.detailsLayoutPanel.ResumeLayout(false);
             this.detailsLayoutPanel.PerformLayout();
+            this.packageIdPanel.ResumeLayout(false);
+            this.packageIdPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.prefixReservedIcon)).EndInit();
             this.installedVersionLayoutPanel.ResumeLayout(false);
             this.installedVersionLayoutPanel.PerformLayout();
             this.versionLayoutPanel.ResumeLayout(false);
             this.deprecationMetadataPanel.ResumeLayout(false);
             this.deprecationMetadataPanel.PerformLayout();
+            this.alternatePackagePanel.ResumeLayout(false);
+            this.alternatePackagePanel.PerformLayout();
             this.descriptionLayoutPanel.ResumeLayout(false);
             this.descriptionLayoutPanel.PerformLayout();
             this.createdByLayoutPanel.ResumeLayout(false);
@@ -584,8 +619,6 @@
             this.dependenciesHeaderLayoutPanel.PerformLayout();
             this.dependenciesLayoutPanel.ResumeLayout(false);
             this.dependenciesLayoutPanel.PerformLayout();
-            this.alternatePackagePanel.ResumeLayout(false);
-            this.alternatePackagePanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -632,5 +665,8 @@
         private System.Windows.Forms.FlowLayoutPanel alternatePackagePanel;
         private System.Windows.Forms.Label alternatePackageHeader;
         private System.Windows.Forms.LinkLabel alternatePackageLinkLabel;
+        private System.Windows.Forms.FlowLayoutPanel packageIdPanel;
+        private System.Windows.Forms.PictureBox prefixReservedIcon;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

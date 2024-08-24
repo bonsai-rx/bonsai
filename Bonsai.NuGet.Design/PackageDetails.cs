@@ -11,6 +11,7 @@ using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using System.ComponentModel;
 using NuGet.Versioning;
+using System.Drawing;
 
 namespace Bonsai.NuGet.Design
 {
@@ -26,6 +27,7 @@ namespace Bonsai.NuGet.Design
             InitializeComponent();
             ProjectFramework = NuGetFramework.AnyFramework;
             versionComboBox.DisplayMember = nameof(VersionInfo.Version);
+            toolTip.SetToolTip(prefixReservedIcon, Resources.PackagePrefixReservedToolTip);
             SetPackage(null);
         }
 
@@ -59,6 +61,19 @@ namespace Bonsai.NuGet.Design
             (Events[PackageLinkClickedEvent] as PackageSearchEventHandler)?.Invoke(this, e);
         }
 
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            if (factor.Height > 1)
+            {
+                var image = Resources.PrefixReservedImage;
+                var targetSize = new Size(
+                    (int)(image.Width * factor.Height),
+                    (int)(image.Height * factor.Height));
+                prefixReservedIcon.Image = image.Resize(targetSize);
+            }
+            base.ScaleControl(factor, specified);
+        }
+
         public void SetPackage(PackageViewItem item)
         {
             SuspendLayout();
@@ -77,6 +92,7 @@ namespace Bonsai.NuGet.Design
             packageIdLabel.ImageList = item.ImageList;
             packageIdLabel.ImageIndex = item.ImageIndex;
             packageIdLabel.Text = package.Identity.Id;
+            prefixReservedIcon.Visible = package.PrefixReserved;
 
             installedVersionLayoutPanel.Visible =
                 (Operation == PackageOperationType.Install ||

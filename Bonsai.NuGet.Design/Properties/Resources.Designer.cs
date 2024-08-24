@@ -375,9 +375,38 @@ namespace Bonsai.NuGet.Design.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap PackageViewNodeCheckedImage {
+        internal static System.Drawing.Bitmap PackageInstalledImage {
             get {
-                object obj = ResourceManager.GetObject("PackageViewNodeCheckedImage", resourceCulture);
+                object obj = ResourceManager.GetObject("PackageInstalledImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The ID prefix of this package has been reserved for the owner of the package by the currently selected feed.
+        /// </summary>
+        internal static string PackagePrefixReservedToolTip {
+            get {
+                return ResourceManager.GetString("PackagePrefixReservedToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageRemoveImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageRemoveImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageUpdateImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageUpdateImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -388,6 +417,26 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static string PackageWarningKey {
             get {
                 return ResourceManager.GetString("PackageWarningKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PrefixReservedImage {
+            get {
+                object obj = ResourceManager.GetObject("PrefixReservedImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PrefixReservedMediumImage {
+            get {
+                object obj = ResourceManager.GetObject("PrefixReservedMediumImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -406,16 +455,6 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap RefreshImage {
             get {
                 object obj = ResourceManager.GetObject("RefreshImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RemoveImage {
-            get {
-                object obj = ResourceManager.GetObject("RemoveImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -509,16 +548,6 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static string UnpublishedLabel {
             get {
                 return ResourceManager.GetString("UnpublishedLabel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap UpdateImage {
-            get {
-                object obj = ResourceManager.GetObject("UpdateImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
