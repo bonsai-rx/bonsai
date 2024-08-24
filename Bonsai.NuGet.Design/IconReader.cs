@@ -64,7 +64,7 @@ namespace Bonsai.NuGet.Design
                     using var packageReader = new PackageArchiveReader(requestUri.AbsolutePath);
                     using var iconStream = await packageReader.GetStreamAsync(requestUri.Fragment.Substring(1), cancellationToken);
                     using var image = Image.FromStream(iconStream);
-                    return ResizeImage(image, targetSize);
+                    return image.Resize(targetSize);
                 }
             }
             catch (IOException) { } // fallback if error reading icon stream
@@ -88,7 +88,7 @@ namespace Bonsai.NuGet.Design
                         try
                         {
                             using var image = Image.FromStream(responseStream);
-                            return ResizeImage(image, targetSize);
+                            return image.Resize(targetSize);
                         }
                         catch (ArgumentException) { } // fallback if decoding image fails
                     }
@@ -98,19 +98,6 @@ namespace Bonsai.NuGet.Design
             return fallbackImage != null
                 ? await fallbackImage
                 : DefaultIconImage;
-        }
-
-        static Bitmap ResizeImage(Image image, Size newSize)
-        {
-            var result = new Bitmap(newSize.Width, newSize.Height);
-            using (var graphics = Graphics.FromImage(result))
-            {
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                graphics.DrawImage(image, 0, 0, newSize.Width, newSize.Height);
-            }
-            return result;
         }
     }
 }
