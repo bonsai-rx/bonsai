@@ -20,7 +20,9 @@ namespace Bonsai.NuGet.Design
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
         Font boldFont;
+        Font titleFont;
         Font hyperlinkFont;
+        Font iconFont;
         Brush nodeHighlight;
         int boundsMargin;
         SizeF buttonSize;
@@ -122,7 +124,9 @@ namespace Bonsai.NuGet.Design
                 NativeMethods.SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
             }
             boldFont = new Font(Font, FontStyle.Bold);
+            titleFont = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
             hyperlinkFont = new Font(Font, FontStyle.Bold | FontStyle.Underline);
+            iconFont = new Font(Font.FontFamily, Font.Size - 1.5f);
             base.OnHandleCreated(e);
         }
 
@@ -303,22 +307,33 @@ namespace Bonsai.NuGet.Design
                 var localPackageMetadata = (LocalPackageInfo)localPackageNode?.Tag;
 
                 // Draw package icon
-                var imageIndex = ImageList.Images.IndexOfKey(e.Node.ImageKey);
-                if (imageIndex >= 0)
+                var iconText = Resources.PrereleaseLabel;
+                var iconTextFlags = TextFormatFlags.NoPadding;
+                var iconTextSize = TextRenderer.MeasureText(e.Graphics, iconText, iconFont, bounds.Size, iconTextFlags);
+                var iconImageX = e.Bounds.X + Margin.Left;
+                var iconImageY = e.Bounds.Top + (e.Bounds.Height - ImageList.ImageSize.Height - iconTextSize.Height) / 2;
+                var iconImageIndex = ImageList.Images.IndexOfKey(e.Node.ImageKey);
+                if (iconImageIndex >= 0)
                 {
-                    var imageX = e.Bounds.X + Margin.Left;
-                    var imageY = e.Bounds.Top + (e.Bounds.Height - ImageList.ImageSize.Height) / 2;
-                    ImageList.Draw(e.Graphics, imageX, imageY, imageIndex);
+                    ImageList.Draw(e.Graphics, iconImageX, iconImageY, iconImageIndex);
                     if (localPackageMetadata != null)
                     {
-                        var imageOverlay = localPackageMetadata.Identity.Version < packageMetadata.Identity.Version
+                        var iconOverlay = localPackageMetadata.Identity.Version < packageMetadata.Identity.Version
                             ? Resources.PackageUpdateImage
                             : Resources.PackageInstalledImage;
-                        DrawImageOverlay(e.Graphics, imageOverlay, imageX, imageY);
+                        DrawImageOverlay(e.Graphics, iconOverlay, iconImageX, iconImageY);
+                    }
+
+                    if (packageMetadata.Identity.Version.IsPrerelease)
+                    {
+                        var iconTextPosition = new Point(
+                            x: iconImageX,
+                            y: iconImageY + ImageList.ImageSize.Height);
+                        TextRenderer.DrawText(e.Graphics, iconText, iconFont, iconTextPosition, color, iconTextFlags);
                     }
                 }
-                bounds.X += ImageList.ImageSize.Width + Margin.Horizontal;
-                bounds.Width -= ImageList.ImageSize.Width + Margin.Horizontal;
+                bounds.X += iconTextSize.Width + Margin.Horizontal;
+                bounds.Width -= iconTextSize.Width + Margin.Horizontal;
 
                 // Add spacing between text boxes
                 bounds.Y += boundsMargin;
@@ -359,26 +374,24 @@ namespace Bonsai.NuGet.Design
                 var titleBounds = bounds;
                 var titleTextFlags = TextFormatFlags.Default;
                 var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                var titleSize = TextRenderer.MeasureText(e.Graphics, lines[0], boldFont, bounds.Size, titleTextFlags);
-                TextRenderer.DrawText(e.Graphics, lines[0], boldFont, titleBounds, color, titleTextFlags);
+                var titleSize = TextRenderer.MeasureText(e.Graphics, lines[0], titleFont, bounds.Size, titleTextFlags);
+                TextRenderer.DrawText(e.Graphics, lines[0], titleFont, titleBounds, color, titleTextFlags);
                 titleBounds.X += titleSize.Width;
                 titleBounds.Width -= titleSize.Width;
                 if (packageMetadata.PrefixReserved)
                 {
                     var image = Resources.PrefixReservedMediumImage;
-                    var imageSize = Size.Truncate(e.Graphics.GetImageSize(image));
+                    var imageSize = Size.Round(e.Graphics.GetImageSize(image));
                     var imagePadding = imageSize.Width / 8;
                     titleBounds.X -= imagePadding;
-                    var imageY = titleBounds.Y + titleSize.Height - imageSize.Height;
-#if NETFRAMEWORK
-                    imageY += imagePadding;
-#endif
+                    var imageY = titleBounds.Y + titleFont.GetHeight(e.Graphics) - imageSize.Height + imagePadding;
                     e.Graphics.DrawImage(image, titleBounds.X, imageY);
                     titleBounds.X += imageSize.Width + imagePadding;
                     titleBounds.Width -= imageSize.Width;
                 }
 
                 // Draw package authors and download count
+                titleBounds.Y += titleSize.Height - textSize.Height;
                 var hasDownloadCount = packageMetadata.DownloadCount.HasValue;
                 var downloadSeparator = hasDownloadCount ? ", " : string.Empty;
                 DrawInlineText(e.Graphics, $"by {packageMetadata.Authors}{downloadSeparator}", Font, color, ref titleBounds);

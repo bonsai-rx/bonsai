@@ -451,7 +451,7 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  (Prerelease).
+        ///   Looks up a localized string similar to Prerelease.
         /// </summary>
         internal static string PrereleaseLabel {
             get {
