@@ -170,8 +170,9 @@
 </value>
   </data>
   <data name="AttributionNotices" xml:space="preserve">
-    <value>
-The Bonsai framework includes software from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
+    <value>{1}
+
+{0} includes software and media content from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
 
 Copyright (c) .NET Foundation and Contributors</value>
   </data>
