@@ -317,6 +317,16 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageDefaultIcon {
+            get {
+                object obj = ResourceManager.GetObject("PackageDefaultIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Package &apos;{0}&apos; depends on the following packages. Do you want to uninstall them too?
         ///.
         /// </summary>

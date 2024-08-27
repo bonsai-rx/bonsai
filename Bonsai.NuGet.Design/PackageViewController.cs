@@ -74,6 +74,10 @@ namespace Bonsai.NuGet.Design
 
             packageManagerPath = path;
             iconReader = new IconReader(packageIcons.ImageSize);
+            if (packageIcons.Images.Count == 0)
+            {
+                packageIcons.Images.Add(iconReader.DefaultIcon);
+            }
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
@@ -291,11 +295,6 @@ namespace Bonsai.NuGet.Design
             var requestIcon = GetPackageIcon(package.IconUrl);
             var iconRequest = requestIcon.ObserveOn(control).Subscribe(image =>
             {
-                if (packageIcons.Images.Count == 0)
-                {
-                    var defaultImage = iconReader.GetDefaultIconAsync().Result;
-                    packageIcons.Images.Add(defaultImage);
-                }
                 packageIcons.Images.Add(package.Identity.Id, image);
                 node.ImageKey = package.Identity.Id;
                 node.SelectedImageKey = package.Identity.Id;
