@@ -485,7 +485,7 @@
             this.licenseLinkLabel.TabStop = true;
             this.licenseLinkLabel.Text = "License Info";
             this.licenseLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.licenseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.licenseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.licenseLinkLabel_LinkClicked);
             this.licenseLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
             this.licenseLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 

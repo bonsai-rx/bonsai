@@ -5,8 +5,6 @@ using System.Globalization;
 using System.Diagnostics;
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Protocol.Core.Types;
-using NuGet.Packaging;
-using System.IO;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using System.ComponentModel;
@@ -48,8 +46,6 @@ namespace Bonsai.NuGet.Design
         }
 
         public NuGetFramework ProjectFramework { get; set; }
-
-        public PackagePathResolver PathResolver { get; set; }
 
         private void OnOperationClick(PackageViewEventArgs e)
         {
@@ -132,7 +128,7 @@ namespace Bonsai.NuGet.Design
             SetLinkLabelUri(detailsLinkLabel, package.PackageDetailsUrl, true);
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = versionInfo.DownloadCount.ToString();
-            SetLinkLabelLicense(licenseLinkLabel, package, true);
+            LicenseHelper.SetLicenseLinkLabel(licenseLinkLabel, package, selectedItem.SourceRepository);
             SetLinkLabelUri(projectLinkLabel, package.ProjectUrl, true);
             SetLinkLabelUri(reportAbuseLinkLabel, package.ReportAbuseUrl, false);
             descriptionLabel.Text = package.Description;
@@ -176,24 +172,6 @@ namespace Bonsai.NuGet.Design
             }
         }
 
-        void SetLinkLabelLicense(LinkLabel linkLabel, IPackageSearchMetadata package, bool hideEmptyLink)
-        {
-            var license = package.LicenseMetadata;
-            if (license != null && PathResolver != null)
-            {
-                switch (license.Type)
-                {
-                    case LicenseType.File:
-                        var licenseUri = new Uri(Path.Combine(PathResolver.GetInstallPath(package.Identity), license.License));
-                        SetLinkLabelUri(linkLabel, licenseUri, hideEmptyLink);
-                        break;
-                    case LicenseType.Expression: SetLinkLabelUri(linkLabel, license.LicenseUrl, hideEmptyLink); break;
-                    default: break;
-                }
-            }
-            else SetLinkLabelUri(linkLabel, package.LicenseUrl, hideEmptyLink);
-        }
-
         static void SetLinkLabelUri(LinkLabel linkLabel, Uri uri, bool hideEmptyLink)
         {
             linkLabel.Links[0].Description = uri != null && uri.IsAbsoluteUri ? uri.AbsoluteUri : null;
@@ -201,10 +179,14 @@ namespace Bonsai.NuGet.Design
             linkLabel.Visible = !hideEmptyLink || linkLabel.Links[0].LinkData != null;
         }
 
+        private async void licenseLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            await LicenseHelper.ShowLicenseAsync(e.Link, this);
+        }
+
         private void linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var linkUri = (Uri)e.Link.LinkData;
-            if (linkUri != null)
+            if (e.Link.LinkData is Uri linkUri)
             {
                 Process.Start(linkUri.AbsoluteUri);
             }

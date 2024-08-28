@@ -208,6 +208,15 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to License.
+        /// </summary>
+        internal static string LicenseLabel {
+            get {
+                return ResourceManager.GetString("LicenseLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to View License.
         /// </summary>
         internal static string LicenseViewLicenseLabel {
