@@ -32,8 +32,8 @@ namespace Bonsai.NuGet.Design
                 searchComboBox,
                 prereleaseCheckBox,
                 () => updatesButton.Checked,
-                value => multiOperationPanel.Visible = value,
-                Enumerable.Empty<string>());
+                value => multiOperationPanel.Visible = value);
+            packageViewController.PackageTypes = new[] { Constants.LibraryPackageType };
             packageViewController.PackageManager.PackageManagerPlugins.Add(new ExecutablePackagePlugin(this));
             InitializePackageSourceItems();
             multiOperationPanel.Visible = false;
@@ -233,6 +233,15 @@ namespace Bonsai.NuGet.Design
         private void closeButton_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void dependencyCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            var packageType = dependencyCheckBox.Checked
+                ? PackageType.Dependency.Name
+                : Constants.LibraryPackageType;
+            packageViewController.PackageTypes = new[] { packageType };
+            packageViewController.UpdatePackageQuery();
         }
     }
 

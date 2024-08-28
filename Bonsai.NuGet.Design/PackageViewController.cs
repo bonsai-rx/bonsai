@@ -23,7 +23,6 @@ namespace Bonsai.NuGet.Design
 
         bool loaded;
         readonly string packageManagerPath;
-        readonly IEnumerable<string> packageTypes;
         readonly PackageSourceProvider packageSourceProvider;
         readonly List<IDisposable> activeRequests;
         PackageQuery packageQuery;
@@ -52,8 +51,7 @@ namespace Bonsai.NuGet.Design
             CueBannerComboBox search,
             CheckBox prerelease,
             Func<bool> updateFeed,
-            Action<bool> multiOperationVisible,
-            IEnumerable<string> packageTypeFilter)
+            Action<bool> multiOperationVisible)
         {
             ProjectFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             control = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -65,7 +63,6 @@ namespace Bonsai.NuGet.Design
             prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
             getUpdateFeed = updateFeed ?? throw new ArgumentNullException(nameof(updateFeed));
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
-            packageTypes = packageTypeFilter;
             control.KeyDown += control_KeyDown;
             packageDetails.PackageLinkClicked += packageDetails_PackageLinkClicked;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
@@ -90,6 +87,8 @@ namespace Bonsai.NuGet.Design
         }
 
         public string SearchPrefix { get; set; }
+
+        public IEnumerable<string> PackageTypes { get; set; }
 
         public SourceRepository SelectedRepository { get; set; }
 
@@ -211,8 +210,8 @@ namespace Bonsai.NuGet.Design
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
         {
             return updateFeed
-                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, packageTypes)
-                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, packageTypes);
+                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, PackageTypes)
+                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, PackageTypes);
         }
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)
