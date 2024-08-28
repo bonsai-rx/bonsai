@@ -177,6 +177,9 @@
   <data name="LicenseViewLicenseLabel" xml:space="preserve">
     <value>View License</value>
   </data>
+  <data name="LicenseLabel" xml:space="preserve">
+    <value>License</value>
+  </data>
   <data name="PackageAlreadyInstalled" xml:space="preserve">
     <value>'{0}' already installed.</value>
   </data>
@@ -382,7 +385,7 @@
   <data name="PrefixReservedMediumImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vwAADr8BOAVTJAAAAMtJREFUOE/NkssNwjAQRFNKSnAjnOmCWujAB0rgwpEOuNEDCLAUyVIsIZl90Zo4
+        vgAADr4B6kKxwAAAAMtJREFUOE/NkssNwjAQRFNKSnAjnOmCWujAB0rgwpEOuNEDCLAUyVIsIZl90Zo4
         zucABxhplM16Z3b9qf4PIYRaaIVOGJXE5Gotm4YUmIdv3e7cxPXhFlf7a0dicmpktHwI3CnYHO9vYUnW
         1GQ8iSQtXaaEF//sSKyTWJX1wDkfO3F7aiLgyz811Kqsh/PtSAzz7oliEFXWIzdIorL7okG+hSQEZffZ
         LUhycIgIQdl96RC/u0YgC4YCuuQ3Qqyd5x9SAu7Cz57yD1BVL1pyspuCvJmtAAAAAElFTkSuQmCC
@@ -391,7 +394,7 @@
   <data name="PrefixReservedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAASlJREFUOE+lk8tNw0AQhl0B3bgMECDRAtRBGVgc3QFYcEHckHKOOJtTRGKEWCBK
+        vwAADr8BOAVTJAAAASlJREFUOE+lk8tNw0AQhl0B3bgMECDRAtRBGVgc3QFYcEHckHKOOJtTRGKEWCBK
         bBDDfM7Y2k3W5sBIvx878/32PibZjrquU1WmKtd10yCebSy1st3Q5J4qn7mVXEzf5fTuRQ6LqhXPjJGj
         hlrDNmHw5Lb8lGMF9q8WUZGjhtrARF9yEjEoJjPJOzjl18a+jI6KhTzMVnJyU7W1Np0Ug4z5xaBOwM/L
         byHmemcMBhaDkkXahjr5MHH5+NGOw8AmbBMr3QFn969/wghGDZrAoCiX8mOFY3Bg4E+hdF9WLuLWwzDq

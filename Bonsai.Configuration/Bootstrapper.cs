@@ -112,7 +112,7 @@ namespace Bonsai.Configuration
 
             public bool RestorePackages { get; set; }
 
-            protected override bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
+            protected override bool AcceptLicenseAgreement(IEnumerable<RequiringLicenseAcceptancePackageInfo> licensePackages)
             {
                 if (RestorePackages) return true;
                 else return base.AcceptLicenseAgreement(licensePackages);
