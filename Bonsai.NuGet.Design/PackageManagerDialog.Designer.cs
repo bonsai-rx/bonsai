@@ -56,6 +56,7 @@
             this.installedButton = new System.Windows.Forms.RadioButton();
             this.updatesButton = new System.Windows.Forms.RadioButton();
             this.saveFolderDialog = new Bonsai.NuGet.Design.SaveFolderDialog();
+            this.dependencyCheckBox = new System.Windows.Forms.CheckBox();
             this.mainLayoutPanel.SuspendLayout();
             this.packageViewLayoutPanel.SuspendLayout();
             this.filterLayoutPanel.SuspendLayout();
@@ -127,6 +128,7 @@
             this.filterLayoutPanel.Controls.Add(this.searchComboBox);
             this.filterLayoutPanel.Controls.Add(this.refreshButton);
             this.filterLayoutPanel.Controls.Add(this.prereleaseCheckBox);
+            this.filterLayoutPanel.Controls.Add(this.dependencyCheckBox);
             this.filterLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.filterLayoutPanel.Location = new System.Drawing.Point(3, 3);
             this.filterLayoutPanel.Name = "filterLayoutPanel";
@@ -402,6 +404,18 @@
             // 
             this.saveFolderDialog.FileName = "";
             // 
+            // dependencyCheckBox
+            // 
+            this.dependencyCheckBox.AutoSize = true;
+            this.dependencyCheckBox.Location = new System.Drawing.Point(373, 5);
+            this.dependencyCheckBox.Margin = new System.Windows.Forms.Padding(2, 5, 2, 2);
+            this.dependencyCheckBox.Name = "dependencyCheckBox";
+            this.dependencyCheckBox.Size = new System.Drawing.Size(123, 17);
+            this.dependencyCheckBox.TabIndex = 5;
+            this.dependencyCheckBox.Text = "Show dependencies";
+            this.dependencyCheckBox.UseVisualStyleBackColor = true;
+            this.dependencyCheckBox.CheckedChanged += new System.EventHandler(this.dependencyCheckBox_CheckedChanged);
+            // 
             // PackageManagerDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -463,5 +477,6 @@
         private System.Windows.Forms.RadioButton installedButton;
         private System.Windows.Forms.RadioButton updatesButton;
         private System.Windows.Forms.Button settingsButton;
+        private System.Windows.Forms.CheckBox dependencyCheckBox;
     }
 }

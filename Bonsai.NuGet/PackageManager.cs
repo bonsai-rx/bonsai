@@ -33,7 +33,7 @@ namespace Bonsai.NuGet
         {
             if (packageSourceProvider == null) throw new ArgumentNullException(nameof(packageSourceProvider));
             if (localRepository == null) throw new ArgumentNullException(nameof(localRepository));
-            SourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, Repository.Provider.GetCoreV3());
+            SourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, Search.Repository.Provider.GetCoreV3());
             PathResolver = pathResolver ?? new PackagePathResolver(localRepository.Source);
             LocalRepository = SourceRepositoryProvider.CreateRepository(localRepository);
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));

@@ -33,9 +33,9 @@ namespace Bonsai.NuGet.Design
                 searchComboBox,
                 prereleaseCheckBox,
                 () => false,
-                value => { },
-                new[] { Constants.GalleryPackageType });
+                value => { });
             packageViewController.SearchPrefix = $"tags:{Constants.GalleryDirectory} ";
+            packageViewController.PackageTypes = new[] { Constants.GalleryPackageType };
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
         }
