@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
     <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
+    <PackageType>Dependency;BonsaiLibrary</PackageType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <!-- Always pack NuGet packages (except on CI where it'll be done separately) -->
