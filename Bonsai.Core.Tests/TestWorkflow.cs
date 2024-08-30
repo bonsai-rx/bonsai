@@ -122,6 +122,13 @@ namespace Bonsai.Core.Tests
             return Append(subjectBuilder);
         }
 
+        public TestWorkflow TopologicalSort()
+        {
+            var workflow = new ExpressionBuilderGraph();
+            workflow.InsertRange(0, Workflow.TopologicalSort());
+            return new TestWorkflow(workflow, Cursor);
+        }
+
         public ExpressionBuilderGraph ToInspectableGraph()
         {
             return Workflow.ToInspectableGraph();
