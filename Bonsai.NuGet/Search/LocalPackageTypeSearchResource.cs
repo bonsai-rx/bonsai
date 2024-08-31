@@ -55,20 +55,6 @@ namespace Bonsai.NuGet.Search
 
             public string PackageTypeFilter { get; }
 
-            private bool MatchesPackageType(LocalPackageInfo package)
-            {
-                var packageTypes = package.Nuspec.GetPackageTypes();
-                if (packageTypes.Count == 0
-                    && PackageType.PackageTypeNameComparer.Equals(PackageTypeFilter, PackageType.Dependency.Name))
-                {
-                    return true;
-                }
-
-                return package.Nuspec
-                    .GetPackageTypes()
-                    .Any(packageType => PackageType.PackageTypeNameComparer.Equals(packageType.Name, PackageTypeFilter));
-            }
-
             public override IEnumerable<LocalPackageInfo> FindPackagesById(string id, ILogger logger, CancellationToken token)
             {
                 return baseLocalResource.FindPackagesById(id, logger, token);
@@ -89,7 +75,7 @@ namespace Bonsai.NuGet.Search
                 var result = baseLocalResource.GetPackages(logger, token);
                 if (!string.IsNullOrEmpty(PackageTypeFilter))
                 {
-                    result = result.Where(MatchesPackageType);
+                    result = result.Where(package => package.IsPackageType(PackageTypeFilter));
                 }
                 return result;
             }

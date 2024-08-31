@@ -123,7 +123,7 @@ namespace Bonsai.NuGet.Design
             {
                 if (PackageIdentityComparer.Default.Equals(package, Owner.targetPackage))
                 {
-                    Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, Owner.targetPath);
+                    Owner.InstallPath = packageReader.InstallExecutablePackage(package, projectFramework, Owner.targetPath);
                     Owner.DialogResult = DialogResult.OK;
                 }
 

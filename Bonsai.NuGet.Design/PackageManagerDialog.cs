@@ -192,7 +192,7 @@ namespace Bonsai.NuGet.Design
 
             public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
-                if (PackageHelper.IsExecutablePackage(package, projectFramework, packageReader))
+                if (packageReader.IsExecutablePackage(package, projectFramework))
                 {
                     Owner.Invoke((Action)(() =>
                     {
@@ -204,7 +204,7 @@ namespace Bonsai.NuGet.Design
                             if (Owner.saveFolderDialog.ShowDialog(Owner) == DialogResult.OK)
                             {
                                 var targetPath = Owner.saveFolderDialog.FileName;
-                                Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, targetPath);
+                                Owner.InstallPath = packageReader.InstallExecutablePackage(package, projectFramework, targetPath);
                                 Owner.DialogResult = DialogResult.OK;
                             }
                         }
