@@ -825,6 +825,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
+            saveWorkflowDialog.FileName = fileName;
             editorControl.ResetNavigation();
             editorSite.ValidateWorkflow();
 
@@ -840,7 +841,6 @@ namespace Bonsai.Editor
                 catch (InvalidOperationException) { }
             }
 
-            saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
             if (upgraded)
             {
