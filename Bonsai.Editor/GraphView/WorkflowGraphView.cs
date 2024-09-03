@@ -273,7 +273,17 @@ namespace Bonsai.Editor.GraphView
             UpdateSelection();
         }
 
+        internal void ClearGraphNode(WorkflowEditorPath path)
+        {
+            SetGraphNodeHighlight(path, false, false);
+        }
+
         internal void HighlightGraphNode(WorkflowEditorPath path, bool selectNode)
+        {
+            SetGraphNodeHighlight(path, selectNode, true);
+        }
+
+        private void SetGraphNodeHighlight(WorkflowEditorPath path, bool selectNode, bool highlight)
         {
             if (selectNode)
                 WorkflowPath = path?.Parent;
@@ -291,7 +301,7 @@ namespace Bonsai.Editor.GraphView
 
                     GraphView.Invalidate(graphNode);
                     if (selectNode) GraphView.SelectedNode = graphNode;
-                    graphNode.Highlight = true;
+                    graphNode.Highlight = highlight;
                     break;
                 }
 
