@@ -7,5 +7,6 @@
         Notifying,
         Completed,
         Error,
+        Canceled
     }
 }
