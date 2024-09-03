@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Bonsai.Editor.Diagnostics;
 using Bonsai.Expressions;
 
 namespace Bonsai.Editor.GraphModel
@@ -156,6 +157,9 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
+        public WorkflowElementStatus? Status { get; set; }
+
+        public int NotifyingCounter { get; set; } = -1;
 
         /// <summary>
         /// Returns a string that represents the value of this <see cref="GraphNode"/> instance.

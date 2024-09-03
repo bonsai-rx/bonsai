@@ -16,6 +16,7 @@ using Bonsai.Editor.Themes;
 using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
 using System.Xml;
+using Bonsai.Editor.Diagnostics;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -49,6 +50,7 @@ namespace Bonsai.Editor.GraphView
         readonly IServiceProvider serviceProvider;
         readonly IUIService uiService;
         readonly ThemeRenderer themeRenderer;
+        readonly WorkflowWatch workflowWatch;
         readonly IDefinitionProvider definitionProvider;
         Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
         VisualizerLayout visualizerLayout;
@@ -81,12 +83,50 @@ namespace Bonsai.Editor.GraphView
             typeVisualizerMap = (TypeVisualizerMap)provider.GetService(typeof(TypeVisualizerMap));
             editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
             workflowEditorMapping = new Dictionary<IWorkflowExpressionBuilder, WorkflowEditorLauncher>();
+            workflowWatch = (WorkflowWatch)provider.GetService(typeof(WorkflowWatch));
 
+            workflowWatch.Update += WorkflowWatch_Tick;
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             editorState.WorkflowStarted += editorService_WorkflowStarted;
             themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
             InitializeTheme();
             InitializeViewBindings();
+        }
+
+        private void WorkflowWatch_Tick(object sender, EventArgs e)
+        {
+            var layers = graphView.Nodes;
+            if (layers != null)
+            {
+                for (int i = 0; i < layers.Count; i++)
+                {
+                    foreach (var node in layers[i])
+                    {
+                        if (node.Value is null)
+                            continue;
+
+                        if (!workflowWatch.Enabled)
+                        {
+                            node.Status = null;
+                            node.NotifyingCounter = -1;
+                        }
+                        else if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
+                        {
+                            node.Status = counter.GetStatus();
+                            if (node.Status == WorkflowElementStatus.Notifying)
+                            {
+                                node.NotifyingCounter++;
+                            }
+                            else if (node.Status != WorkflowElementStatus.Active)
+                            {
+                                node.NotifyingCounter = -1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            graphView.Invalidate();
         }
 
         internal WorkflowEditor Editor { get; }
@@ -1268,6 +1308,7 @@ namespace Bonsai.Editor.GraphView
         {
             editorState.WorkflowStarted -= editorService_WorkflowStarted;
             themeRenderer.ThemeChanged -= themeRenderer_ThemeChanged;
+            workflowWatch.Update -= WorkflowWatch_Tick;
         }
 
         private void editorService_WorkflowStarted(object sender, EventArgs e)

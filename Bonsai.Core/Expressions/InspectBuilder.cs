@@ -11,7 +11,7 @@ using System.Reactive.Disposables;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder that replays the latest notification from all the
+    /// Represents an expression builder that monitors the notifications from all the
     /// subscriptions made to its decorated builder.
     /// </summary>
     public sealed class InspectBuilder : ExpressionBuilder, INamedElement
@@ -23,7 +23,7 @@ namespace Bonsai.Expressions
         /// specified expression builder.
         /// </summary>
         /// <param name="builder">
-        /// The expression builder whose notifications will be replayed by this inspector.
+        /// The expression builder whose notifications will be monitored by this inspector.
         /// </param>
         public InspectBuilder(ExpressionBuilder builder)
             : base(builder, decorator: false)
@@ -102,6 +102,12 @@ namespace Bonsai.Expressions
         public IObservable<Exception> ErrorEx { get; private set; }
 
         /// <summary>
+        /// Gets an observable sequence that multicasts watch notifications from all
+        /// the subscriptions made to the output of the decorated expression builder.
+        /// </summary>
+        public IObservable<IObservable<WatchNotification>> Watch { get; private set; }
+
+        /// <summary>
         /// Gets the range of input arguments that the decorated expression builder accepts.
         /// </summary>
         public override Range<int> ArgumentRange
@@ -142,6 +148,7 @@ namespace Bonsai.Expressions
             if (VisualizerElement != null)
             {
                 Output = VisualizerElement.Output;
+                Watch = VisualizerElement.Watch;
                 ErrorEx = Observable.Empty<Exception>();
                 VisualizerElement = BuildVisualizerElement(VisualizerElement, VisualizerMappings);
                 return source;
@@ -162,6 +169,7 @@ namespace Bonsai.Expressions
             else
             {
                 Output = Observable.Empty<IObservable<object>>();
+                Watch = Observable.Empty<IObservable<WatchNotification>>();
                 ErrorEx = Observable.Empty<Exception>();
                 if (VisualizerElement != null)
                 {
@@ -241,17 +249,15 @@ namespace Bonsai.Expressions
             return null;
         }
 
-        ReplaySubject<IObservable<TSource>> CreateInspectorSubject<TSource>()
+        ReplaySubject<Inspector<TSource>> CreateInspectorSubject<TSource>()
         {
-            var subject = new ReplaySubject<IObservable<TSource>>(1);
-            Output = subject.Select(ys => ys.Select(xs => (object)xs));
+            var subject = new ReplaySubject<Inspector<TSource>>(1);
+            Output = subject.Select(ys => ys.Output);
 #pragma warning disable CS0612 // Type or member is obsolete
-            Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
+            Error = subject.SelectMany(ys => ys.Error);
 #pragma warning restore CS0612 // Type or member is obsolete
-            ErrorEx = subject.SelectMany(xs => xs
-                .IgnoreElements()
-                .Select(x => default(Exception))
-                .Catch<Exception, Exception>(ex => Observable.Return(ex)));
+            ErrorEx = subject.SelectMany(xs => xs.ErrorEx);
+            Watch = subject.Select(xs => xs.Watch);
             return subject;
         }
 
@@ -260,13 +266,13 @@ namespace Bonsai.Expressions
             return source;
         }
 
-        IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<TSource>> subject)
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<Inspector<TSource>> subject)
         {
             return Observable.Create<TSource>(observer =>
             {
-                var sourceInspector = new Subject<TSource>();
+                var sourceInspector = new Inspector<TSource>();
                 subject.OnNext(sourceInspector);
-                var subscription = source.Do(sourceInspector).SubscribeSafe(observer);
+                var subscription = source.Do(sourceInspector.Subject).SubscribeSafe(observer);
                 return Disposable.Create(() =>
                 {
                     try { subscription.Dispose(); }
@@ -275,9 +281,52 @@ namespace Bonsai.Expressions
                     {
                         throw new WorkflowRuntimeException(ex.Message, this, ex);
                     }
-                    finally { sourceInspector.OnCompleted(); }
+                    finally
+                    {
+                        if (!sourceInspector.Subject.HasTerminated)
+                        {
+                            sourceInspector.IsCanceled = true;
+                            sourceInspector.Subject.OnCompleted();
+                        }
+                    }
                 });
             });
+        }
+
+        class Inspector<T>
+        {
+            public InspectSubject<T> Subject { get; } = new();
+
+            public bool IsCanceled { get; internal set; }
+
+            public IObservable<object> Output => Subject.Select(value => (object)value);
+
+            public IObservable<Unit> Error => Subject.IgnoreElements().Select(xs => Unit.Default);
+
+            public IObservable<Exception> ErrorEx => Subject
+                .IgnoreElements()
+                .Select(x => default(Exception))
+                .Catch<Exception, Exception>(ex => Observable.Return(ex));
+
+            public IObservable<WatchNotification> Watch =>
+                Observable.Create<WatchNotification>(observer =>
+                {
+                    observer.OnNext(WatchNotification.Subscribe);
+                    var notificationObserver = Observer.Create<T>(
+                        value => observer.OnNext(WatchNotification.OnNext),
+                        error =>
+                        {
+                            observer.OnNext(WatchNotification.OnError);
+                            observer.OnNext(WatchNotification.Unsubscribe);
+                        },
+                        () =>
+                        {
+                            if (!IsCanceled)
+                                observer.OnNext(WatchNotification.OnCompleted);
+                            observer.OnNext(WatchNotification.Unsubscribe);
+                        });
+                    return Subject.SubscribeSafe(notificationObserver);
+                });
         }
 
         class VisualizerMappingList
