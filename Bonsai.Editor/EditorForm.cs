@@ -1355,10 +1355,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                statusStrip.ContextMenuStrip = null;
-                statusTextLabel.Text = Resources.ReadyStatus;
-                statusImageLabel.Image = Resources.StatusReadyImage;
-                explorerTreeView.SetNodeStatus(ExplorerNodeStatus.Ready);
+                ClearExceptionBuilderNode(workflowError);
             }
 
             exceptionCache.Clear();
@@ -1373,6 +1370,18 @@ namespace Bonsai.Editor
             }
         }
 
+        void ClearExceptionBuilderNode(WorkflowException ex)
+        {
+            var workflowPath = WorkflowEditorPath.GetExceptionPath(workflowBuilder, ex);
+            var selectedView = selectionModel.SelectedView;
+            selectedView.ClearGraphNode(workflowPath);
+
+            statusStrip.ContextMenuStrip = null;
+            statusTextLabel.Text = Resources.ReadyStatus;
+            statusImageLabel.Image = Resources.StatusReadyImage;
+            explorerTreeView.SetNodeStatus(ExplorerNodeStatus.Ready);
+        }
+
         void HighlightExceptionBuilderNode(WorkflowException ex, bool showMessageBox)
         {
             var workflowPath = WorkflowEditorPath.GetExceptionPath(workflowBuilder, ex);
@@ -1381,13 +1390,13 @@ namespace Bonsai.Editor
             selectedView.HighlightGraphNode(workflowPath, showMessageBox);
 
             var buildException = ex is WorkflowBuildException;
-            var errorCaption = buildException ? Resources.BuildError_Caption : Resources.RuntimeError_Caption;
             statusTextLabel.Text = ex.Message;
             statusStrip.ContextMenuStrip = statusContextMenuStrip;
             statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
             explorerTreeView.SetNodeStatus(pathElements, ExplorerNodeStatus.Blocked);
             if (showMessageBox)
             {
+                var errorCaption = buildException ? Resources.BuildError_Caption : Resources.RuntimeError_Caption;
                 editorSite.ShowError(ex.Message, errorCaption);
             }
         }
