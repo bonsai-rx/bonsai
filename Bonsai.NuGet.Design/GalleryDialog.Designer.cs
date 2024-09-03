@@ -42,13 +42,12 @@
             this.packageIcons = new System.Windows.Forms.ImageList(this.components);
             this.detailsLayoutPanel = new Bonsai.NuGet.Design.TableLayoutPanel();
             this.searchLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.sortLabel = new System.Windows.Forms.Label();
-            this.packageSourceComboBox = new System.Windows.Forms.ComboBox();
             this.settingsButton = new System.Windows.Forms.Button();
+            this.packageSourceComboBox = new System.Windows.Forms.ComboBox();
+            this.sortLabel = new System.Windows.Forms.Label();
             this.packageDetails = new Bonsai.NuGet.Design.PackageDetails();
             this.closePanel = new System.Windows.Forms.Panel();
             this.closeButton = new System.Windows.Forms.Button();
-            this.settingsPanel = new System.Windows.Forms.Panel();
             this.saveFolderDialog = new Bonsai.NuGet.Design.SaveFolderDialog();
             this.mainLayoutPanel.SuspendLayout();
             this.packageViewLayoutPanel.SuspendLayout();
@@ -68,14 +67,13 @@
             this.mainLayoutPanel.Controls.Add(this.packageViewLayoutPanel, 0, 0);
             this.mainLayoutPanel.Controls.Add(this.detailsLayoutPanel, 1, 0);
             this.mainLayoutPanel.Controls.Add(this.closePanel, 1, 1);
-            this.mainLayoutPanel.Controls.Add(this.settingsPanel, 0, 1);
             this.mainLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.mainLayoutPanel.Name = "mainLayoutPanel";
             this.mainLayoutPanel.RowCount = 2;
             this.mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.mainLayoutPanel.Size = new System.Drawing.Size(864, 546);
+            this.mainLayoutPanel.Size = new System.Drawing.Size(944, 546);
             this.mainLayoutPanel.TabIndex = 0;
             // 
             // packageViewLayoutPanel
@@ -89,11 +87,12 @@
             this.packageViewLayoutPanel.Location = new System.Drawing.Point(3, 3);
             this.packageViewLayoutPanel.Name = "packageViewLayoutPanel";
             this.packageViewLayoutPanel.RowCount = 3;
+            this.mainLayoutPanel.SetRowSpan(this.packageViewLayoutPanel, 2);
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.packageViewLayoutPanel.Size = new System.Drawing.Size(558, 490);
-            this.packageViewLayoutPanel.TabIndex = 2;
+            this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.packageViewLayoutPanel.Size = new System.Drawing.Size(638, 540);
+            this.packageViewLayoutPanel.TabIndex = 0;
             // 
             // filterLayoutPanel
             // 
@@ -103,8 +102,8 @@
             this.filterLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.filterLayoutPanel.Location = new System.Drawing.Point(3, 3);
             this.filterLayoutPanel.Name = "filterLayoutPanel";
-            this.filterLayoutPanel.Size = new System.Drawing.Size(552, 24);
-            this.filterLayoutPanel.TabIndex = 1;
+            this.filterLayoutPanel.Size = new System.Drawing.Size(632, 24);
+            this.filterLayoutPanel.TabIndex = 0;
             // 
             // searchComboBox
             // 
@@ -126,8 +125,7 @@
             this.refreshButton.Margin = new System.Windows.Forms.Padding(2);
             this.refreshButton.Name = "refreshButton";
             this.refreshButton.Size = new System.Drawing.Size(18, 19);
-            this.refreshButton.TabIndex = 5;
-            this.refreshButton.TabStop = false;
+            this.refreshButton.TabIndex = 1;
             this.refreshButton.UseVisualStyleBackColor = true;
             this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
             // 
@@ -138,7 +136,7 @@
             this.prereleaseCheckBox.Margin = new System.Windows.Forms.Padding(2, 5, 2, 2);
             this.prereleaseCheckBox.Name = "prereleaseCheckBox";
             this.prereleaseCheckBox.Size = new System.Drawing.Size(113, 17);
-            this.prereleaseCheckBox.TabIndex = 3;
+            this.prereleaseCheckBox.TabIndex = 2;
             this.prereleaseCheckBox.Text = "Include prerelease";
             this.prereleaseCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -146,21 +144,19 @@
             // 
             this.pageSelectorPanel.Controls.Add(this.packagePageSelector);
             this.pageSelectorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 453);
+            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 497);
             this.pageSelectorPanel.Name = "pageSelectorPanel";
-            this.pageSelectorPanel.Size = new System.Drawing.Size(552, 34);
-            this.pageSelectorPanel.TabIndex = 2;
+            this.pageSelectorPanel.Size = new System.Drawing.Size(632, 40);
+            this.pageSelectorPanel.TabIndex = 1;
             // 
             // packagePageSelector
             // 
-            this.packagePageSelector.AutoSize = true;
-            this.packagePageSelector.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packagePageSelector.Location = new System.Drawing.Point(0, 0);
+            this.packagePageSelector.Location = new System.Drawing.Point(219, 7);
             this.packagePageSelector.Margin = new System.Windows.Forms.Padding(4);
             this.packagePageSelector.Name = "packagePageSelector";
             this.packagePageSelector.SelectedPage = 0;
             this.packagePageSelector.ShowNext = false;
-            this.packagePageSelector.Size = new System.Drawing.Size(552, 34);
+            this.packagePageSelector.Size = new System.Drawing.Size(75, 27);
             this.packagePageSelector.TabIndex = 0;
             // 
             // packageViewPanel
@@ -175,8 +171,8 @@
             this.packageViewPanel.RowCount = 2;
             this.packageViewPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.packageViewPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.packageViewPanel.Size = new System.Drawing.Size(552, 414);
-            this.packageViewPanel.TabIndex = 3;
+            this.packageViewPanel.Size = new System.Drawing.Size(632, 458);
+            this.packageViewPanel.TabIndex = 2;
             // 
             // packageView
             // 
@@ -195,8 +191,8 @@
             this.packageView.SelectedImageIndex = 0;
             this.packageView.ShowLines = false;
             this.packageView.ShowRootLines = false;
-            this.packageView.Size = new System.Drawing.Size(546, 408);
-            this.packageView.TabIndex = 1;
+            this.packageView.Size = new System.Drawing.Size(626, 452);
+            this.packageView.TabIndex = 0;
             this.packageView.OperationClick += new Bonsai.NuGet.Design.PackageViewEventHandler(this.packageView_OperationClick);
             // 
             // packageIcons
@@ -212,13 +208,14 @@
             this.detailsLayoutPanel.Controls.Add(this.searchLayoutPanel, 0, 0);
             this.detailsLayoutPanel.Controls.Add(this.packageDetails, 0, 1);
             this.detailsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailsLayoutPanel.Location = new System.Drawing.Point(567, 3);
+            this.detailsLayoutPanel.Location = new System.Drawing.Point(647, 3);
             this.detailsLayoutPanel.Name = "detailsLayoutPanel";
             this.detailsLayoutPanel.RowCount = 2;
             this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.detailsLayoutPanel.Size = new System.Drawing.Size(294, 490);
-            this.detailsLayoutPanel.TabIndex = 3;
+            this.detailsLayoutPanel.TabIndex = 1;
             // 
             // searchLayoutPanel
             // 
@@ -232,25 +229,6 @@
             this.searchLayoutPanel.Size = new System.Drawing.Size(288, 24);
             this.searchLayoutPanel.TabIndex = 0;
             // 
-            // sortLabel
-            // 
-            this.sortLabel.Location = new System.Drawing.Point(53, 0);
-            this.sortLabel.Name = "sortLabel";
-            this.sortLabel.Size = new System.Drawing.Size(90, 22);
-            this.sortLabel.TabIndex = 1;
-            this.sortLabel.Text = "Package source:";
-            this.sortLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // packageSourceComboBox
-            // 
-            this.packageSourceComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.packageSourceComboBox.FormattingEnabled = true;
-            this.packageSourceComboBox.Location = new System.Drawing.Point(149, 3);
-            this.packageSourceComboBox.Name = "packageSourceComboBox";
-            this.packageSourceComboBox.Size = new System.Drawing.Size(114, 21);
-            this.packageSourceComboBox.TabIndex = 0;
-            this.packageSourceComboBox.SelectedIndexChanged += new System.EventHandler(this.refreshButton_Click);
-            // 
             // settingsButton
             // 
             this.settingsButton.FlatAppearance.BorderSize = 0;
@@ -260,9 +238,28 @@
             this.settingsButton.Margin = new System.Windows.Forms.Padding(2);
             this.settingsButton.Name = "settingsButton";
             this.settingsButton.Size = new System.Drawing.Size(18, 19);
-            this.settingsButton.TabIndex = 5;
+            this.settingsButton.TabIndex = 2;
             this.settingsButton.UseVisualStyleBackColor = true;
             this.settingsButton.Click += new System.EventHandler(this.settingsButton_Click);
+            // 
+            // packageSourceComboBox
+            // 
+            this.packageSourceComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.packageSourceComboBox.FormattingEnabled = true;
+            this.packageSourceComboBox.Location = new System.Drawing.Point(149, 3);
+            this.packageSourceComboBox.Name = "packageSourceComboBox";
+            this.packageSourceComboBox.Size = new System.Drawing.Size(114, 21);
+            this.packageSourceComboBox.TabIndex = 1;
+            this.packageSourceComboBox.SelectedIndexChanged += new System.EventHandler(this.refreshButton_Click);
+            // 
+            // sortLabel
+            // 
+            this.sortLabel.Location = new System.Drawing.Point(53, 0);
+            this.sortLabel.Name = "sortLabel";
+            this.sortLabel.Size = new System.Drawing.Size(90, 22);
+            this.sortLabel.TabIndex = 0;
+            this.sortLabel.Text = "Package source:";
+            this.sortLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // packageDetails
             // 
@@ -279,14 +276,14 @@
             // 
             this.closePanel.Controls.Add(this.closeButton);
             this.closePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.closePanel.Location = new System.Drawing.Point(567, 499);
+            this.closePanel.Location = new System.Drawing.Point(647, 499);
             this.closePanel.Name = "closePanel";
             this.closePanel.Size = new System.Drawing.Size(294, 44);
-            this.closePanel.TabIndex = 5;
+            this.closePanel.TabIndex = 2;
             // 
             // closeButton
             // 
-            this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.closeButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.closeButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.closeButton.Location = new System.Drawing.Point(210, 12);
             this.closeButton.Name = "closeButton";
@@ -295,14 +292,6 @@
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = true;
             this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
-            // 
-            // settingsPanel
-            // 
-            this.settingsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.settingsPanel.Location = new System.Drawing.Point(3, 499);
-            this.settingsPanel.Name = "settingsPanel";
-            this.settingsPanel.Size = new System.Drawing.Size(558, 44);
-            this.settingsPanel.TabIndex = 6;
             // 
             // saveFolderDialog
             // 
@@ -313,7 +302,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.closeButton;
-            this.ClientSize = new System.Drawing.Size(864, 546);
+            this.ClientSize = new System.Drawing.Size(944, 546);
             this.Controls.Add(this.mainLayoutPanel);
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(850, 583);
@@ -326,7 +315,6 @@
             this.filterLayoutPanel.ResumeLayout(false);
             this.filterLayoutPanel.PerformLayout();
             this.pageSelectorPanel.ResumeLayout(false);
-            this.pageSelectorPanel.PerformLayout();
             this.packageViewPanel.ResumeLayout(false);
             this.detailsLayoutPanel.ResumeLayout(false);
             this.searchLayoutPanel.ResumeLayout(false);
@@ -353,7 +341,6 @@
         private System.Windows.Forms.Button closeButton;
         private Bonsai.NuGet.Design.TableLayoutPanel packageViewPanel;
         private PackageView packageView;
-        private System.Windows.Forms.Panel settingsPanel;
         private SaveFolderDialog saveFolderDialog;
         private System.Windows.Forms.CheckBox prereleaseCheckBox;
         private System.Windows.Forms.Button settingsButton;
