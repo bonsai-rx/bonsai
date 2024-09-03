@@ -35,6 +35,9 @@ namespace Bonsai.Shaders
             this.textures = new TextureArray(textures);
         }
 
+        /// <summary>
+        /// Gets the <see cref="TextureArray"/> associated with this texture sequence.
+        /// </summary>
         public TextureArray Textures
         {
             get { return textures; }
