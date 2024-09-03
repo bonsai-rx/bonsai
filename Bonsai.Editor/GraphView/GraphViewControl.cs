@@ -1172,8 +1172,9 @@ namespace Bonsai.Editor.GraphView
                 var outputPortRectangle = layout.OutputPortRectangle;
                 var outputPortBrush = nodeStatus switch
                 {
-                    Diagnostics.WorkflowElementStatus.Completed => Brushes.Green,
+                    Diagnostics.WorkflowElementStatus.Completed => Brushes.LimeGreen,
                     Diagnostics.WorkflowElementStatus.Error => Brushes.Red,
+                    Diagnostics.WorkflowElementStatus.Canceled => Brushes.Orange,
                     _ => Brushes.White
                 };
                 outputPortRectangle.Offset(offset.Width, offset.Height);
@@ -1181,7 +1182,8 @@ namespace Bonsai.Editor.GraphView
                 var active = nodeStatus == Diagnostics.WorkflowElementStatus.Active ||
                              nodeStatus == Diagnostics.WorkflowElementStatus.Notifying;
                 var terminated = nodeStatus == Diagnostics.WorkflowElementStatus.Completed ||
-                                 nodeStatus == Diagnostics.WorkflowElementStatus.Error;
+                                 nodeStatus == Diagnostics.WorkflowElementStatus.Error ||
+                                 nodeStatus == Diagnostics.WorkflowElementStatus.Canceled;
                 var edgeColor = active || terminated ? CursorColor : NodeEdgeColor;
 
                 graphics.DrawEllipse(iconRendererState.StrokeStyle(edgeColor, PenWidth), outputPortRectangle);
