@@ -125,7 +125,7 @@
             this.packageIdPanel.Margin = new System.Windows.Forms.Padding(0);
             this.packageIdPanel.Name = "packageIdPanel";
             this.packageIdPanel.Size = new System.Drawing.Size(88, 24);
-            this.packageIdPanel.TabIndex = 20;
+            this.packageIdPanel.TabIndex = 0;
             // 
             // packageIdLabel
             // 
@@ -138,7 +138,7 @@
             this.packageIdLabel.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.packageIdLabel.Name = "packageIdLabel";
             this.packageIdLabel.Size = new System.Drawing.Size(66, 18);
-            this.packageIdLabel.TabIndex = 12;
+            this.packageIdLabel.TabIndex = 0;
             this.packageIdLabel.Text = "Package";
             this.packageIdLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -165,7 +165,7 @@
             this.installedVersionLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.installedVersionLayoutPanel.Name = "installedVersionLayoutPanel";
             this.installedVersionLayoutPanel.Size = new System.Drawing.Size(171, 49);
-            this.installedVersionLayoutPanel.TabIndex = 3;
+            this.installedVersionLayoutPanel.TabIndex = 1;
             // 
             // installedHeader
             // 
@@ -185,7 +185,7 @@
             this.installedVersionTextBox.Name = "installedVersionTextBox";
             this.installedVersionTextBox.ReadOnly = true;
             this.installedVersionTextBox.Size = new System.Drawing.Size(100, 20);
-            this.installedVersionTextBox.TabIndex = 3;
+            this.installedVersionTextBox.TabIndex = 1;
             // 
             // uninstallButton
             // 
@@ -194,7 +194,7 @@
             this.uninstallButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.uninstallButton.Name = "uninstallButton";
             this.uninstallButton.Size = new System.Drawing.Size(100, 23);
-            this.uninstallButton.TabIndex = 0;
+            this.uninstallButton.TabIndex = 2;
             this.uninstallButton.Text = "Uninstall";
             this.uninstallButton.UseVisualStyleBackColor = true;
             this.uninstallButton.Click += new System.EventHandler(this.uninstallButton_Click);
@@ -228,7 +228,7 @@
             this.versionComboBox.Location = new System.Drawing.Point(70, 3);
             this.versionComboBox.Name = "versionComboBox";
             this.versionComboBox.Size = new System.Drawing.Size(100, 21);
-            this.versionComboBox.TabIndex = 2;
+            this.versionComboBox.TabIndex = 1;
             this.versionComboBox.SelectedIndexChanged += new System.EventHandler(this.versionComboBox_SelectedIndexChanged);
             this.versionComboBox.TextChanged += new System.EventHandler(this.versionComboBox_TextChanged);
             // 
@@ -239,7 +239,7 @@
             this.operationButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.operationButton.Name = "operationButton";
             this.operationButton.Size = new System.Drawing.Size(100, 23);
-            this.operationButton.TabIndex = 0;
+            this.operationButton.TabIndex = 2;
             this.operationButton.Text = "Operation";
             this.operationButton.UseVisualStyleBackColor = true;
             this.operationButton.Click += new System.EventHandler(this.operationButton_Click);
@@ -253,7 +253,7 @@
             this.deprecationMetadataPanel.Location = new System.Drawing.Point(3, 132);
             this.deprecationMetadataPanel.Name = "deprecationMetadataPanel";
             this.deprecationMetadataPanel.Size = new System.Drawing.Size(96, 36);
-            this.deprecationMetadataPanel.TabIndex = 15;
+            this.deprecationMetadataPanel.TabIndex = 3;
             // 
             // warningImageLabel
             // 
@@ -266,7 +266,7 @@
             this.warningImageLabel.Margin = new System.Windows.Forms.Padding(3);
             this.warningImageLabel.Name = "warningImageLabel";
             this.warningImageLabel.Size = new System.Drawing.Size(90, 17);
-            this.warningImageLabel.TabIndex = 11;
+            this.warningImageLabel.TabIndex = 0;
             this.warningImageLabel.Text = "Deprecated";
             this.warningImageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -276,7 +276,7 @@
             this.deprecationMetadataLabel.Location = new System.Drawing.Point(3, 23);
             this.deprecationMetadataLabel.Name = "deprecationMetadataLabel";
             this.deprecationMetadataLabel.Size = new System.Drawing.Size(84, 13);
-            this.deprecationMetadataLabel.TabIndex = 8;
+            this.deprecationMetadataLabel.TabIndex = 1;
             this.deprecationMetadataLabel.Text = "deprecationText";
             // 
             // alternatePackagePanel
@@ -288,7 +288,7 @@
             this.alternatePackagePanel.Location = new System.Drawing.Point(3, 174);
             this.alternatePackagePanel.Name = "alternatePackagePanel";
             this.alternatePackagePanel.Size = new System.Drawing.Size(117, 38);
-            this.alternatePackagePanel.TabIndex = 19;
+            this.alternatePackagePanel.TabIndex = 4;
             // 
             // alternatePackageHeader
             // 
@@ -298,7 +298,7 @@
             this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3);
             this.alternatePackageHeader.Name = "alternatePackageHeader";
             this.alternatePackageHeader.Size = new System.Drawing.Size(111, 13);
-            this.alternatePackageHeader.TabIndex = 7;
+            this.alternatePackageHeader.TabIndex = 0;
             this.alternatePackageHeader.Text = "Alternate package";
             // 
             // alternatePackageLinkLabel
@@ -310,7 +310,7 @@
             this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3);
             this.alternatePackageLinkLabel.Name = "alternatePackageLinkLabel";
             this.alternatePackageLinkLabel.Size = new System.Drawing.Size(100, 13);
-            this.alternatePackageLinkLabel.TabIndex = 6;
+            this.alternatePackageLinkLabel.TabIndex = 1;
             this.alternatePackageLinkLabel.TabStop = true;
             this.alternatePackageLinkLabel.Text = "alternatePackageId";
             this.alternatePackageLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.alternatePackageLinkLabel_LinkClicked);
@@ -326,7 +326,7 @@
             this.descriptionLayoutPanel.Location = new System.Drawing.Point(3, 218);
             this.descriptionLayoutPanel.Name = "descriptionLayoutPanel";
             this.descriptionLayoutPanel.Size = new System.Drawing.Size(85, 32);
-            this.descriptionLayoutPanel.TabIndex = 10;
+            this.descriptionLayoutPanel.TabIndex = 5;
             // 
             // descriptionHeader
             // 
@@ -336,7 +336,7 @@
             this.descriptionHeader.Margin = new System.Windows.Forms.Padding(3);
             this.descriptionHeader.Name = "descriptionHeader";
             this.descriptionHeader.Size = new System.Drawing.Size(71, 13);
-            this.descriptionHeader.TabIndex = 7;
+            this.descriptionHeader.TabIndex = 0;
             this.descriptionHeader.Text = "Description";
             // 
             // descriptionLabel
@@ -345,7 +345,7 @@
             this.descriptionLabel.Location = new System.Drawing.Point(3, 19);
             this.descriptionLabel.Name = "descriptionLabel";
             this.descriptionLabel.Size = new System.Drawing.Size(79, 13);
-            this.descriptionLabel.TabIndex = 8;
+            this.descriptionLabel.TabIndex = 1;
             this.descriptionLabel.Text = "descriptionText";
             // 
             // createdByLayoutPanel
@@ -356,7 +356,7 @@
             this.createdByLayoutPanel.Location = new System.Drawing.Point(3, 256);
             this.createdByLayoutPanel.Name = "createdByLayoutPanel";
             this.createdByLayoutPanel.Size = new System.Drawing.Size(160, 13);
-            this.createdByLayoutPanel.TabIndex = 0;
+            this.createdByLayoutPanel.TabIndex = 6;
             // 
             // createdByHeader
             // 
@@ -385,7 +385,7 @@
             this.lastPublishedLayoutPanel.Location = new System.Drawing.Point(3, 275);
             this.lastPublishedLayoutPanel.Name = "lastPublishedLayoutPanel";
             this.lastPublishedLayoutPanel.Size = new System.Drawing.Size(196, 13);
-            this.lastPublishedLayoutPanel.TabIndex = 3;
+            this.lastPublishedLayoutPanel.TabIndex = 7;
             // 
             // lastPublishedHeader
             // 
@@ -414,7 +414,7 @@
             this.downloadsLayoutPanel.Location = new System.Drawing.Point(3, 294);
             this.downloadsLayoutPanel.Name = "downloadsLayoutPanel";
             this.downloadsLayoutPanel.Size = new System.Drawing.Size(166, 13);
-            this.downloadsLayoutPanel.TabIndex = 11;
+            this.downloadsLayoutPanel.TabIndex = 8;
             // 
             // downloadsHeader
             // 
@@ -446,7 +446,7 @@
             this.detailsLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.detailsLinkLabel.Name = "detailsLinkLabel";
             this.detailsLinkLabel.Size = new System.Drawing.Size(102, 17);
-            this.detailsLinkLabel.TabIndex = 18;
+            this.detailsLinkLabel.TabIndex = 9;
             this.detailsLinkLabel.TabStop = true;
             this.detailsLinkLabel.Text = "Package Details";
             this.detailsLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -462,7 +462,7 @@
             this.projectLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.projectLinkLabel.Name = "projectLinkLabel";
             this.projectLinkLabel.Size = new System.Drawing.Size(99, 17);
-            this.projectLinkLabel.TabIndex = 16;
+            this.projectLinkLabel.TabIndex = 10;
             this.projectLinkLabel.TabStop = true;
             this.projectLinkLabel.Text = "Project Website";
             this.projectLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -481,7 +481,7 @@
             this.licenseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.licenseLinkLabel.Name = "licenseLinkLabel";
             this.licenseLinkLabel.Size = new System.Drawing.Size(82, 17);
-            this.licenseLinkLabel.TabIndex = 17;
+            this.licenseLinkLabel.TabIndex = 11;
             this.licenseLinkLabel.TabStop = true;
             this.licenseLinkLabel.Text = "License Info";
             this.licenseLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -498,7 +498,7 @@
             this.reportAbuseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.reportAbuseLinkLabel.Name = "reportAbuseLinkLabel";
             this.reportAbuseLinkLabel.Size = new System.Drawing.Size(72, 13);
-            this.reportAbuseLinkLabel.TabIndex = 6;
+            this.reportAbuseLinkLabel.TabIndex = 12;
             this.reportAbuseLinkLabel.TabStop = true;
             this.reportAbuseLinkLabel.Text = "Report Abuse";
             this.reportAbuseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
@@ -513,7 +513,7 @@
             this.tagsLayoutPanel.Location = new System.Drawing.Point(3, 383);
             this.tagsLayoutPanel.Name = "tagsLayoutPanel";
             this.tagsLayoutPanel.Size = new System.Drawing.Size(99, 13);
-            this.tagsLayoutPanel.TabIndex = 9;
+            this.tagsLayoutPanel.TabIndex = 13;
             // 
             // tagsHeader
             // 
@@ -541,7 +541,7 @@
             this.dependenciesHeaderLayoutPanel.Location = new System.Drawing.Point(3, 402);
             this.dependenciesHeaderLayoutPanel.Name = "dependenciesHeaderLayoutPanel";
             this.dependenciesHeaderLayoutPanel.Size = new System.Drawing.Size(94, 13);
-            this.dependenciesHeaderLayoutPanel.TabIndex = 12;
+            this.dependenciesHeaderLayoutPanel.TabIndex = 14;
             // 
             // dependenciesHeader
             // 
@@ -560,7 +560,7 @@
             this.dependenciesLayoutPanel.Location = new System.Drawing.Point(3, 421);
             this.dependenciesLayoutPanel.Name = "dependenciesLayoutPanel";
             this.dependenciesLayoutPanel.Size = new System.Drawing.Size(188, 26);
-            this.dependenciesLayoutPanel.TabIndex = 13;
+            this.dependenciesLayoutPanel.TabIndex = 15;
             // 
             // dependenciesTextBox
             // 
@@ -575,6 +575,7 @@
             this.dependenciesTextBox.Name = "dependenciesTextBox";
             this.dependenciesTextBox.Size = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.TabIndex = 0;
+            this.dependenciesTextBox.TabStop = false;
             this.dependenciesTextBox.TextChanged += new System.EventHandler(this.dependenciesTextBox_TextChanged);
             // 
             // dependencyWarningLabel
@@ -584,7 +585,7 @@
             this.dependencyWarningLabel.Location = new System.Drawing.Point(3, 450);
             this.dependencyWarningLabel.Name = "dependencyWarningLabel";
             this.dependencyWarningLabel.Size = new System.Drawing.Size(0, 13);
-            this.dependencyWarningLabel.TabIndex = 14;
+            this.dependencyWarningLabel.TabIndex = 16;
             // 
             // PackageDetails
             // 
