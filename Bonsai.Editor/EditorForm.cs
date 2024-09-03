@@ -1210,6 +1210,7 @@ namespace Bonsai.Editor
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 pasteToolStripMenuItem.Enabled = true;
+                watchToolStripMenuItem.Enabled = true;
                 startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
                 stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
                 restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
@@ -1250,7 +1251,8 @@ namespace Bonsai.Editor
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         Invoke(() =>
                         {
-                            if (debug) workflowWatch.Start(workflowBuilder.Workflow);
+                            if (watchToolStripMenuItem.Checked)
+                                workflowWatch.Start(workflowBuilder.Workflow);
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
                             visualizerDialogs.Show(visualizerSettings, editorSite, this);
@@ -1277,6 +1279,7 @@ namespace Bonsai.Editor
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
             pasteToolStripMenuItem.Enabled = false;
+            watchToolStripMenuItem.Enabled = false;
             startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = false;
             stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
             restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
@@ -2169,6 +2172,15 @@ namespace Bonsai.Editor
             {
                 model.Editor.DisableGraphNodes(selectionModel.SelectedNodes);
             }
+        }
+
+        #endregion
+
+        #region Watch
+
+        private void watchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            workflowWatch.Enabled = watchToolStripMenuItem.Checked;
         }
 
         #endregion
