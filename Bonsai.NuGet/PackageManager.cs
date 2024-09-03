@@ -33,7 +33,7 @@ namespace Bonsai.NuGet
         {
             if (packageSourceProvider == null) throw new ArgumentNullException(nameof(packageSourceProvider));
             if (localRepository == null) throw new ArgumentNullException(nameof(localRepository));
-            SourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, Repository.Provider.GetCoreV3());
+            SourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, Search.Repository.Provider.GetCoreV3());
             PathResolver = pathResolver ?? new PackagePathResolver(localRepository.Source);
             LocalRepository = SourceRepositoryProvider.CreateRepository(localRepository);
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -59,7 +59,7 @@ namespace Bonsai.NuGet
 
         public PackageSaveMode PackageSaveMode { get; set; }
 
-        protected virtual bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
+        protected virtual bool AcceptLicenseAgreement(IEnumerable<RequiringLicenseAcceptancePackageInfo> licensePackages)
         {
             return true;
         }
@@ -198,7 +198,7 @@ namespace Bonsai.NuGet
                 var resolver = new PackageResolver();
                 var installOperations = resolver.Resolve(resolverContext, token);
                 var packagesToRemove = new List<PackageIdentity>();
-                var licensePackages = new List<IPackageSearchMetadata>();
+                var licensePackages = new List<RequiringLicenseAcceptancePackageInfo>();
                 var findLocalPackageResource = await LocalRepository.GetResourceAsync<FindPackageByIdResource>(token);
                 foreach (var identity in installOperations)
                 {
@@ -208,7 +208,11 @@ namespace Bonsai.NuGet
                         var packageInfo = sourcePackages[identity];
                         var packageMetadataResource = await packageInfo.Source.GetResourceAsync<PackageMetadataResource>(token);
                         var packageMetadata = await packageMetadataResource.GetMetadataAsync(identity, cacheContext, NullLogger.Instance, token);
-                        if (packageMetadata.RequireLicenseAcceptance) licensePackages.Add(packageMetadata);
+                        if (packageMetadata.RequireLicenseAcceptance)
+                        {
+                            licensePackages.Add(new RequiringLicenseAcceptancePackageInfo(packageMetadata, packageInfo.Source));
+                        }
+
                         try
                         {
                             var existingPackages = await findLocalPackageResource.GetAllVersionsAsync(identity.Id, cacheContext, NullLogger.Instance, token);
@@ -226,7 +230,8 @@ namespace Bonsai.NuGet
                 {
                     token.ThrowIfCancellationRequested();
                     var pluralSuffix = licensePackages.Count == 1 ? "s" : "";
-                    var message = $"Unable to install package '{package}' because '{string.Join(", ", licensePackages.Select(x => x.Identity))}' require{pluralSuffix} license acceptance.";
+                    var requiringPackages = string.Join(", ", licensePackages.Select(info => info.Package.Identity));
+                    var message = $"Unable to install package '{package}' because '{requiringPackages}' require{pluralSuffix} license acceptance.";
                     throw new InvalidOperationException(message);
                 }
 
