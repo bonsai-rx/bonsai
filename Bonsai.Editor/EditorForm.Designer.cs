@@ -72,6 +72,8 @@
             this.startWithoutDebuggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
+            this.watchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.packageManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -470,7 +472,9 @@
             this.startToolStripMenuItem,
             this.startWithoutDebuggingToolStripMenuItem,
             this.stopToolStripMenuItem,
-            this.restartToolStripMenuItem});
+            this.restartToolStripMenuItem,
+            this.toolStripSeparator11,
+            this.watchToolStripMenuItem});
             this.workflowToolStripMenuItem.Name = "workflowToolStripMenuItem";
             this.workflowToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
             this.workflowToolStripMenuItem.Text = "&Workflow";
@@ -517,6 +521,22 @@
             this.restartToolStripMenuItem.Text = "&Restart";
             this.restartToolStripMenuItem.Visible = false;
             this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator11
+            // 
+            this.toolStripSeparator11.Name = "toolStripSeparator11";
+            this.toolStripSeparator11.Size = new System.Drawing.Size(249, 6);
+            // 
+            // watchToolStripMenuItem
+            // 
+            this.watchToolStripMenuItem.Checked = true;
+            this.watchToolStripMenuItem.CheckOnClick = true;
+            this.watchToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.watchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
+            this.watchToolStripMenuItem.Name = "watchToolStripMenuItem";
+            this.watchToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
+            this.watchToolStripMenuItem.Text = "&Watch";
+            this.watchToolStripMenuItem.Click += new System.EventHandler(this.watchToolStripMenuItem_Click);
             // 
             // toolsToolStripMenuItem
             // 
@@ -1500,6 +1520,8 @@
         private System.Windows.Forms.ContextMenuStrip statusContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem statusCopyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolboxDocsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
+        private System.Windows.Forms.ToolStripMenuItem watchToolStripMenuItem;
     }
 }
 

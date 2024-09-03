@@ -341,4 +341,14 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="Editor_HelpLabel" xml:space="preserve">
     <value>Help</value>
   </data>
+  <data name="WatchMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7CAAAOwgEVKEqAAAAAv0lE
+        QVQ4T2MYRkBRUTEJiPeDMFQIBcDkQOqgQgggIyMjpKCgsElKSkoYKoQV4FQnLy+fBcJQLl6AoZZY22EA
+        Qz0ptsMAih6gaY+AAfMfC34AkgfRaOJgDNIHNgDI+SsnJyeJjpEV45D/BzYAaNILoHMMkCWB/ACg+FWo
+        BRdAfGR5ZWVlI6D4c5gB24A4HlkBkL8aqKkAakAOiI8sD5RLBIptgRmQB3ImMgaKvQKFNkgeqEEQxMei
+        Jg9swFAHDAwAKi9WPOw18+QAAAAASUVORK5CYII=
+</value>
+  </data>
 </root>
