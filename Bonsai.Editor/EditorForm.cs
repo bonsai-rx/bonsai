@@ -31,13 +31,9 @@ namespace Bonsai.Editor
     {
         const float DefaultEditorScale = 1.0f;
         const string EditorUid = "editor";
-        const string BonsaiExtension = ".bonsai";
         const string BonsaiPackageName = "Bonsai";
-        const string ExtensionsDirectory = "Extensions";
-        const string DefinitionsDirectory = "Definitions";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
-        const string DefaultWorkflowNamespace = "Unspecified";
         static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
         static readonly AttributeCollection RuntimeAttributes = AttributeCollection.FromExisting(DesignTimeAttributes, DesignOnlyAttribute.No);
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
@@ -167,7 +163,7 @@ namespace Bonsai.Editor
                 documentationProvider = (IDocumentationProvider)serviceProvider.GetService(typeof(IDocumentationProvider));
             }
 
-            definitionsPath = Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
+            definitionsPath = Project.GetDefinitionsTempPath();
             editorControl = new WorkflowEditorControl(editorSite);
             editorControl.Enter += new EventHandler(editorControl_Enter);
             editorControl.Workflow = workflowBuilder.Workflow;
@@ -290,7 +286,7 @@ namespace Bonsai.Editor
             var initialFileName = FileName;
             var validFileName =
                 !string.IsNullOrEmpty(initialFileName) &&
-                Path.GetExtension(initialFileName) == BonsaiExtension &&
+                Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
             var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
@@ -300,19 +296,8 @@ namespace Bonsai.Editor
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
 
-            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
-            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
-            if (!EditorSettings.IsRunningOnMono)
-            {
-                var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-                var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-                currentDirectoryRestricted |= currentDirectory == systemPath || currentDirectory == systemX86Path;
-            }
-
-            var workflowBaseDirectory = validFileName
-                ? Path.GetDirectoryName(initialFileName)
-                : (!currentDirectoryRestricted ? currentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
+            var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
             if (currentDirectoryRestricted)
             {
                 currentDirectory = workflowBaseDirectory;
@@ -321,7 +306,7 @@ namespace Bonsai.Editor
 
             directoryToolStripItem.Text = currentDirectory;
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = currentDirectory;
-            extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, ExtensionsDirectory));
+            extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, Project.ExtensionsDirectory));
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
@@ -520,7 +505,7 @@ namespace Bonsai.Editor
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
                 .Select(evt => workflowExtensions
-                    .Concat(FindWorkflows(ExtensionsDirectory))
+                    .Concat(Project.EnumerateExtensionWorkflows(extensionsPath.FullName))
                     .GroupBy(x => x.Namespace)
                     .ToList())
                 .ObserveOn(formScheduler)
@@ -558,57 +543,6 @@ namespace Bonsai.Editor
                 })
                 .IgnoreElements()
                 .Select(xs => Unit.Default);
-        }
-
-        static IEnumerable<WorkflowElementDescriptor> FindWorkflows(string basePath)
-        {
-            int basePathLength;
-            string[] workflowFiles;
-            if (!Path.IsPathRooted(basePath))
-            {
-                var currentDirectory = Environment.CurrentDirectory;
-                basePath = Path.Combine(currentDirectory, basePath);
-                basePathLength = currentDirectory.Length;
-            }
-            else basePathLength = basePath.Length;
-
-            try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
-            catch (UnauthorizedAccessException) { yield break; }
-            catch (DirectoryNotFoundException) { yield break; }
-
-            foreach (var fileName in workflowFiles)
-            {
-                var description = string.Empty;
-                try
-                {
-                    using (var reader = XmlReader.Create(fileName, new XmlReaderSettings { IgnoreWhitespace = true }))
-                    {
-                        reader.ReadStartElement(typeof(WorkflowBuilder).Name);
-                        if (reader.Name == nameof(WorkflowBuilder.Description))
-                        {
-                            reader.ReadStartElement();
-                            description = reader.Value;
-                        }
-                    }
-                }
-                catch (SystemException) { continue; }
-                
-                var relativePath = fileName.Substring(basePathLength)
-                                           .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                var fileNamespace = Path.GetDirectoryName(relativePath)
-                                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                        .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
-                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
-
-                yield return new WorkflowElementDescriptor
-                {
-                    Name = Path.GetFileNameWithoutExtension(relativePath),
-                    Namespace = fileNamespace,
-                    FullyQualifiedName = relativePath,
-                    Description = description,
-                    ElementTypes = new[] { ~ElementCategory.Workflow }
-                };
-            }
         }
 
         IObservable<Unit> InitializeTypeVisualizers()
@@ -657,7 +591,7 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
-            if (packageKey == null) return ExtensionsDirectory;
+            if (packageKey == null) return Project.ExtensionsDirectory;
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
@@ -855,6 +789,7 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
 
+#pragma warning disable CS0612 // Support for deprecated layout config files
             var layoutPath = LayoutHelper.GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
             {
@@ -864,6 +799,7 @@ namespace Bonsai.Editor
                     catch (InvalidOperationException) { }
                 }
             }
+#pragma warning restore CS0612 // Support for deprecated layout config files
 
             saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
@@ -917,8 +853,17 @@ namespace Bonsai.Editor
             editorControl.UpdateVisualizerLayout();
             if (editorControl.VisualizerLayout != null)
             {
-                var layoutPath = LayoutHelper.GetLayoutPath(fileName);
-                SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
+                var layoutPath = new FileInfo(Project.GetLayoutConfigPath(fileName));
+                layoutPath.Directory?.Create();
+
+                SaveVisualizerLayout(layoutPath.FullName, editorControl.VisualizerLayout);
+#pragma warning disable CS0612 // Support for deprecated layout config files
+                var legacyLayoutPath = new FileInfo(Project.GetLegacyLayoutConfigPath(fileName));
+                if (legacyLayoutPath.Exists)
+                {
+                    legacyLayoutPath.Delete();
+                }
+#pragma warning restore CS0612 // Support for deprecated layout config files
             }
 
             UpdateWorkflowDirectory(fileName);
@@ -2303,7 +2248,7 @@ namespace Bonsai.Editor
             {
                 const char AssemblySeparator = ':';
                 var separatorIndex = path.IndexOf(AssemblySeparator);
-                if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(BonsaiExtension))
+                if (separatorIndex >= 0 && !Path.IsPathRooted(path) && path.EndsWith(Project.BonsaiExtension))
                 {
                     path = Path.ChangeExtension(path, null);
                     var nameElements = path.Split(new[] { AssemblySeparator }, 2);
@@ -2811,7 +2756,7 @@ namespace Bonsai.Editor
                         extension = provider.FileExtension;
                     }
 
-                    var directory = Directory.CreateDirectory(Path.Combine(siteForm.definitionsPath, DefinitionsDirectory));
+                    var directory = Directory.CreateDirectory(Path.Combine(siteForm.definitionsPath, Project.DefinitionsDirectory));
                     var sourceFile = Path.Combine(directory.FullName, type.FullName + "." + extension);
                     File.WriteAllText(sourceFile, source);
                     ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, sourceFile);
