@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -33,30 +32,6 @@ namespace Bonsai.Design
                 : Editor.Project.GetLegacyLayoutConfigPath(fileName);
         }
 
-        public static void SetLayoutTags(ExpressionBuilderGraph source, VisualizerLayout layout)
-        {
-            foreach (var node in source)
-            {
-                var builder = node.Value;
-                var layoutSettings = layout.GetLayoutSettings(builder);
-                if (layoutSettings == null)
-                {
-                    layoutSettings = new VisualizerDialogSettings();
-                    layout.DialogSettings.Add(layoutSettings);
-                }
-                layoutSettings.Tag = builder;
-
-                if (layoutSettings is WorkflowEditorSettings editorSettings &&
-                    ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
-                    editorSettings.EditorVisualizerLayout != null &&
-                    editorSettings.EditorDialogSettings.Visible &&
-                    workflowBuilder.Workflow != null)
-                {
-                    SetLayoutTags(workflowBuilder.Workflow, editorSettings.EditorVisualizerLayout);
-                }
-            }
-        }
-
         public static void SetWorkflowNotifications(ExpressionBuilderGraph source, bool publishNotifications)
         {
             foreach (var builder in from node in source
@@ -73,41 +48,15 @@ namespace Bonsai.Design
             }
         }
 
-        public static void SetLayoutNotifications(VisualizerLayout root)
+        public static void SetLayoutNotifications(ExpressionBuilderGraph source, VisualizerDialogMap lookup)
         {
-            foreach (var settings in root.DialogSettings)
+            foreach (var builder in source.Descendants())
             {
-                SetLayoutNotifications(settings, root, forcePublish: false);
-            }
-        }
-
-        static void SetLayoutNotifications(VisualizerDialogSettings settings, VisualizerLayout root, bool forcePublish = false)
-        {
-            var inspectBuilder = settings.Tag as InspectBuilder;
-            while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
-            {
-                if (string.IsNullOrEmpty(settings.VisualizerTypeName) && !forcePublish)
+                var inspectBuilder = (InspectBuilder)builder;
+                if (lookup.TryGetValue((InspectBuilder)builder, out VisualizerDialogLauncher _))
                 {
-                    break;
+                    SetVisualizerNotifications(inspectBuilder);
                 }
-
-                SetVisualizerNotifications(inspectBuilder);
-                foreach (var index in settings.Mashups.Concat(settings.VisualizerSettings?
-                                                      .Descendants(MashupSourceElement)
-                                                      .Select(m => int.Parse(m.Value))
-                                                      .Distinct() ?? Enumerable.Empty<int>()))
-                {
-                    if (index < 0 || index >= root.DialogSettings.Count) continue;
-                    var mashupSource = root.DialogSettings[index];
-                    SetLayoutNotifications(mashupSource, root, forcePublish: true);
-                }
-
-                inspectBuilder = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-            }
-
-            if (settings is WorkflowEditorSettings editorSettings && editorSettings.EditorVisualizerLayout != null)
-            {
-                SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
             }
         }
 
@@ -117,18 +66,6 @@ namespace Bonsai.Design
             foreach (var visualizerMapping in ExpressionBuilder.GetVisualizerMappings(inspectBuilder))
             {
                 SetVisualizerNotifications(visualizerMapping.Source);
-            }
-        }
-
-        static IEnumerable<VisualizerFactory> GetMashupSources(this VisualizerFactory visualizerFactory)
-        {
-            yield return visualizerFactory;
-            foreach (var source in visualizerFactory.MashupSources)
-            {
-                foreach (var nestedSource in source.GetMashupSources())
-                {
-                    yield return nestedSource;
-                }
             }
         }
 
@@ -156,11 +93,9 @@ namespace Bonsai.Design
 
         public static VisualizerDialogLauncher CreateVisualizerLauncher(
             InspectBuilder source,
-            VisualizerLayout visualizerLayout,
+            VisualizerDialogSettings layoutSettings,
             TypeVisualizerMap typeVisualizerMap,
-            ExpressionBuilderGraph workflow,
-            IReadOnlyList<VisualizerFactory> mashupArguments,
-            Editor.GraphView.WorkflowGraphView workflowGraphView = null)
+            ExpressionBuilderGraph workflow)
         {
             var inspectBuilder = ExpressionBuilder.GetVisualizerElement(source);
             if (inspectBuilder.ObservableType == null || !inspectBuilder.PublishNotifications ||
@@ -169,23 +104,23 @@ namespace Bonsai.Design
                 return null;
             }
 
-            var layoutSettings = visualizerLayout.GetLayoutSettings(source);
-            var visualizerType = typeVisualizerMap.GetVisualizerType(layoutSettings?.VisualizerTypeName ?? string.Empty)
-                                 ?? typeVisualizerMap.GetTypeVisualizers(inspectBuilder).FirstOrDefault();
-            if (visualizerType == null)
+            var visualizerType = typeVisualizerMap.GetVisualizerType(layoutSettings?.VisualizerTypeName ?? string.Empty);
+            visualizerType ??= typeVisualizerMap.GetTypeVisualizers(inspectBuilder).FirstOrDefault();
+            if (visualizerType is null)
             {
                 return null;
             }
 
+            var mashupArguments = GetMashupArguments(inspectBuilder, typeVisualizerMap);
             var visualizerFactory = new VisualizerFactory(inspectBuilder, visualizerType, mashupArguments);
             var visualizer = new Lazy<DialogTypeVisualizer>(() => DeserializeVisualizerSettings(
                 visualizerType,
                 layoutSettings,
-                visualizerLayout,
+                workflow,
                 visualizerFactory,
                 typeVisualizerMap));
 
-            var launcher = new VisualizerDialogLauncher(visualizer, visualizerFactory, workflow, source, workflowGraphView);
+            var launcher = new VisualizerDialogLauncher(visualizer, visualizerFactory, workflow, source);
             launcher.Text = source != null ? ExpressionBuilder.GetElementDisplayName(source) : null;
             return launcher;
         }
@@ -204,48 +139,6 @@ namespace Bonsai.Design
                 var visualizerType = mapping.VisualizerType ?? typeVisualizerMap.GetTypeVisualizers(mapping.Source).FirstOrDefault();
                 return new VisualizerFactory(mapping.Source, visualizerType, nestedSources);
             }).ToList();
-        }
-
-        public static Dictionary<InspectBuilder, VisualizerDialogLauncher> CreateVisualizerMapping(
-            ExpressionBuilderGraph workflow,
-            VisualizerLayout visualizerLayout,
-            TypeVisualizerMap typeVisualizerMap,
-            IServiceProvider provider = null,
-            IWin32Window owner = null,
-            Editor.GraphView.WorkflowGraphView graphView = null)
-        {
-            if (workflow == null) return null;
-            var visualizerMapping = (from node in workflow.TopologicalSort()
-                                     let source = (InspectBuilder)node.Value
-                                     let mashupArguments = GetMashupArguments(source, typeVisualizerMap)
-                                     let visualizerLauncher = CreateVisualizerLauncher(
-                                         source,
-                                         visualizerLayout,
-                                         typeVisualizerMap,
-                                         workflow,
-                                         mashupArguments,
-                                         graphView)
-                                     where visualizerLauncher != null
-                                     select new { source, visualizerLauncher })
-                                     .ToDictionary(mapping => mapping.source,
-                                                   mapping => mapping.visualizerLauncher);
-            foreach (var mapping in visualizerMapping)
-            {
-                var key = mapping.Key;
-                var visualizerLauncher = mapping.Value;
-                var layoutSettings = visualizerLayout.GetLayoutSettings(key);
-                if (layoutSettings != null)
-                {
-                    visualizerLauncher.Bounds = layoutSettings.Bounds;
-                    visualizerLauncher.WindowState = layoutSettings.WindowState;
-                    if (layoutSettings.Visible)
-                    {
-                        visualizerLauncher.Show(owner, provider);
-                    }
-                }
-            }
-
-            return visualizerMapping;
         }
 
         public static XElement SerializeVisualizerSettings(
@@ -314,11 +207,11 @@ namespace Bonsai.Design
         public static DialogTypeVisualizer DeserializeVisualizerSettings(
             Type visualizerType,
             VisualizerDialogSettings layoutSettings,
-            VisualizerLayout visualizerLayout,
+            ExpressionBuilderGraph workflow,
             VisualizerFactory visualizerFactory,
             TypeVisualizerMap typeVisualizerMap)
         {
-            if (layoutSettings?.VisualizerTypeName != visualizerType.FullName)
+            if (layoutSettings?.VisualizerTypeName != visualizerType?.FullName)
             {
                 layoutSettings = default;
             }
@@ -341,7 +234,7 @@ namespace Bonsai.Design
                 layoutSettings.Mashups.Clear();
             }
 
-            return visualizerFactory.CreateVisualizer(layoutSettings?.VisualizerSettings, visualizerLayout, typeVisualizerMap);
+            return visualizerFactory.CreateVisualizer(layoutSettings?.VisualizerSettings, workflow, typeVisualizerMap);
         }
 
         static int? GetMashupSourceIndex(
@@ -356,7 +249,7 @@ namespace Bonsai.Design
         public static DialogTypeVisualizer CreateVisualizer(
             this VisualizerFactory visualizerFactory,
             XElement visualizerSettings,
-            VisualizerLayout visualizerLayout,
+            ExpressionBuilderGraph workflow,
             TypeVisualizerMap typeVisualizerMap)
         {
             DialogTypeVisualizer visualizer;
@@ -389,19 +282,19 @@ namespace Bonsai.Design
                         if (mashupSourceElement == null) continue;
 
                         var mashupSourceIndex = int.Parse(mashupSourceElement.Value);
-                        var mashupSource = (InspectBuilder)visualizerLayout.DialogSettings[mashupSourceIndex]?.Tag;
+                        var mashupSource = (InspectBuilder)workflow[mashupSourceIndex].Value;
                         var mashupVisualizerTypeName = mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
                         var mashupVisualizerType = typeVisualizerMap.GetVisualizerType(mashupVisualizerTypeName);
                         mashupFactory = new VisualizerFactory(mashupSource, mashupVisualizerType);
                     }
 
-                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, visualizerLayout, typeVisualizerMap, mashup);
+                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, workflow, typeVisualizerMap, mashup);
                 }
 
                 for (int i = index; i < visualizerFactory.MashupSources.Count; i++)
                 {
                     var mashupFactory = visualizerFactory.MashupSources[i];
-                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, visualizerLayout, typeVisualizerMap);
+                    CreateMashupVisualizer(mashupVisualizer, visualizerFactory, mashupFactory, workflow, typeVisualizerMap);
                 }
             }
 
@@ -412,7 +305,7 @@ namespace Bonsai.Design
             MashupVisualizer mashupVisualizer,
             VisualizerFactory visualizerFactory,
             VisualizerFactory mashupFactory,
-            VisualizerLayout visualizerLayout,
+            ExpressionBuilderGraph workflow,
             TypeVisualizerMap typeVisualizerMap,
             XElement mashup = null)
         {
@@ -437,7 +330,7 @@ namespace Bonsai.Design
                 }
             }
 
-            var nestedVisualizer = mashupFactory.CreateVisualizer(mashupVisualizerSettings, visualizerLayout, typeVisualizerMap);
+            var nestedVisualizer = mashupFactory.CreateVisualizer(mashupVisualizerSettings, workflow, typeVisualizerMap);
             mashupVisualizer.MashupSources.Add(mashupFactory.Source, nestedVisualizer);
         }
     }

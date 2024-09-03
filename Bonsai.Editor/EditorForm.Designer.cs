@@ -115,9 +115,9 @@
             this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.reloadExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.statusCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxSplitContainer = new Bonsai.Editor.SelectableSplitContainer();
             this.toolboxTableLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
             this.searchTextBox = new Bonsai.Editor.CueBannerTextBox();
@@ -153,6 +153,10 @@
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.workflowFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
+            this.explorerSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.explorerLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
+            this.explorerLabel = new Bonsai.Editor.Label();
+            this.explorerTreeView = new Bonsai.Editor.ExplorerTreeView();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -180,6 +184,11 @@
             this.propertiesLayoutPanel.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.explorerSplitContainer)).BeginInit();
+            this.explorerSplitContainer.Panel1.SuspendLayout();
+            this.explorerSplitContainer.Panel2.SuspendLayout();
+            this.explorerSplitContainer.SuspendLayout();
+            this.explorerLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -626,7 +635,7 @@
             // welcomeToolStripMenuItem
             // 
             this.welcomeToolStripMenuItem.Name = "welcomeToolStripMenuItem";
-            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.welcomeToolStripMenuItem.Text = "&Welcome...";
             this.welcomeToolStripMenuItem.Click += new System.EventHandler(this.welcomeToolStripMenuItem_Click);
             // 
@@ -635,7 +644,7 @@
             this.docsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
             this.docsToolStripMenuItem.Name = "docsToolStripMenuItem";
             this.docsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.docsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.docsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.docsToolStripMenuItem.Text = "&View Help";
             this.docsToolStripMenuItem.Click += new System.EventHandler(this.docsToolStripMenuItem_Click);
             // 
@@ -643,7 +652,7 @@
             // 
             this.forumToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("forumToolStripMenuItem.Image")));
             this.forumToolStripMenuItem.Name = "forumToolStripMenuItem";
-            this.forumToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.forumToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.forumToolStripMenuItem.Text = "Bonsai &Forums";
             this.forumToolStripMenuItem.Click += new System.EventHandler(this.forumToolStripMenuItem_Click);
             // 
@@ -651,19 +660,19 @@
             // 
             this.reportBugToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reportBugToolStripMenuItem.Image")));
             this.reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
-            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reportBugToolStripMenuItem.Text = "&Report a Bug";
             this.reportBugToolStripMenuItem.Click += new System.EventHandler(this.reportBugToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -900,6 +909,14 @@
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip";
             // 
+            // statusImageLabel
+            // 
+            this.statusImageLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.statusImageLabel.Image = global::Bonsai.Editor.Properties.Resources.StatusReadyImage;
+            this.statusImageLabel.Name = "statusImageLabel";
+            this.statusImageLabel.Size = new System.Drawing.Size(16, 17);
+            this.statusImageLabel.Text = "statusImageLabel";
+            // 
             // statusContextMenuStrip
             // 
             this.statusContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -916,14 +933,6 @@
             this.statusCopyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.statusCopyToolStripMenuItem.Text = "&Copy";
             this.statusCopyToolStripMenuItem.Click += new System.EventHandler(this.statusCopyToolStripMenuItem_Click);
-            // 
-            // statusImageLabel
-            // 
-            this.statusImageLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.statusImageLabel.Image = global::Bonsai.Editor.Properties.Resources.StatusReadyImage;
-            this.statusImageLabel.Name = "statusImageLabel";
-            this.statusImageLabel.Size = new System.Drawing.Size(16, 17);
-            this.statusImageLabel.Text = "statusImageLabel";
             // 
             // toolboxSplitContainer
             // 
@@ -942,8 +951,8 @@
             // 
             this.toolboxSplitContainer.Panel2.Controls.Add(this.toolboxDescriptionPanel);
             this.toolboxSplitContainer.Selectable = true;
-            this.toolboxSplitContainer.Size = new System.Drawing.Size(197, 308);
-            this.toolboxSplitContainer.SplitterDistance = 245;
+            this.toolboxSplitContainer.Size = new System.Drawing.Size(197, 138);
+            this.toolboxSplitContainer.SplitterDistance = 75;
             this.toolboxSplitContainer.TabIndex = 1;
             this.toolboxSplitContainer.TabStop = false;
             // 
@@ -959,7 +968,7 @@
             this.toolboxTableLayoutPanel.RowCount = 2;
             this.toolboxTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
             this.toolboxTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.toolboxTableLayoutPanel.Size = new System.Drawing.Size(197, 245);
+            this.toolboxTableLayoutPanel.Size = new System.Drawing.Size(197, 75);
             this.toolboxTableLayoutPanel.TabIndex = 2;
             // 
             // searchTextBox
@@ -1000,15 +1009,13 @@
             treeNode4,
             treeNode5,
             treeNode6});
-            this.toolboxTreeView.Size = new System.Drawing.Size(197, 222);
+            this.toolboxTreeView.Size = new System.Drawing.Size(197, 52);
             this.toolboxTreeView.TabIndex = 0;
-            this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.toolboxTreeView_AfterLabelEdit);
+            this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
-            this.toolboxTreeView.Enter += new System.EventHandler(this.toolboxTreeView_Enter);
             this.toolboxTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolboxTreeView_KeyDown);
-            this.toolboxTreeView.Leave += new System.EventHandler(this.toolboxTreeView_Leave);
             this.toolboxTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.toolboxTreeView_MouseUp);
             // 
             // toolboxDescriptionPanel
@@ -1088,9 +1095,9 @@
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(193, 245);
             this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.Refreshed += new System.EventHandler(this.propertyGrid_Refreshed);
             this.propertyGrid.DragDrop += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragDrop);
             this.propertyGrid.DragEnter += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragEnter);
-            this.propertyGrid.Refreshed += new System.EventHandler(this.propertyGrid_Refreshed);
             this.propertyGrid.Validated += new System.EventHandler(this.propertyGrid_Validated);
             // 
             // propertyGridContextMenuStrip
@@ -1128,7 +1135,7 @@
             // 
             // panelSplitContainer.Panel1
             // 
-            this.panelSplitContainer.Panel1.Controls.Add(this.toolboxLayoutPanel);
+            this.panelSplitContainer.Panel1.Controls.Add(this.explorerSplitContainer);
             // 
             // panelSplitContainer.Panel2
             // 
@@ -1151,7 +1158,7 @@
             this.toolboxLayoutPanel.RowCount = 2;
             this.toolboxLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
             this.toolboxLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.toolboxLayoutPanel.Size = new System.Drawing.Size(200, 340);
+            this.toolboxLayoutPanel.Size = new System.Drawing.Size(200, 170);
             this.toolboxLayoutPanel.TabIndex = 1;
             // 
             // toolboxLabel
@@ -1227,7 +1234,7 @@
             this.findPreviousToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 290);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 268);
             // 
             // toolboxDocsToolStripMenuItem
             // 
@@ -1347,6 +1354,64 @@
     "*.tiff)|*.tif;*.tiff|PNG (*.png)|*.png|SVG (*.svg)|*.svg";
             this.exportImageDialog.FilterIndex = 6;
             // 
+            // explorerSplitContainer
+            // 
+            this.explorerSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.explorerSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.explorerSplitContainer.Name = "explorerSplitContainer";
+            this.explorerSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // explorerSplitContainer.Panel1
+            // 
+            this.explorerSplitContainer.Panel1.Controls.Add(this.toolboxLayoutPanel);
+            // 
+            // explorerSplitContainer.Panel2
+            // 
+            this.explorerSplitContainer.Panel2.Controls.Add(this.explorerLayoutPanel);
+            this.explorerSplitContainer.Size = new System.Drawing.Size(200, 340);
+            this.explorerSplitContainer.SplitterDistance = 170;
+            this.explorerSplitContainer.TabIndex = 2;
+            // 
+            // explorerLayoutPanel
+            // 
+            this.explorerLayoutPanel.ColumnCount = 1;
+            this.explorerLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.explorerLayoutPanel.Controls.Add(this.explorerTreeView, 0, 1);
+            this.explorerLayoutPanel.Controls.Add(this.explorerLabel, 0, 0);
+            this.explorerLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.explorerLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.explorerLayoutPanel.Name = "explorerLayoutPanel";
+            this.explorerLayoutPanel.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.explorerLayoutPanel.RowCount = 2;
+            this.explorerLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
+            this.explorerLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.explorerLayoutPanel.Size = new System.Drawing.Size(200, 166);
+            this.explorerLayoutPanel.TabIndex = 2;
+            // 
+            // explorerLabel
+            // 
+            this.explorerLabel.AutoSize = true;
+            this.explorerLabel.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.explorerLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.explorerLabel.Location = new System.Drawing.Point(3, 6);
+            this.explorerLabel.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.explorerLabel.Name = "explorerLabel";
+            this.explorerLabel.Size = new System.Drawing.Size(197, 23);
+            this.explorerLabel.TabIndex = 2;
+            this.explorerLabel.Text = "Explorer";
+            this.explorerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // explorerTreeView
+            // 
+            this.explorerTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.explorerTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.explorerTreeView.Location = new System.Drawing.Point(0, 29);
+            this.explorerTreeView.Margin = new System.Windows.Forms.Padding(3, 0, 0, 3);
+            this.explorerTreeView.Name = "explorerTreeView";
+            this.explorerTreeView.Size = new System.Drawing.Size(200, 137);
+            this.explorerTreeView.TabIndex = 3;
+            this.explorerTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(explorerTreeView_NodeMouseDoubleClick);
+            // 
             // EditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1398,6 +1463,12 @@
             this.propertiesLayoutPanel.PerformLayout();
             this.toolboxContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).EndInit();
+            this.explorerSplitContainer.Panel1.ResumeLayout(false);
+            this.explorerSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.explorerSplitContainer)).EndInit();
+            this.explorerSplitContainer.ResumeLayout(false);
+            this.explorerLayoutPanel.ResumeLayout(false);
+            this.explorerLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1522,6 +1593,10 @@
         private System.Windows.Forms.ToolStripMenuItem toolboxDocsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripMenuItem watchToolStripMenuItem;
+        private System.Windows.Forms.SplitContainer explorerSplitContainer;
+        private Bonsai.Editor.TableLayoutPanel explorerLayoutPanel;
+        private Bonsai.Editor.Label explorerLabel;
+        private Bonsai.Editor.ExplorerTreeView explorerTreeView;
     }
 }
 

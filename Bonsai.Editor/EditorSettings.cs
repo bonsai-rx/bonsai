@@ -21,6 +21,7 @@ namespace Bonsai.Editor
         internal EditorSettings(string path)
         {
             AnnotationPanelSize = 400;
+            ExplorerSplitterDistance = 300;
             settingsPath = path;
         }
 
@@ -36,6 +37,8 @@ namespace Bonsai.Editor
         public ColorTheme EditorTheme { get; set; }
 
         public int AnnotationPanelSize { get; set; }
+
+        public int ExplorerSplitterDistance { get; set; }
 
         public RecentlyUsedFileCollection RecentlyUsedFiles
         {
@@ -73,6 +76,11 @@ namespace Bonsai.Editor
                             {
                                 int.TryParse(reader.ReadElementContentAsString(), out int annotationPanelSize);
                                 settings.AnnotationPanelSize = annotationPanelSize;
+                            }
+                            else if (reader.Name == nameof(ExplorerSplitterDistance))
+                            {
+                                int.TryParse(reader.ReadElementContentAsString(), out int explorerSplitterDistance);
+                                settings.ExplorerSplitterDistance = explorerSplitterDistance;
                             }
                             else if (reader.Name == nameof(DesktopBounds))
                             {
@@ -120,6 +128,7 @@ namespace Bonsai.Editor
                 writer.WriteElementString(nameof(WindowState), WindowState.ToString());
                 writer.WriteElementString(nameof(EditorTheme), EditorTheme.ToString());
                 writer.WriteElementString(nameof(AnnotationPanelSize), AnnotationPanelSize.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(ExplorerSplitterDistance), ExplorerSplitterDistance.ToString(CultureInfo.InvariantCulture));
 
                 writer.WriteStartElement(nameof(DesktopBounds));
                 writer.WriteElementString(nameof(Rectangle.X), DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
