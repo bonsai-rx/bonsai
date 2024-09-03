@@ -54,16 +54,6 @@ namespace Bonsai.NuGet.Design
             set => base.DrawMode = value;
         }
 
-        public override Font Font
-        {
-            get { return base.Font; }
-            set
-            {
-                base.Font = value;
-                boldFont = new Font(value, FontStyle.Bold);
-            }
-        }
-
         [Category("Action")]
         public event PackageViewEventHandler OperationClick
         {
