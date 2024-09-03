@@ -11,10 +11,22 @@ namespace Bonsai.Editor
         const int WatchPeriod = 100;
         readonly Timer watchTimer = new() { Interval = WatchPeriod };
         WorkflowMeter workflowMeter;
+        bool enabled;
 
         public WorkflowWatch()
         {
             watchTimer.Tick += (_, e) => OnUpdate(e);
+            enabled = true;
+        }
+
+        public bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                enabled = value;
+                OnUpdate(EventArgs.Empty);
+            }
         }
 
         public event EventHandler Update;
@@ -45,10 +57,10 @@ namespace Bonsai.Editor
             watchTimer.Stop();
             if (workflowMeter is not null)
             {
+                OnUpdate(EventArgs.Empty);
                 workflowMeter.Dispose();
                 workflowMeter = null;
             }
-            OnUpdate(EventArgs.Empty);
         }
     }
 }

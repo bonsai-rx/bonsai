@@ -91,7 +91,12 @@ namespace Bonsai.Editor.GraphView
                         if (node.Value is null)
                             continue;
 
-                        if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
+                        if (!workflowWatch.Enabled)
+                        {
+                            node.Status = null;
+                            node.NotifyingCounter = -1;
+                        }
+                        else if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
                         {
                             node.Status = counter.GetStatus();
                             if (node.Status == WorkflowElementStatus.Notifying)
@@ -102,11 +107,6 @@ namespace Bonsai.Editor.GraphView
                             {
                                 node.NotifyingCounter = -1;
                             }
-                        }
-                        else
-                        {
-                            node.Status = null;
-                            node.NotifyingCounter = -1;
                         }
                     }
                 }
