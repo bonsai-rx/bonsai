@@ -88,6 +88,7 @@ namespace Bonsai.Editor.GraphView
                 tabPage.BackColor = workflowGraphView.BackColor;
                 if (tabControl.SelectedTab == tabPage) InitializeTheme(tabPage);
             };
+            workflowGraphView.Margin = new Padding(0);
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
             workflowGraphView.Tag = tabPage;
@@ -97,6 +98,7 @@ namespace Bonsai.Editor.GraphView
             tabPage.SuspendLayout();
 
             var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
+            breadcrumbs.Margin = new Padding(0);
             breadcrumbs.WorkflowPath = null;
             breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
             workflowGraphView.WorkflowPathChanged += (sender, e) =>

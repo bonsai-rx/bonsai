@@ -40,15 +40,14 @@
             this.flowLayoutPanel.TabIndex = 0;
             this.flowLayoutPanel.WrapContents = false;
             // 
-            // EditorPathNavigationControl
+            // WorkflowPathNavigationControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.flowLayoutPanel);
-            this.Name = "EditorPathNavigationControl";
+            this.Name = "WorkflowPathNavigationControl";
             this.Size = new System.Drawing.Size(452, 29);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
