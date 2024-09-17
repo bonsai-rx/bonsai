@@ -1410,7 +1410,7 @@ namespace Bonsai.Editor.GraphView
                         {
                             var dialogLauncher = visualizerDialogs.Add(inspectBuilder, Workflow, dialogSettings);
                             var ownerWindow = uiService.GetDialogOwnerWindow();
-                            visualizerDialog.Show(ownerWindow, serviceProvider);
+                            dialogLauncher.Show(ownerWindow, serviceProvider);
                         }
                     }
                     else
