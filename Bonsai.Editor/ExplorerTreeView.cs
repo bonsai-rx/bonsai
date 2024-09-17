@@ -12,7 +12,6 @@ namespace Bonsai.Editor
 {
     partial class ExplorerTreeView : UserControl
     {
-        bool activeDoubleClick;
         readonly ImageList imageList;
         readonly ImageList stateImageList;
         static readonly object EventNavigate = new();
@@ -75,9 +74,11 @@ namespace Bonsai.Editor
             }
         }
 
-        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is not null && treeView.HitTest(e.Location).Location != TreeViewHitTestLocations.PlusMinus)
+            if (e.Node is not null &&
+                e.Button == MouseButtons.Left &&
+                treeView.HitTest(e.Location).Location == TreeViewHitTestLocations.Label)
             {
                 OnNavigate(new TreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
             }
@@ -85,29 +86,59 @@ namespace Bonsai.Editor
 
         private void treeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && treeView.SelectedNode != null)
+            if (treeView.SelectedNode is null)
+                return;
+
+            if (e.KeyCode == Keys.Return)
             {
                 OnNavigate(new TreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
             }
+
+            if (e.Shift && e.KeyCode == Keys.F10)
+            {
+                var nodeBounds = treeView.SelectedNode.Bounds;
+                var middleX = nodeBounds.X + nodeBounds.Width / 2;
+                var middleY = nodeBounds.Y + nodeBounds.Height / 2;
+                ShowContextMenu(treeView.SelectedNode, middleX, middleY);
+            }
         }
 
-        private void treeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        private void treeView_MouseUp(object sender, MouseEventArgs e)
         {
-            if (activeDoubleClick && e.Action == TreeViewAction.Collapse)
-                e.Cancel = true;
-            activeDoubleClick = false;
+            if (e.Button == MouseButtons.Right)
+            {
+                var selectedNode = treeView.GetNodeAt(e.X, e.Y);
+                if (selectedNode != null)
+                {
+                    treeView.SelectedNode = selectedNode;
+                    ShowContextMenu(selectedNode, e.X, e.Y);
+                }
+            }
         }
 
-        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void expandToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (activeDoubleClick && e.Action == TreeViewAction.Expand)
-                e.Cancel = true;
-            activeDoubleClick = false;
+            treeView.SelectedNode?.Expand();
         }
 
-        private void treeView_MouseDown(object sender, MouseEventArgs e)
+        private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            activeDoubleClick = e.Clicks > 1;
+            treeView.SelectedNode?.Collapse();
+        }
+
+        private void ShowContextMenu(TreeNode node, int x, int y)
+        {
+            if (node.Nodes.Count > 0)
+            {
+                expandToolStripMenuItem.Visible = !node.IsExpanded;
+                collapseToolStripMenuItem.Visible = node.IsExpanded;
+            }
+            else
+            {
+                expandToolStripMenuItem.Visible = false;
+                collapseToolStripMenuItem.Visible = false;
+            }
+            contextMenuStrip.Show(treeView, x, y);
         }
 
         public void UpdateWorkflow(string name, WorkflowBuilder workflowBuilder)
