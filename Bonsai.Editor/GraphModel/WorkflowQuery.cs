@@ -37,7 +37,6 @@ namespace Bonsai.Editor.GraphModel
             var matches = TopologicalOrder(source.Workflow);
             if (current != null)
             {
-                current = ExpressionBuilder.Unwrap(current);
                 if (findPrevious) matches = matches.TakeWhile(builder => builder != current);
                 else matches = matches.SkipWhile(builder => builder != current).Skip(1);
             }
