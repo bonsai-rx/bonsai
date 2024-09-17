@@ -79,12 +79,12 @@ namespace Bonsai.Editor.GraphView
 
         internal bool IsReadOnly
         {
-            get { return Editor.IsReadOnly; }
+            get { return (Editor.WorkflowPathFlags & WorkflowPathFlags.ReadOnly) != 0; }
         }
 
         internal bool CanEdit
         {
-            get { return !Editor.IsReadOnly && !editorState.WorkflowRunning; }
+            get { return !IsReadOnly && !editorState.WorkflowRunning; }
         }
 
         public GraphViewControl GraphView
@@ -973,6 +973,7 @@ namespace Bonsai.Editor.GraphView
             Editor.WorkflowPathChanged.Subscribe(path =>
             {
                 UpdateSelection(forceUpdate: true);
+                graphView.PathFlags = Editor.WorkflowPathFlags;
                 OnWorkflowPathChanged(EventArgs.Empty);
             });
 

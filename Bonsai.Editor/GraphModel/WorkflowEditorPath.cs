@@ -41,9 +41,9 @@ namespace Bonsai.Editor.GraphModel
             return Resolve(workflowBuilder, out _);
         }
 
-        public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder, out bool isReadOnly)
+        public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder, out WorkflowPathFlags pathFlags)
         {
-            isReadOnly = false;
+            pathFlags = WorkflowPathFlags.None;
             var builder = default(ExpressionBuilder);
             var workflow = workflowBuilder.Workflow;
             foreach (var pathElement in GetPathElements())
@@ -53,11 +53,18 @@ namespace Bonsai.Editor.GraphModel
                     throw new ArgumentException($"Unable to resolve workflow editor path.", nameof(workflowBuilder));
                 }
 
-                builder = workflow[pathElement.Index].Value;
-                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
+                builder = ExpressionBuilder.Unwrap(workflow[pathElement.Index].Value);
+                if (builder is DisableBuilder disableBuilder)
+                {
+                    builder = disableBuilder.Builder;
+                    pathFlags |= WorkflowPathFlags.Disabled;
+                }
+
+                if (builder is IWorkflowExpressionBuilder nestedWorkflowBuilder)
                 {
                     workflow = nestedWorkflowBuilder.Workflow;
-                    isReadOnly |= nestedWorkflowBuilder is IncludeWorkflowBuilder;
+                    if (nestedWorkflowBuilder is IncludeWorkflowBuilder)
+                        pathFlags |= WorkflowPathFlags.ReadOnly;
                 }
                 else workflow = null;
             }
@@ -79,7 +86,7 @@ namespace Bonsai.Editor.GraphModel
                 {
                     var path = new WorkflowEditorPath(i, parent);
                     if (ex.InnerException is WorkflowException nestedEx &&
-                        ExpressionBuilder.Unwrap(ex.Builder) is IWorkflowExpressionBuilder workflowBuilder)
+                        ExpressionBuilder.GetWorkflowElement(ex.Builder) is IWorkflowExpressionBuilder workflowBuilder)
                     {
                         return GetExceptionPath(workflowBuilder.Workflow, nestedEx, path);
                     }
@@ -99,7 +106,7 @@ namespace Bonsai.Editor.GraphModel
         {
             for (int i = 0; i < workflow.Count; i++)
             {
-                var builder = ExpressionBuilder.Unwrap(workflow[i].Value);
+                var builder = ExpressionBuilder.GetWorkflowElement(workflow[i].Value);
                 if (builder == target)
                 {
                     pathElements.Add(i);

@@ -40,7 +40,7 @@ namespace Bonsai.Editor.GraphModel
 
         public ExpressionBuilderGraph Workflow { get; private set; }
 
-        public bool IsReadOnly { get; private set; }
+        public WorkflowPathFlags WorkflowPathFlags { get; private set; }
 
         public WorkflowEditorPath WorkflowPath
         {
@@ -51,19 +51,19 @@ namespace Bonsai.Editor.GraphModel
                 var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
                 if (workflowPath != null)
                 {
-                    var builder = ExpressionBuilder.Unwrap(workflowPath.Resolve(workflowBuilder, out bool isReadOnly));
-                    if (builder is not IWorkflowExpressionBuilder workflowExpressionBuilder)
+                    var builder = workflowPath.Resolve(workflowBuilder, out WorkflowPathFlags pathFlags);
+                    if (ExpressionBuilder.GetWorkflowElement(builder) is not IWorkflowExpressionBuilder workflowExpressionBuilder)
                     {
                         throw new ArgumentException(Resources.InvalidWorkflowPath_Error, nameof(value));
                     }
 
                     Workflow = workflowExpressionBuilder.Workflow;
-                    IsReadOnly = isReadOnly;
+                    WorkflowPathFlags = pathFlags;
                 }
                 else
                 {
                     Workflow = workflowBuilder.Workflow;
-                    IsReadOnly = false;
+                    WorkflowPathFlags = WorkflowPathFlags.None;
                 }
                 updateLayout.OnNext(false);
                 workflowPathChanged.OnNext(workflowPath);

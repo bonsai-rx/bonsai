@@ -91,7 +91,7 @@ namespace Bonsai.Editor
                 for (int i = 0; i < workflow.Count; i++)
                 {
                     var builder = workflow[i].Value;
-                    if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
+                    if (ExpressionBuilder.GetWorkflowElement(builder) is IWorkflowExpressionBuilder workflowBuilder &&
                         workflowBuilder.Workflow != null)
                     {
                         var nodeType = parentNodeType == ExplorerNodeType.ReadOnly || workflowBuilder is IncludeWorkflowBuilder

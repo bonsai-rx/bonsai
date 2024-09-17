@@ -65,7 +65,7 @@ namespace Bonsai.Editor.GraphView
             foreach (var pathElement in workflowPath?.GetPathElements() ?? Enumerable.Empty<WorkflowEditorPath>())
             {
                 var builder = workflow[pathElement.Index].Value;
-                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
+                if (ExpressionBuilder.GetWorkflowElement(builder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
                 {
                     workflow = nestedWorkflowBuilder.Workflow;
                 }
