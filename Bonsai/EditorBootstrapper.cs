@@ -2,6 +2,7 @@
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,7 +31,7 @@ namespace Bonsai
             PackageManager.Logger = new EventLogger();
         }
 
-        protected override Task RunPackageOperationAsync(Func<Task> operationFactory)
+        protected override Task RunPackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
         {
             EnableVisualStyles();
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
@@ -49,7 +50,7 @@ namespace Bonsai
             PackageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
             try
             {
-                var operation = operationFactory();
+                var operation = operationFactory(cancellationToken);
                 operation.ContinueWith(task =>
                 {
                     if (task.IsFaulted)
@@ -60,7 +61,7 @@ namespace Bonsai
                         }
                     }
                     else dialog.BeginInvoke((Action)dialog.Close);
-                });
+                }, cancellationToken);
                 dialog.ShowDialog();
                 return operation;
             }

@@ -1,5 +1,4 @@
 ﻿using NuGet.Configuration;
-using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +23,7 @@ namespace Bonsai.NuGet
 
         public event EventHandler<RequiringLicenseAcceptanceEventArgs> RequiringLicenseAcceptance;
 
-        protected override bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
+        protected override bool AcceptLicenseAgreement(IEnumerable<RequiringLicenseAcceptancePackageInfo> licensePackages)
         {
             var eventArgs = new RequiringLicenseAcceptanceEventArgs(licensePackages);
             RequiringLicenseAcceptance?.Invoke(this, eventArgs);

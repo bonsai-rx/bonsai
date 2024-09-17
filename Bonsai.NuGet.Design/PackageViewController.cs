@@ -2,11 +2,11 @@
 using Bonsai.NuGet.Design.Properties;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -23,7 +23,6 @@ namespace Bonsai.NuGet.Design
 
         bool loaded;
         readonly string packageManagerPath;
-        readonly IEnumerable<string> packageTypes;
         readonly PackageSourceProvider packageSourceProvider;
         readonly List<IDisposable> activeRequests;
         PackageQuery packageQuery;
@@ -52,8 +51,7 @@ namespace Bonsai.NuGet.Design
             CueBannerComboBox search,
             CheckBox prerelease,
             Func<bool> updateFeed,
-            Action<bool> multiOperationVisible,
-            IEnumerable<string> packageTypeFilter)
+            Action<bool> multiOperationVisible)
         {
             ProjectFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             control = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -65,14 +63,18 @@ namespace Bonsai.NuGet.Design
             prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
             getUpdateFeed = updateFeed ?? throw new ArgumentNullException(nameof(updateFeed));
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
-            packageTypes = packageTypeFilter;
             control.KeyDown += control_KeyDown;
+            packageDetails.PackageLinkClicked += packageDetails_PackageLinkClicked;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
             packagePageSelector.SelectedIndexChanged += packagePageSelector_SelectedIndexChanged;
             packagePageSelector.Visible = false;
 
             packageManagerPath = path;
             iconReader = new IconReader(packageIcons.ImageSize);
+            if (packageIcons.Images.Count == 0)
+            {
+                packageIcons.Images.Add(iconReader.DefaultIcon);
+            }
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
@@ -81,16 +83,24 @@ namespace Bonsai.NuGet.Design
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
             packageDetails.ProjectFramework = ProjectFramework;
-            packageDetails.PathResolver = PackageManager.PathResolver;
+            Operation = packageView.Operation;
         }
 
         public string SearchPrefix { get; set; }
+
+        public IEnumerable<string> PackageTypes { get; set; }
 
         public SourceRepository SelectedRepository { get; set; }
 
         public NuGetFramework ProjectFramework { get; private set; }
 
         public LicenseAwarePackageManager PackageManager { get; private set; }
+
+        public PackageOperationType Operation
+        {
+            get => packageView.Operation;
+            set => packageView.Operation = packageDetails.Operation = value;
+        }
 
         public void ClearActiveRequests()
         {
@@ -138,7 +148,7 @@ namespace Bonsai.NuGet.Design
         {
             var selectHandler = SelectPackageDetails()
                 .ObserveOn(control)
-                .Do(package => packageDetails.SetPackage(package))
+                .Do(item => packageDetails.SetPackage(item))
                 .Select(result => Unit.Default);
             var searchHandler = Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
@@ -200,8 +210,8 @@ namespace Bonsai.NuGet.Design
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
         {
             return updateFeed
-                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, packageTypes)
-                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, packageTypes);
+                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, PackageTypes)
+                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, PackageTypes);
         }
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)
@@ -233,7 +243,7 @@ namespace Bonsai.NuGet.Design
             if (packages.Count > 0)
             {
                 if (packages.Count > 1 && packagePageSelector.SelectedPage == 0 &&
-                    packageView.OperationText == Resources.UpdateOperationName)
+                    packageView.Operation == PackageOperationType.Update)
                 {
                     setMultiOperationVisible(true);
                 }
@@ -252,32 +262,37 @@ namespace Bonsai.NuGet.Design
 
         private void AddPackage(IPackageSearchMetadata package)
         {
-            var installCheck = false;
-            if (SelectedRepository != PackageManager.LocalRepository &&
-                packageView.OperationText != Resources.UpdateOperationName)
+            LocalPackageInfo installedPackage = null;
+            if (SelectedRepository != PackageManager.LocalRepository)
             {
-                var installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
-                installCheck = installedPackage != null && installedPackage.Identity.Version >= package.Identity.Version;
+                installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
             }
 
-            var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Identity.Id;
+            var nodeTitle = package.Identity.Id;
             var nodeText = string.Join(
                 Environment.NewLine, nodeTitle,
                 package.Summary ?? package.Description.Split(
                     new[] { Environment.NewLine, "\n", "\r" },
                     StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
             var node = packageView.Nodes.Add(package.Identity.Id, nodeText);
-            node.Checked = installCheck;
             node.Tag = package;
+
+            if (installedPackage != null)
+            {
+                var installedPackageNode = node.Nodes.Add(Resources.UpdatesNodeName, installedPackage.Identity.Version.ToString());
+                installedPackageNode.Tag = installedPackage;
+            }
+
+            var deprecationMetadata = package.GetDeprecationMetadataAsync().Result;
+            if (deprecationMetadata != null)
+            {
+                var deprecationMetadataNode = node.Nodes.Add(Resources.PackageWarningKey, deprecationMetadata.Message);
+                deprecationMetadataNode.Tag = deprecationMetadata;
+            }
 
             var requestIcon = GetPackageIcon(package.IconUrl);
             var iconRequest = requestIcon.ObserveOn(control).Subscribe(image =>
             {
-                if (packageIcons.Images.Count == 0)
-                {
-                    var defaultImage = iconReader.GetDefaultIconAsync().Result;
-                    packageIcons.Images.Add(defaultImage);
-                }
                 packageIcons.Images.Add(package.Identity.Id, image);
                 node.ImageKey = package.Identity.Id;
                 node.SelectedImageKey = package.Identity.Id;
@@ -318,7 +333,7 @@ namespace Bonsai.NuGet.Design
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
-                        else if (packageView.OperationText == Resources.UpdateOperationName)
+                        else if (packageView.Operation == PackageOperationType.Update)
                         {
                             SetPackageViewStatus(Resources.NoUpdatesAvailableLabel);
                         }
@@ -338,7 +353,7 @@ namespace Bonsai.NuGet.Design
 
                 IObservable<Unit> operation;
                 var uninstallOperation = SelectedRepository == PackageManager.LocalRepository;
-                var update = packageView.OperationText == Resources.UpdateOperationName;
+                var update = packageView.Operation == PackageOperationType.Update;
                 if (uninstallOperation)
                 {
                     operation = Observable.FromAsync(async token =>
@@ -404,27 +419,48 @@ namespace Bonsai.NuGet.Design
             }
         }
 
-        private IObservable<IPackageSearchMetadata> SelectPackageDetails()
+        private void packageDetails_PackageLinkClicked(object sender, PackageSearchEventArgs e)
+        {
+            searchComboBox.Text = e.SearchTerm;
+        }
+
+        private IObservable<PackageViewItem> SelectPackageDetails()
         {
             return Observable.FromEventPattern<TreeViewEventHandler, TreeViewEventArgs>(
                 handler => packageView.AfterSelect += handler,
                 handler => packageView.AfterSelect -= handler)
                 .Select(evt => Observable.StartAsync(async token =>
                 {
+                    var selectedNode = evt.EventArgs.Node;
                     var selectedRepository = SelectedRepository;
-                    var package = (IPackageSearchMetadata)evt.EventArgs.Node.Tag;
-                    if (package == null) return null;
+                    var selectedPackage = (IPackageSearchMetadata)selectedNode.Tag;
+                    if (selectedPackage == null) return null;
+
+                    var localPackageNode = selectedNode.Nodes.Count > 0 ? selectedNode.Nodes[Resources.UpdatesNodeName] : null;
+                    var localPackage = (LocalPackageInfo)localPackageNode?.Tag;
+
                     var repositories = selectedRepository == null ? PackageManager.SourceRepositoryProvider.GetRepositories() : new[] { selectedRepository };
                     using (var cacheContext = new SourceCacheContext())
                     {
                         foreach (var repository in repositories)
                         {
-                            var metadata = await repository.GetMetadataAsync(package.Identity, cacheContext);
+                            var metadata = await repository.GetMetadataAsync(selectedPackage.Identity, cacheContext);
                             if (metadata != null)
                             {
+                                var imageIndex = packageView.ImageList.Images.IndexOfKey(selectedNode.ImageKey);
                                 var result = (PackageSearchMetadataBuilder.ClonedPackageSearchMetadata)PackageSearchMetadataBuilder.FromMetadata(metadata).Build();
-                                result.DownloadCount = package.DownloadCount;
-                                return result;
+                                var packageVersions = await selectedPackage.GetVersionsAsync();
+                                var deprecationMetadata = await result.GetDeprecationMetadataAsync();
+                                result.PrefixReserved = selectedPackage.PrefixReserved;
+                                result.DownloadCount = selectedPackage.DownloadCount;
+                                return new PackageViewItem(
+                                    selectedPackage: result,
+                                    packageVersions,
+                                    deprecationMetadata,
+                                    repository,
+                                    localPackage,
+                                    packageView.ImageList,
+                                    imageIndex);
                             }
                         }
 

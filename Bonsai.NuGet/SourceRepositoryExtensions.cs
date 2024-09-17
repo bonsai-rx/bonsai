@@ -90,11 +90,20 @@ namespace Bonsai.NuGet
         public static async Task<IPackageSearchMetadata> GetLatestMetadataAsync(this SourceRepository repository, string id, VersionRange version, bool includePrerelease, SourceCacheContext cacheContext, CancellationToken token = default)
         {
             var packageMetadataResource = await repository.GetResourceAsync<PackageMetadataResource>(token);
-            var packages = await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
-            return packages
+            var packageMetadata = await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
+            var packageVersions = packageMetadata
                 .Where(package => version.Satisfies(package.Identity.Version))
                 .OrderByDescending(package => package.Identity.Version, VersionComparer.VersionRelease)
-                .FirstOrDefault();
+                .ToArray();
+            return packageVersions.Length > 0
+                ? PackageSearchMetadataBuilder
+                    .FromMetadata(packageVersions[0])
+                    .WithVersions(AsyncLazy.New(packageVersions
+                    .Select(metadata => new VersionInfo(metadata.Identity.Version, metadata.DownloadCount)
+                    {
+                        PackageSearchMetadata = metadata
+                    }))).Build()
+                : null;
         }
     }
 }

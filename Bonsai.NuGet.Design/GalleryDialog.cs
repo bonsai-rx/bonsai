@@ -33,9 +33,9 @@ namespace Bonsai.NuGet.Design
                 searchComboBox,
                 prereleaseCheckBox,
                 () => false,
-                value => { },
-                new[] { Constants.GalleryPackageType });
+                value => { });
             packageViewController.SearchPrefix = $"tags:{Constants.GalleryDirectory} ";
+            packageViewController.PackageTypes = new[] { Constants.GalleryPackageType };
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
         }
@@ -83,9 +83,9 @@ namespace Bonsai.NuGet.Design
             base.OnResizeEnd(e);
         }
 
-        private void packageView_OperationClick(object sender, TreeViewEventArgs e)
+        private void packageView_OperationClick(object sender, PackageViewEventArgs e)
         {
-            var package = (IPackageSearchMetadata)e.Node.Tag;
+            var package = e.Package;
             if (package != null)
             {
                 if (!package.Tags.Contains(Constants.GalleryDirectory))
@@ -123,7 +123,7 @@ namespace Bonsai.NuGet.Design
             {
                 if (PackageIdentityComparer.Default.Equals(package, Owner.targetPackage))
                 {
-                    Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, Owner.targetPath);
+                    Owner.InstallPath = packageReader.InstallExecutablePackage(package, projectFramework, Owner.targetPath);
                     Owner.DialogResult = DialogResult.OK;
                 }
 
@@ -159,7 +159,6 @@ namespace Bonsai.NuGet.Design
             }
             else packageViewController.SelectedRepository = null;
 
-            packageView.OperationText = Resources.OpenOperationName;
             searchComboBox.Text = string.Empty;
             packageViewController.UpdatePackageQuery();
         }
