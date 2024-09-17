@@ -14,6 +14,7 @@ namespace Bonsai.Editor
         bool activeDoubleClick;
         readonly ImageList imageList;
         readonly ImageList stateImageList;
+        static readonly object EventNavigate = new();
 
         public ExplorerTreeView()
         {
@@ -50,6 +51,40 @@ namespace Bonsai.Editor
 
             StateImageList = stateImageList;
             ImageList = imageList;
+        }
+
+        public event TreeViewEventHandler Navigate
+        {
+            add { Events.AddHandler(EventNavigate, value); }
+            remove { Events.RemoveHandler(EventNavigate, value); }
+        }
+
+        protected virtual void OnNavigate(TreeViewEventArgs e)
+        {
+            if (Events[EventNavigate] is TreeViewEventHandler handler)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node is not null && HitTest(e.Location).Location != TreeViewHitTestLocations.PlusMinus)
+            {
+                OnNavigate(new TreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
+            }
+
+            base.OnNodeMouseDoubleClick(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return && SelectedNode != null)
+            {
+                OnNavigate(new TreeViewEventArgs(SelectedNode, TreeViewAction.ByKeyboard));
+            }
+
+            base.OnKeyDown(e);
         }
 
         protected override void OnBeforeCollapse(TreeViewCancelEventArgs e)

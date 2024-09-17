@@ -1813,7 +1813,7 @@ namespace Bonsai.Editor
             }
         }
 
-        private void explorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void explorerTreeView_Navigate(object sender, TreeViewEventArgs e)
         {
             var workflowPath = (WorkflowEditorPath)e.Node?.Tag;
             editorControl.WorkflowGraphView.WorkflowPath = workflowPath;

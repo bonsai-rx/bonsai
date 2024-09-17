@@ -1388,7 +1388,7 @@
             this.explorerTreeView.Name = "explorerTreeView";
             this.explorerTreeView.Size = new System.Drawing.Size(200, 137);
             this.explorerTreeView.TabIndex = 3;
-            this.explorerTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(explorerTreeView_NodeMouseDoubleClick);
+            this.explorerTreeView.Navigate += new System.Windows.Forms.TreeViewEventHandler(explorerTreeView_Navigate);
             // 
             // EditorForm
             // 
