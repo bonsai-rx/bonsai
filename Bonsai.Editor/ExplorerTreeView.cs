@@ -5,11 +5,12 @@ using System.Linq;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.Properties;
+using Bonsai.Editor.Themes;
 using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
-    class ExplorerTreeView : ToolboxTreeView
+    partial class ExplorerTreeView : UserControl
     {
         bool activeDoubleClick;
         readonly ImageList imageList;
@@ -49,8 +50,15 @@ namespace Bonsai.Editor
             }
 #endif
 
-            StateImageList = stateImageList;
-            ImageList = imageList;
+            InitializeComponent();
+            treeView.StateImageList = stateImageList;
+            treeView.ImageList = imageList;
+        }
+
+        public ToolStripExtendedRenderer Renderer
+        {
+            get => treeView.Renderer;
+            set => treeView.Renderer = value;
         }
 
         public event TreeViewEventHandler Navigate
@@ -67,54 +75,47 @@ namespace Bonsai.Editor
             }
         }
 
-        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
+        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is not null && HitTest(e.Location).Location != TreeViewHitTestLocations.PlusMinus)
+            if (e.Node is not null && treeView.HitTest(e.Location).Location != TreeViewHitTestLocations.PlusMinus)
             {
                 OnNavigate(new TreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
             }
-
-            base.OnNodeMouseDoubleClick(e);
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        private void treeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && SelectedNode != null)
+            if (e.KeyCode == Keys.Return && treeView.SelectedNode != null)
             {
-                OnNavigate(new TreeViewEventArgs(SelectedNode, TreeViewAction.ByKeyboard));
+                OnNavigate(new TreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
             }
-
-            base.OnKeyDown(e);
         }
 
-        protected override void OnBeforeCollapse(TreeViewCancelEventArgs e)
+        private void treeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
             if (activeDoubleClick && e.Action == TreeViewAction.Collapse)
                 e.Cancel = true;
             activeDoubleClick = false;
-            base.OnBeforeCollapse(e);
         }
 
-        protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
+        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             if (activeDoubleClick && e.Action == TreeViewAction.Expand)
                 e.Cancel = true;
             activeDoubleClick = false;
-            base.OnBeforeExpand(e);
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
+        private void treeView_MouseDown(object sender, MouseEventArgs e)
         {
             activeDoubleClick = e.Clicks > 1;
-            base.OnMouseDown(e);
         }
 
         public void UpdateWorkflow(string name, WorkflowBuilder workflowBuilder)
         {
-            BeginUpdate();
-            Nodes.Clear();
+            treeView.BeginUpdate();
+            treeView.Nodes.Clear();
 
-            var rootNode = Nodes.Add(name);
+            var rootNode = treeView.Nodes.Add(name);
             AddWorkflow(rootNode.Nodes, null, workflowBuilder.Workflow, ExplorerNodeType.Editable);
 
             static void AddWorkflow(
@@ -144,12 +145,12 @@ namespace Bonsai.Editor
 
             SetNodeStatus(ExplorerNodeStatus.Ready);
             rootNode.Expand();
-            EndUpdate();
+            treeView.EndUpdate();
         }
 
         public void SelectNode(WorkflowEditorPath path)
         {
-            SelectNode(Nodes, path);
+            SelectNode(treeView.Nodes, path);
         }
 
         bool SelectNode(TreeNodeCollection nodes, WorkflowEditorPath path)
@@ -159,7 +160,7 @@ namespace Bonsai.Editor
                 var nodePath = (WorkflowEditorPath)node.Tag;
                 if (nodePath == path)
                 {
-                    SelectedNode = node;
+                    treeView.SelectedNode = node;
                     return true;
                 }
 
@@ -193,7 +194,7 @@ namespace Bonsai.Editor
         public void SetNodeStatus(ExplorerNodeStatus status)
         {
             var imageIndex = GetStateImageIndex(status);
-            SetNodeImageIndex(Nodes, imageIndex);
+            SetNodeImageIndex(treeView.Nodes, imageIndex);
 
             static void SetNodeImageIndex(TreeNodeCollection nodes, int index)
             {
@@ -210,7 +211,7 @@ namespace Bonsai.Editor
 
         public void SetNodeStatus(IEnumerable<WorkflowEditorPath> pathElements, ExplorerNodeStatus status)
         {
-            var nodes = Nodes;
+            var nodes = treeView.Nodes;
             var imageIndex = GetStateImageIndex(status);
             foreach (var path in pathElements.Prepend(null))
             {
