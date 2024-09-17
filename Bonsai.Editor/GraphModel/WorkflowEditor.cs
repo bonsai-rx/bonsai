@@ -1924,8 +1924,9 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var workflowNode = GetGraphNodeTag(workflow, node);
-            if (!(ExpressionBuilder.Unwrap(workflowNode.Value) is WorkflowExpressionBuilder workflowBuilder))
+            if (ExpressionBuilder.Unwrap(workflowNode.Value) is not WorkflowExpressionBuilder workflowBuilder)
             {
+                // Do not ungroup disabled groups
                 return;
             }
 
