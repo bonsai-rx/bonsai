@@ -485,7 +485,7 @@ namespace Bonsai.Editor
                 handler => selectionModel.SelectionChanged -= handler)
                 .Select(evt => selectionModel.SelectedView.WorkflowPath)
                 .DistinctUntilChanged()
-                .Do(view => explorerTreeView.SelectNode(editorControl.WorkflowGraphView.WorkflowPath))
+                .Do(explorerTreeView.SelectNode)
                 .IgnoreElements()
                 .Select(xs => Unit.Default);
 
@@ -811,8 +811,7 @@ namespace Bonsai.Editor
             UpdateWorkflowDirectory(fileName, setWorkingDirectory);
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
-            editorControl.ResetNavigation();
-            if (workflowBuilder.Workflow.Count > 0 && !editorControl.WorkflowGraphView.GraphView.Nodes.Any())
+            if (workflowBuilder.Workflow.Count > 0)
             {
                 try { workflowBuilder.Workflow.Build(); }
                 catch (WorkflowBuildException ex)
@@ -1813,10 +1812,23 @@ namespace Bonsai.Editor
             }
         }
 
-        private void explorerTreeView_Navigate(object sender, TreeViewEventArgs e)
+        private void explorerTreeView_Navigate(object sender, ExplorerTreeViewEventArgs e)
         {
             var workflowPath = (WorkflowEditorPath)e.Node?.Tag;
-            editorControl.WorkflowGraphView.WorkflowPath = workflowPath;
+            switch (e.NavigationPreference)
+            {
+                case ExplorerNavigationPreference.Current:
+                    selectionModel.SelectedView.WorkflowPath = workflowPath;
+                    break;
+                case ExplorerNavigationPreference.NewTab:
+                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
+                    break;
+                case ExplorerNavigationPreference.NewWindow:
+                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Float);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -2533,8 +2545,8 @@ namespace Bonsai.Editor
 
             public void OnKeyPress(KeyPressEventArgs e)
             {
-                var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
-                if (model.CanEdit && model.GraphView.Focused)
+                var selectedView = siteForm.selectionModel.SelectedView;
+                if (selectedView != null && selectedView.CanEdit && selectedView.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
@@ -2690,10 +2702,10 @@ namespace Bonsai.Editor
             public void ShowDefinition(object component)
             {
                 if (component is INamedElement namedElement &&
-                   (namedElement is SubscribeSubject || namedElement is MulticastSubject))
+                   (namedElement is SubscribeSubject || namedElement is MulticastSubject) &&
+                   siteForm.selectionModel.SelectedView?.Workflow is ExpressionBuilderGraph workflow)
                 {
-                    var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
-                    var definition = siteForm.workflowBuilder.GetSubjectDefinition(model.Workflow, namedElement.Name);
+                    var definition = siteForm.workflowBuilder.GetSubjectDefinition(workflow, namedElement.Name);
                     if (definition != null)
                     {
                         siteForm.SelectBuilderNode(definition.Subject);
@@ -2982,8 +2994,8 @@ namespace Bonsai.Editor
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
 
-            var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
-            var labelOffset = searchLayoutTop - editorControl.ItemHeight;
+            var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top;
+            var labelOffset = searchLayoutTop - editorControl.ContentArea.Top;
             toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
             propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
             if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)

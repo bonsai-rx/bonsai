@@ -60,15 +60,15 @@ namespace Bonsai.Editor
             set => treeView.Renderer = value;
         }
 
-        public event TreeViewEventHandler Navigate
+        public event ExplorerTreeViewEventHandler Navigate
         {
             add { Events.AddHandler(EventNavigate, value); }
             remove { Events.RemoveHandler(EventNavigate, value); }
         }
 
-        protected virtual void OnNavigate(TreeViewEventArgs e)
+        protected virtual void OnNavigate(ExplorerTreeViewEventArgs e)
         {
-            if (Events[EventNavigate] is TreeViewEventHandler handler)
+            if (Events[EventNavigate] is ExplorerTreeViewEventHandler handler)
             {
                 handler(this, e);
             }
@@ -80,7 +80,7 @@ namespace Bonsai.Editor
                 e.Button == MouseButtons.Left &&
                 treeView.HitTest(e.Location).Location == TreeViewHitTestLocations.Label)
             {
-                OnNavigate(new TreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
+                OnNavigate(new ExplorerTreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
             }
         }
 
@@ -91,7 +91,7 @@ namespace Bonsai.Editor
 
             if (e.KeyCode == Keys.Return)
             {
-                OnNavigate(new TreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
+                OnNavigate(new ExplorerTreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
             }
 
             if (e.Shift && e.KeyCode == Keys.F10)
@@ -126,17 +126,41 @@ namespace Bonsai.Editor
             treeView.SelectedNode?.Collapse();
         }
 
+        private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeView.SelectedNode is null)
+                return;
+
+            OnNavigate(new ExplorerTreeViewEventArgs(
+                treeView.SelectedNode,
+                TreeViewAction.ByMouse,
+                ExplorerNavigationPreference.NewTab));
+        }
+
+        private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeView.SelectedNode is null)
+                return;
+
+            OnNavigate(new ExplorerTreeViewEventArgs(
+                treeView.SelectedNode,
+                TreeViewAction.ByMouse,
+                ExplorerNavigationPreference.NewWindow));
+        }
+
         private void ShowContextMenu(TreeNode node, int x, int y)
         {
             if (node.Nodes.Count > 0)
             {
                 expandToolStripMenuItem.Visible = !node.IsExpanded;
                 collapseToolStripMenuItem.Visible = node.IsExpanded;
+                expandCollapseSeparator.Visible = true;
             }
             else
             {
                 expandToolStripMenuItem.Visible = false;
                 collapseToolStripMenuItem.Visible = false;
+                expandCollapseSeparator.Visible = false;
             }
             contextMenuStrip.Show(treeView, x, y);
         }
@@ -275,5 +299,33 @@ namespace Bonsai.Editor
     {
         Ready,
         Blocked
+    }
+
+    enum ExplorerNavigationPreference
+    {
+        Current,
+        NewTab,
+        NewWindow
+    }
+
+    delegate void ExplorerTreeViewEventHandler(object sender, ExplorerTreeViewEventArgs e);
+
+    class ExplorerTreeViewEventArgs : TreeViewEventArgs
+    {
+        public ExplorerTreeViewEventArgs(TreeNode node, TreeViewAction action)
+            : this(node, action, ExplorerNavigationPreference.Current)
+        {
+        }
+
+        public ExplorerTreeViewEventArgs(
+            TreeNode node,
+            TreeViewAction action,
+            ExplorerNavigationPreference navigationPreference)
+            : base(node, action)
+        {
+            NavigationPreference = navigationPreference;
+        }
+
+        public ExplorerNavigationPreference NavigationPreference { get; }
     }
 }

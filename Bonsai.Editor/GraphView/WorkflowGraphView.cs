@@ -39,6 +39,7 @@ namespace Bonsai.Editor.GraphView
         bool isContextMenuSource;
         GraphNode dragHighlight;
         IEnumerable<GraphNode> dragSelection;
+        IDisposable viewBindings;
         readonly CommandExecutor commandExecutor;
         readonly WorkflowSelectionModel selectionModel;
         readonly IWorkflowEditorState editorState;
@@ -50,12 +51,12 @@ namespace Bonsai.Editor.GraphView
         readonly ThemeRenderer themeRenderer;
         readonly IDefinitionProvider definitionProvider;
 
-        public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner)
+        public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner, WorkflowEditor editor)
         {
+            Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             EditorControl = owner ?? throw new ArgumentNullException(nameof(owner));
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             InitializeComponent();
-            Editor = new WorkflowEditor(provider, graphView);
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             definitionProvider = (IDefinitionProvider)provider.GetService(typeof(IDefinitionProvider));
@@ -70,12 +71,23 @@ namespace Bonsai.Editor.GraphView
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
             InitializeTheme();
-            InitializeViewBindings();
+            viewBindings = InitializeViewBindings();
+            Editor.ResetNavigation(null);
         }
 
         internal WorkflowEditor Editor { get; }
 
         internal WorkflowEditorControl EditorControl { get; }
+
+        internal string DisplayName
+        {
+            get
+            {
+                return Editor.WorkflowExpressionBuilder is not null
+                    ? ExpressionBuilder.GetElementDisplayName(Editor.WorkflowExpressionBuilder)
+                    : editorService.GetProjectDisplayName();
+            }
+        }
 
         internal bool IsReadOnly
         {
@@ -952,6 +964,7 @@ namespace Bonsai.Editor.GraphView
         private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
             themeRenderer.ThemeChanged -= themeRenderer_ThemeChanged;
+            viewBindings.Dispose();
         }
 
         private void themeRenderer_ThemeChanged(object sender, EventArgs e)
@@ -965,29 +978,30 @@ namespace Bonsai.Editor.GraphView
             graphView.BackColor = themeRenderer.ToolStripRenderer.ColorTable.WindowBackColor;
         }
 
-        private void InitializeViewBindings()
+        private IDisposable InitializeViewBindings()
         {
-            Editor.Error.Subscribe(uiService.ShowError);
-            Editor.UpdateLayout.Subscribe(UpdateGraphLayout);
-            Editor.InvalidateLayout.Subscribe(InvalidateGraphLayout);
-            Editor.WorkflowPathChanged.Subscribe(path =>
-            {
-                UpdateSelection(forceUpdate: true);
-                graphView.PathFlags = Editor.WorkflowPathFlags;
-                OnWorkflowPathChanged(EventArgs.Empty);
-            });
-
-            Editor.UpdateSelection.Subscribe(selection =>
-            {
-                var activeView = graphView;
-                activeView.SelectedNodes = activeView.Nodes.LayeredNodes()
-                    .Where(node =>
-                    {
-                        var nodeBuilder = WorkflowEditor.GetGraphNodeBuilder(node);
-                        return selection.Any(builder => ExpressionBuilder.Unwrap(builder) == nodeBuilder);
-                    });
-            });
-            Editor.ResetNavigation();
+            Editor.GraphView = graphView;
+            return new CompositeDisposable(
+                Editor.Error.Subscribe(uiService.ShowError),
+                Editor.UpdateLayout.Subscribe(UpdateGraphLayout),
+                Editor.InvalidateLayout.Subscribe(InvalidateGraphLayout),
+                Editor.CloseWorkflowEditor.Subscribe(EditorControl.CloseDockContent),
+                Editor.WorkflowPathChanged.Subscribe(path =>
+                {
+                    UpdateSelection(forceUpdate: true);
+                    graphView.PathFlags = Editor.WorkflowPathFlags;
+                    OnWorkflowPathChanged(EventArgs.Empty);
+                }),
+                Editor.UpdateSelection.Subscribe(selection =>
+                {
+                    var activeView = graphView;
+                    activeView.SelectedNodes = activeView.Nodes.LayeredNodes()
+                        .Where(node =>
+                        {
+                            var nodeBuilder = WorkflowEditor.GetGraphNodeBuilder(node);
+                            return selection.Any(builder => ExpressionBuilder.Unwrap(builder) == nodeBuilder);
+                        });
+                }));
         }
 
         #endregion

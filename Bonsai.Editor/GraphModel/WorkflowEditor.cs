@@ -17,17 +17,18 @@ namespace Bonsai.Editor.GraphModel
         static readonly Action EmptyAction = () => { };
         readonly CommandExecutor commandExecutor;
         readonly IServiceProvider serviceProvider;
-        readonly IGraphView graphView;
         readonly Subject<Exception> error;
         readonly Subject<bool> updateLayout;
         readonly Subject<bool> invalidateLayout;
         readonly Subject<WorkflowEditorPath> workflowPathChanged;
         readonly Subject<IEnumerable<ExpressionBuilder>> updateSelection;
+        readonly Subject<IWorkflowExpressionBuilder> closeWorkflowEditor;
         WorkflowEditorPath workflowPath;
+        IGraphView graphView;
 
-        public WorkflowEditor(IServiceProvider provider, IGraphView view)
+        public WorkflowEditor(IServiceProvider provider, IGraphView view = default)
         {
-            graphView = view ?? throw new ArgumentNullException(nameof(view));
+            graphView = view;
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             error = new Subject<Exception>();
@@ -35,10 +36,19 @@ namespace Bonsai.Editor.GraphModel
             invalidateLayout = new Subject<bool>();
             workflowPathChanged = new Subject<WorkflowEditorPath>();
             updateSelection = new Subject<IEnumerable<ExpressionBuilder>>();
-            ResetNavigation();
+            closeWorkflowEditor = new Subject<IWorkflowExpressionBuilder>();
+            ResetNavigation(null);
+        }
+
+        public IGraphView GraphView
+        {
+            get => graphView;
+            set => graphView = value;
         }
 
         public ExpressionBuilderGraph Workflow { get; private set; }
+
+        public IWorkflowExpressionBuilder WorkflowExpressionBuilder { get; private set; }
 
         public WorkflowPathFlags WorkflowPathFlags { get; private set; }
 
@@ -57,11 +67,13 @@ namespace Bonsai.Editor.GraphModel
                         throw new ArgumentException(Resources.InvalidWorkflowPath_Error, nameof(value));
                     }
 
+                    WorkflowExpressionBuilder = workflowExpressionBuilder;
                     Workflow = workflowExpressionBuilder.Workflow;
                     WorkflowPathFlags = pathFlags;
                 }
                 else
                 {
+                    WorkflowExpressionBuilder = null;
                     Workflow = workflowBuilder.Workflow;
                     WorkflowPathFlags = WorkflowPathFlags.None;
                 }
@@ -79,6 +91,8 @@ namespace Bonsai.Editor.GraphModel
         public IObservable<WorkflowEditorPath> WorkflowPathChanged => workflowPathChanged;
 
         public IObservable<IEnumerable<ExpressionBuilder>> UpdateSelection => updateSelection;
+
+        public IObservable<IWorkflowExpressionBuilder> CloseWorkflowEditor => closeWorkflowEditor;
 
         private static Node<ExpressionBuilder, ExpressionBuilderArgument> FindWorkflowValue(ExpressionBuilderGraph workflow, ExpressionBuilder value)
         {
@@ -1454,6 +1468,11 @@ namespace Bonsai.Editor.GraphModel
                 }
             };
 
+            if (ExpressionBuilder.GetWorkflowElement(workflowNode.Value) is IWorkflowExpressionBuilder workflowBuilder)
+            {
+                closeWorkflowEditor.OnNext(workflowBuilder);
+            }
+
             commandExecutor.Execute(() =>
             {
                 addEdge();
@@ -2105,9 +2124,9 @@ namespace Bonsai.Editor.GraphModel
                 });
         }
 
-        public void ResetNavigation()
+        public void ResetNavigation(WorkflowEditorPath workflowPath)
         {
-            WorkflowPath = null;
+            WorkflowPath = workflowPath;
         }
     }
 
