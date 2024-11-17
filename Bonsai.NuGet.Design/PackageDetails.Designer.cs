@@ -450,6 +450,9 @@
             this.detailsLinkLabel.TabStop = true;
             this.detailsLinkLabel.Text = "Package Details";
             this.detailsLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.detailsLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.detailsLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.detailsLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // projectLinkLabel
             // 
