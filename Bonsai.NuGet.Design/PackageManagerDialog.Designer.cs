@@ -396,7 +396,6 @@
             this.packageDetails.Location = new System.Drawing.Point(0, 34);
             this.packageDetails.Margin = new System.Windows.Forms.Padding(0, 4, 4, 4);
             this.packageDetails.Name = "packageDetails";
-            this.packageDetails.Operation = Bonsai.NuGet.Design.PackageOperationType.Install;
             this.packageDetails.Size = new System.Drawing.Size(290, 420);
             this.packageDetails.TabIndex = 1;
             this.packageDetails.OperationClick += new Bonsai.NuGet.Design.PackageViewEventHandler(this.packageView_OperationClick);

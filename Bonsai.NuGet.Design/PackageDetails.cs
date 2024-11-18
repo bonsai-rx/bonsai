@@ -29,8 +29,6 @@ namespace Bonsai.NuGet.Design
             SetPackage(null);
         }
 
-        public PackageOperationType Operation { get; set; }
-
         [Category("Action")]
         public event PackageViewEventHandler OperationClick
         {
@@ -46,6 +44,10 @@ namespace Bonsai.NuGet.Design
         }
 
         public NuGetFramework ProjectFramework { get; set; }
+
+        private PackageOperationType Operation => installedVersionLayoutPanel.Visible
+            ? PackageOperationType.Update
+            : PackageOperationType.Install;
 
         private void OnOperationClick(PackageViewEventArgs e)
         {
@@ -90,19 +92,12 @@ namespace Bonsai.NuGet.Design
             packageIdLabel.Text = package.Identity.Id;
             prefixReservedIcon.Visible = package.PrefixReserved;
 
-            installedVersionLayoutPanel.Visible =
-                (Operation == PackageOperationType.Install ||
-                Operation == PackageOperationType.Update) &&
-                selectedItem.LocalPackage != null;
+            installedVersionLayoutPanel.Visible = selectedItem.LocalPackage != null;
             if (installedVersionLayoutPanel.Visible)
             {
                 installedVersionTextBox.Text = selectedItem.LocalPackage.Identity.Version.ToString();
             }
-
-            var operation = Operation == PackageOperationType.Install && selectedItem.LocalPackage != null
-                ? PackageOperationType.Update
-                : Operation;
-            operationButton.Text = operation.ToString();
+            operationButton.Text = Operation.ToString();
 
             versionComboBox.Items.Clear();
             foreach (var version in item.PackageVersions
@@ -124,6 +119,7 @@ namespace Bonsai.NuGet.Design
         void SetPackageVersion(VersionInfo versionInfo)
         {
             var package = versionInfo.PackageSearchMetadata;
+            operationButton.Enabled = !(selectedItem.LocalPackage?.Identity.Version == versionInfo.Version);
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
             SetLinkLabelUri(detailsLinkLabel, package.PackageDetailsUrl, true);
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;

@@ -99,7 +99,7 @@ namespace Bonsai.NuGet.Design
         public PackageOperationType Operation
         {
             get => packageView.Operation;
-            set => packageView.Operation = packageDetails.Operation = value;
+            set => packageView.Operation = value;
         }
 
         public void ClearActiveRequests()
@@ -262,12 +262,7 @@ namespace Bonsai.NuGet.Design
 
         private void AddPackage(IPackageSearchMetadata package)
         {
-            LocalPackageInfo installedPackage = null;
-            if (SelectedRepository != PackageManager.LocalRepository)
-            {
-                installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
-            }
-
+            var installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
             var nodeTitle = package.Identity.Id;
             var nodeText = string.Join(
                 Environment.NewLine, nodeTitle,
