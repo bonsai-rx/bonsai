@@ -27,7 +27,7 @@ def add(name: str, runner_os: str, rid: str, configurations: list[str] = ['Debug
     return ret
 
 windows = add('Windows x64', 'windows-latest', 'win-x64')
-linux = add('Linux x64', 'ubuntu-latest', 'linux-x64')
+linux = add('Linux x64', 'ubuntu-22.04', 'linux-x64')
 
 # Collect packages and create installer from Windows Release x64
 windows['Release']['collect-packages'] = True
