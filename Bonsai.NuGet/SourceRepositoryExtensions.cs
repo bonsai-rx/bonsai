@@ -64,22 +64,37 @@ namespace Bonsai.NuGet
             return await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
         }
 
-        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<IPackageSearchMetadata> localPackages, bool includePrerelease, CancellationToken token = default)
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
+            this SourceRepository repository,
+            IEnumerable<IPackageSearchMetadata> localPackages,
+            bool includePrerelease,
+            VersionRange version = default,
+            CancellationToken token = default)
         {
-            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, version, token);
         }
 
-        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<LocalPackageInfo> localPackages, bool includePrerelease, CancellationToken token = default)
+        public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
+            this SourceRepository repository,
+            IEnumerable<LocalPackageInfo> localPackages,
+            bool includePrerelease,
+            VersionRange version = default,
+            CancellationToken token = default)
         {
-            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, token);
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, version, token);
         }
 
-        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(this SourceRepository repository, IEnumerable<PackageIdentity> packages, bool includePrerelease, CancellationToken token = default)
+        public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
+            this SourceRepository repository,
+            IEnumerable<PackageIdentity> packages,
+            bool includePrerelease,
+            VersionRange version = default,
+            CancellationToken token = default)
         {
             using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
             var tasks = packages.Select(package =>
             {
-                var updateRange = new VersionRange(package.Version, includeMinVersion: false);
+                var updateRange = version ?? new VersionRange(package.Version, includeMinVersion: false);
                 return GetLatestMetadataAsync(repository, package.Id, updateRange, includePrerelease, cacheContext, token);
             }).ToArray();
 
@@ -98,10 +113,9 @@ namespace Bonsai.NuGet
             var packageMetadataResource = await repository.GetResourceAsync<PackageMetadataResource>(token);
             var packageMetadata = await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
             var packageVersions = packageMetadata
-                .Where(package => version.Satisfies(package.Identity.Version))
                 .OrderByDescending(package => package.Identity.Version, VersionComparer.VersionRelease)
                 .ToArray();
-            return packageVersions.Length > 0
+            return packageVersions.Any(package => version.Satisfies(package.Identity.Version))
                 ? PackageSearchMetadataBuilder
                     .FromMetadata(packageVersions[0])
                     .WithVersions(AsyncLazy.New(packageVersions

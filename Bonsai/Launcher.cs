@@ -84,7 +84,7 @@ namespace Bonsai
                         try
                         {
                             if (cancellation.IsCancellationRequested) break;
-                            var updates = await repository.GetUpdatesAsync(localPackages, includePrerelease: false, cancellation.Token);
+                            var updates = await repository.GetUpdatesAsync(localPackages, includePrerelease: false, token: cancellation.Token);
                             if (updates.Any()) return true;
                         }
                         catch { continue; }
