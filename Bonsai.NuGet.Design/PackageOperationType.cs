@@ -4,7 +4,6 @@
     {
         Install,
         Uninstall,
-        Update,
-        Open
+        Update
     }
 }

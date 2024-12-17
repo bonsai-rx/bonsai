@@ -1,6 +1,7 @@
 ﻿using Bonsai.NuGet.Design.Properties;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -26,10 +27,10 @@ namespace Bonsai.NuGet.Design
         Brush nodeHighlight;
         int boundsMargin;
         SizeF buttonSize;
+        int updateButtonOffset;
         int verticalScrollBarWidth;
-        PackageOperationType operation;
         TreeNode operationHoverNode;
-        bool operationButtonState;
+        OperationHitTestLocation operationHoverState;
         const int DefaultBoundsMargin = 6;
         static readonly object OperationClickEvent = new();
 
@@ -61,24 +62,6 @@ namespace Bonsai.NuGet.Design
             remove { Events.RemoveHandler(OperationClickEvent, value); }
         }
 
-        private Image OperationImage { get; set; }
-
-        public PackageOperationType Operation
-        {
-            get => operation;
-            set
-            {
-                operation = value;
-                OperationImage = operation switch
-                {
-                    PackageOperationType.Open => Resources.OpenImage,
-                    PackageOperationType.Update => Resources.PackageUpdateImage,
-                    PackageOperationType.Uninstall => Resources.PackageRemoveImage,
-                    PackageOperationType.Install or _ => Resources.DownloadImage
-                };
-            }
-        }
-
         public bool CanSelectNodes { get; set; }
 
         private void OnOperationClick(PackageViewEventArgs e)
@@ -103,7 +86,8 @@ namespace Bonsai.NuGet.Design
             verticalScrollBarWidth = (int)(SystemInformation.VerticalScrollBarWidth * widthScaleFactor);
             boundsMargin = (int)(DefaultBoundsMargin * factor.Height);
             using var graphics = CreateGraphics();
-            buttonSize = graphics.GetImageSize(OperationImage);
+            buttonSize = graphics.GetImageSize(Resources.DownloadImage);
+            updateButtonOffset = (int)Math.Ceiling(buttonSize.Height + boundsMargin / 2);
             base.ScaleControl(factor, specified);
         }
 
@@ -152,22 +136,21 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            var node = GetNodeAt(e.Location);
+            var hoverState = OperationHitTest(e.Location, out TreeViewHitTestInfo hitTestInfo);
+            var node = hitTestInfo.Node;
             if (operationHoverNode != node)
-                operationButtonState = false;
+                operationHoverState = 0;
 
             if (node != null)
             {
-                var buttonBounds = GetOperationButtonBounds(node.Bounds);
-                var hoverState = buttonBounds.Contains(e.Location);
-                if (operationButtonState != hoverState)
+                if (operationHoverState != hoverState)
                 {
                     var nodeBounds = node.Bounds;
                     nodeBounds.Width = Width - nodeBounds.X;
                     Invalidate(nodeBounds);
                 }
 
-                operationButtonState = hoverState;
+                operationHoverState = hoverState;
             }
 
             operationHoverNode = node;
@@ -176,27 +159,44 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
+            OperationHitTestLocation result;
             if (e.Button == MouseButtons.Left &&
-                OperationHitTest(e.Location, out TreeViewHitTestInfo hitTestInfo))
+                (result = OperationHitTest(e.Location, out TreeViewHitTestInfo hitTestInfo)) > 0)
             {
-                OnOperationClick(new PackageViewEventArgs(
-                    (IPackageSearchMetadata)hitTestInfo.Node.Tag,
-                    Operation));
+                var packageInfo = new TreeNodePackageInfo(hitTestInfo.Node);
+                if (result == OperationHitTestLocation.Primary && packageInfo.HasLocalPackage)
+                {
+                    var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(packageInfo.LocalPackage.Identity);
+                    OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
+                }
+                else
+                {
+                    var operation = result == OperationHitTestLocation.Secondary
+                        ? PackageOperationType.Update
+                        : PackageOperationType.Install;
+                    OnOperationClick(new((IPackageSearchMetadata)hitTestInfo.Node.Tag, operation));
+                }
             }
             base.OnMouseClick(e);
         }
 
-        private bool OperationHitTest(Point pt, out TreeViewHitTestInfo hitTestInfo)
+        private OperationHitTestLocation OperationHitTest(Point pt, out TreeViewHitTestInfo hitTestInfo)
         {
             hitTestInfo = HitTest(pt);
-            if (hitTestInfo.Node != null && !hitTestInfo.Node.Checked)
+            if (hitTestInfo.Node?.Tag != null)
             {
-                if (hitTestInfo.Node.Tag == null) return false;
                 var buttonBounds = GetOperationButtonBounds(hitTestInfo.Node.Bounds);
-                return buttonBounds.Contains(pt);
+                if (buttonBounds.Contains(pt)) return OperationHitTestLocation.Primary;
+
+                var packageInfo = new TreeNodePackageInfo(hitTestInfo.Node);
+                if (packageInfo.HasPackageUpdates)
+                {
+                    buttonBounds.Y += updateButtonOffset;
+                    if (buttonBounds.Contains(pt)) return OperationHitTestLocation.Secondary;
+                }
             }
 
-            return false;
+            return OperationHitTestLocation.None;
         }
 
         private int RightMargin
@@ -239,7 +239,7 @@ namespace Bonsai.NuGet.Design
             var imageSize = Size.Round(graphics.GetImageSize(image));
             imageX = bounds.Right - imageSize.Width;
             graphics.DrawImage(image, imageX, bounds.Y);
-            bounds.Width -= imageSize.Width + boundsMargin;
+            bounds.Width -= imageSize.Width;
         }
 
         private void DrawInlineText(
@@ -262,6 +262,29 @@ namespace Bonsai.NuGet.Design
             TextRenderer.DrawText(graphics, text, font, bounds, color, textFormatFlags);
             bounds.X += textSize.Width;
             bounds.Width -= textSize.Width;
+        }
+
+        private void DrawOperationImage(Graphics graphics, Image image, bool visible, bool highlight, ref Rectangle bounds)
+        {
+            bounds.Width -= boundsMargin;
+            if (visible)
+            {
+                if (highlight)
+                    FillImageBounds(graphics, SystemBrushes.ButtonHighlight, image, ref bounds);
+                DrawInlineImage(graphics, image, ref bounds);
+            }
+            else
+                bounds.Width -= Size.Round(graphics.GetImageSize(image)).Width;
+        }
+
+        private Size DrawVersionText(Graphics graphics, NuGetVersion version, Color color, ref Rectangle bounds)
+        {
+            var packageVersion = version.ToString();
+            var textSize = TextRenderer.MeasureText(graphics, packageVersion, Font);
+            var textPosition = new Point(bounds.Right - textSize.Width, bounds.Y);
+            TextRenderer.DrawText(graphics, packageVersion, Font, textPosition, color);
+            bounds.Width -= textSize.Width;
+            return textSize;
         }
 
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
@@ -292,9 +315,9 @@ namespace Bonsai.NuGet.Design
                 }
 
                 // Get source and local package info
-                var packageMetadata = (IPackageSearchMetadata)e.Node.Tag;
-                var localPackageNode = e.Node.Nodes.Count > 0 ? e.Node.Nodes[Resources.UpdatesNodeName] : null;
-                var localPackageMetadata = (LocalPackageInfo)localPackageNode?.Tag;
+                var packageInfo = new TreeNodePackageInfo(e.Node);
+                var packageMetadata = packageInfo.PackageMetadata;
+                var localPackage = packageInfo.LocalPackage;
 
                 // Draw package icon
                 var iconText = Resources.PrereleaseLabel;
@@ -306,9 +329,9 @@ namespace Bonsai.NuGet.Design
                 if (iconImageIndex >= 0)
                 {
                     ImageList.Draw(e.Graphics, iconImageX, iconImageY, iconImageIndex);
-                    if (localPackageMetadata != null)
+                    if (packageInfo.HasLocalPackage)
                     {
-                        var iconOverlay = localPackageMetadata.Identity.Version < packageMetadata.Identity.Version
+                        var iconOverlay = packageInfo.HasPackageUpdates
                             ? Resources.PackageUpdateImage
                             : Resources.PackageInstalledImage;
                         DrawImageOverlay(e.Graphics, iconOverlay, iconImageX, iconImageY);
@@ -329,36 +352,32 @@ namespace Bonsai.NuGet.Design
                 bounds.Y += boundsMargin;
                 bounds.Height -= boundsMargin;
 
-                // Draw operation image
-                bounds.Width -= boundsMargin;
-                if (nodeHot && OperationImage != null)
-                {
-                    var mousePosition = PointToClient(MousePosition);
-                    var buttonBounds = GetOperationButtonBounds(e.Node.Bounds);
-                    if (buttonBounds.Contains(mousePosition))
-                    {
-                        FillImageBounds(
-                            e.Graphics,
-                            SystemBrushes.ButtonHighlight,
-                            OperationImage,
-                            ref bounds);
-                    }
-                    DrawInlineImage(e.Graphics, OperationImage, ref bounds);
-                }
-                else
-                    bounds.Width -= Size.Round(e.Graphics.GetImageSize(OperationImage)).Width + boundsMargin;
+                // Draw primary package version
+                var updateVersionBounds = bounds;
+                var primaryVersion = packageInfo.HasLocalPackage ? localPackage.Identity : packageMetadata.Identity;
+                var operationImage = packageInfo.HasLocalPackage ? Resources.PackageRemoveImage : Resources.DownloadImage;
+                var highlightPrimary = operationHoverState == OperationHitTestLocation.Primary;
+                DrawOperationImage(e.Graphics, operationImage, nodeHot, highlightPrimary, ref bounds);
+                var textSize = DrawVersionText(e.Graphics, primaryVersion.Version, color, ref bounds);
 
-                // Draw package version
-                var packageVersion = packageMetadata.Identity.Version.ToString();
-                var textSize = TextRenderer.MeasureText(e.Graphics, packageVersion, Font);
-                var textPosition = new Point(bounds.Right - textSize.Width - boundsMargin, bounds.Y);
-                TextRenderer.DrawText(e.Graphics, packageVersion, Font, textPosition, color);
-                bounds.Width -= textSize.Width + boundsMargin;
+                // Draw package update version
+                if (packageInfo.HasPackageUpdates)
+                {
+                    updateVersionBounds.Y += updateButtonOffset;
+                    updateVersionBounds.Height -= updateButtonOffset;
+                    var highlightSecondary = operationHoverState == OperationHitTestLocation.Secondary;
+                    DrawOperationImage(e.Graphics, Resources.PackageUpdateImage, nodeHot, highlightSecondary, ref updateVersionBounds);
+                    DrawVersionText(e.Graphics, packageMetadata.Identity.Version, color, ref updateVersionBounds);
+                    bounds.Width = Math.Min(bounds.Width, updateVersionBounds.Width);
+                }
 
                 // Draw package warnings
                 var warningNode = e.Node.Nodes.Count > 0 ? e.Node.Nodes[Resources.PackageWarningKey] : null;
                 if (warningNode != null)
+                {
                     DrawInlineImage(e.Graphics, Resources.WarningImage, ref bounds);
+                    bounds.Width -= boundsMargin;
+                }
 
                 // Draw package title
                 var titleBounds = bounds;
@@ -448,6 +467,32 @@ namespace Bonsai.NuGet.Design
             }
 
             base.Dispose(disposing);
+        }
+
+        readonly struct TreeNodePackageInfo
+        {
+            public readonly IPackageSearchMetadata PackageMetadata;
+            public readonly LocalPackageInfo LocalPackage;
+
+            public TreeNodePackageInfo(TreeNode node)
+            {
+                PackageMetadata = (IPackageSearchMetadata)node.Tag;
+                var localPackageNode = node.Nodes.Count > 0 ? node.Nodes[Resources.UpdatesNodeName] : null;
+                LocalPackage = (LocalPackageInfo)localPackageNode?.Tag;
+            }
+
+            public bool HasLocalPackage => LocalPackage != null;
+
+            public bool HasPackageUpdates =>
+                HasLocalPackage &&
+                LocalPackage.Identity.Version < PackageMetadata.Identity.Version;
+        }
+
+        enum OperationHitTestLocation
+        {
+            None = 0,
+            Primary = 1,
+            Secondary = 2
         }
     }
 }
