@@ -1,4 +1,4 @@
-﻿using Bonsai.NuGet.Design.Properties;
+using Bonsai.NuGet.Design.Properties;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
@@ -33,7 +33,7 @@ namespace Bonsai.NuGet.Design
                 prereleaseCheckBox,
                 () => updatesButton.Checked,
                 value => multiOperationPanel.Visible = value);
-            packageViewController.PackageTypes = new[] { Constants.LibraryPackageType };
+            packageViewController.PackageType = Constants.LibraryPackageType;
             packageViewController.PackageManager.PackageManagerPlugins.Add(new ExecutablePackagePlugin(this));
             InitializePackageSourceItems();
             multiOperationPanel.Visible = false;
@@ -240,7 +240,7 @@ namespace Bonsai.NuGet.Design
             var packageType = dependencyCheckBox.Checked
                 ? PackageType.Dependency.Name
                 : Constants.LibraryPackageType;
-            packageViewController.PackageTypes = new[] { packageType };
+            packageViewController.PackageType = packageType;
             packageViewController.UpdatePackageQuery();
         }
     }

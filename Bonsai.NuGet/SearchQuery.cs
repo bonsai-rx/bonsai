@@ -15,8 +15,8 @@ namespace Bonsai.NuGet
             string searchTerm,
             int pageSize,
             bool includePrerelease,
-            IEnumerable<string> packageTypes = default)
-            : this(repository, searchTerm, 0, pageSize, includePrerelease, packageTypes)
+            string packageType = default)
+            : this(repository, searchTerm, 0, pageSize, includePrerelease, packageType)
         {
         }
 
@@ -26,14 +26,14 @@ namespace Bonsai.NuGet
             int pageIndex,
             int pageSize,
             bool includePrerelease,
-            IEnumerable<string> packageTypes)
+            string packageType)
         {
             Repository = repository;
             SearchTerm = searchTerm;
             PageIndex = pageIndex;
             PageSize = pageSize;
             IncludePrerelease = includePrerelease;
-            PackageTypes = packageTypes;
+            PackageType = packageType;
         }
 
         public SourceRepository Repository { get; }
@@ -46,11 +46,11 @@ namespace Bonsai.NuGet
 
         public bool IncludePrerelease { get; }
 
-        public IEnumerable<string> PackageTypes { get; }
+        public string PackageType { get; }
 
         public override async Task<QueryResult<IEnumerable<IPackageSearchMetadata>>> GetResultAsync(CancellationToken token = default)
         {
-            var searchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageTypes);
+            var searchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageType);
             try
             {
                 var result = (await Repository.SearchAsync(SearchTerm, searchFilter, PageIndex * PageSize, PageSize + 1, token)).ToList();
@@ -60,7 +60,7 @@ namespace Bonsai.NuGet
                     pageIndex: PageIndex + 1,
                     pageSize: PageSize,
                     includePrerelease: IncludePrerelease,
-                    packageTypes: PackageTypes) : null;
+                    packageType: PackageType) : null;
                 return QueryResult.Create(result.Take(PageSize), continuation);
             }
             catch (NuGetProtocolException ex)

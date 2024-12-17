@@ -35,7 +35,7 @@ namespace Bonsai.NuGet.Design
                 () => false,
                 value => { });
             packageViewController.SearchPrefix = $"tags:{Constants.GalleryDirectory} ";
-            packageViewController.PackageTypes = new[] { Constants.GalleryPackageType };
+            packageViewController.PackageType = Constants.GalleryPackageType;
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
         }
