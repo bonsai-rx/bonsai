@@ -88,7 +88,7 @@ namespace Bonsai.NuGet.Design
 
         public string SearchPrefix { get; set; }
 
-        public IEnumerable<string> PackageTypes { get; set; }
+        public string PackageType { get; set; }
 
         public SourceRepository SelectedRepository { get; set; }
 
@@ -210,8 +210,8 @@ namespace Bonsai.NuGet.Design
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
         {
             return updateFeed
-                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, PackageTypes)
-                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, PackageTypes);
+                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, PackageType)
+                : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, PackageType);
         }
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)

@@ -1,4 +1,5 @@
 ﻿using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -14,13 +15,13 @@ namespace Bonsai.NuGet
             SourceRepository localRepository,
             string searchTerm,
             bool includePrerelease,
-            IEnumerable<string> packageTypes = default)
+            string packageType = default)
         {
             RemoteRepository = remoteRepository;
             LocalRepository = localRepository;
             SearchTerm = searchTerm;
             IncludePrerelease = includePrerelease;
-            PackageTypes = packageTypes;
+            PackageType = packageType;
         }
 
         public SourceRepository RemoteRepository { get; }
@@ -31,14 +32,14 @@ namespace Bonsai.NuGet
 
         public bool IncludePrerelease { get; }
 
-        public IEnumerable<string> PackageTypes { get; }
+        public string PackageType { get; }
 
         public override async Task<QueryResult<IEnumerable<IPackageSearchMetadata>>> GetResultAsync(CancellationToken token = default)
         {
             try
             {
-                var searchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageTypes);
-                var localPackages = await LocalRepository.SearchAsync(SearchTerm, searchFilter, 0, int.MaxValue, token);
+                var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, PackageType);
+                var localPackages = await LocalRepository.SearchAsync(SearchTerm, localSearchFilter, 0, int.MaxValue, token);
                 return QueryResult.Create(await RemoteRepository.GetUpdatesAsync(localPackages, IncludePrerelease, token));
             }
             catch (NuGetProtocolException ex)
