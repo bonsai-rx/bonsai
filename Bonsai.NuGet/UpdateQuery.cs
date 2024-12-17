@@ -39,7 +39,7 @@ namespace Bonsai.NuGet
             try
             {
                 var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, PackageType);
-                var localPackages = await LocalRepository.SearchAsync(SearchTerm, localSearchFilter, 0, int.MaxValue, token);
+                var localPackages = await LocalRepository.SearchAsync(SearchTerm, localSearchFilter, token: token);
                 return QueryResult.Create(await RemoteRepository.GetUpdatesAsync(localPackages, IncludePrerelease, token));
             }
             catch (NuGetProtocolException ex)

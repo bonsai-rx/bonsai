@@ -45,7 +45,13 @@ namespace Bonsai.NuGet
             return findPackageResource.GetPackages(NullLogger.Instance, token);
         }
 
-        public static async Task<IEnumerable<IPackageSearchMetadata>> SearchAsync(this SourceRepository repository, string searchTerm, SearchFilter filters, int skip, int take, CancellationToken token = default)
+        public static async Task<IEnumerable<IPackageSearchMetadata>> SearchAsync(
+            this SourceRepository repository,
+            string searchTerm,
+            SearchFilter filters,
+            int skip = 0,
+            int take = int.MaxValue,
+            CancellationToken token = default)
         {
             var searchPackageResource = await repository.GetResourceAsync<PackageSearchResource>(token);
             return await searchPackageResource.SearchAsync(searchTerm, filters, skip, take, NullLogger.Instance, token);

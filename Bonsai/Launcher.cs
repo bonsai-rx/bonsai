@@ -73,7 +73,12 @@ namespace Bonsai
             {
                 try
                 {
-                    var localPackages = packageManager.LocalRepository.GetLocalPackages();
+                    var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, Constants.LibraryPackageType);
+                    var localPackages = await packageManager.LocalRepository.SearchAsync(
+                        string.Empty,
+                        localSearchFilter,
+                        token: cancellation.Token);
+
                     foreach (var repository in packageManager.SourceRepositoryProvider.GetRepositories())
                     {
                         try
