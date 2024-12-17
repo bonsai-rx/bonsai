@@ -4,6 +4,7 @@ using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -37,7 +38,6 @@ namespace Bonsai.NuGet.Design
         readonly ImageList packageIcons;
         readonly CueBannerComboBox searchComboBox;
         readonly CheckBox prereleaseCheckBox;
-        readonly Func<bool> getUpdateFeed;
         readonly Action<bool> setMultiOperationVisible;
 
         public PackageViewController(
@@ -50,7 +50,6 @@ namespace Bonsai.NuGet.Design
             ImageList icons,
             CueBannerComboBox search,
             CheckBox prerelease,
-            Func<bool> updateFeed,
             Action<bool> multiOperationVisible)
         {
             ProjectFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
@@ -61,7 +60,6 @@ namespace Bonsai.NuGet.Design
             packageIcons = icons ?? throw new ArgumentNullException(nameof(icons));
             searchComboBox = search ?? throw new ArgumentNullException(nameof(search));
             prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
-            getUpdateFeed = updateFeed ?? throw new ArgumentNullException(nameof(updateFeed));
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
             control.KeyDown += control_KeyDown;
             packageDetails.PackageLinkClicked += packageDetails_PackageLinkClicked;
@@ -83,7 +81,6 @@ namespace Bonsai.NuGet.Design
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
             packageDetails.ProjectFramework = ProjectFramework;
-            Operation = packageView.Operation;
         }
 
         public string SearchPrefix { get; set; }
@@ -96,11 +93,7 @@ namespace Bonsai.NuGet.Design
 
         public LicenseAwarePackageManager PackageManager { get; private set; }
 
-        public PackageOperationType Operation
-        {
-            get => packageView.Operation;
-            set => packageView.Operation = value;
-        }
+        public PackageOperationType SelectedTab { get; set; }
 
         public void ClearActiveRequests()
         {
@@ -179,15 +172,15 @@ namespace Bonsai.NuGet.Design
         {
             iconReader.ClearCache();
             var prefix = SearchPrefix;
-            var updateFeed = getUpdateFeed();
+            var updateQuery = SelectedTab != PackageOperationType.Install;
             var searchTerm = searchComboBox.Text;
-            var pageSize = updateFeed || SelectedRepository == PackageManager.LocalRepository ? int.MaxValue - 1 : PackagesPerPage;
+            var pageSize = updateQuery ? int.MaxValue - 1 : PackagesPerPage;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
-            packageQuery = new PackageQuery(searchTerm, pageSize, GetPackageQuery(searchTerm, pageSize, updateFeed));
+            packageQuery = new PackageQuery(searchTerm, pageSize, GetPackageQuery(searchTerm, pageSize, updateQuery));
             packagePageSelector.SelectedPage = 0;
         }
 
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, int pageSize, bool updateFeed)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, int pageSize, bool updateQuery)
         {
             if (PackageManager == null)
             {
@@ -199,18 +192,24 @@ namespace Bonsai.NuGet.Design
             if (selectedRepository == null)
             {
                 var repositories = PackageManager.SourceRepositoryProvider.GetRepositories();
-                var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, pageSize, allowPrereleaseVersions, updateFeed)).ToList();
+                var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, pageSize, allowPrereleaseVersions, updateQuery)).ToList();
                 if (packageQueries.Count == 1) return packageQueries[0];
                 else return AggregateQuery.Create(packageQueries, results => results.SelectMany(xs => xs));
             }
 
-            return GetPackageQuery(selectedRepository, searchTerm, pageSize, allowPrereleaseVersions, updateFeed);
+            return GetPackageQuery(selectedRepository, searchTerm, pageSize, allowPrereleaseVersions, updateQuery);
         }
 
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateFeed)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, int pageSize, bool includePrerelease, bool updateQuery)
         {
-            return updateFeed
-                ? new UpdateQuery(repository, PackageManager.LocalRepository, searchTerm, includePrerelease, PackageType)
+            return updateQuery
+                ? new UpdateQuery(
+                    repository,
+                    PackageManager.LocalRepository,
+                    searchTerm,
+                    includePrerelease,
+                    PackageType,
+                    SelectedTab == PackageOperationType.Uninstall ? VersionRange.All : default)
                 : new SearchQuery(repository, searchTerm, pageSize, includePrerelease, PackageType);
         }
 
@@ -242,8 +241,7 @@ namespace Bonsai.NuGet.Design
         {
             if (packages.Count > 0)
             {
-                if (packages.Count > 1 && packagePageSelector.SelectedPage == 0 &&
-                    packageView.Operation == PackageOperationType.Update)
+                if (packages.Count > 1 && SelectedTab == PackageOperationType.Update)
                 {
                     setMultiOperationVisible(true);
                 }
@@ -328,7 +326,7 @@ namespace Bonsai.NuGet.Design
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
-                        else if (packageView.Operation == PackageOperationType.Update)
+                        else if (SelectedTab == PackageOperationType.Update)
                         {
                             SetPackageViewStatus(Resources.NoUpdatesAvailableLabel);
                         }
@@ -339,19 +337,17 @@ namespace Bonsai.NuGet.Design
             activeRequests.Add(feedRequest);
         }
 
-        public void RunPackageOperation(IEnumerable<IPackageSearchMetadata> packages, bool handleDependencies)
+        public void RunPackageOperation(IEnumerable<IPackageSearchMetadata> packages, PackageOperationType operation, bool handleDependencies)
         {
             using (var dialog = new PackageOperationDialog())
             {
                 var logger = PackageManager.Logger;
                 dialog.RegisterEventLogger((EventLogger)logger);
 
-                IObservable<Unit> operation;
-                var uninstallOperation = SelectedRepository == PackageManager.LocalRepository;
-                var update = packageView.Operation == PackageOperationType.Update;
-                if (uninstallOperation)
+                IObservable<Unit> operationSequence;
+                if (operation == PackageOperationType.Uninstall)
                 {
-                    operation = Observable.FromAsync(async token =>
+                    operationSequence = Observable.FromAsync(async token =>
                     {
                         foreach (var package in packages)
                         {
@@ -363,9 +359,9 @@ namespace Bonsai.NuGet.Design
                 else
                 {
                     var allowPrereleaseVersions = AllowPrereleaseVersions;
-                    dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
+                    dialog.Text = Resources.InstallOperationLabel;
 
-                    operation = Observable.FromAsync(async token =>
+                    operationSequence = Observable.FromAsync(async token =>
                     {
                         foreach (var package in packages)
                         {
@@ -379,7 +375,7 @@ namespace Bonsai.NuGet.Design
                 {
                     dialog.Shown += delegate
                     {
-                        operation.ObserveOn(control).Subscribe(
+                        operationSequence.ObserveOn(control).Subscribe(
                             xs => { },
                             ex => logger.LogError(ex.Message),
                             dialog.Complete);
@@ -387,7 +383,7 @@ namespace Bonsai.NuGet.Design
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        if (uninstallOperation || update) UpdatePackageQuery();
+                        if (SelectedTab != PackageOperationType.Install) UpdatePackageQuery();
                         else UpdatePackagePage(packagePageSelector.SelectedPage);
                     }
                 }

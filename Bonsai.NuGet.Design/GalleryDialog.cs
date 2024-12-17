@@ -32,7 +32,6 @@ namespace Bonsai.NuGet.Design
                 packageIcons,
                 searchComboBox,
                 prereleaseCheckBox,
-                () => false,
                 value => { });
             packageViewController.SearchPrefix = $"tags:{Constants.GalleryDirectory} ";
             packageViewController.PackageType = Constants.GalleryPackageType;
@@ -101,7 +100,7 @@ namespace Bonsai.NuGet.Design
                 {
                     targetPackage = package.Identity;
                     targetPath = saveFolderDialog.FileName;
-                    packageViewController.RunPackageOperation(new[] { package }, true);
+                    packageViewController.RunPackageOperation(new[] { package }, e.Operation, true);
                     if (DialogResult == DialogResult.OK)
                     {
                         Close();

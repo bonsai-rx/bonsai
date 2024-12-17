@@ -187,7 +187,6 @@
             this.packageView.ItemHeight = 64;
             this.packageView.Location = new System.Drawing.Point(3, 3);
             this.packageView.Name = "packageView";
-            this.packageView.Operation = Bonsai.NuGet.Design.PackageOperationType.Open;
             this.packageView.SelectedImageIndex = 0;
             this.packageView.ShowLines = false;
             this.packageView.ShowRootLines = false;
