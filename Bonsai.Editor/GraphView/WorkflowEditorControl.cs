@@ -190,6 +190,19 @@ namespace Bonsai.Editor.GraphView
             CreateDockContent(null);
         }
 
+        internal void UpdateGraphLayout(WorkflowGraphView workflowGraphView)
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    workflowContent.WorkflowGraphView != workflowGraphView &&
+                    workflowContent.WorkflowGraphView.WorkflowPath == workflowGraphView.WorkflowPath)
+                {
+                    workflowContent.WorkflowGraphView.UpdateGraphLayout(validateWorkflow: false);
+                }
+            }
+        }
+
         void CloseAll()
         {
             for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)

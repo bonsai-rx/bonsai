@@ -535,22 +535,13 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        private void UpdateGraphLayout()
-        {
-            UpdateGraphLayout(validateWorkflow: true);
-        }
-
-        private void UpdateGraphLayout(bool validateWorkflow)
+        internal void UpdateGraphLayout(bool validateWorkflow)
         {
             graphView.Nodes = Workflow.ConnectedComponentLayering();
             graphView.Invalidate();
             if (validateWorkflow)
             {
                 editorService.ValidateWorkflow();
-            }
-
-            if (validateWorkflow)
-            {
                 EditorControl.SelectTab(this);
                 if (EditorControl.AnnotationPanel.Tag is ExpressionBuilder builder)
                 {
@@ -983,9 +974,13 @@ namespace Bonsai.Editor.GraphView
             Editor.GraphView = graphView;
             return new CompositeDisposable(
                 Editor.Error.Subscribe(uiService.ShowError),
-                Editor.UpdateLayout.Subscribe(UpdateGraphLayout),
                 Editor.InvalidateLayout.Subscribe(InvalidateGraphLayout),
                 Editor.CloseWorkflowEditor.Subscribe(EditorControl.CloseDockContent),
+                Editor.UpdateLayout.Subscribe(validateWorkflow =>
+                {
+                    UpdateGraphLayout(validateWorkflow);
+                    EditorControl.UpdateGraphLayout(this);
+                }),
                 Editor.WorkflowPathChanged.Subscribe(path =>
                 {
                     UpdateSelection(forceUpdate: true);
