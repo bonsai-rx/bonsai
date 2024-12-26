@@ -23,6 +23,7 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            dockPanel.Theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory();
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
@@ -230,6 +231,10 @@ namespace Bonsai.Editor.GraphView
             base.ScaleControl(factor, specified);
             AnnotationPanelSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
             splitContainer.FixedPanel = FixedPanel.Panel1;
+            dockPanel.DefaultFloatWindowSize = Size.Round(new SizeF(
+                width: 320 * factor.Width,
+                height: 240 * factor.Height
+            ));
         }
 
         private void EnsureWebViewSize()
