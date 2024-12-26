@@ -75,6 +75,7 @@ namespace Bonsai.Editor
                     return;
                 }
 
+                contentIndex = -1;
                 dockControl = previousPaneHandle != IntPtr.Zero ? Control.FromHandle(previousPaneHandle) : null;
                 if (dockControl is DockPane previousPane)
                 {
@@ -83,6 +84,10 @@ namespace Bonsai.Editor
                 else if (floatWindowBounds.HasValue)
                 {
                     dockContent.Show(dockPanel, floatWindowBounds.GetValueOrDefault());
+                }
+                else if (dockPanel.ActiveDocumentPane != null && dockState == DockState.Document)
+                {
+                    dockContent.Show(dockPanel.ActiveDocumentPane, contentIndex);
                 }
                 else
                 {
