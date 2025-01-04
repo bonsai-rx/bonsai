@@ -8,16 +8,17 @@ namespace Bonsai.Editor
 {
     internal static class DockPanelHelper
     {
-        public static void CreateDynamicContent<TDockPanel>(
-            this TDockPanel dockPanel,
-            Func<TDockPanel, DockContent> factory,
+        public static void CreateDynamicContent<TDockContent>(
+            this DockPanel dockPanel,
+            Func<DockPanel, TDockContent> contentFactory,
+            Action<TDockContent> contentClosed,
             DockState dockState,
             CommandExecutor commandExecutor)
-            where TDockPanel : DockPanel
+            where TDockContent : DockContent
         {
             int contentIndex = -1;
             Rectangle? floatWindowBounds = null;
-            DockContent dockContent = default;
+            TDockContent dockContent = default;
             DockAlignment? dockAlignment = default;
             double dockProportion = default;
             IntPtr dockPaneHandle = default;
@@ -39,10 +40,11 @@ namespace Bonsai.Editor
             Action createAndShow = null;
             createAndShow = () =>
             {
-                dockContent = factory(dockPanel);
+                dockContent = contentFactory(dockPanel);
                 dockContent.HideOnClose = false;
                 dockContent.FormClosed += (sender, e) =>
                 {
+                    contentClosed(dockContent);
                     var nestedDockingStatus = dockContent.Pane.NestedDockingStatus;
                     dockState = dockContent.DockState;
                     dockAlignment = nestedDockingStatus.Alignment;
