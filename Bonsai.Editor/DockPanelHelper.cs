@@ -17,14 +17,17 @@ namespace Bonsai.Editor
             where TDockContent : DockContent
         {
             int contentIndex = -1;
+            int dockPaneIndex = -1;
+            int previousPaneIndex = -1;
+            bool singletonContent = default;
+            IntPtr dockPaneHandle = default;
+            IntPtr previousPaneHandle = default;
             Rectangle? floatWindowBounds = null;
             TDockContent dockContent = default;
             DockAlignment? dockAlignment = default;
             double dockProportion = default;
-            IntPtr dockPaneHandle = default;
-            IntPtr previousPaneHandle = default;
             var isUndoAction = false;
-            Action close = () =>
+            void CloseContent()
             {
                 try
                 {
@@ -35,10 +38,9 @@ namespace Bonsai.Editor
                 {
                     isUndoAction = false;
                 }
-            };
+            }
 
-            Action createAndShow = null;
-            createAndShow = () =>
+            void CreateAndShowContent()
             {
                 dockContent = contentFactory(dockPanel);
                 dockContent.HideOnClose = false;
@@ -51,6 +53,9 @@ namespace Bonsai.Editor
                     dockProportion = nestedDockingStatus.Proportion;
                     dockPaneHandle = dockContent.Pane.Handle;
                     previousPaneHandle = (nestedDockingStatus.PreviousPane?.Handle).GetValueOrDefault();
+                    dockPaneIndex = dockPanel.Panes.IndexOf(dockContent.Pane);
+                    previousPaneIndex = dockPanel.Panes.IndexOf(nestedDockingStatus.PreviousPane);
+                    singletonContent = dockContent.Pane.Contents.Count == 1;
                     floatWindowBounds = dockState == DockState.Float
                         ? dockContent.Pane.FloatWindow.Bounds
                         : null;
@@ -62,24 +67,27 @@ namespace Bonsai.Editor
                             () =>
                             {
                                 if (isRedoAction)
-                                    close();
+                                    CloseContent();
                                 else
                                     isRedoAction = true;
                             },
-                            createAndShow);
+                            CreateAndShowContent);
                     }
                 };
 
-                var dockControl = dockPaneHandle != IntPtr.Zero ? Control.FromHandle(dockPaneHandle) : null;
-                if (dockControl is DockPane dockPane)
+                var dockPane = GetPaneFromHandle(dockPaneHandle) ?? dockPanel.GetPaneFromIndex(dockPaneIndex);
+                if (dockPane != null && !singletonContent)
                 {
                     dockContent.Show(dockPane, contentIndex);
                     return;
                 }
 
                 contentIndex = -1;
-                dockControl = previousPaneHandle != IntPtr.Zero ? Control.FromHandle(previousPaneHandle) : null;
-                if (dockControl is DockPane previousPane)
+                dockPaneIndex = -1;
+                singletonContent = default;
+                dockPane = GetPaneFromHandle(previousPaneHandle) ?? dockPanel.GetPaneFromIndex(previousPaneIndex);
+                previousPaneIndex = -1;
+                if (dockPane is DockPane previousPane)
                 {
                     dockContent.Show(previousPane, dockAlignment.Value, dockProportion);
                 }
@@ -95,11 +103,11 @@ namespace Bonsai.Editor
                 {
                     dockContent.Show(dockPanel, dockState);
                 }
-            };
+            }
 
             commandExecutor.Execute(
-                createAndShow,
-                close);
+                CreateAndShowContent,
+                CloseContent);
         }
 
         public static void Show(this DockContent dockContent, DockPane pane, int contentIndex)
@@ -107,9 +115,24 @@ namespace Bonsai.Editor
             pane.DockPanel.SuspendLayout(allWindows: true);
             dockContent.DockPanel = pane.DockPanel;
             dockContent.Pane = pane;
-            pane.SetContentIndex(dockContent, contentIndex);
+            if (contentIndex >= 0 && contentIndex < pane.Contents.Count)
+            {
+                pane.SetContentIndex(dockContent, contentIndex);
+            }
             dockContent.Show();
             pane.DockPanel.ResumeLayout(performLayout: true, allWindows: true);
+        }
+
+        static DockPane GetPaneFromHandle(IntPtr handle)
+        {
+            return Control.FromHandle(handle) as DockPane;
+        }
+
+        static DockPane GetPaneFromIndex(this DockPanel dockPanel, int index)
+        {
+            return index >= 0 && index < dockPanel.Panes.Count
+                ? dockPanel.Panes[index]
+                : null;
         }
     }
 }
