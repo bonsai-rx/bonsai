@@ -237,7 +237,7 @@
             this.dependencyCheckBox.Name = "dependencyCheckBox";
             this.dependencyCheckBox.Size = new System.Drawing.Size(123, 17);
             this.dependencyCheckBox.TabIndex = 3;
-            this.dependencyCheckBox.Text = "Show dependencies";
+            this.dependencyCheckBox.Text = "Show advanced";
             this.dependencyCheckBox.UseVisualStyleBackColor = true;
             this.dependencyCheckBox.CheckedChanged += new System.EventHandler(this.dependencyCheckBox_CheckedChanged);
             // 
