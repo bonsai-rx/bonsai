@@ -116,7 +116,7 @@ namespace Bonsai.Editor.GraphView
         private WorkflowDockContent CreateWorkflowDockContent(WorkflowEditorPath workflowPath, WorkflowEditor editor)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, editor);
-            var dockContent = new WorkflowDockContent(workflowGraphView);
+            var dockContent = new WorkflowDockContent(workflowGraphView, serviceProvider);
             dockContent.DockAreas = DockAreas.Float | DockAreas.Document;
             dockContent.SuspendLayout();
 
@@ -290,6 +290,15 @@ namespace Bonsai.Editor.GraphView
         {
             editorService.OnKeyDown(e);
             base.OnKeyDown(e);
+        }
+
+        protected override void OnEnter(EventArgs e)
+        {
+            if (dockPanel.GetDocumentPane()?.ActiveContent is WorkflowDockContent workflowContent)
+            {
+                workflowContent.Activate();
+            }
+            base.OnEnter(e);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)

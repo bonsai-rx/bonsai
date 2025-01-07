@@ -134,5 +134,17 @@ namespace Bonsai.Editor
                 ? dockPanel.Panes[index]
                 : null;
         }
+
+        public static DockPane GetDocumentPane(this DockPanel dockPanel)
+        {
+            for (int i = 0; i < dockPanel.Panes.Count; i++)
+            {
+                var pane = dockPanel.Panes[i];
+                if (pane.IsActiveDocumentPane)
+                    return pane;
+            }
+
+            return null;
+        }
     }
 }
