@@ -31,6 +31,22 @@ namespace Bonsai.Editor.GraphView
             InitializeTheme();
         }
 
+        public event EventHandler ActiveContentChanged
+        {
+            add { dockPanel.ActiveContentChanged += value; }
+            remove { dockPanel.ActiveContentChanged -= value; }
+        }
+
+        public WorkflowGraphView ActiveContent
+        {
+            get
+            {
+                return dockPanel.ActiveContent is WorkflowDockContent workflowContent
+                    ? workflowContent.WorkflowGraphView
+                    : null;
+            }
+        }
+
         public AnnotationPanel AnnotationPanel
         {
             get { return annotationPanel; }

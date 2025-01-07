@@ -77,6 +77,7 @@ namespace Bonsai.Editor
         VisualizerDialogMap visualizerDialogs;
         WorkflowException workflowError;
         IDisposable running;
+        bool requireValidation;
         bool debugging;
         bool building;
         SizeF inverseScaleFactor;
@@ -174,6 +175,7 @@ namespace Bonsai.Editor
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
+            editorControl.ActiveContentChanged += editorControl_ActiveContentChanged;
             editorControl.Disposed += editorControl_Disposed;
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
             toolboxElements = elementProvider;
@@ -1477,6 +1479,16 @@ namespace Bonsai.Editor
                 selectedNode.GetNodeCount(false) == 0)
             {
                 toolboxTreeView.DoDragDrop(selectedNode, DragDropEffects.Copy);
+            }
+        }
+
+        private void editorControl_ActiveContentChanged(object sender, EventArgs e)
+        {
+            if (editorControl.ActiveContent is not null && (IsActiveControl(propertyGrid) || requireValidation))
+            {
+                editorSite.ValidateWorkflow();
+                requireValidation = false;
+                RefreshSelection();
             }
         }
 
@@ -2858,8 +2870,7 @@ namespace Bonsai.Editor
 
         private void propertyGrid_Validated(object sender, EventArgs e)
         {
-            editorSite.ValidateWorkflow();
-            RefreshSelection();
+            requireValidation = true;
         }
 
         private void propertyGrid_Refreshed(object sender, EventArgs e)
