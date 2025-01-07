@@ -192,15 +192,50 @@ namespace Bonsai.Editor.GraphView
             CreateDockContent(null);
         }
 
-        internal void UpdateGraphLayout(WorkflowGraphView workflowGraphView)
+        internal void ClearGraphNode(WorkflowEditorPath path)
+        {
+            UpdateGraphView(graphView => graphView.ClearGraphNode(path));
+        }
+
+        internal void HighlightGraphNode(WorkflowGraphView selectedView, WorkflowEditorPath path, bool selectNode)
+        {
+            UpdateGraphView(graphView => graphView.HighlightGraphNode(path, selectNode && graphView == selectedView));
+        }
+
+        internal void RefreshSelection(WorkflowGraphView selectedView)
+        {
+            UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
+            selectedView.RefreshSelection();
+        }
+
+        internal void InvalidateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
+        {
+            UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
+            selectedView.InvalidateGraphLayout(validateWorkflow);
+        }
+
+        internal void UpdateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
+        {
+            UpdateGraphView(selectedView, graphView =>
+                graphView.UpdateGraphLayout(validateWorkflow: false, updateSelection: false));
+            selectedView.UpdateGraphLayout(validateWorkflow, updateSelection: true);
+        }
+
+        private void UpdateGraphView(Action<WorkflowGraphView> action)
+        {
+            UpdateGraphView(selectedView: null, action);
+        }
+
+        private void UpdateGraphView(WorkflowGraphView selectedView, Action<WorkflowGraphView> action)
         {
             for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
             {
                 if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
-                    workflowContent.WorkflowGraphView != workflowGraphView &&
-                    workflowContent.WorkflowGraphView.WorkflowPath == workflowGraphView.WorkflowPath)
+                    workflowContent.WorkflowGraphView != selectedView &&
+                    (selectedView is null ||
+                     workflowContent.WorkflowGraphView.WorkflowPath == selectedView.WorkflowPath))
                 {
-                    workflowContent.WorkflowGraphView.UpdateGraphLayout(validateWorkflow: false);
+                    action(workflowContent.WorkflowGraphView);
                 }
             }
         }

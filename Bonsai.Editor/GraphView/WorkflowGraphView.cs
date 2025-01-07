@@ -535,7 +535,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        internal void UpdateGraphLayout(bool validateWorkflow)
+        internal void UpdateGraphLayout(bool validateWorkflow, bool updateSelection)
         {
             graphView.Nodes = Workflow.ConnectedComponentLayering();
             graphView.Invalidate();
@@ -553,11 +553,15 @@ namespace Bonsai.Editor.GraphView
                     }
                 }
             }
-            UpdateSelection();
-            editorService.RefreshEditor();
+
+            if (updateSelection)
+            {
+                UpdateSelection();
+                editorService.RefreshEditor();
+            }
         }
 
-        private void InvalidateGraphLayout(bool validateWorkflow)
+        internal void InvalidateGraphLayout(bool validateWorkflow)
         {
             graphView.Refresh();
             if (validateWorkflow)
@@ -974,13 +978,9 @@ namespace Bonsai.Editor.GraphView
             Editor.GraphView = graphView;
             return new CompositeDisposable(
                 Editor.Error.Subscribe(uiService.ShowError),
-                Editor.InvalidateLayout.Subscribe(InvalidateGraphLayout),
                 Editor.CloseWorkflowEditor.Subscribe(EditorControl.CloseDockContent),
-                Editor.UpdateLayout.Subscribe(validateWorkflow =>
-                {
-                    UpdateGraphLayout(validateWorkflow);
-                    EditorControl.UpdateGraphLayout(this);
-                }),
+                Editor.InvalidateLayout.Subscribe(validateWorkflow => EditorControl.InvalidateGraphLayout(this, validateWorkflow)),
+                Editor.UpdateLayout.Subscribe(validateWorkflow => EditorControl.UpdateGraphLayout(this, validateWorkflow)),
                 Editor.WorkflowPathChanged.Subscribe(path =>
                 {
                     UpdateSelection(forceUpdate: true);
