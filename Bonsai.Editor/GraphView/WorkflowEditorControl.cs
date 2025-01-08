@@ -23,7 +23,7 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
-            dockPanel.Theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory();
+            dockPanel.Theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
