@@ -3016,6 +3016,7 @@ namespace Bonsai.Editor
             toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
             explorerLayoutPanel.RowStyles[0].Height -= labelOffset;
             propertyGrid.Refresh();
+            editorControl.InitializeTheme();
         }
 
         private void themeToolStripMenuItem_Click(object sender, EventArgs e)

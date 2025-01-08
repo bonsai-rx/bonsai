@@ -36,6 +36,7 @@
             this.browserLabel = new Bonsai.Editor.Label();
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.lightTheme = new WeifenLuo.WinFormsUI.Docking.VS2015LightTheme();
+            this.darkTheme = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -167,5 +168,6 @@
         private Bonsai.Editor.Label browserLabel;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
         private WeifenLuo.WinFormsUI.Docking.VS2015LightTheme lightTheme;
+        private WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme darkTheme;
     }
 }

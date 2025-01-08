@@ -23,7 +23,8 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
-            dockPanel.Theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
+            lightTheme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
+            darkTheme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
@@ -258,12 +259,22 @@ namespace Bonsai.Editor.GraphView
 
         void CloseAll()
         {
-            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            var activeDocument = dockPanel.ActiveDocument as WorkflowDockContent;
+            activeDocument?.Close();
+
+            var contents = new IDockContent[dockPanel.Contents.Count];
+            dockPanel.Contents.CopyTo(contents, 0);
+            for (int i = 0; i < contents.Length; i++)
             {
-                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent)
-                {
+                if (contents[i] is WorkflowDockContent workflowContent)
                     workflowContent.Close();
-                }
+            }
+
+            var floatWindows = new FloatWindow[dockPanel.FloatWindows.Count];
+            dockPanel.FloatWindows.CopyTo(floatWindows, 0);
+            for (int i = 0; i < floatWindows.Length; i++)
+            {
+                floatWindows[i].Close();
             }
         }
 
@@ -341,7 +352,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        private void InitializeTheme()
+        internal void InitializeTheme()
         {
             var labelOffset = browserLabel.Height - ContentArea.Top;
             if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
@@ -354,6 +365,20 @@ namespace Bonsai.Editor.GraphView
             browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
             browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
             annotationPanel.InitializeTheme();
+
+            ThemeBase dockTheme = themeRenderer.ActiveTheme == ColorTheme.Light ? lightTheme : darkTheme;
+            if (dockPanel.Theme != dockTheme)
+            {
+                var restoreContents = dockPanel.Contents.Count > 0;
+                if (restoreContents)
+                {
+                    commandExecutor.BeginCompositeCommand();
+                    CloseAll();
+                    commandExecutor.EndCompositeCommand();
+                }
+                dockPanel.Theme = dockTheme;
+                if (restoreContents) commandExecutor.Undo();
+            }
         }
 
         private void annotationPanel_KeyDown(object sender, KeyEventArgs e)
