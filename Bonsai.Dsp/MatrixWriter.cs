@@ -52,13 +52,14 @@ namespace Bonsai.Dsp
         /// <summary>
         /// Writes all of the arrays in an observable sequence to the specified raw binary output stream.
         /// </summary>
-        /// <param name="source">
-        /// The sequence of arrays to write. The elements stored in each array must
-        /// be of an unmanaged type.
-        /// </param>
+        /// <typeparam name="TElement">
+        /// The type of the elements in each array. This type must be a non-pointer, non-nullable
+        /// unmanaged type.
+        /// </typeparam>
+        /// <param name="source">The sequence of arrays to write.</param>
         /// <returns>
         /// An observable sequence that is identical to the source sequence but where
-        /// there is an additional side effect of writing the arrays to a stream.
+        /// there is an additional side effect of writing the arrays to a binary stream.
         /// </returns>
         public unsafe IObservable<TElement[]> Process<TElement>(IObservable<TElement[]> source) where TElement : unmanaged
         {
@@ -66,6 +67,30 @@ namespace Bonsai.Dsp
             {
                 var bytes = new byte[input.Length * sizeof(TElement)];
                 System.Buffer.BlockCopy(input, 0, bytes, 0, bytes.Length);
+                return new ArraySegment<byte>(bytes);
+            });
+        }
+
+        /// <summary>
+        /// Writes all of the values in an observable sequence to the specified raw binary output stream.
+        /// </summary>
+        /// <typeparam name="TElement">
+        /// The type of the elements in the sequence. This type must be a non-pointer, non-nullable
+        /// unmanaged type.
+        /// </typeparam>
+        /// <param name="source">The sequence of values to write.</param>
+        /// <returns>
+        /// An observable sequence that is identical to the source sequence but where
+        /// there is an additional side effect of writing the values to a binary stream.
+        /// </returns>
+        public unsafe IObservable<TElement> Process<TElement>(IObservable<TElement> source) where TElement : unmanaged
+        {
+            return Process(source, input =>
+            {
+                var valuePtr = &input;
+                var bytes = new byte[sizeof(TElement)];
+                fixed (byte* bytesPtr = bytes)
+                    System.Buffer.MemoryCopy(valuePtr, bytesPtr, bytes.Length, bytes.Length);
                 return new ArraySegment<byte>(bytes);
             });
         }
