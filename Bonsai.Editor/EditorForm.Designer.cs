@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditorForm));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Source");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Transform");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Sink");
@@ -113,9 +112,9 @@
             this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.reloadExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.statusCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxSplitContainer = new Bonsai.Editor.SelectableSplitContainer();
             this.toolboxTableLayoutPanel = new Bonsai.Editor.TableLayoutPanel();
             this.searchTextBox = new Bonsai.Editor.CueBannerTextBox();
@@ -214,7 +213,7 @@
             // 
             // newToolStripMenuItem
             // 
-            this.newToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("newToolStripMenuItem.Image")));
+            this.newToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.NewMenuImage;
             this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
@@ -224,7 +223,7 @@
             // 
             // openToolStripMenuItem
             // 
-            this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
+            this.openToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.OpenMenuImage;
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
@@ -239,7 +238,7 @@
             // 
             // saveToolStripMenuItem
             // 
-            this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
+            this.saveToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.SaveMenuImage;
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
@@ -332,7 +331,7 @@
             // undoToolStripMenuItem
             // 
             this.undoToolStripMenuItem.Enabled = false;
-            this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
+            this.undoToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.UndoMenuImage;
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -342,7 +341,7 @@
             // redoToolStripMenuItem
             // 
             this.redoToolStripMenuItem.Enabled = false;
-            this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
+            this.redoToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.RedoMenuImage;
             this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
             this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
             this.redoToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -356,7 +355,7 @@
             // 
             // cutToolStripMenuItem
             // 
-            this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+            this.cutToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.CutMenuImage;
             this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
@@ -366,7 +365,7 @@
             // 
             // copyToolStripMenuItem
             // 
-            this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+            this.copyToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.CopyMenuImage;
             this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
@@ -385,7 +384,7 @@
             // 
             // pasteToolStripMenuItem
             // 
-            this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+            this.pasteToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.PasteMenuImage;
             this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
@@ -395,7 +394,7 @@
             // 
             // deleteToolStripMenuItem
             // 
-            this.deleteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("deleteToolStripMenuItem.Image")));
+            this.deleteToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DeleteMenuImage;
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
             this.deleteToolStripMenuItem.ShortcutKeyDisplayString = "Del";
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -409,7 +408,7 @@
             // 
             // selectAllToolStripMenuItem
             // 
-            this.selectAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("selectAllToolStripMenuItem.Image")));
+            this.selectAllToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.SelectAllMenuImage;
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
             this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
             this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -423,7 +422,7 @@
             // 
             // groupToolStripMenuItem
             // 
-            this.groupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("groupToolStripMenuItem.Image")));
+            this.groupToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.GroupMenuImage;
             this.groupToolStripMenuItem.Name = "groupToolStripMenuItem";
             this.groupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
             this.groupToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -432,7 +431,7 @@
             // 
             // ungroupToolStripMenuItem
             // 
-            this.ungroupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("ungroupToolStripMenuItem.Image")));
+            this.ungroupToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.UngroupMenuImage;
             this.ungroupToolStripMenuItem.Name = "ungroupToolStripMenuItem";
             this.ungroupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.G)));
@@ -447,7 +446,7 @@
             // 
             // enableToolStripMenuItem
             // 
-            this.enableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("enableToolStripMenuItem.Image")));
+            this.enableToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.EnableMenuImage;
             this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
             this.enableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.D)));
@@ -457,7 +456,7 @@
             // 
             // disableToolStripMenuItem
             // 
-            this.disableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disableToolStripMenuItem.Image")));
+            this.disableToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DisableMenuImage;
             this.disableToolStripMenuItem.Name = "disableToolStripMenuItem";
             this.disableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
             this.disableToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
@@ -478,7 +477,7 @@
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Enabled = false;
-            this.startToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripMenuItem.Image")));
+            this.startToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.StartMenuImage;
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
             this.startToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
             this.startToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
@@ -488,7 +487,7 @@
             // startWithoutDebuggingToolStripMenuItem
             // 
             this.startWithoutDebuggingToolStripMenuItem.Enabled = false;
-            this.startWithoutDebuggingToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startWithoutDebuggingToolStripMenuItem.Image")));
+            this.startWithoutDebuggingToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.StartWithoutDebuggingMenuImage;
             this.startWithoutDebuggingToolStripMenuItem.Name = "startWithoutDebuggingToolStripMenuItem";
             this.startWithoutDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F5)));
             this.startWithoutDebuggingToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
@@ -498,7 +497,7 @@
             // stopToolStripMenuItem
             // 
             this.stopToolStripMenuItem.Enabled = false;
-            this.stopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("stopToolStripMenuItem.Image")));
+            this.stopToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.StopMenuImage;
             this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
             this.stopToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
             this.stopToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
@@ -509,7 +508,7 @@
             // restartToolStripMenuItem
             // 
             this.restartToolStripMenuItem.Enabled = false;
-            this.restartToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("restartToolStripMenuItem.Image")));
+            this.restartToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.RestartMenuImage;
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
             this.restartToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.F5)));
@@ -535,7 +534,7 @@
             // 
             // packageManagerToolStripMenuItem
             // 
-            this.packageManagerToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("packageManagerToolStripMenuItem.Image")));
+            this.packageManagerToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.PackageManagerMenuImage;
             this.packageManagerToolStripMenuItem.Name = "packageManagerToolStripMenuItem";
             this.packageManagerToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.packageManagerToolStripMenuItem.Text = "&Manage Packages...";
@@ -543,7 +542,7 @@
             // 
             // galleryToolStripMenuItem
             // 
-            this.galleryToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("galleryToolStripMenuItem.Image")));
+            this.galleryToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.GalleryMenuImage;
             this.galleryToolStripMenuItem.Name = "galleryToolStripMenuItem";
             this.galleryToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.galleryToolStripMenuItem.Text = "Bonsai &Gallery";
@@ -556,7 +555,7 @@
             // 
             // editExtensionsToolStripMenuItem
             // 
-            this.editExtensionsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("editExtensionsToolStripMenuItem.Image")));
+            this.editExtensionsToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.EditExtensionsMenuImage;
             this.editExtensionsToolStripMenuItem.Name = "editExtensionsToolStripMenuItem";
             this.editExtensionsToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.editExtensionsToolStripMenuItem.Text = "&Edit Extensions";
@@ -564,7 +563,7 @@
             // 
             // reloadExtensionsToolStripMenuItem
             // 
-            this.reloadExtensionsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reloadExtensionsToolStripMenuItem.Image")));
+            this.reloadExtensionsToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.ReloadExtensionsMenuImage;
             this.reloadExtensionsToolStripMenuItem.Name = "reloadExtensionsToolStripMenuItem";
             this.reloadExtensionsToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.reloadExtensionsToolStripMenuItem.Text = "&Reload Extensions";
@@ -584,7 +583,7 @@
             // 
             // themeToolStripMenuItem
             // 
-            this.themeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("themeToolStripMenuItem.Image")));
+            this.themeToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.ThemeMenuImage;
             this.themeToolStripMenuItem.Name = "themeToolStripMenuItem";
             this.themeToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.themeToolStripMenuItem.Text = "Dark &Theme";
@@ -612,7 +611,7 @@
             // 
             // docsToolStripMenuItem
             // 
-            this.docsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
+            this.docsToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DocsMenuImage;
             this.docsToolStripMenuItem.Name = "docsToolStripMenuItem";
             this.docsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
             this.docsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
@@ -621,7 +620,7 @@
             // 
             // forumToolStripMenuItem
             // 
-            this.forumToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("forumToolStripMenuItem.Image")));
+            this.forumToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.ForumMenuImage;
             this.forumToolStripMenuItem.Name = "forumToolStripMenuItem";
             this.forumToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.forumToolStripMenuItem.Text = "Bonsai &Forums";
@@ -629,7 +628,7 @@
             // 
             // reportBugToolStripMenuItem
             // 
-            this.reportBugToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reportBugToolStripMenuItem.Image")));
+            this.reportBugToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.ReportBugMenuImage;
             this.reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
             this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.reportBugToolStripMenuItem.Text = "&Report a Bug";
@@ -686,7 +685,7 @@
             // newToolStripButton
             // 
             this.newToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.newToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("newToolStripButton.Image")));
+            this.newToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.NewMenuImage;
             this.newToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripButton.Name = "newToolStripButton";
             this.newToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -696,7 +695,7 @@
             // openToolStripButton
             // 
             this.openToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.openToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripButton.Image")));
+            this.openToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.OpenMenuImage;
             this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripButton.Name = "openToolStripButton";
             this.openToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -706,7 +705,7 @@
             // saveToolStripButton
             // 
             this.saveToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.saveToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripButton.Image")));
+            this.saveToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.SaveMenuImage;
             this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripButton.Name = "saveToolStripButton";
             this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -721,7 +720,7 @@
             // findNextToolStripButton
             // 
             this.findNextToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.findNextToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("findNextToolStripButton.Image")));
+            this.findNextToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.FindNextMenuImage;
             this.findNextToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findNextToolStripButton.Name = "findNextToolStripButton";
             this.findNextToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -731,7 +730,7 @@
             // findPreviousToolStripButton
             // 
             this.findPreviousToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.findPreviousToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("findPreviousToolStripButton.Image")));
+            this.findPreviousToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.FindPreviousMenuImage;
             this.findPreviousToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findPreviousToolStripButton.Name = "findPreviousToolStripButton";
             this.findPreviousToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -746,7 +745,7 @@
             // undoToolStripButton
             // 
             this.undoToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.undoToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripButton.Image")));
+            this.undoToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.UndoMenuImage;
             this.undoToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.undoToolStripButton.Name = "undoToolStripButton";
             this.undoToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -756,7 +755,7 @@
             // redoToolStripButton
             // 
             this.redoToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.redoToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripButton.Image")));
+            this.redoToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.RedoMenuImage;
             this.redoToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.redoToolStripButton.Name = "redoToolStripButton";
             this.redoToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -774,7 +773,7 @@
             this.startToolStripButtonMenuItem,
             this.startWithoutDebuggingToolStripButtonMenuItem});
             this.startToolStripSplitButton.Enabled = false;
-            this.startToolStripSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripSplitButton.Image")));
+            this.startToolStripSplitButton.Image = global::Bonsai.Editor.Properties.Resources.StartMenuImage;
             this.startToolStripSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.startToolStripSplitButton.Name = "startToolStripSplitButton";
             this.startToolStripSplitButton.Size = new System.Drawing.Size(63, 22);
@@ -784,7 +783,7 @@
             // 
             // startToolStripButtonMenuItem
             // 
-            this.startToolStripButtonMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripButtonMenuItem.Image")));
+            this.startToolStripButtonMenuItem.Image = global::Bonsai.Editor.Properties.Resources.StartMenuImage;
             this.startToolStripButtonMenuItem.Name = "startToolStripButtonMenuItem";
             this.startToolStripButtonMenuItem.Size = new System.Drawing.Size(206, 22);
             this.startToolStripButtonMenuItem.Text = "Start";
@@ -792,7 +791,7 @@
             // 
             // startWithoutDebuggingToolStripButtonMenuItem
             // 
-            this.startWithoutDebuggingToolStripButtonMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startWithoutDebuggingToolStripButtonMenuItem.Image")));
+            this.startWithoutDebuggingToolStripButtonMenuItem.Image = global::Bonsai.Editor.Properties.Resources.StartWithoutDebuggingMenuImage;
             this.startWithoutDebuggingToolStripButtonMenuItem.Name = "startWithoutDebuggingToolStripButtonMenuItem";
             this.startWithoutDebuggingToolStripButtonMenuItem.Size = new System.Drawing.Size(206, 22);
             this.startWithoutDebuggingToolStripButtonMenuItem.Text = "Start Without Debugging";
@@ -802,7 +801,7 @@
             // 
             this.stopToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.stopToolStripButton.Enabled = false;
-            this.stopToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("stopToolStripButton.Image")));
+            this.stopToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.StopMenuImage;
             this.stopToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopToolStripButton.Name = "stopToolStripButton";
             this.stopToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -814,7 +813,7 @@
             // 
             this.restartToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.restartToolStripButton.Enabled = false;
-            this.restartToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("restartToolStripButton.Image")));
+            this.restartToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.RestartMenuImage;
             this.restartToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.restartToolStripButton.Name = "restartToolStripButton";
             this.restartToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -838,7 +837,7 @@
             // browseDirectoryToolStripButton
             // 
             this.browseDirectoryToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.browseDirectoryToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("browseDirectoryToolStripButton.Image")));
+            this.browseDirectoryToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.BrowseDirectoryMenuImage;
             this.browseDirectoryToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.browseDirectoryToolStripButton.Name = "browseDirectoryToolStripButton";
             this.browseDirectoryToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -853,7 +852,7 @@
             // editExtensionsToolStripButton
             // 
             this.editExtensionsToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.editExtensionsToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("editExtensionsToolStripButton.Image")));
+            this.editExtensionsToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.EditExtensionsMenuImage;
             this.editExtensionsToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.editExtensionsToolStripButton.Name = "editExtensionsToolStripButton";
             this.editExtensionsToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -863,7 +862,7 @@
             // reloadExtensionsToolStripButton
             // 
             this.reloadExtensionsToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.reloadExtensionsToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("reloadExtensionsToolStripButton.Image")));
+            this.reloadExtensionsToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.ReloadExtensionsMenuImage;
             this.reloadExtensionsToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.reloadExtensionsToolStripButton.Name = "reloadExtensionsToolStripButton";
             this.reloadExtensionsToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -880,6 +879,14 @@
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip";
             // 
+            // statusImageLabel
+            // 
+            this.statusImageLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.statusImageLabel.Image = global::Bonsai.Editor.Properties.Resources.StatusReadyImage;
+            this.statusImageLabel.Name = "statusImageLabel";
+            this.statusImageLabel.Size = new System.Drawing.Size(16, 17);
+            this.statusImageLabel.Text = "statusImageLabel";
+            // 
             // statusContextMenuStrip
             // 
             this.statusContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -889,21 +896,13 @@
             // 
             // statusCopyToolStripMenuItem
             // 
-            this.statusCopyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+            this.statusCopyToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.CopyMenuImage;
             this.statusCopyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.statusCopyToolStripMenuItem.Name = "statusCopyToolStripMenuItem";
             this.statusCopyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             this.statusCopyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.statusCopyToolStripMenuItem.Text = "&Copy";
             this.statusCopyToolStripMenuItem.Click += new System.EventHandler(this.statusCopyToolStripMenuItem_Click);
-            // 
-            // statusImageLabel
-            // 
-            this.statusImageLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.statusImageLabel.Image = global::Bonsai.Editor.Properties.Resources.StatusReadyImage;
-            this.statusImageLabel.Name = "statusImageLabel";
-            this.statusImageLabel.Size = new System.Drawing.Size(16, 17);
-            this.statusImageLabel.Text = "statusImageLabel";
             // 
             // toolboxSplitContainer
             // 
@@ -982,8 +981,8 @@
             treeNode6});
             this.toolboxTreeView.Size = new System.Drawing.Size(197, 222);
             this.toolboxTreeView.TabIndex = 0;
-            this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.toolboxTreeView_AfterLabelEdit);
+            this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
             this.toolboxTreeView.Enter += new System.EventHandler(this.toolboxTreeView_Enter);
@@ -1068,9 +1067,9 @@
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(193, 245);
             this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.Refreshed += new System.EventHandler(this.propertyGrid_Refreshed);
             this.propertyGrid.DragDrop += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragDrop);
             this.propertyGrid.DragEnter += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragEnter);
-            this.propertyGrid.Refreshed += new System.EventHandler(this.propertyGrid_Refreshed);
             this.propertyGrid.Validated += new System.EventHandler(this.propertyGrid_Validated);
             // 
             // propertyGridContextMenuStrip
@@ -1207,11 +1206,11 @@
             this.findPreviousToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 290);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 268);
             // 
             // toolboxDocsToolStripMenuItem
             // 
-            this.toolboxDocsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
+            this.toolboxDocsToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DocsMenuImage;
             this.toolboxDocsToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolboxDocsToolStripMenuItem.Name = "toolboxDocsToolStripMenuItem";
             this.toolboxDocsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
@@ -1285,7 +1284,7 @@
             // 
             // findNextToolStripMenuItem
             // 
-            this.findNextToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findNextToolStripButton.Image")));
+            this.findNextToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.FindNextMenuImage;
             this.findNextToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
             this.findNextToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
@@ -1295,7 +1294,7 @@
             // 
             // findPreviousToolStripMenuItem
             // 
-            this.findPreviousToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("findPreviousToolStripButton.Image")));
+            this.findPreviousToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.FindPreviousMenuImage;
             this.findPreviousToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.findPreviousToolStripMenuItem.Name = "findPreviousToolStripMenuItem";
             this.findPreviousToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F3)));
@@ -1317,7 +1316,6 @@
             // 
             // workflowFileWatcher
             // 
-            this.workflowFileWatcher.EnableRaisingEvents = false;
             this.workflowFileWatcher.IncludeSubdirectories = true;
             this.workflowFileWatcher.SynchronizingObject = this;
             // 
