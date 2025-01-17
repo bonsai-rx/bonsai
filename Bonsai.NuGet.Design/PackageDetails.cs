@@ -72,6 +72,12 @@ namespace Bonsai.NuGet.Design
             base.ScaleControl(factor, specified);
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            descriptionLabel.MaximumSize = new Size(Width, 0);
+            base.OnResize(e);
+        }
+
         public void SetPackage(PackageViewItem item)
         {
             SuspendLayout();
