@@ -164,7 +164,7 @@
             this.installedVersionLayoutPanel.Location = new System.Drawing.Point(3, 27);
             this.installedVersionLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.installedVersionLayoutPanel.Name = "installedVersionLayoutPanel";
-            this.installedVersionLayoutPanel.Size = new System.Drawing.Size(171, 49);
+            this.installedVersionLayoutPanel.Size = new System.Drawing.Size(170, 49);
             this.installedVersionLayoutPanel.TabIndex = 1;
             // 
             // installedHeader
@@ -173,18 +173,18 @@
             this.installedHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.installedHeader.Location = new System.Drawing.Point(3, 6);
             this.installedHeader.Name = "installedHeader";
-            this.installedHeader.Size = new System.Drawing.Size(61, 13);
+            this.installedHeader.Size = new System.Drawing.Size(60, 13);
             this.installedHeader.TabIndex = 0;
             this.installedHeader.Text = "Installed:";
             // 
             // installedVersionTextBox
             // 
             this.installedVersionTextBox.Cursor = System.Windows.Forms.Cursors.Default;
-            this.installedVersionTextBox.Location = new System.Drawing.Point(69, 3);
+            this.installedVersionTextBox.Location = new System.Drawing.Point(68, 3);
             this.installedVersionTextBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.installedVersionTextBox.Name = "installedVersionTextBox";
             this.installedVersionTextBox.ReadOnly = true;
-            this.installedVersionTextBox.Size = new System.Drawing.Size(100, 20);
+            this.installedVersionTextBox.Size = new System.Drawing.Size(94, 20);
             this.installedVersionTextBox.TabIndex = 1;
             // 
             // uninstallButton
@@ -193,7 +193,7 @@
             this.uninstallButton.Location = new System.Drawing.Point(3, 26);
             this.uninstallButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.uninstallButton.Name = "uninstallButton";
-            this.uninstallButton.Size = new System.Drawing.Size(100, 23);
+            this.uninstallButton.Size = new System.Drawing.Size(94, 23);
             this.uninstallButton.TabIndex = 2;
             this.uninstallButton.Text = "Uninstall";
             this.uninstallButton.UseVisualStyleBackColor = true;
@@ -208,7 +208,7 @@
             this.versionLayoutPanel.Location = new System.Drawing.Point(3, 76);
             this.versionLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.versionLayoutPanel.Name = "versionLayoutPanel";
-            this.versionLayoutPanel.Size = new System.Drawing.Size(173, 50);
+            this.versionLayoutPanel.Size = new System.Drawing.Size(172, 50);
             this.versionLayoutPanel.TabIndex = 2;
             // 
             // versionHeader
@@ -217,7 +217,7 @@
             this.versionHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.versionHeader.Location = new System.Drawing.Point(3, 7);
             this.versionHeader.Name = "versionHeader";
-            this.versionHeader.Size = new System.Drawing.Size(61, 13);
+            this.versionHeader.Size = new System.Drawing.Size(60, 13);
             this.versionHeader.TabIndex = 0;
             this.versionHeader.Text = "Version:";
             // 
@@ -225,9 +225,9 @@
             // 
             this.versionComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.versionComboBox.FormattingEnabled = true;
-            this.versionComboBox.Location = new System.Drawing.Point(70, 3);
+            this.versionComboBox.Location = new System.Drawing.Point(69, 3);
             this.versionComboBox.Name = "versionComboBox";
-            this.versionComboBox.Size = new System.Drawing.Size(100, 21);
+            this.versionComboBox.Size = new System.Drawing.Size(93, 21);
             this.versionComboBox.TabIndex = 1;
             this.versionComboBox.SelectedIndexChanged += new System.EventHandler(this.versionComboBox_SelectedIndexChanged);
             this.versionComboBox.TextChanged += new System.EventHandler(this.versionComboBox_TextChanged);
@@ -238,7 +238,7 @@
             this.operationButton.Location = new System.Drawing.Point(3, 27);
             this.operationButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.operationButton.Name = "operationButton";
-            this.operationButton.Size = new System.Drawing.Size(100, 23);
+            this.operationButton.Size = new System.Drawing.Size(94, 23);
             this.operationButton.TabIndex = 2;
             this.operationButton.Text = "Operation";
             this.operationButton.UseVisualStyleBackColor = true;
@@ -295,7 +295,7 @@
             this.alternatePackageHeader.AutoSize = true;
             this.alternatePackageHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.alternatePackageHeader.Location = new System.Drawing.Point(3, 3);
-            this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3);
+            this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.alternatePackageHeader.Name = "alternatePackageHeader";
             this.alternatePackageHeader.Size = new System.Drawing.Size(111, 13);
             this.alternatePackageHeader.TabIndex = 0;
@@ -307,7 +307,7 @@
             this.alternatePackageLinkLabel.ForeColor = System.Drawing.Color.Blue;
             this.alternatePackageLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.alternatePackageLinkLabel.Location = new System.Drawing.Point(3, 22);
-            this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.alternatePackageLinkLabel.Name = "alternatePackageLinkLabel";
             this.alternatePackageLinkLabel.Size = new System.Drawing.Size(100, 13);
             this.alternatePackageLinkLabel.TabIndex = 1;
@@ -333,7 +333,7 @@
             this.descriptionHeader.AutoSize = true;
             this.descriptionHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.descriptionHeader.Location = new System.Drawing.Point(3, 3);
-            this.descriptionHeader.Margin = new System.Windows.Forms.Padding(3);
+            this.descriptionHeader.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.descriptionHeader.Name = "descriptionHeader";
             this.descriptionHeader.Size = new System.Drawing.Size(71, 13);
             this.descriptionHeader.TabIndex = 0;
@@ -579,6 +579,7 @@
             this.dependenciesTextBox.Size = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.TabIndex = 0;
             this.dependenciesTextBox.TabStop = false;
+            this.dependenciesTextBox.WordWrap = false;
             this.dependenciesTextBox.TextChanged += new System.EventHandler(this.dependenciesTextBox_TextChanged);
             // 
             // dependencyWarningLabel
