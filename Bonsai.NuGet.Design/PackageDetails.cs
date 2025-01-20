@@ -74,7 +74,11 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnResize(EventArgs e)
         {
-            descriptionLabel.MaximumSize = new Size(Width, 0);
+            var preferredWidth = Width - SystemInformation.VerticalScrollBarWidth - detailsLayoutPanel.Margin.Right;
+            descriptionLabel.MaximumSize = new Size(preferredWidth, 0);
+            deprecationMetadataLabel.MaximumSize = new Size(preferredWidth, 0);
+            dependencyWarningLabel.MaximumSize = new Size(preferredWidth, 0);
+            tagsLabel.MaximumSize = new Size(preferredWidth, 0);
             base.OnResize(e);
         }
 
