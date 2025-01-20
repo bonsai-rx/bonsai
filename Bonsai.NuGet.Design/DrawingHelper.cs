@@ -7,9 +7,12 @@ namespace Bonsai.NuGet.Design
     {
         public static SizeF GetImageSize(this Graphics graphics, Image image)
         {
-            return new(
-                width: image.Width * graphics.DpiX / image.HorizontalResolution,
-                height: image.Height * graphics.DpiY / image.VerticalResolution);
+            if (image.HorizontalResolution > 0)
+                return new(
+                    width: image.Width * graphics.DpiX / image.HorizontalResolution,
+                    height: image.Height * graphics.DpiY / image.VerticalResolution);
+            else
+                return new(image.Width, image.Height);
         }
 
         public static Bitmap Resize(this Image image, Size newSize)
