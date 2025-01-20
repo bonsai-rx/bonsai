@@ -222,6 +222,7 @@ namespace Bonsai.NuGet.Design
         {
             if (packageView.Nodes.ContainsKey(text)) return;
             setMultiOperationVisible(false);
+            packageView.SelectedNode = null;
             packageView.CanSelectNodes = false;
             packageView.BeginUpdate();
             packageView.Nodes.Clear();
