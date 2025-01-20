@@ -6,6 +6,8 @@ namespace Bonsai.NuGet.Design
 {
     internal class ImageLinkLabel : LinkLabel
     {
+        private Image baseImage;
+
         public ImageLinkLabel()
         {
             ImageAlign = ContentAlignment.MiddleLeft;
@@ -14,10 +16,13 @@ namespace Bonsai.NuGet.Design
 
         public new Image Image
         {
-            get => base.Image;
+            get => baseImage;
             set
             {
-                base.Image = value;
+                baseImage = value;
+                if (!NativeMethods.IsRunningOnMono)
+                    base.Image = baseImage;
+
                 if (AutoSize)
                 {
                     // force size calculation
@@ -38,6 +43,23 @@ namespace Bonsai.NuGet.Design
                 size.Height = Math.Max(size.Height, imageSize.Height);
             }
             return size;
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var rectangle = ClientRectangle;
+            base.OnPaintBackground(e);
+            if (Image != null)
+            {
+                var imageBounds = CalcImageRenderBounds(Image, rectangle, ImageAlign);
+                if (NativeMethods.IsRunningOnMono)
+                    e.Graphics.DrawImage(Image, imageBounds.Location);
+                else
+                    rectangle.X += imageBounds.Width / 2 - imageBounds.X;
+                rectangle.X += imageBounds.Width / 2;
+            }
+
+            TextRenderer.DrawText(e.Graphics, Text, Font, rectangle, LinkColor);
         }
     }
 }
