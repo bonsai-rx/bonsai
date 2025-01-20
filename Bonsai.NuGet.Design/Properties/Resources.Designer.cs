@@ -98,6 +98,16 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DownloadImage {
+            get {
+                object obj = ResourceManager.GetObject("DownloadImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exporting....
         /// </summary>
         internal static string ExportOperationLabel {
@@ -152,15 +162,6 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Install.
-        /// </summary>
-        internal static string InstallOperationName {
-            get {
-                return ResourceManager.GetString("InstallOperationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Installing &apos;{0}&apos;..
         /// </summary>
         internal static string InstallPackageLatestVersion {
@@ -193,6 +194,25 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static string LicenseAuthorshipLabel {
             get {
                 return ResourceManager.GetString("LicenseAuthorshipLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LicenseImage {
+            get {
+                object obj = ResourceManager.GetObject("LicenseImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to License.
+        /// </summary>
+        internal static string LicenseLabel {
+            get {
+                return ResourceManager.GetString("LicenseLabel", resourceCulture);
             }
         }
         
@@ -287,11 +307,12 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static string OpenOperationName {
+        internal static System.Drawing.Bitmap OpenImage {
             get {
-                return ResourceManager.GetString("OpenOperationName", resourceCulture);
+                object obj = ResourceManager.GetObject("OpenImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -305,12 +326,49 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageDefaultIcon {
+            get {
+                object obj = ResourceManager.GetObject("PackageDefaultIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Package &apos;{0}&apos; depends on the following packages. Do you want to uninstall them too?
         ///.
         /// </summary>
         internal static string PackageDependencyNotice {
             get {
                 return ResourceManager.GetString("PackageDependencyNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Use | instead..
+        /// </summary>
+        internal static string PackageDeprecationAlternateNotice {
+            get {
+                return ResourceManager.GetString("PackageDeprecationAlternateNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This package has been deprecated as it is legacy and is no longer maintained..
+        /// </summary>
+        internal static string PackageDeprecationDefaultMessage {
+            get {
+                return ResourceManager.GetString("PackageDeprecationDefaultMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This package version is deprecated..
+        /// </summary>
+        internal static string PackageDeprecationNotice {
+            get {
+                return ResourceManager.GetString("PackageDeprecationNotice", resourceCulture);
             }
         }
         
@@ -326,15 +384,83 @@ namespace Bonsai.NuGet.Design.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap PackageViewNodeCheckedImage {
+        internal static System.Drawing.Bitmap PackageImage {
             get {
-                object obj = ResourceManager.GetObject("PackageViewNodeCheckedImage", resourceCulture);
+                object obj = ResourceManager.GetObject("PackageImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  (Prerelease).
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageInstalledImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageInstalledImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The ID prefix of this package has been reserved for the owner of the package by the currently selected feed.
+        /// </summary>
+        internal static string PackagePrefixReservedToolTip {
+            get {
+                return ResourceManager.GetString("PackagePrefixReservedToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageRemoveImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageRemoveImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageUpdateImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageUpdateImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        internal static string PackageWarningKey {
+            get {
+                return ResourceManager.GetString("PackageWarningKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PrefixReservedImage {
+            get {
+                object obj = ResourceManager.GetObject("PrefixReservedImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PrefixReservedMediumImage {
+            get {
+                object obj = ResourceManager.GetObject("PrefixReservedMediumImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prerelease.
         /// </summary>
         internal static string PrereleaseLabel {
             get {
@@ -436,15 +562,6 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Uninstall.
-        /// </summary>
-        internal static string UninstallOperationName {
-            get {
-                return ResourceManager.GetString("UninstallOperationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to (unpublished).
         /// </summary>
         internal static string UnpublishedLabel {
@@ -463,15 +580,6 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update.
-        /// </summary>
-        internal static string UpdateOperationName {
-            get {
-                return ResourceManager.GetString("UpdateOperationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Updates.
         /// </summary>
         internal static string UpdatesNodeName {
@@ -486,6 +594,26 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap WaitImage {
             get {
                 object obj = ResourceManager.GetObject("WaitImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WarningImage {
+            get {
+                object obj = ResourceManager.GetObject("WarningImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WebImage {
+            get {
+                object obj = ResourceManager.GetObject("WebImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

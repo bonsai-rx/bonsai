@@ -28,63 +28,85 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.detailsLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.createdByLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.createdByLabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.idLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.versionLabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label4 = new System.Windows.Forms.Label();
-            this.lastPublishedLabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label7 = new System.Windows.Forms.Label();
-            this.downloadsLabel = new System.Windows.Forms.Label();
-            this.licenseLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.projectLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.reportAbuseLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label5 = new System.Windows.Forms.Label();
+            this.packageIdPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.packageIdLabel = new Bonsai.NuGet.Design.ImageLabel();
+            this.prefixReservedIcon = new System.Windows.Forms.PictureBox();
+            this.installedVersionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.installedHeader = new System.Windows.Forms.Label();
+            this.installedVersionTextBox = new System.Windows.Forms.TextBox();
+            this.uninstallButton = new System.Windows.Forms.Button();
+            this.versionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.versionHeader = new System.Windows.Forms.Label();
+            this.versionComboBox = new System.Windows.Forms.ComboBox();
+            this.operationButton = new System.Windows.Forms.Button();
+            this.deprecationMetadataPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.warningImageLabel = new Bonsai.NuGet.Design.ImageLabel();
+            this.deprecationMetadataLabel = new System.Windows.Forms.Label();
+            this.alternatePackagePanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.alternatePackageHeader = new System.Windows.Forms.Label();
+            this.alternatePackageLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
+            this.descriptionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.descriptionHeader = new System.Windows.Forms.Label();
             this.descriptionLabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel5 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label6 = new System.Windows.Forms.Label();
+            this.createdByLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.createdByHeader = new System.Windows.Forms.Label();
+            this.createdByLabel = new System.Windows.Forms.Label();
+            this.lastPublishedLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.lastPublishedHeader = new System.Windows.Forms.Label();
+            this.lastPublishedLabel = new System.Windows.Forms.Label();
+            this.downloadsLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.downloadsHeader = new System.Windows.Forms.Label();
+            this.downloadsLabel = new System.Windows.Forms.Label();
+            this.detailsLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
+            this.projectLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
+            this.licenseLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
+            this.reportAbuseLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
+            this.tagsLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.tagsHeader = new System.Windows.Forms.Label();
             this.tagsLabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
+            this.dependenciesHeaderLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.dependenciesHeader = new System.Windows.Forms.Label();
+            this.dependenciesLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.dependenciesTextBox = new System.Windows.Forms.TextBox();
             this.dependencyWarningLabel = new System.Windows.Forms.Label();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.detailsLayoutPanel.SuspendLayout();
+            this.packageIdPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.prefixReservedIcon)).BeginInit();
+            this.installedVersionLayoutPanel.SuspendLayout();
+            this.versionLayoutPanel.SuspendLayout();
+            this.deprecationMetadataPanel.SuspendLayout();
+            this.alternatePackagePanel.SuspendLayout();
+            this.descriptionLayoutPanel.SuspendLayout();
             this.createdByLayoutPanel.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
-            this.flowLayoutPanel3.SuspendLayout();
-            this.flowLayoutPanel4.SuspendLayout();
-            this.flowLayoutPanel7.SuspendLayout();
-            this.flowLayoutPanel6.SuspendLayout();
-            this.flowLayoutPanel5.SuspendLayout();
-            this.flowLayoutPanel8.SuspendLayout();
-            this.flowLayoutPanel9.SuspendLayout();
+            this.lastPublishedLayoutPanel.SuspendLayout();
+            this.downloadsLayoutPanel.SuspendLayout();
+            this.tagsLayoutPanel.SuspendLayout();
+            this.dependenciesHeaderLayoutPanel.SuspendLayout();
+            this.dependenciesLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // detailsLayoutPanel
             // 
             this.detailsLayoutPanel.AutoScroll = true;
+            this.detailsLayoutPanel.Controls.Add(this.packageIdPanel);
+            this.detailsLayoutPanel.Controls.Add(this.installedVersionLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.versionLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.deprecationMetadataPanel);
+            this.detailsLayoutPanel.Controls.Add(this.alternatePackagePanel);
+            this.detailsLayoutPanel.Controls.Add(this.descriptionLayoutPanel);
             this.detailsLayoutPanel.Controls.Add(this.createdByLayoutPanel);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel2);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel3);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel4);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel7);
-            this.detailsLayoutPanel.Controls.Add(this.licenseLinkLabel);
+            this.detailsLayoutPanel.Controls.Add(this.lastPublishedLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.downloadsLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.detailsLinkLabel);
             this.detailsLayoutPanel.Controls.Add(this.projectLinkLabel);
+            this.detailsLayoutPanel.Controls.Add(this.licenseLinkLabel);
             this.detailsLayoutPanel.Controls.Add(this.reportAbuseLinkLabel);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel6);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel5);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel8);
-            this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel9);
+            this.detailsLayoutPanel.Controls.Add(this.tagsLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.dependenciesHeaderLayoutPanel);
+            this.detailsLayoutPanel.Controls.Add(this.dependenciesLayoutPanel);
             this.detailsLayoutPanel.Controls.Add(this.dependencyWarningLabel);
             this.detailsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.detailsLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
@@ -94,274 +116,454 @@
             this.detailsLayoutPanel.TabIndex = 0;
             this.detailsLayoutPanel.WrapContents = false;
             // 
+            // packageIdPanel
+            // 
+            this.packageIdPanel.AutoSize = true;
+            this.packageIdPanel.Controls.Add(this.packageIdLabel);
+            this.packageIdPanel.Controls.Add(this.prefixReservedIcon);
+            this.packageIdPanel.Location = new System.Drawing.Point(0, 0);
+            this.packageIdPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.packageIdPanel.Name = "packageIdPanel";
+            this.packageIdPanel.Size = new System.Drawing.Size(88, 24);
+            this.packageIdPanel.TabIndex = 0;
+            // 
+            // packageIdLabel
+            // 
+            this.packageIdLabel.AutoSize = true;
+            this.packageIdLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.packageIdLabel.Image = null;
+            this.packageIdLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.packageIdLabel.ImageIndex = 0;
+            this.packageIdLabel.Location = new System.Drawing.Point(3, 3);
+            this.packageIdLabel.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.packageIdLabel.Name = "packageIdLabel";
+            this.packageIdLabel.Size = new System.Drawing.Size(66, 18);
+            this.packageIdLabel.TabIndex = 0;
+            this.packageIdLabel.Text = "Package";
+            this.packageIdLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // prefixReservedIcon
+            // 
+            this.prefixReservedIcon.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.prefixReservedIcon.Image = global::Bonsai.NuGet.Design.Properties.Resources.PrefixReservedImage;
+            this.prefixReservedIcon.Location = new System.Drawing.Point(69, 3);
+            this.prefixReservedIcon.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.prefixReservedIcon.Name = "prefixReservedIcon";
+            this.prefixReservedIcon.Size = new System.Drawing.Size(16, 18);
+            this.prefixReservedIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.prefixReservedIcon.TabIndex = 13;
+            this.prefixReservedIcon.TabStop = false;
+            // 
+            // installedVersionLayoutPanel
+            // 
+            this.installedVersionLayoutPanel.AutoSize = true;
+            this.installedVersionLayoutPanel.Controls.Add(this.installedHeader);
+            this.installedVersionLayoutPanel.Controls.Add(this.installedVersionTextBox);
+            this.installedVersionLayoutPanel.Controls.Add(this.uninstallButton);
+            this.installedVersionLayoutPanel.Location = new System.Drawing.Point(3, 27);
+            this.installedVersionLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.installedVersionLayoutPanel.Name = "installedVersionLayoutPanel";
+            this.installedVersionLayoutPanel.Size = new System.Drawing.Size(170, 49);
+            this.installedVersionLayoutPanel.TabIndex = 1;
+            // 
+            // installedHeader
+            // 
+            this.installedHeader.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.installedHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.installedHeader.Location = new System.Drawing.Point(3, 6);
+            this.installedHeader.Name = "installedHeader";
+            this.installedHeader.Size = new System.Drawing.Size(60, 13);
+            this.installedHeader.TabIndex = 0;
+            this.installedHeader.Text = "Installed:";
+            // 
+            // installedVersionTextBox
+            // 
+            this.installedVersionTextBox.Cursor = System.Windows.Forms.Cursors.Default;
+            this.installedVersionTextBox.Location = new System.Drawing.Point(68, 3);
+            this.installedVersionTextBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.installedVersionTextBox.Name = "installedVersionTextBox";
+            this.installedVersionTextBox.ReadOnly = true;
+            this.installedVersionTextBox.Size = new System.Drawing.Size(94, 20);
+            this.installedVersionTextBox.TabIndex = 1;
+            // 
+            // uninstallButton
+            // 
+            this.uninstallButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.uninstallButton.Location = new System.Drawing.Point(3, 26);
+            this.uninstallButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.uninstallButton.Name = "uninstallButton";
+            this.uninstallButton.Size = new System.Drawing.Size(94, 23);
+            this.uninstallButton.TabIndex = 2;
+            this.uninstallButton.Text = "Uninstall";
+            this.uninstallButton.UseVisualStyleBackColor = true;
+            this.uninstallButton.Click += new System.EventHandler(this.uninstallButton_Click);
+            // 
+            // versionLayoutPanel
+            // 
+            this.versionLayoutPanel.AutoSize = true;
+            this.versionLayoutPanel.Controls.Add(this.versionHeader);
+            this.versionLayoutPanel.Controls.Add(this.versionComboBox);
+            this.versionLayoutPanel.Controls.Add(this.operationButton);
+            this.versionLayoutPanel.Location = new System.Drawing.Point(3, 76);
+            this.versionLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.versionLayoutPanel.Name = "versionLayoutPanel";
+            this.versionLayoutPanel.Size = new System.Drawing.Size(172, 50);
+            this.versionLayoutPanel.TabIndex = 2;
+            // 
+            // versionHeader
+            // 
+            this.versionHeader.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.versionHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.versionHeader.Location = new System.Drawing.Point(3, 7);
+            this.versionHeader.Name = "versionHeader";
+            this.versionHeader.Size = new System.Drawing.Size(60, 13);
+            this.versionHeader.TabIndex = 0;
+            this.versionHeader.Text = "Version:";
+            // 
+            // versionComboBox
+            // 
+            this.versionComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.versionComboBox.FormattingEnabled = true;
+            this.versionComboBox.Location = new System.Drawing.Point(69, 3);
+            this.versionComboBox.Name = "versionComboBox";
+            this.versionComboBox.Size = new System.Drawing.Size(93, 21);
+            this.versionComboBox.TabIndex = 1;
+            this.versionComboBox.SelectedIndexChanged += new System.EventHandler(this.versionComboBox_SelectedIndexChanged);
+            this.versionComboBox.TextChanged += new System.EventHandler(this.versionComboBox_TextChanged);
+            // 
+            // operationButton
+            // 
+            this.operationButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.operationButton.Location = new System.Drawing.Point(3, 27);
+            this.operationButton.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.operationButton.Name = "operationButton";
+            this.operationButton.Size = new System.Drawing.Size(94, 23);
+            this.operationButton.TabIndex = 2;
+            this.operationButton.Text = "Operation";
+            this.operationButton.UseVisualStyleBackColor = true;
+            this.operationButton.Click += new System.EventHandler(this.operationButton_Click);
+            // 
+            // deprecationMetadataPanel
+            // 
+            this.deprecationMetadataPanel.AutoSize = true;
+            this.deprecationMetadataPanel.Controls.Add(this.warningImageLabel);
+            this.deprecationMetadataPanel.Controls.Add(this.deprecationMetadataLabel);
+            this.deprecationMetadataPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.deprecationMetadataPanel.Location = new System.Drawing.Point(3, 132);
+            this.deprecationMetadataPanel.Name = "deprecationMetadataPanel";
+            this.deprecationMetadataPanel.Size = new System.Drawing.Size(96, 36);
+            this.deprecationMetadataPanel.TabIndex = 3;
+            // 
+            // warningImageLabel
+            // 
+            this.warningImageLabel.AutoSize = true;
+            this.warningImageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.warningImageLabel.Image = global::Bonsai.NuGet.Design.Properties.Resources.WarningImage;
+            this.warningImageLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.warningImageLabel.ImageIndex = 0;
+            this.warningImageLabel.Location = new System.Drawing.Point(3, 3);
+            this.warningImageLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.warningImageLabel.Name = "warningImageLabel";
+            this.warningImageLabel.Size = new System.Drawing.Size(90, 17);
+            this.warningImageLabel.TabIndex = 0;
+            this.warningImageLabel.Text = "Deprecated";
+            this.warningImageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // deprecationMetadataLabel
+            // 
+            this.deprecationMetadataLabel.AutoSize = true;
+            this.deprecationMetadataLabel.Location = new System.Drawing.Point(3, 23);
+            this.deprecationMetadataLabel.Name = "deprecationMetadataLabel";
+            this.deprecationMetadataLabel.Size = new System.Drawing.Size(84, 13);
+            this.deprecationMetadataLabel.TabIndex = 1;
+            this.deprecationMetadataLabel.Text = "deprecationText";
+            // 
+            // alternatePackagePanel
+            // 
+            this.alternatePackagePanel.AutoSize = true;
+            this.alternatePackagePanel.Controls.Add(this.alternatePackageHeader);
+            this.alternatePackagePanel.Controls.Add(this.alternatePackageLinkLabel);
+            this.alternatePackagePanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.alternatePackagePanel.Location = new System.Drawing.Point(3, 174);
+            this.alternatePackagePanel.Name = "alternatePackagePanel";
+            this.alternatePackagePanel.Size = new System.Drawing.Size(117, 38);
+            this.alternatePackagePanel.TabIndex = 4;
+            // 
+            // alternatePackageHeader
+            // 
+            this.alternatePackageHeader.AutoSize = true;
+            this.alternatePackageHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.alternatePackageHeader.Location = new System.Drawing.Point(3, 3);
+            this.alternatePackageHeader.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.alternatePackageHeader.Name = "alternatePackageHeader";
+            this.alternatePackageHeader.Size = new System.Drawing.Size(111, 13);
+            this.alternatePackageHeader.TabIndex = 0;
+            this.alternatePackageHeader.Text = "Alternate package";
+            // 
+            // alternatePackageLinkLabel
+            // 
+            this.alternatePackageLinkLabel.AutoSize = true;
+            this.alternatePackageLinkLabel.ForeColor = System.Drawing.Color.Blue;
+            this.alternatePackageLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.alternatePackageLinkLabel.Location = new System.Drawing.Point(3, 22);
+            this.alternatePackageLinkLabel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.alternatePackageLinkLabel.Name = "alternatePackageLinkLabel";
+            this.alternatePackageLinkLabel.Size = new System.Drawing.Size(100, 13);
+            this.alternatePackageLinkLabel.TabIndex = 1;
+            this.alternatePackageLinkLabel.TabStop = true;
+            this.alternatePackageLinkLabel.Text = "alternatePackageId";
+            this.alternatePackageLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.alternatePackageLinkLabel_LinkClicked);
+            this.alternatePackageLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.alternatePackageLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
+            // 
+            // descriptionLayoutPanel
+            // 
+            this.descriptionLayoutPanel.AutoSize = true;
+            this.descriptionLayoutPanel.Controls.Add(this.descriptionHeader);
+            this.descriptionLayoutPanel.Controls.Add(this.descriptionLabel);
+            this.descriptionLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.descriptionLayoutPanel.Location = new System.Drawing.Point(3, 218);
+            this.descriptionLayoutPanel.Name = "descriptionLayoutPanel";
+            this.descriptionLayoutPanel.Size = new System.Drawing.Size(85, 32);
+            this.descriptionLayoutPanel.TabIndex = 5;
+            // 
+            // descriptionHeader
+            // 
+            this.descriptionHeader.AutoSize = true;
+            this.descriptionHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.descriptionHeader.Location = new System.Drawing.Point(3, 3);
+            this.descriptionHeader.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.descriptionHeader.Name = "descriptionHeader";
+            this.descriptionHeader.Size = new System.Drawing.Size(71, 13);
+            this.descriptionHeader.TabIndex = 0;
+            this.descriptionHeader.Text = "Description";
+            // 
+            // descriptionLabel
+            // 
+            this.descriptionLabel.AutoSize = true;
+            this.descriptionLabel.Location = new System.Drawing.Point(3, 19);
+            this.descriptionLabel.Name = "descriptionLabel";
+            this.descriptionLabel.Size = new System.Drawing.Size(79, 13);
+            this.descriptionLabel.TabIndex = 1;
+            this.descriptionLabel.Text = "descriptionText";
+            // 
             // createdByLayoutPanel
             // 
             this.createdByLayoutPanel.AutoSize = true;
-            this.createdByLayoutPanel.Controls.Add(this.label1);
+            this.createdByLayoutPanel.Controls.Add(this.createdByHeader);
             this.createdByLayoutPanel.Controls.Add(this.createdByLabel);
-            this.createdByLayoutPanel.Location = new System.Drawing.Point(3, 3);
+            this.createdByLayoutPanel.Location = new System.Drawing.Point(3, 256);
             this.createdByLayoutPanel.Name = "createdByLayoutPanel";
-            this.createdByLayoutPanel.Size = new System.Drawing.Size(119, 13);
-            this.createdByLayoutPanel.TabIndex = 0;
+            this.createdByLayoutPanel.Size = new System.Drawing.Size(160, 13);
+            this.createdByLayoutPanel.TabIndex = 6;
             // 
-            // label1
+            // createdByHeader
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Created by:";
+            this.createdByHeader.AutoSize = true;
+            this.createdByHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.createdByHeader.Location = new System.Drawing.Point(3, 0);
+            this.createdByHeader.Name = "createdByHeader";
+            this.createdByHeader.Size = new System.Drawing.Size(72, 13);
+            this.createdByHeader.TabIndex = 0;
+            this.createdByHeader.Text = "Created by:";
             // 
             // createdByLabel
             // 
             this.createdByLabel.AutoSize = true;
             this.createdByLabel.Location = new System.Drawing.Point(81, 0);
             this.createdByLabel.Name = "createdByLabel";
-            this.createdByLabel.Size = new System.Drawing.Size(35, 13);
+            this.createdByLabel.Size = new System.Drawing.Size(76, 13);
             this.createdByLabel.TabIndex = 1;
-            this.createdByLabel.Text = "label2";
+            this.createdByLabel.Text = "createdByText";
             // 
-            // flowLayoutPanel2
+            // lastPublishedLayoutPanel
             // 
-            this.flowLayoutPanel2.AutoSize = true;
-            this.flowLayoutPanel2.Controls.Add(this.label3);
-            this.flowLayoutPanel2.Controls.Add(this.idLinkLabel);
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 22);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(89, 13);
-            this.flowLayoutPanel2.TabIndex = 1;
+            this.lastPublishedLayoutPanel.AutoSize = true;
+            this.lastPublishedLayoutPanel.Controls.Add(this.lastPublishedHeader);
+            this.lastPublishedLayoutPanel.Controls.Add(this.lastPublishedLabel);
+            this.lastPublishedLayoutPanel.Location = new System.Drawing.Point(3, 275);
+            this.lastPublishedLayoutPanel.Name = "lastPublishedLayoutPanel";
+            this.lastPublishedLayoutPanel.Size = new System.Drawing.Size(196, 13);
+            this.lastPublishedLayoutPanel.TabIndex = 7;
             // 
-            // label3
+            // lastPublishedHeader
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(3, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(22, 13);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Id:";
-            // 
-            // idLinkLabel
-            // 
-            this.idLinkLabel.AutoSize = true;
-            this.idLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.idLinkLabel.Location = new System.Drawing.Point(31, 0);
-            this.idLinkLabel.Name = "idLinkLabel";
-            this.idLinkLabel.Size = new System.Drawing.Size(55, 13);
-            this.idLinkLabel.TabIndex = 1;
-            this.idLinkLabel.TabStop = true;
-            this.idLinkLabel.Text = "linkLabel1";
-            this.idLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
-            // flowLayoutPanel3
-            // 
-            this.flowLayoutPanel3.AutoSize = true;
-            this.flowLayoutPanel3.Controls.Add(this.label2);
-            this.flowLayoutPanel3.Controls.Add(this.versionLabel);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(3, 41);
-            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(100, 13);
-            this.flowLayoutPanel3.TabIndex = 2;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(3, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Version:";
-            // 
-            // versionLabel
-            // 
-            this.versionLabel.AutoSize = true;
-            this.versionLabel.Location = new System.Drawing.Point(62, 0);
-            this.versionLabel.Name = "versionLabel";
-            this.versionLabel.Size = new System.Drawing.Size(35, 13);
-            this.versionLabel.TabIndex = 1;
-            this.versionLabel.Text = "label4";
-            // 
-            // flowLayoutPanel4
-            // 
-            this.flowLayoutPanel4.AutoSize = true;
-            this.flowLayoutPanel4.Controls.Add(this.label4);
-            this.flowLayoutPanel4.Controls.Add(this.lastPublishedLabel);
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(3, 60);
-            this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(141, 13);
-            this.flowLayoutPanel4.TabIndex = 3;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(3, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(94, 13);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Last Published:";
+            this.lastPublishedHeader.AutoSize = true;
+            this.lastPublishedHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastPublishedHeader.Location = new System.Drawing.Point(3, 0);
+            this.lastPublishedHeader.Name = "lastPublishedHeader";
+            this.lastPublishedHeader.Size = new System.Drawing.Size(94, 13);
+            this.lastPublishedHeader.TabIndex = 0;
+            this.lastPublishedHeader.Text = "Last Published:";
             // 
             // lastPublishedLabel
             // 
             this.lastPublishedLabel.AutoSize = true;
             this.lastPublishedLabel.Location = new System.Drawing.Point(103, 0);
             this.lastPublishedLabel.Name = "lastPublishedLabel";
-            this.lastPublishedLabel.Size = new System.Drawing.Size(35, 13);
+            this.lastPublishedLabel.Size = new System.Drawing.Size(90, 13);
             this.lastPublishedLabel.TabIndex = 1;
-            this.lastPublishedLabel.Text = "label5";
+            this.lastPublishedLabel.Text = "lastPublishedText";
             // 
-            // flowLayoutPanel7
+            // downloadsLayoutPanel
             // 
-            this.flowLayoutPanel7.AutoSize = true;
-            this.flowLayoutPanel7.Controls.Add(this.label7);
-            this.flowLayoutPanel7.Controls.Add(this.downloadsLabel);
-            this.flowLayoutPanel7.Location = new System.Drawing.Point(3, 79);
-            this.flowLayoutPanel7.Name = "flowLayoutPanel7";
-            this.flowLayoutPanel7.Size = new System.Drawing.Size(120, 13);
-            this.flowLayoutPanel7.TabIndex = 11;
+            this.downloadsLayoutPanel.AutoSize = true;
+            this.downloadsLayoutPanel.Controls.Add(this.downloadsHeader);
+            this.downloadsLayoutPanel.Controls.Add(this.downloadsLabel);
+            this.downloadsLayoutPanel.Location = new System.Drawing.Point(3, 294);
+            this.downloadsLayoutPanel.Name = "downloadsLayoutPanel";
+            this.downloadsLayoutPanel.Size = new System.Drawing.Size(166, 13);
+            this.downloadsLayoutPanel.TabIndex = 8;
             // 
-            // label7
+            // downloadsHeader
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(3, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(73, 13);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Downloads:";
+            this.downloadsHeader.AutoSize = true;
+            this.downloadsHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.downloadsHeader.Location = new System.Drawing.Point(3, 0);
+            this.downloadsHeader.Name = "downloadsHeader";
+            this.downloadsHeader.Size = new System.Drawing.Size(73, 13);
+            this.downloadsHeader.TabIndex = 0;
+            this.downloadsHeader.Text = "Downloads:";
             // 
             // downloadsLabel
             // 
             this.downloadsLabel.AutoSize = true;
             this.downloadsLabel.Location = new System.Drawing.Point(82, 0);
             this.downloadsLabel.Name = "downloadsLabel";
-            this.downloadsLabel.Size = new System.Drawing.Size(35, 13);
+            this.downloadsLabel.Size = new System.Drawing.Size(81, 13);
             this.downloadsLabel.TabIndex = 1;
-            this.downloadsLabel.Text = "label8";
+            this.downloadsLabel.Text = "downloadCount";
             // 
-            // licenseLinkLabel
+            // detailsLinkLabel
             // 
-            this.licenseLinkLabel.AutoSize = true;
-            this.licenseLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.licenseLinkLabel.Location = new System.Drawing.Point(3, 95);
-            this.licenseLinkLabel.Name = "licenseLinkLabel";
-            this.licenseLinkLabel.Size = new System.Drawing.Size(102, 13);
-            this.licenseLinkLabel.TabIndex = 4;
-            this.licenseLinkLabel.TabStop = true;
-            this.licenseLinkLabel.Text = "View License Terms";
-            this.licenseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.detailsLinkLabel.AutoSize = true;
+            this.detailsLinkLabel.ForeColor = System.Drawing.Color.Blue;
+            this.detailsLinkLabel.Image = global::Bonsai.NuGet.Design.Properties.Resources.PackageImage;
+            this.detailsLinkLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.detailsLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.detailsLinkLabel.Location = new System.Drawing.Point(6, 310);
+            this.detailsLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
+            this.detailsLinkLabel.Name = "detailsLinkLabel";
+            this.detailsLinkLabel.Size = new System.Drawing.Size(102, 17);
+            this.detailsLinkLabel.TabIndex = 9;
+            this.detailsLinkLabel.TabStop = true;
+            this.detailsLinkLabel.Text = "Package Details";
+            this.detailsLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.detailsLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.detailsLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.detailsLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // projectLinkLabel
             // 
             this.projectLinkLabel.AutoSize = true;
+            this.projectLinkLabel.ForeColor = System.Drawing.Color.Blue;
+            this.projectLinkLabel.Image = global::Bonsai.NuGet.Design.Properties.Resources.WebImage;
+            this.projectLinkLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.projectLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.projectLinkLabel.Location = new System.Drawing.Point(3, 108);
+            this.projectLinkLabel.Location = new System.Drawing.Point(6, 327);
+            this.projectLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
             this.projectLinkLabel.Name = "projectLinkLabel";
-            this.projectLinkLabel.Size = new System.Drawing.Size(95, 13);
-            this.projectLinkLabel.TabIndex = 5;
+            this.projectLinkLabel.Size = new System.Drawing.Size(99, 17);
+            this.projectLinkLabel.TabIndex = 10;
             this.projectLinkLabel.TabStop = true;
-            this.projectLinkLabel.Text = "Project Information";
+            this.projectLinkLabel.Text = "Project Website";
+            this.projectLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.projectLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.projectLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.projectLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
+            // 
+            // licenseLinkLabel
+            // 
+            this.licenseLinkLabel.AutoSize = true;
+            this.licenseLinkLabel.ForeColor = System.Drawing.Color.Blue;
+            this.licenseLinkLabel.Image = global::Bonsai.NuGet.Design.Properties.Resources.LicenseImage;
+            this.licenseLinkLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.licenseLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.licenseLinkLabel.Location = new System.Drawing.Point(6, 344);
+            this.licenseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 0, 3, 0);
+            this.licenseLinkLabel.Name = "licenseLinkLabel";
+            this.licenseLinkLabel.Size = new System.Drawing.Size(82, 17);
+            this.licenseLinkLabel.TabIndex = 11;
+            this.licenseLinkLabel.TabStop = true;
+            this.licenseLinkLabel.Text = "License Info";
+            this.licenseLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.licenseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.licenseLinkLabel_LinkClicked);
+            this.licenseLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.licenseLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // reportAbuseLinkLabel
             // 
             this.reportAbuseLinkLabel.AutoSize = true;
+            this.reportAbuseLinkLabel.ForeColor = System.Drawing.Color.Blue;
             this.reportAbuseLinkLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.reportAbuseLinkLabel.Location = new System.Drawing.Point(3, 121);
+            this.reportAbuseLinkLabel.Location = new System.Drawing.Point(6, 364);
+            this.reportAbuseLinkLabel.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.reportAbuseLinkLabel.Name = "reportAbuseLinkLabel";
             this.reportAbuseLinkLabel.Size = new System.Drawing.Size(72, 13);
-            this.reportAbuseLinkLabel.TabIndex = 6;
+            this.reportAbuseLinkLabel.TabIndex = 12;
             this.reportAbuseLinkLabel.TabStop = true;
             this.reportAbuseLinkLabel.Text = "Report Abuse";
             this.reportAbuseLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.reportAbuseLinkLabel.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.reportAbuseLinkLabel.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
-            // flowLayoutPanel6
+            // tagsLayoutPanel
             // 
-            this.flowLayoutPanel6.AutoSize = true;
-            this.flowLayoutPanel6.Controls.Add(this.label5);
-            this.flowLayoutPanel6.Controls.Add(this.descriptionLabel);
-            this.flowLayoutPanel6.Location = new System.Drawing.Point(3, 137);
-            this.flowLayoutPanel6.Name = "flowLayoutPanel6";
-            this.flowLayoutPanel6.Size = new System.Drawing.Size(87, 13);
-            this.flowLayoutPanel6.TabIndex = 10;
+            this.tagsLayoutPanel.AutoSize = true;
+            this.tagsLayoutPanel.Controls.Add(this.tagsHeader);
+            this.tagsLayoutPanel.Controls.Add(this.tagsLabel);
+            this.tagsLayoutPanel.Location = new System.Drawing.Point(3, 383);
+            this.tagsLayoutPanel.Name = "tagsLayoutPanel";
+            this.tagsLayoutPanel.Size = new System.Drawing.Size(99, 13);
+            this.tagsLayoutPanel.TabIndex = 13;
             // 
-            // label5
+            // tagsHeader
             // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(3, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(75, 13);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "Description:";
-            // 
-            // descriptionLabel
-            // 
-            this.descriptionLabel.AutoSize = true;
-            this.descriptionLabel.Location = new System.Drawing.Point(84, 0);
-            this.descriptionLabel.Name = "descriptionLabel";
-            this.descriptionLabel.Size = new System.Drawing.Size(0, 13);
-            this.descriptionLabel.TabIndex = 8;
-            // 
-            // flowLayoutPanel5
-            // 
-            this.flowLayoutPanel5.AutoSize = true;
-            this.flowLayoutPanel5.Controls.Add(this.label6);
-            this.flowLayoutPanel5.Controls.Add(this.tagsLabel);
-            this.flowLayoutPanel5.Location = new System.Drawing.Point(3, 156);
-            this.flowLayoutPanel5.Name = "flowLayoutPanel5";
-            this.flowLayoutPanel5.Size = new System.Drawing.Size(86, 13);
-            this.flowLayoutPanel5.TabIndex = 9;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(3, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(39, 13);
-            this.label6.TabIndex = 0;
-            this.label6.Text = "Tags:";
+            this.tagsHeader.AutoSize = true;
+            this.tagsHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tagsHeader.Location = new System.Drawing.Point(3, 0);
+            this.tagsHeader.Name = "tagsHeader";
+            this.tagsHeader.Size = new System.Drawing.Size(39, 13);
+            this.tagsHeader.TabIndex = 0;
+            this.tagsHeader.Text = "Tags:";
             // 
             // tagsLabel
             // 
             this.tagsLabel.AutoSize = true;
             this.tagsLabel.Location = new System.Drawing.Point(48, 0);
             this.tagsLabel.Name = "tagsLabel";
-            this.tagsLabel.Size = new System.Drawing.Size(35, 13);
+            this.tagsLabel.Size = new System.Drawing.Size(48, 13);
             this.tagsLabel.TabIndex = 1;
-            this.tagsLabel.Text = "label7";
+            this.tagsLabel.Text = "tagsText";
             // 
-            // flowLayoutPanel8
+            // dependenciesHeaderLayoutPanel
             // 
-            this.flowLayoutPanel8.AutoSize = true;
-            this.flowLayoutPanel8.Controls.Add(this.label8);
-            this.flowLayoutPanel8.Location = new System.Drawing.Point(3, 175);
-            this.flowLayoutPanel8.Name = "flowLayoutPanel8";
-            this.flowLayoutPanel8.Size = new System.Drawing.Size(98, 13);
-            this.flowLayoutPanel8.TabIndex = 12;
+            this.dependenciesHeaderLayoutPanel.AutoSize = true;
+            this.dependenciesHeaderLayoutPanel.Controls.Add(this.dependenciesHeader);
+            this.dependenciesHeaderLayoutPanel.Location = new System.Drawing.Point(3, 402);
+            this.dependenciesHeaderLayoutPanel.Name = "dependenciesHeaderLayoutPanel";
+            this.dependenciesHeaderLayoutPanel.Size = new System.Drawing.Size(94, 13);
+            this.dependenciesHeaderLayoutPanel.TabIndex = 14;
             // 
-            // label8
+            // dependenciesHeader
             // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(3, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(92, 13);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "Dependencies:";
+            this.dependenciesHeader.AutoSize = true;
+            this.dependenciesHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dependenciesHeader.Location = new System.Drawing.Point(3, 0);
+            this.dependenciesHeader.Name = "dependenciesHeader";
+            this.dependenciesHeader.Size = new System.Drawing.Size(88, 13);
+            this.dependenciesHeader.TabIndex = 0;
+            this.dependenciesHeader.Text = "Dependencies";
             // 
-            // flowLayoutPanel9
+            // dependenciesLayoutPanel
             // 
-            this.flowLayoutPanel9.AutoSize = true;
-            this.flowLayoutPanel9.Controls.Add(this.dependenciesTextBox);
-            this.flowLayoutPanel9.Location = new System.Drawing.Point(3, 194);
-            this.flowLayoutPanel9.Name = "flowLayoutPanel9";
-            this.flowLayoutPanel9.Size = new System.Drawing.Size(185, 26);
-            this.flowLayoutPanel9.TabIndex = 13;
+            this.dependenciesLayoutPanel.AutoSize = true;
+            this.dependenciesLayoutPanel.Controls.Add(this.dependenciesTextBox);
+            this.dependenciesLayoutPanel.Location = new System.Drawing.Point(3, 421);
+            this.dependenciesLayoutPanel.Name = "dependenciesLayoutPanel";
+            this.dependenciesLayoutPanel.Size = new System.Drawing.Size(188, 26);
+            this.dependenciesLayoutPanel.TabIndex = 15;
             // 
             // dependenciesTextBox
             // 
@@ -369,22 +571,25 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dependenciesTextBox.BackColor = System.Drawing.SystemColors.Control;
             this.dependenciesTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dependenciesTextBox.Location = new System.Drawing.Point(3, 3);
+            this.dependenciesTextBox.Location = new System.Drawing.Point(6, 3);
+            this.dependenciesTextBox.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.dependenciesTextBox.MinimumSize = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.Multiline = true;
             this.dependenciesTextBox.Name = "dependenciesTextBox";
             this.dependenciesTextBox.Size = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.TabIndex = 0;
+            this.dependenciesTextBox.TabStop = false;
+            this.dependenciesTextBox.WordWrap = false;
             this.dependenciesTextBox.TextChanged += new System.EventHandler(this.dependenciesTextBox_TextChanged);
             // 
             // dependencyWarningLabel
             // 
             this.dependencyWarningLabel.AutoSize = true;
             this.dependencyWarningLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dependencyWarningLabel.Location = new System.Drawing.Point(3, 223);
+            this.dependencyWarningLabel.Location = new System.Drawing.Point(3, 450);
             this.dependencyWarningLabel.Name = "dependencyWarningLabel";
             this.dependencyWarningLabel.Size = new System.Drawing.Size(0, 13);
-            this.dependencyWarningLabel.TabIndex = 14;
+            this.dependencyWarningLabel.TabIndex = 16;
             // 
             // PackageDetails
             // 
@@ -395,24 +600,30 @@
             this.Size = new System.Drawing.Size(240, 450);
             this.detailsLayoutPanel.ResumeLayout(false);
             this.detailsLayoutPanel.PerformLayout();
+            this.packageIdPanel.ResumeLayout(false);
+            this.packageIdPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.prefixReservedIcon)).EndInit();
+            this.installedVersionLayoutPanel.ResumeLayout(false);
+            this.installedVersionLayoutPanel.PerformLayout();
+            this.versionLayoutPanel.ResumeLayout(false);
+            this.deprecationMetadataPanel.ResumeLayout(false);
+            this.deprecationMetadataPanel.PerformLayout();
+            this.alternatePackagePanel.ResumeLayout(false);
+            this.alternatePackagePanel.PerformLayout();
+            this.descriptionLayoutPanel.ResumeLayout(false);
+            this.descriptionLayoutPanel.PerformLayout();
             this.createdByLayoutPanel.ResumeLayout(false);
             this.createdByLayoutPanel.PerformLayout();
-            this.flowLayoutPanel2.ResumeLayout(false);
-            this.flowLayoutPanel2.PerformLayout();
-            this.flowLayoutPanel3.ResumeLayout(false);
-            this.flowLayoutPanel3.PerformLayout();
-            this.flowLayoutPanel4.ResumeLayout(false);
-            this.flowLayoutPanel4.PerformLayout();
-            this.flowLayoutPanel7.ResumeLayout(false);
-            this.flowLayoutPanel7.PerformLayout();
-            this.flowLayoutPanel6.ResumeLayout(false);
-            this.flowLayoutPanel6.PerformLayout();
-            this.flowLayoutPanel5.ResumeLayout(false);
-            this.flowLayoutPanel5.PerformLayout();
-            this.flowLayoutPanel8.ResumeLayout(false);
-            this.flowLayoutPanel8.PerformLayout();
-            this.flowLayoutPanel9.ResumeLayout(false);
-            this.flowLayoutPanel9.PerformLayout();
+            this.lastPublishedLayoutPanel.ResumeLayout(false);
+            this.lastPublishedLayoutPanel.PerformLayout();
+            this.downloadsLayoutPanel.ResumeLayout(false);
+            this.downloadsLayoutPanel.PerformLayout();
+            this.tagsLayoutPanel.ResumeLayout(false);
+            this.tagsLayoutPanel.PerformLayout();
+            this.dependenciesHeaderLayoutPanel.ResumeLayout(false);
+            this.dependenciesHeaderLayoutPanel.PerformLayout();
+            this.dependenciesLayoutPanel.ResumeLayout(false);
+            this.dependenciesLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -421,33 +632,46 @@
 
         private System.Windows.Forms.FlowLayoutPanel detailsLayoutPanel;
         private System.Windows.Forms.FlowLayoutPanel createdByLayoutPanel;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label createdByHeader;
         private System.Windows.Forms.Label createdByLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.LinkLabel idLinkLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label versionLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel4;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.FlowLayoutPanel lastPublishedLayoutPanel;
+        private System.Windows.Forms.Label lastPublishedHeader;
         private System.Windows.Forms.Label lastPublishedLabel;
-        private System.Windows.Forms.LinkLabel licenseLinkLabel;
-        private System.Windows.Forms.LinkLabel projectLinkLabel;
-        private System.Windows.Forms.LinkLabel reportAbuseLinkLabel;
-        private System.Windows.Forms.Label label5;
+        private Bonsai.NuGet.Design.ImageLinkLabel reportAbuseLinkLabel;
+        private System.Windows.Forms.Label descriptionHeader;
         private System.Windows.Forms.Label descriptionLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel5;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.FlowLayoutPanel tagsLayoutPanel;
+        private System.Windows.Forms.Label tagsHeader;
         private System.Windows.Forms.Label tagsLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel6;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel7;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.FlowLayoutPanel downloadsLayoutPanel;
+        private System.Windows.Forms.Label downloadsHeader;
         private System.Windows.Forms.Label downloadsLabel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel8;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel9;
+        private System.Windows.Forms.FlowLayoutPanel dependenciesHeaderLayoutPanel;
+        private System.Windows.Forms.Label dependenciesHeader;
+        private System.Windows.Forms.FlowLayoutPanel dependenciesLayoutPanel;
         private System.Windows.Forms.TextBox dependenciesTextBox;
         private System.Windows.Forms.Label dependencyWarningLabel;
+        private System.Windows.Forms.Label deprecationMetadataLabel;
+        private Bonsai.NuGet.Design.ImageLabel warningImageLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel projectLinkLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel licenseLinkLabel;
+        private Bonsai.NuGet.Design.ImageLabel packageIdLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel detailsLinkLabel;
+        private System.Windows.Forms.FlowLayoutPanel versionLayoutPanel;
+        private System.Windows.Forms.Label versionHeader;
+        private System.Windows.Forms.Button operationButton;
+        private System.Windows.Forms.ComboBox versionComboBox;
+        private System.Windows.Forms.FlowLayoutPanel installedVersionLayoutPanel;
+        private System.Windows.Forms.Label installedHeader;
+        private System.Windows.Forms.Button uninstallButton;
+        private System.Windows.Forms.TextBox installedVersionTextBox;
+        private System.Windows.Forms.FlowLayoutPanel deprecationMetadataPanel;
+        private System.Windows.Forms.FlowLayoutPanel descriptionLayoutPanel;
+        private System.Windows.Forms.FlowLayoutPanel alternatePackagePanel;
+        private System.Windows.Forms.Label alternatePackageHeader;
+        private Bonsai.NuGet.Design.ImageLinkLabel alternatePackageLinkLabel;
+        private System.Windows.Forms.FlowLayoutPanel packageIdPanel;
+        private System.Windows.Forms.PictureBox prefixReservedIcon;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

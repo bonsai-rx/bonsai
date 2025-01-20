@@ -16,7 +16,10 @@ namespace Bonsai.Editor
             this.labelVersion.Text = $"Version {AssemblyVersion}";
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
-            this.textBoxDescription.Text = AssemblyDescription + Environment.NewLine + Resources.AttributionNotices;
+            this.textBoxDescription.Text = string.Format(
+                Resources.AttributionNotices,
+                AssemblyProduct,
+                AssemblyDescription);
         }
 
         internal static string BuildKindTitleSuffix

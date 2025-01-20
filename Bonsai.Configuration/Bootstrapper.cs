@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Configuration
@@ -29,9 +30,9 @@ namespace Bonsai.Configuration
             get { return packageManager; }
         }
 
-        protected virtual async Task RunPackageOperationAsync(Func<Task> operationFactory)
+        protected virtual async Task RunPackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
         {
-            await operationFactory();
+            await operationFactory(cancellationToken);
         }
 
         static NuGetVersion ParseVersion(string version)
@@ -52,7 +53,8 @@ namespace Bonsai.Configuration
             NuGetFramework projectFramework,
             PackageConfiguration packageConfiguration,
             string bootstrapperPath,
-            PackageIdentity bootstrapperPackage)
+            PackageIdentity bootstrapperPackage,
+            CancellationToken cancellationToken = default)
         {
             const string OldExtension = ".old";
             var backupExePath = bootstrapperPath + OldExtension;
@@ -65,7 +67,7 @@ namespace Bonsai.Configuration
             var missingPackages = GetMissingPackages(packageConfiguration, packageManager.LocalRepository).ToList();
             if (missingPackages.Count > 0)
             {
-                async Task RestoreMissingPackages()
+                async Task RestoreMissingPackages(CancellationToken cancellationToken)
                 {
                     using var monitor = new PackageConfigurationUpdater(
                         projectFramework,
@@ -75,19 +77,23 @@ namespace Bonsai.Configuration
                         bootstrapperPackage);
                     foreach (var package in missingPackages)
                     {
-                        await packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version), projectFramework);
+                        await packageManager.RestorePackageAsync(
+                            package.Id,
+                            ParseVersion(package.Version),
+                            projectFramework,
+                            cancellationToken);
                     }
                 };
 
                 packageManager.RestorePackages = true;
-                try { await RunPackageOperationAsync(RestoreMissingPackages); }
+                try { await RunPackageOperationAsync(RestoreMissingPackages, cancellationToken); }
                 finally { packageManager.RestorePackages = false; }
             }
 
             var editorPackage = packageManager.LocalRepository.FindLocalPackage(bootstrapperPackage.Id);
             if (editorPackage == null || editorPackage.Identity.Version < bootstrapperPackage.Version)
             {
-                async Task RestoreEditorPackage()
+                async Task RestoreEditorPackage(CancellationToken cancellationToken)
                 {
                     using var monitor = new PackageConfigurationUpdater(
                         projectFramework,
@@ -95,11 +101,15 @@ namespace Bonsai.Configuration
                         packageManager,
                         bootstrapperPath,
                         bootstrapperPackage);
-                    var package = await packageManager.StartInstallPackage(bootstrapperPackage.Id, bootstrapperPackage.Version, projectFramework);
+                    var package = await packageManager.InstallPackageAsync(
+                        bootstrapperPackage.Id,
+                        bootstrapperPackage.Version,
+                        projectFramework,
+                        cancellationToken);
                     editorPackage = packageManager.LocalRepository.GetLocalPackage(package.GetIdentity());
                 };
 
-                await RunPackageOperationAsync(RestoreEditorPackage);
+                await RunPackageOperationAsync(RestoreEditorPackage, cancellationToken);
             }
         }
 
@@ -112,7 +122,7 @@ namespace Bonsai.Configuration
 
             public bool RestorePackages { get; set; }
 
-            protected override bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
+            protected override bool AcceptLicenseAgreement(IEnumerable<RequiringLicenseAcceptancePackageInfo> licensePackages)
             {
                 if (RestorePackages) return true;
                 else return base.AcceptLicenseAgreement(licensePackages);
