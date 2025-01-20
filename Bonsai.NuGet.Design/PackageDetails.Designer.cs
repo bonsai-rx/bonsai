@@ -46,7 +46,7 @@
             this.deprecationMetadataLabel = new System.Windows.Forms.Label();
             this.alternatePackagePanel = new System.Windows.Forms.FlowLayoutPanel();
             this.alternatePackageHeader = new System.Windows.Forms.Label();
-            this.alternatePackageLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.alternatePackageLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
             this.descriptionLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.descriptionHeader = new System.Windows.Forms.Label();
             this.descriptionLabel = new System.Windows.Forms.Label();
@@ -62,7 +62,7 @@
             this.detailsLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
             this.projectLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
             this.licenseLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
-            this.reportAbuseLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.reportAbuseLinkLabel = new Bonsai.NuGet.Design.ImageLinkLabel();
             this.tagsLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.tagsHeader = new System.Windows.Forms.Label();
             this.tagsLabel = new System.Windows.Forms.Label();
@@ -637,7 +637,7 @@
         private System.Windows.Forms.FlowLayoutPanel lastPublishedLayoutPanel;
         private System.Windows.Forms.Label lastPublishedHeader;
         private System.Windows.Forms.Label lastPublishedLabel;
-        private System.Windows.Forms.LinkLabel reportAbuseLinkLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel reportAbuseLinkLabel;
         private System.Windows.Forms.Label descriptionHeader;
         private System.Windows.Forms.Label descriptionLabel;
         private System.Windows.Forms.FlowLayoutPanel tagsLayoutPanel;
@@ -652,11 +652,11 @@
         private System.Windows.Forms.TextBox dependenciesTextBox;
         private System.Windows.Forms.Label dependencyWarningLabel;
         private System.Windows.Forms.Label deprecationMetadataLabel;
-        private ImageLabel warningImageLabel;
-        private ImageLinkLabel projectLinkLabel;
-        private ImageLinkLabel licenseLinkLabel;
-        private ImageLabel packageIdLabel;
-        private ImageLinkLabel detailsLinkLabel;
+        private Bonsai.NuGet.Design.ImageLabel warningImageLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel projectLinkLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel licenseLinkLabel;
+        private Bonsai.NuGet.Design.ImageLabel packageIdLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel detailsLinkLabel;
         private System.Windows.Forms.FlowLayoutPanel versionLayoutPanel;
         private System.Windows.Forms.Label versionHeader;
         private System.Windows.Forms.Button operationButton;
@@ -669,7 +669,7 @@
         private System.Windows.Forms.FlowLayoutPanel descriptionLayoutPanel;
         private System.Windows.Forms.FlowLayoutPanel alternatePackagePanel;
         private System.Windows.Forms.Label alternatePackageHeader;
-        private System.Windows.Forms.LinkLabel alternatePackageLinkLabel;
+        private Bonsai.NuGet.Design.ImageLinkLabel alternatePackageLinkLabel;
         private System.Windows.Forms.FlowLayoutPanel packageIdPanel;
         private System.Windows.Forms.PictureBox prefixReservedIcon;
         private System.Windows.Forms.ToolTip toolTip;
