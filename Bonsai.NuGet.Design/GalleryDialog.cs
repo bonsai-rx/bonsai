@@ -157,8 +157,6 @@ namespace Bonsai.NuGet.Design
                 packageViewController.SelectedRepository = (SourceRepository)selectedItem;
             }
             else packageViewController.SelectedRepository = null;
-
-            searchComboBox.Text = string.Empty;
             packageViewController.UpdatePackageQuery();
         }
 

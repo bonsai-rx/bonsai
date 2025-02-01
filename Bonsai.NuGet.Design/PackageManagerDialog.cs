@@ -87,8 +87,6 @@ namespace Bonsai.NuGet.Design
                 packageViewController.SelectedTab = PackageOperationType.Update;
             }
             else packageViewController.SelectedTab = PackageOperationType.Install;
-
-            searchComboBox.Text = string.Empty;
             packageViewController.UpdatePackageQuery();
         }
 
