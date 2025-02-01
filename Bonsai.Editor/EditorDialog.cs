@@ -28,7 +28,7 @@ namespace Bonsai.Editor
                 {
                     Process.Start("xdg-open", url);
                 }
-                else Process.Start(url);
+                else Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
             catch { } //best effort
             finally

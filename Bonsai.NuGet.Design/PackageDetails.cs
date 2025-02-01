@@ -194,7 +194,11 @@ namespace Bonsai.NuGet.Design
         {
             if (e.Link.LinkData is Uri linkUri)
             {
-                Process.Start(linkUri.AbsoluteUri);
+                if (NativeMethods.IsRunningOnMono && Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    Process.Start("xdg-open", linkUri.AbsoluteUri);
+                }
+                else Process.Start(new ProcessStartInfo(linkUri.AbsoluteUri) { UseShellExecute = true });
             }
         }
 
