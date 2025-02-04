@@ -236,6 +236,8 @@ namespace Bonsai.Editor.GraphView
 
         public Color CursorColor { get; set; }
 
+        public WorkflowPathFlags PathFlags { get; set; }
+
         public SvgRendererFactory IconRenderer { get; set; }
 
         public Image GraphicsProvider { get; set; }
@@ -1069,7 +1071,7 @@ namespace Bonsai.Editor.GraphView
             iconRendererState.Stroke = stroke;
             iconRendererState.CurrentColor = currentColor;
             iconRendererState.Translation = nodeRectangle.Location;
-            if (layout.Node.IsDisabled)
+            if (layout.Node.IsDisabled || (PathFlags & WorkflowPathFlags.Disabled) != 0)
             {
                 graphics.FillEllipse(Brushes.DarkGray, nodeRectangle);
             }

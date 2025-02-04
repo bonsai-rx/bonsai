@@ -52,7 +52,6 @@ namespace Bonsai.Editor.Tests
             var editor = new WorkflowEditor(graphView.ServiceProvider, graphView);
             editor.UpdateLayout.Subscribe(graphView.UpdateGraphLayout);
             editor.UpdateSelection.Subscribe(graphView.UpdateSelection);
-            editor.Workflow = graphView.Workflow;
 
             var nodeSequence = editor.GetGraphValues().ToArray();
             return (editor, assertIsReversible: () =>

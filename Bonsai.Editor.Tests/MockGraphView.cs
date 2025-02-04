@@ -18,6 +18,7 @@ namespace Bonsai.Editor.Tests
             Workflow = workflow ?? new ExpressionBuilderGraph();
             CommandExecutor = new CommandExecutor();
             var serviceContainer = new ServiceContainer();
+            serviceContainer.AddService(typeof(WorkflowBuilder), new WorkflowBuilder(Workflow));
             serviceContainer.AddService(typeof(CommandExecutor), CommandExecutor);
             ServiceProvider = serviceContainer;
         }
