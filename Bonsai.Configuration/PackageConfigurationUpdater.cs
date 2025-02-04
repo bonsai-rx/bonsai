@@ -19,12 +19,8 @@ namespace Bonsai.Configuration
 {
     public class PackageConfigurationUpdater : IDisposable
     {
-        const string PackageTagFilter = "Bonsai";
-        const string GalleryDirectory = "Gallery";
-        const string ExtensionsDirectory = "Extensions";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
-        const string BonsaiExtension = ".bonsai";
         const string AssemblyExtension = ".dll";
         const string OldExtension = ".old";
 
@@ -55,7 +51,7 @@ namespace Bonsai.Configuration
             configurationPlugin = new PackageConfigurationPlugin(this);
             packageManager.PackageManagerPlugins.Add(configurationPlugin);
 
-            var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
+            var galleryPath = Path.Combine(bootstrapperDirectory, Constants.GalleryDirectory);
             var galleryPackageSource = new PackageSource(galleryPath);
             galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
             NormalizePathSeparators(packageConfiguration);
@@ -90,12 +86,6 @@ namespace Bonsai.Configuration
                 folder.Path = PathUtility.GetPathWithForwardSlashes(folder.Path);
                 configuration.LibraryFolders.Add(folder);
             }
-        }
-
-        static bool IsTaggedPackage(PackageReaderBase package)
-        {
-            var tags = package.NuspecReader.GetTags();
-            return tags != null && tags.Contains(PackageTagFilter);
         }
 
         static ProcessorArchitecture ResolveArchitectureAlias(string name)
@@ -410,10 +400,7 @@ namespace Bonsai.Configuration
 
             public override async Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
-                var entryPoint = package.Id + BonsaiExtension;
-                var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
-                var executablePackage = nearestFrameworkGroup?.Items.Any(file => PathUtility.GetRelativePath(ContentFolder, file) == entryPoint);
-                if (executablePackage.GetValueOrDefault())
+                if (packageReader.IsExecutablePackage(package, projectFramework))
                 {
                     var packageFolder = Path.GetDirectoryName(packageReader.GetNuspecFile());
                     var resolver = new VersionFolderPathResolver(packageFolder, isLowercase: false);
@@ -461,7 +448,7 @@ namespace Bonsai.Configuration
             public override Task OnPackageInstalledAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
                 var packageConfiguration = Owner.packageConfiguration;
-                var taggedPackage = IsTaggedPackage(packageReader);
+                var addReferences = packageReader.IsLibraryPackage();
                 var relativePath = Owner.GetRelativePath(installPath);
                 if (!packageConfiguration.Packages.Contains(package.Id))
                 {
@@ -469,7 +456,7 @@ namespace Bonsai.Configuration
                 }
                 else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-                Owner.AddContentFolders(installPath, ExtensionsDirectory);
+                Owner.AddContentFolders(installPath, Constants.ExtensionsDirectory);
                 Owner.RegisterLibraryFolders(packageReader, relativePath);
                 Owner.RegisterAssemblyLocations(packageReader, installPath, relativePath, false);
                 if (IsRunningOnMono) Owner.AddAssemblyConfigFiles(packageReader, installPath);
@@ -494,7 +481,7 @@ namespace Bonsai.Configuration
                 // resolution is OS-specific and architecture-specific and should not be versioned together
                 // with the package dependency graph.
                 var assemblyLocations = GetCompatibleAssemblyReferences(projectFramework, packageReader);
-                Owner.RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, taggedPackage);
+                Owner.RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, addReferences);
                 packageConfiguration.Save();
 
                 if (package.Id == Owner.bootstrapperPackageId && package.Version > Owner.bootstrapperVersion)
@@ -516,11 +503,11 @@ namespace Bonsai.Configuration
 
             public override async Task OnPackageUninstalledAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
-                var taggedPackage = IsTaggedPackage(packageReader);
+                var removeReferences = packageReader.IsLibraryPackage();
                 var relativePath = Owner.GetRelativePath(installPath);
                 Owner.packageConfiguration.Packages.Remove(package.Id);
 
-                Owner.RemoveContentFolders(packageReader, installPath, ExtensionsDirectory);
+                Owner.RemoveContentFolders(packageReader, installPath, Constants.ExtensionsDirectory);
                 Owner.RemoveLibraryFolders(packageReader, relativePath);
                 Owner.RemoveAssemblyLocations(packageReader, relativePath, false);
                 if (IsRunningOnMono) Owner.RemoveAssemblyConfigFiles(packageReader, installPath);
@@ -541,7 +528,7 @@ namespace Bonsai.Configuration
                 }
 
                 var assemblyLocations = GetCompatibleAssemblyReferences(projectFramework, packageReader);
-                Owner.RemoveAssemblyLocations(assemblyLocations, relativePath, taggedPackage);
+                Owner.RemoveAssemblyLocations(assemblyLocations, relativePath, removeReferences);
                 Owner.packageConfiguration.Save();
 
                 if (pivots.Length > 0)

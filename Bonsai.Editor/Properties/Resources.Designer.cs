@@ -61,8 +61,9 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 
-        ///The Bonsai framework includes software from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
+        ///   Looks up a localized string similar to {1}
+        ///
+        ///{0} includes software and media content from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
         ///
         ///Copyright (c) .NET Foundation and Contributors.
         /// </summary>

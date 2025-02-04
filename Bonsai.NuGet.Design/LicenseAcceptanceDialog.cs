@@ -1,8 +1,6 @@
 ﻿using Bonsai.NuGet.Design.Properties;
-using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
@@ -11,7 +9,7 @@ namespace Bonsai.NuGet.Design
 {
     public partial class LicenseAcceptanceDialog : Form
     {
-        public LicenseAcceptanceDialog(IEnumerable<IPackageSearchMetadata> licensePackages)
+        public LicenseAcceptanceDialog(IEnumerable<RequiringLicenseAcceptancePackageInfo> licensePackages)
         {
             if (licensePackages == null)
             {
@@ -21,12 +19,14 @@ namespace Bonsai.NuGet.Design
             InitializeComponent();
             SuspendLayout();
             var bold = new Font(Font, FontStyle.Bold);
-            foreach (var package in licensePackages)
+            foreach (var packageInfo in licensePackages)
             {
+                var package = packageInfo.Package;
                 var titleAuthorshipPanel = new FlowLayoutPanel();
                 var titleLabel = new Label();
                 var authorshipLabel = new Label();
                 var viewLicenseLabel = new LinkLabel();
+                viewLicenseLabel.AutoSize = true;
                 viewLicenseLabel.LinkClicked += viewLicenseLabel_LinkClicked;
 
                 titleLabel.Font = bold;
@@ -36,7 +36,7 @@ namespace Bonsai.NuGet.Design
                 var authorsText = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
                 authorshipLabel.Text = string.Format(Resources.LicenseAuthorshipLabel, authorsText);
                 viewLicenseLabel.Text = Resources.LicenseViewLicenseLabel;
-                SetLinkLabelUri(viewLicenseLabel, package.LicenseUrl);
+                LicenseHelper.SetLicenseLinkLabel(viewLicenseLabel, package, packageInfo.SourceRepository);
                 titleAuthorshipPanel.Margin = new Padding(0, 3, 3, 3);
                 titleAuthorshipPanel.AutoSize = true;
                 titleAuthorshipPanel.Controls.Add(titleLabel);
@@ -47,19 +47,9 @@ namespace Bonsai.NuGet.Design
             ResumeLayout();
         }
 
-        static void SetLinkLabelUri(LinkLabel linkLabel, Uri uri)
+        async void viewLicenseLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            linkLabel.Links[0].Description = uri != null && uri.IsAbsoluteUri ? uri.AbsoluteUri : null;
-            linkLabel.Links[0].LinkData = uri;
-        }
-
-        void viewLicenseLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            var linkUri = (Uri)e.Link.LinkData;
-            if (linkUri != null)
-            {
-                Process.Start(linkUri.AbsoluteUri);
-            }
+            await LicenseHelper.ShowLicenseAsync(e.Link, this);
         }
     }
 }

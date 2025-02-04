@@ -31,9 +31,8 @@ namespace Bonsai.NuGet.Design
                 packageIcons,
                 searchComboBox,
                 prereleaseCheckBox,
-                () => updatesButton.Checked,
-                value => multiOperationPanel.Visible = value,
-                Enumerable.Empty<string>());
+                value => multiOperationPanel.Visible = value);
+            packageViewController.PackageType = Constants.LibraryPackageType;
             packageViewController.PackageManager.PackageManagerPlugins.Add(new ExecutablePackagePlugin(this));
             InitializePackageSourceItems();
             multiOperationPanel.Visible = false;
@@ -71,28 +70,23 @@ namespace Bonsai.NuGet.Design
         {
             packageViewController.SetPackageViewStatus(Resources.NoItemsFoundLabel);
             packageViewController.ClearActiveRequests();
+
+            var selectedItem = packageSourceComboBox.SelectedItem;
+            if (!AggregateRepository.Equals(selectedItem))
+            {
+                packageViewController.SelectedRepository = (SourceRepository)selectedItem;
+            }
+            else packageViewController.SelectedRepository = null;
+
             if (installedButton.Checked)
             {
-                packageView.OperationText = Resources.UninstallOperationName;
-                packageViewController.SelectedRepository = PackageManager.LocalRepository;
+                packageViewController.SelectedTab = PackageOperationType.Uninstall;
             }
-            else
+            else if (updatesButton.Checked)
             {
-                var selectedItem = packageSourceComboBox.SelectedItem;
-                if (!AggregateRepository.Equals(selectedItem))
-                {
-                    packageViewController.SelectedRepository = (SourceRepository)selectedItem;
-                }
-                else packageViewController.SelectedRepository = null;
-
-                if (updatesButton.Checked)
-                {
-                    packageView.OperationText = Resources.UpdateOperationName;
-                }
-                else packageView.OperationText = Resources.InstallOperationName;
+                packageViewController.SelectedTab = PackageOperationType.Update;
             }
-
-            searchComboBox.Text = string.Empty;
+            else packageViewController.SelectedTab = PackageOperationType.Install;
             packageViewController.UpdatePackageQuery();
         }
 
@@ -138,23 +132,20 @@ namespace Bonsai.NuGet.Design
 
         private void multiOperationButton_Click(object sender, EventArgs e)
         {
-            if (packageView.OperationText == Resources.UpdateOperationName)
-            {
-                var packages = packageView.Nodes.Cast<TreeNode>()
-                    .Select(node => node.Tag as IPackageSearchMetadata)
-                    .Where(package => package != null)
-                    .ToList();
-                packageViewController.RunPackageOperation(packages, true);
-            }
+            var packages = packageView.Nodes.Cast<TreeNode>()
+                .Select(node => node.Tag as IPackageSearchMetadata)
+                .Where(package => package != null)
+                .ToList();
+            packageViewController.RunPackageOperation(packages, PackageOperationType.Install, true);
         }
 
-        private void packageView_OperationClick(object sender, TreeViewEventArgs e)
+        private void packageView_OperationClick(object sender, PackageViewEventArgs e)
         {
             bool handleDependencies = true;
-            var package = (IPackageSearchMetadata)e.Node.Tag;
+            var package = e.Package;
             if (package != null)
             {
-                if (packageViewController.SelectedRepository == PackageManager.LocalRepository)
+                if (e.Operation == PackageOperationType.Uninstall)
                 {
                     var nearestDependencyGroup = package.DependencySets.GetNearest(packageViewController.ProjectFramework);
                     var dependencies = ((nearestDependencyGroup?.Packages) ?? Enumerable.Empty<PackageDependency>()).ToList();
@@ -173,7 +164,7 @@ namespace Bonsai.NuGet.Design
                     }
                 }
 
-                packageViewController.RunPackageOperation(new[] { package }, handleDependencies);
+                packageViewController.RunPackageOperation(new[] { package }, e.Operation, handleDependencies);
                 if (DialogResult == DialogResult.OK)
                 {
                     Close();
@@ -192,7 +183,7 @@ namespace Bonsai.NuGet.Design
 
             public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string installPath)
             {
-                if (PackageHelper.IsExecutablePackage(package, projectFramework, packageReader))
+                if (packageReader.IsExecutablePackage(package, projectFramework))
                 {
                     Owner.Invoke((Action)(() =>
                     {
@@ -204,7 +195,7 @@ namespace Bonsai.NuGet.Design
                             if (Owner.saveFolderDialog.ShowDialog(Owner) == DialogResult.OK)
                             {
                                 var targetPath = Owner.saveFolderDialog.FileName;
-                                Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, projectFramework, packageReader, targetPath);
+                                Owner.InstallPath = packageReader.InstallExecutablePackage(package, projectFramework, targetPath);
                                 Owner.DialogResult = DialogResult.OK;
                             }
                         }
@@ -233,6 +224,15 @@ namespace Bonsai.NuGet.Design
         private void closeButton_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void dependencyCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            var packageType = dependencyCheckBox.Checked
+                ? PackageType.Dependency.Name
+                : Constants.LibraryPackageType;
+            packageViewController.PackageType = packageType;
+            packageViewController.UpdatePackageQuery();
         }
     }
 
