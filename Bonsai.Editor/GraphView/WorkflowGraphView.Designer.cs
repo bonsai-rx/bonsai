@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkflowGraphView));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -152,7 +151,7 @@
             // docsToolStripMenuItem
             // 
             this.docsToolStripMenuItem.Enabled = false;
-            this.docsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
+            this.docsToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DocsMenuImage;
             this.docsToolStripMenuItem.Name = "docsToolStripMenuItem";
             this.docsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
             this.docsToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
@@ -176,7 +175,7 @@
             // cutToolStripMenuItem
             // 
             this.cutToolStripMenuItem.Enabled = false;
-            this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+            this.cutToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.CutMenuImage;
             this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
@@ -187,7 +186,7 @@
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Enabled = false;
-            this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+            this.copyToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.CopyMenuImage;
             this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
@@ -198,7 +197,7 @@
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Enabled = false;
-            this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+            this.pasteToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.PasteMenuImage;
             this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
@@ -209,7 +208,7 @@
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Enabled = false;
-            this.deleteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("deleteToolStripMenuItem.Image")));
+            this.deleteToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DeleteMenuImage;
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
             this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
@@ -253,7 +252,7 @@
             // groupToolStripMenuItem
             // 
             this.groupToolStripMenuItem.Enabled = false;
-            this.groupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("groupToolStripMenuItem.Image")));
+            this.groupToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.GroupMenuImage;
             this.groupToolStripMenuItem.Name = "groupToolStripMenuItem";
             this.groupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
             this.groupToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
@@ -263,7 +262,7 @@
             // ungroupToolStripMenuItem
             // 
             this.ungroupToolStripMenuItem.Enabled = false;
-            this.ungroupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("ungroupToolStripMenuItem.Image")));
+            this.ungroupToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.UngroupMenuImage;
             this.ungroupToolStripMenuItem.Name = "ungroupToolStripMenuItem";
             this.ungroupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.G)));
@@ -289,7 +288,7 @@
             // enableToolStripMenuItem
             // 
             this.enableToolStripMenuItem.Enabled = false;
-            this.enableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("enableToolStripMenuItem.Image")));
+            this.enableToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.EnableMenuImage;
             this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
             this.enableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.D)));
@@ -300,7 +299,7 @@
             // disableToolStripMenuItem
             // 
             this.disableToolStripMenuItem.Enabled = false;
-            this.disableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disableToolStripMenuItem.Image")));
+            this.disableToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DisableMenuImage;
             this.disableToolStripMenuItem.Name = "disableToolStripMenuItem";
             this.disableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
             this.disableToolStripMenuItem.Size = new System.Drawing.Size(249, 22);

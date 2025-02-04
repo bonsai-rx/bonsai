@@ -93,6 +93,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap BrowseDirectoryMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("BrowseDirectoryMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Build Error.
         /// </summary>
         internal static string BuildError_Caption {
@@ -107,6 +117,16 @@ namespace Bonsai.Editor.Properties {
         internal static string ContextMenu_NoneMenuItemLabel {
             get {
                 return ResourceManager.GetString("ContextMenu_NoneMenuItemLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap CopyMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("CopyMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -185,6 +205,56 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap CutMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("CutMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DeleteMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("DeleteMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DisableMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("DisableMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DocsMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("DocsMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EditExtensionsMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("EditExtensionsMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Editor Error.
         /// </summary>
         internal static string Editor_Error_Caption {
@@ -199,6 +269,16 @@ namespace Bonsai.Editor.Properties {
         internal static string Editor_HelpLabel {
             get {
                 return ResourceManager.GetString("Editor_HelpLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EnableMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("EnableMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -221,11 +301,61 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FindNextMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("FindNextMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FindPreviousMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("FindPreviousMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ForumMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("ForumMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GalleryMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("GalleryMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to group broken branches..
         /// </summary>
         internal static string GroupBrokenBranches_Error {
             get {
                 return ResourceManager.GetString("GroupBrokenBranches_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GroupMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("GroupMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -288,6 +418,26 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NewMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("NewMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap OpenMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("OpenMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error opening the workflow {0}:
         ///{1}.
         /// </summary>
@@ -316,6 +466,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageManagerMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageManagerMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Package updates are available.
         /// </summary>
         internal static string PackageUpdatesAvailable_Notification {
@@ -335,6 +495,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PasteMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("PasteMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified subject definition is read-only..
         /// </summary>
         internal static string ReadOnlySubjectDefinition_Error {
@@ -349,6 +519,26 @@ namespace Bonsai.Editor.Properties {
         internal static string ReadyStatus {
             get {
                 return ResourceManager.GetString("ReadyStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RedoMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("RedoMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ReloadExtensionsMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("ReloadExtensionsMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -390,6 +580,26 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ReportBugMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("ReportBugMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RestartMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("RestartMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>
         internal static string RunningStatus {
@@ -427,6 +637,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SaveMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("SaveMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error saving the Bonsai workflow:
         ///{0}.
         /// </summary>
@@ -442,6 +662,36 @@ namespace Bonsai.Editor.Properties {
         internal static string SearchModuleCueBanner {
             get {
                 return ResourceManager.GetString("SearchModuleCueBanner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SelectAllMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("SelectAllMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap StartMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("StartMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap StartWithoutDebuggingMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("StartWithoutDebuggingMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -496,6 +746,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap StopMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("StopMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do you want to stop the workflow?.
         /// </summary>
         internal static string StopWorkflow_Question {
@@ -532,6 +792,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ThemeMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("ThemeMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified type could not be found..
         /// </summary>
         internal static string TypeNotFound_Error {
@@ -546,6 +816,26 @@ namespace Bonsai.Editor.Properties {
         internal static string UncompiledScriptExpression_Error {
             get {
                 return ResourceManager.GetString("UncompiledScriptExpression_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UndoMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("UndoMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UngroupMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("UngroupMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
