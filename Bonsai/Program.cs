@@ -86,6 +86,9 @@ namespace Bonsai
             });
             parser.Parse(args);
 
+            if (exportImage)
+                launchEditor = false;
+
             var editorAssembly = typeof(Program).Assembly;
             var editorPath = editorAssembly.Location;
             var editorFolder = Path.GetDirectoryName(editorPath);
