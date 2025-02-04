@@ -12,7 +12,6 @@ namespace Bonsai.Design
 {
     static class LayoutHelper
     {
-        const string LayoutExtension = ".layout";
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
@@ -25,9 +24,13 @@ namespace Bonsai.Design
             return visualizerLayout?.DialogSettings.FirstOrDefault(xs => xs.Tag == key || xs.Tag == null);
         }
 
+        [Obsolete]
         public static string GetLayoutPath(string fileName)
         {
-            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
+            var newLayoutPath = Editor.Project.GetLayoutConfigPath(fileName);
+            return File.Exists(newLayoutPath)
+                ? newLayoutPath
+                : Editor.Project.GetLegacyLayoutConfigPath(fileName);
         }
 
         public static void SetLayoutTags(ExpressionBuilderGraph source, VisualizerLayout layout)
