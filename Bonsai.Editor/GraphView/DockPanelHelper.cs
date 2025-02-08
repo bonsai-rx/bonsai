@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using Bonsai.Design;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Bonsai.Editor
+namespace Bonsai.Editor.GraphView
 {
     internal static class DockPanelHelper
     {
@@ -20,8 +20,8 @@ namespace Bonsai.Editor
             int dockPaneIndex = -1;
             int previousPaneIndex = -1;
             bool singletonContent = default;
-            IntPtr dockPaneHandle = default;
-            IntPtr previousPaneHandle = default;
+            nint dockPaneHandle = default;
+            nint previousPaneHandle = default;
             Rectangle? floatWindowBounds = null;
             TDockContent dockContent = default;
             DockAlignment? dockAlignment = default;
@@ -123,7 +123,7 @@ namespace Bonsai.Editor
             pane.DockPanel.ResumeLayout(performLayout: true, allWindows: true);
         }
 
-        static DockPane GetPaneFromHandle(IntPtr handle)
+        static DockPane GetPaneFromHandle(nint handle)
         {
             return Control.FromHandle(handle) as DockPane;
         }
