@@ -8,7 +8,7 @@ namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowDockContent : DockContent
     {
-        const string ReadOnlySuffix = " [Read-only]";
+        const string ReadOnlyPrefix = "🔒 ";
         readonly IWorkflowEditorService editorService;
         readonly CommandExecutor commandExecutor;
 
@@ -82,7 +82,7 @@ namespace Bonsai.Editor.GraphView
 
         public void UpdateText()
         {
-            Text = WorkflowGraphView.DisplayName + (WorkflowGraphView.IsReadOnly ? ReadOnlySuffix : string.Empty);
+            Text = (WorkflowGraphView.IsReadOnly ? ReadOnlyPrefix : string.Empty) + WorkflowGraphView.DisplayName;
         }
 
         void CloseOther(DockPane pane)
