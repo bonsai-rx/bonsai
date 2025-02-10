@@ -1,0 +1,12 @@
+﻿using WeifenLuo.WinFormsUI.Docking;
+
+namespace Bonsai.Editor.GraphView
+{
+    internal class WorkflowDockPaneStripFactory : DockPanelExtender.IDockPaneStripFactory
+    {
+        public DockPaneStripBase CreateDockPaneStrip(DockPane pane)
+        {
+            return new WorkflowDockPaneStrip(pane);
+        }
+    }
+}
