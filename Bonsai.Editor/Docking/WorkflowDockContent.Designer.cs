@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor.GraphView
+﻿namespace Bonsai.Editor.Docking
 {
     partial class WorkflowDockContent
     {

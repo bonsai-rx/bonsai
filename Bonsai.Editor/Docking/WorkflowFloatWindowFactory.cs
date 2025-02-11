@@ -2,7 +2,7 @@
 using System.Drawing;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Bonsai.Editor.GraphView
+namespace Bonsai.Editor.Docking
 {
     internal class WorkflowFloatWindowFactory : DockPanelExtender.IFloatWindowFactory
     {

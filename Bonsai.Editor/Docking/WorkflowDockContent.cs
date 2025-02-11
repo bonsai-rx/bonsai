@@ -2,9 +2,10 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using Bonsai.Design;
+using Bonsai.Editor.GraphView;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Bonsai.Editor.GraphView
+namespace Bonsai.Editor.Docking
 {
     partial class WorkflowDockContent : DockContent
     {

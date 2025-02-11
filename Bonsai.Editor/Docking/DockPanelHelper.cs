@@ -3,7 +3,7 @@ using System.Drawing;
 using Bonsai.Design;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Bonsai.Editor.GraphView
+namespace Bonsai.Editor.Docking
 {
     internal static class DockPanelHelper
     {

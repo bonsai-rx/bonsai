@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Bonsai.Editor.GraphView
+namespace Bonsai.Editor.Docking
 {
     [ToolboxItem(false)]
     internal class WorkflowDockPaneStrip : DockPaneStripBase
@@ -720,14 +720,14 @@ namespace Bonsai.Editor.GraphView
         {
             base.OnMouseDown(e);
             // suspend drag if mouse is down on active close button.
-            this.m_suspendDrag = ActiveCloseHitTest(e.Location);
+            m_suspendDrag = ActiveCloseHitTest(e.Location);
             if (!IsMouseDown)
                 IsMouseDown = true;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (!this.m_suspendDrag)
+            if (!m_suspendDrag)
                 base.OnMouseMove(e);
 
             int index = HitTest(PointToClient(MousePosition));
@@ -740,7 +740,7 @@ namespace Bonsai.Editor.GraphView
                 var tab = Tabs[index] as TabWorkflow;
                 tabUpdate = SetMouseOverTab(tab.Content == DockPane.ActiveContent ? null : tab.Content);
 
-                if (!String.IsNullOrEmpty(tab.Content.DockHandler.ToolTipText))
+                if (!string.IsNullOrEmpty(tab.Content.DockHandler.ToolTipText))
                     toolTip = tab.Content.DockHandler.ToolTipText;
                 else if (tab.MaxWidth > tab.TabWidth)
                     toolTip = tab.Content.DockHandler.TabText;
@@ -910,7 +910,7 @@ namespace Bonsai.Editor.GraphView
         protected override bool MouseDownActivateTest(MouseEventArgs e)
         {
             bool result = base.MouseDownActivateTest(e);
-            if (result && (e.Button == MouseButtons.Left))
+            if (result && e.Button == MouseButtons.Left)
             {
                 // don't activate if mouse is down on active close button
                 result = !ActiveCloseHitTest(e.Location);

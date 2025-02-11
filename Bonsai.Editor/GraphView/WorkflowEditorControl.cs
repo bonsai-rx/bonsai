@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
+using Bonsai.Editor.Docking;
 using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphModel;
 using WeifenLuo.WinFormsUI.Docking;
