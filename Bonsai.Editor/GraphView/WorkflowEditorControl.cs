@@ -6,6 +6,8 @@ using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphModel;
 using WeifenLuo.WinFormsUI.Docking;
 using Bonsai.Design;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -261,12 +263,30 @@ namespace Bonsai.Editor.GraphView
 
         void CloseAll()
         {
-            var activeDocument = dockPanel.ActiveDocument as WorkflowDockContent;
-            activeDocument?.Close();
+            var contents = new List<IDockContent>(dockPanel.Contents.Count);
+            IEnumerable<INestedPanesContainer> paneContainers = dockPanel.DockWindows;
+            foreach (var dockWindow in paneContainers.Concat(dockPanel.FloatWindows))
+            {
+                foreach (var nestedPane in dockWindow.NestedPanes)
+                {
+                    WorkflowDockContent firstContent = null;
+                    foreach (var content in nestedPane.Contents)
+                    {
+                        if (content.DockHandler.Pane != nestedPane)
+                            continue;
 
-            var contents = new IDockContent[dockPanel.Contents.Count];
-            dockPanel.Contents.CopyTo(contents, 0);
-            for (int i = 0; i < contents.Length; i++)
+                        if (firstContent is null && content is WorkflowDockContent dockContent)
+                        {
+                            firstContent = dockContent;
+                            nestedPane.Tag = dockContent.Tag;
+                        }
+
+                        contents.Add(content);
+                    }
+                }
+            }
+
+            for (int i = contents.Count - 1; i >= 0; i--)
             {
                 if (contents[i] is WorkflowDockContent workflowContent)
                     workflowContent.Close();
