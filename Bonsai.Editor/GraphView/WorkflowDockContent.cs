@@ -27,6 +27,13 @@ namespace Bonsai.Editor.GraphView
 
         public WorkflowGraphView WorkflowGraphView { get; }
 
+        protected override void OnDockStateChanged(EventArgs e)
+        {
+            if (Pane is DockPane dockPane)
+                dockPane.Tag ??= Tag;
+            base.OnDockStateChanged(e);
+        }
+
         protected override void OnActivated(EventArgs e)
         {
             WorkflowGraphView.UpdateSelection();

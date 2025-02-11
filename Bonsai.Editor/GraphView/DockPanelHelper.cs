@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Windows.Forms;
 using Bonsai.Design;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -17,11 +16,10 @@ namespace Bonsai.Editor.GraphView
             where TDockContent : DockContent
         {
             int contentIndex = -1;
-            int dockPaneIndex = -1;
-            int previousPaneIndex = -1;
-            bool singletonContent = default;
-            nint dockPaneHandle = default;
-            nint previousPaneHandle = default;
+            bool singletonContent = false;
+            object contentId = new();
+            object dockPaneId = default;
+            object previousPaneId = default;
             Rectangle? floatWindowBounds = null;
             TDockContent dockContent = default;
             DockAlignment? dockAlignment = default;
@@ -43,6 +41,7 @@ namespace Bonsai.Editor.GraphView
             void CreateAndShowContent()
             {
                 dockContent = contentFactory(dockPanel);
+                dockContent.Tag = contentId;
                 dockContent.HideOnClose = false;
                 dockContent.FormClosed += (sender, e) =>
                 {
@@ -51,10 +50,8 @@ namespace Bonsai.Editor.GraphView
                     dockState = dockContent.DockState;
                     dockAlignment = nestedDockingStatus.Alignment;
                     dockProportion = nestedDockingStatus.Proportion;
-                    dockPaneHandle = dockContent.Pane.Handle;
-                    previousPaneHandle = (nestedDockingStatus.PreviousPane?.Handle).GetValueOrDefault();
-                    dockPaneIndex = dockPanel.Panes.IndexOf(dockContent.Pane);
-                    previousPaneIndex = dockPanel.Panes.IndexOf(nestedDockingStatus.PreviousPane);
+                    dockPaneId = dockContent.Pane.Tag;
+                    previousPaneId = nestedDockingStatus.PreviousPane?.Tag;
                     singletonContent = dockContent.Pane.Contents.Count == 1;
                     floatWindowBounds = dockState == DockState.Float
                         ? dockContent.Pane.FloatWindow.Bounds
@@ -75,7 +72,7 @@ namespace Bonsai.Editor.GraphView
                     }
                 };
 
-                var dockPane = GetPaneFromHandle(dockPaneHandle) ?? dockPanel.GetPaneFromIndex(dockPaneIndex);
+                var dockPane = dockPanel.GetPaneFromId(dockPaneId);
                 if (dockPane != null && !singletonContent)
                 {
                     dockContent.Show(dockPane, contentIndex);
@@ -83,10 +80,8 @@ namespace Bonsai.Editor.GraphView
                 }
 
                 contentIndex = -1;
-                dockPaneIndex = -1;
                 singletonContent = default;
-                dockPane = GetPaneFromHandle(previousPaneHandle) ?? dockPanel.GetPaneFromIndex(previousPaneIndex);
-                previousPaneIndex = -1;
+                dockPane = dockPanel.GetPaneFromId(previousPaneId);
                 if (dockPane is DockPane previousPane)
                 {
                     dockContent.Show(previousPane, dockAlignment.Value, dockProportion);
@@ -123,16 +118,15 @@ namespace Bonsai.Editor.GraphView
             pane.DockPanel.ResumeLayout(performLayout: true, allWindows: true);
         }
 
-        static DockPane GetPaneFromHandle(nint handle)
+        static DockPane GetPaneFromId(this DockPanel dockPanel, object paneId)
         {
-            return Control.FromHandle(handle) as DockPane;
-        }
+            for (int i = 0; i < dockPanel.Panes.Count; i++)
+            {
+                if (ReferenceEquals(paneId, dockPanel.Panes[i].Tag))
+                    return dockPanel.Panes[i];
+            }
 
-        static DockPane GetPaneFromIndex(this DockPanel dockPanel, int index)
-        {
-            return index >= 0 && index < dockPanel.Panes.Count
-                ? dockPanel.Panes[index]
-                : null;
+            return null;
         }
 
         public static DockPane GetDocumentPane(this DockPanel dockPanel)
