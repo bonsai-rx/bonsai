@@ -11,7 +11,8 @@ namespace Bonsai.Editor
     {
         const string DefaultWorkflowNamespace = "Unspecified";
         internal const string BonsaiExtension = ".bonsai";
-        internal const string LayoutFileName = "layout";
+        internal const string LayoutExtension = ".layout";
+        internal const string SettingsDirectory = "Settings";
         internal const string ExtensionsDirectory = "Extensions";
         internal const string DefinitionsDirectory = "Definitions";
 
@@ -44,18 +45,20 @@ namespace Bonsai.Editor
 
         public static string GetWorkflowSettingsDirectory(string fileName)
         {
-            return Path.Combine(BonsaiExtension, Path.GetFileNameWithoutExtension(fileName));
+            return Path.Combine(GetWorkflowBaseDirectory(fileName), BonsaiExtension, SettingsDirectory);
         }
 
         public static string GetLayoutConfigPath(string fileName)
         {
-            return Path.Combine(GetWorkflowSettingsDirectory(fileName), LayoutFileName);
+            return Path.Combine(
+                GetWorkflowSettingsDirectory(fileName),
+                Path.GetFileNameWithoutExtension(fileName) + LayoutExtension);
         }
 
         [Obsolete]
         internal static string GetLegacyLayoutConfigPath(string fileName)
         {
-            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + "." + LayoutFileName);
+            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
         internal static string GetDefinitionsTempPath()
