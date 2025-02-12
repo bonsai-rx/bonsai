@@ -108,11 +108,11 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void CreateDockContent(WorkflowEditorPath workflowPath, DockState dockState = DockState.Document)
+        public WorkflowDockContent CreateDockContent(WorkflowEditorPath workflowPath, DockState dockState = DockState.Document)
         {
             var currentPath = workflowPath;
             var editor = new WorkflowEditor(serviceProvider);
-            dockPanel.CreateDynamicContent(
+            return dockPanel.CreateDynamicContent(
                 panel => CreateWorkflowDockContent(currentPath, editor),
                 content => currentPath = content.WorkflowGraphView.WorkflowPath,
                 dockState,

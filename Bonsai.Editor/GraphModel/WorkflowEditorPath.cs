@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using Bonsai.Expressions;
 
 namespace Bonsai.Editor.GraphModel
 {
     class WorkflowEditorPath : IEquatable<WorkflowEditorPath>
     {
+        const char PathSeparator = '.';
+
         public WorkflowEditorPath()
         {
         }
@@ -173,6 +177,41 @@ namespace Bonsai.Editor.GraphModel
         {
             if (left is not null) return !left.Equals(right);
             else return right is not null;
+        }
+
+        public static WorkflowEditorPath Parse(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return null;
+
+            WorkflowEditorPath result = null;
+            var pathElements = input.Split(PathSeparator);
+            for (int i = 0; i < pathElements.Length; i++)
+            {
+                result = new WorkflowEditorPath(
+                    int.Parse(pathElements[i], CultureInfo.InvariantCulture),
+                    result);
+            }
+
+            return result;
+        }
+
+        private void ToString(StringBuilder sb)
+        {
+            if (Parent is not null)
+            {
+                Parent.ToString(sb);
+                sb.Append(PathSeparator);
+            }
+
+            sb.Append(Index.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            ToString(sb);
+            return sb.ToString();
         }
     }
 }

@@ -28,6 +28,11 @@ namespace Bonsai.Editor.Docking
 
         public WorkflowGraphView WorkflowGraphView { get; }
 
+        protected override string GetPersistString()
+        {
+            return DockPanelSerializer.SerializeContent(this);
+        }
+
         protected override void OnDockStateChanged(EventArgs e)
         {
             if (Pane is DockPane dockPane)

@@ -7,7 +7,7 @@ namespace Bonsai.Editor.Docking
 {
     internal static class DockPanelHelper
     {
-        public static void CreateDynamicContent<TDockContent>(
+        public static TDockContent CreateDynamicContent<TDockContent>(
             this DockPanel dockPanel,
             Func<DockPanel, TDockContent> contentFactory,
             Action<TDockContent> contentClosed,
@@ -72,6 +72,9 @@ namespace Bonsai.Editor.Docking
                     }
                 };
 
+                if (dockState == DockState.Unknown)
+                    return;
+
                 var dockPane = dockPanel.GetPaneFromId(dockPaneId);
                 if (dockPane != null && !singletonContent)
                 {
@@ -100,9 +103,13 @@ namespace Bonsai.Editor.Docking
                 }
             }
 
-            commandExecutor.Execute(
-                CreateAndShowContent,
-                CloseContent);
+            if (dockState == DockState.Unknown)
+                CreateAndShowContent();
+            else
+                commandExecutor.Execute(
+                    CreateAndShowContent,
+                    CloseContent);
+            return dockContent;
         }
 
         public static void Show(this DockContent dockContent, DockPane pane, int contentIndex)
