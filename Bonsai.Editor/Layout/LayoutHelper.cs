@@ -24,13 +24,14 @@ namespace Bonsai.Design
             return visualizerLayout?.DialogSettings.FirstOrDefault(xs => xs.Tag == key || xs.Tag == null);
         }
 
-        [Obsolete]
-        public static string GetLayoutPath(string fileName)
+        public static string GetLayoutSettingsPath(string fileName)
         {
-            var newLayoutPath = Editor.Project.GetLayoutConfigPath(fileName);
+            var newLayoutPath = Editor.Project.GetLayoutSettingsPath(fileName);
             return File.Exists(newLayoutPath)
                 ? newLayoutPath
-                : Editor.Project.GetLegacyLayoutConfigPath(fileName);
+#pragma warning disable CS0612 // Support for deprecated layout config files
+                : Editor.Project.GetLegacyLayoutSettingsPath(fileName);
+#pragma warning restore CS0612 // Support for deprecated layout config files
         }
 
         public static void SetLayoutTags(ExpressionBuilderGraph source, VisualizerLayout layout)

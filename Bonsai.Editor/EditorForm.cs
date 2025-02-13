@@ -787,17 +787,13 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
 
-#pragma warning disable CS0612 // Support for deprecated layout config files
-            var layoutPath = LayoutHelper.GetLayoutPath(fileName);
+            var layoutPath = LayoutHelper.GetLayoutSettingsPath(fileName);
             if (File.Exists(layoutPath))
             {
-                using (var reader = XmlReader.Create(layoutPath))
-                {
-                    try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
-                    catch (InvalidOperationException) { }
-                }
+                using var reader = XmlReader.Create(layoutPath);
+                try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
+                catch (InvalidOperationException) { }
             }
-#pragma warning restore CS0612 // Support for deprecated layout config files
 
             saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
@@ -851,12 +847,12 @@ namespace Bonsai.Editor
             editorControl.UpdateVisualizerLayout();
             if (editorControl.VisualizerLayout != null)
             {
-                var layoutPath = new FileInfo(Project.GetLayoutConfigPath(fileName));
+                var layoutPath = new FileInfo(Project.GetLayoutSettingsPath(fileName));
                 layoutPath.Directory?.Create();
 
                 SaveVisualizerLayout(layoutPath.FullName, editorControl.VisualizerLayout);
 #pragma warning disable CS0612 // Support for deprecated layout config files
-                var legacyLayoutPath = new FileInfo(Project.GetLegacyLayoutConfigPath(fileName));
+                var legacyLayoutPath = new FileInfo(Project.GetLegacyLayoutSettingsPath(fileName));
                 if (legacyLayoutPath.Exists)
                 {
                     legacyLayoutPath.Delete();

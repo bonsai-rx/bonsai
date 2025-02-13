@@ -48,7 +48,7 @@ namespace Bonsai.Editor
             return Path.Combine(GetWorkflowBaseDirectory(fileName), BonsaiExtension, SettingsDirectory);
         }
 
-        public static string GetLayoutConfigPath(string fileName)
+        public static string GetLayoutSettingsPath(string fileName)
         {
             return Path.Combine(
                 GetWorkflowSettingsDirectory(fileName),
@@ -56,7 +56,7 @@ namespace Bonsai.Editor
         }
 
         [Obsolete]
-        internal static string GetLegacyLayoutConfigPath(string fileName)
+        internal static string GetLegacyLayoutSettingsPath(string fileName)
         {
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
