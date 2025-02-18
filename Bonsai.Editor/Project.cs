@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using Bonsai.Design;
 
@@ -40,12 +41,57 @@ namespace Bonsai.Editor
 
         public static string GetWorkflowBaseDirectory(string fileName)
         {
-            return Path.GetDirectoryName(fileName);
+            return Path.GetFullPath(Path.GetDirectoryName(fileName));
+        }
+
+        private static string GetParentRelativePath(DirectoryInfo appDirectory, string path)
+        {
+            var relativeToDirectory = appDirectory.Parent;
+            var fullPathName = Path.GetFullPath(path);
+            var relativePathRoot = Path.GetPathRoot(relativeToDirectory.FullName);
+            var pathRoot = Path.GetPathRoot(fullPathName);
+            var pathComparison = EditorSettings.IsRunningOnMono
+                ? StringComparison.Ordinal
+                : StringComparison.OrdinalIgnoreCase;
+            if (!string.Equals(relativePathRoot, pathRoot, pathComparison))
+                return path;
+
+            var relativeToComponents = relativeToDirectory.FullName.Split(Path.DirectorySeparatorChar);
+            var pathComponents = fullPathName.Split(Path.DirectorySeparatorChar);
+            if (pathComponents.Length < relativeToComponents.Length)
+                return path;
+
+            var stringBuilder = new StringBuilder();
+            for (int i = 0; i < pathComponents.Length; i++)
+            {
+                if (i >= relativeToComponents.Length)
+                {
+                    if (stringBuilder.Length > 0)
+                        stringBuilder.Append(Path.DirectorySeparatorChar);
+                    stringBuilder.Append(pathComponents[i]);
+                }
+                else if (!string.Equals(pathComponents[i], relativeToComponents[i], pathComparison))
+                    return path;
+            }
+
+            return stringBuilder.ToString();
         }
 
         public static string GetWorkflowSettingsDirectory(string fileName)
         {
-            return Path.Combine(GetWorkflowBaseDirectory(fileName), BonsaiExtension, SettingsDirectory);
+            var baseDirectory = GetWorkflowBaseDirectory(fileName);
+            var appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.IsNullOrEmpty(appBaseDirectory))
+            {
+                var appDirectoryInfo = new DirectoryInfo(appBaseDirectory);
+                var parentRelativePath = GetParentRelativePath(appDirectoryInfo, baseDirectory);
+                if (!ReferenceEquals(parentRelativePath, baseDirectory))
+                {
+                    return Path.Combine(appBaseDirectory, SettingsDirectory, parentRelativePath);
+                }
+            }
+
+            return Path.Combine(baseDirectory, BonsaiExtension, SettingsDirectory);
         }
 
         public static string GetLayoutSettingsPath(string fileName)
