@@ -50,9 +50,7 @@ namespace Bonsai.Editor
             var fullPathName = Path.GetFullPath(path);
             var relativePathRoot = Path.GetPathRoot(relativeToDirectory.FullName);
             var pathRoot = Path.GetPathRoot(fullPathName);
-            var pathComparison = EditorSettings.IsRunningOnMono
-                ? StringComparison.Ordinal
-                : StringComparison.OrdinalIgnoreCase;
+            var pathComparison = StringComparison.OrdinalIgnoreCase;
             if (!string.Equals(relativePathRoot, pathRoot, pathComparison))
                 return path;
 
