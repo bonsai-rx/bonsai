@@ -137,7 +137,7 @@ namespace Bonsai.Editor
             }
 
             var workflowBuilder = ElementStore.LoadWorkflow(fileName);
-            layoutPath ??= LayoutHelper.GetLayoutPath(fileName);
+            layoutPath ??= LayoutHelper.GetLayoutSettingsPath(fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {
                 VisualizerLayout layout = null;
