@@ -33,11 +33,11 @@ namespace Bonsai.Editor.Docking
             return DockPanelSerializer.SerializeContent(this);
         }
 
-        protected override void OnDockStateChanged(EventArgs e)
+        protected override void OnParentChanged(EventArgs e)
         {
-            if (Pane is DockPane dockPane)
+            if (Parent != null && Pane is DockPane dockPane)
                 dockPane.Tag ??= Tag;
-            base.OnDockStateChanged(e);
+            base.OnParentChanged(e);
         }
 
         protected override void OnActivated(EventArgs e)
