@@ -274,6 +274,7 @@ namespace Bonsai.Editor.GraphView
             {
                 if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
                     workflowContent.WorkflowGraphView != selectedView &&
+                    !workflowContent.WorkflowGraphView.IsDisposed &&
                     (selectedView is null ||
                      workflowContent.WorkflowGraphView.WorkflowPath == selectedView.WorkflowPath))
                 {
