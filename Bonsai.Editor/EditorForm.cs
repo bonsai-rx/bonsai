@@ -1833,20 +1833,7 @@ namespace Bonsai.Editor
         private void explorerTreeView_Navigate(object sender, ExplorerTreeViewEventArgs e)
         {
             var workflowPath = (WorkflowEditorPath)e.Node?.Tag;
-            switch (e.NavigationPreference)
-            {
-                case ExplorerNavigationPreference.Current:
-                    selectionModel.SelectedView.WorkflowPath = workflowPath;
-                    break;
-                case ExplorerNavigationPreference.NewTab:
-                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
-                    break;
-                case ExplorerNavigationPreference.NewWindow:
-                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Float);
-                    break;
-                default:
-                    break;
-            }
+            editorSite.Navigate(workflowPath, e.NavigationPreference);
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -2626,6 +2613,24 @@ namespace Bonsai.Editor
             public void OpenWorkflow(string fileName)
             {
                 siteForm.OpenWorkflow(fileName);
+            }
+
+            public void Navigate(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
+            {
+                switch (navigationPreference)
+                {
+                    case NavigationPreference.Current:
+                        siteForm.selectionModel.SelectedView.WorkflowPath = workflowPath;
+                        break;
+                    case NavigationPreference.NewTab:
+                        siteForm.editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
+                        break;
+                    case NavigationPreference.NewWindow:
+                        siteForm.editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Float);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             public string GetPackageDisplayName(string packageKey)

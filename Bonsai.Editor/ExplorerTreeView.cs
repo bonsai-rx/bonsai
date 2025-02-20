@@ -89,6 +89,26 @@ namespace Bonsai.Editor
             if (treeView.SelectedNode is null)
                 return;
 
+            if (e.KeyData == openNewTabToolStripMenuItem.ShortcutKeys)
+            {
+                OnNavigate(new ExplorerTreeViewEventArgs(
+                    treeView.SelectedNode,
+                    TreeViewAction.ByKeyboard,
+                    NavigationPreference.NewTab));
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+
+            if (e.KeyData == openNewWindowToolStripMenuItem.ShortcutKeys)
+            {
+                OnNavigate(new ExplorerTreeViewEventArgs(
+                    treeView.SelectedNode,
+                    TreeViewAction.ByKeyboard,
+                    NavigationPreference.NewWindow));
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+
             if (e.KeyCode == Keys.Return)
             {
                 OnNavigate(new ExplorerTreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
@@ -134,7 +154,7 @@ namespace Bonsai.Editor
             OnNavigate(new ExplorerTreeViewEventArgs(
                 treeView.SelectedNode,
                 TreeViewAction.ByMouse,
-                ExplorerNavigationPreference.NewTab));
+                NavigationPreference.NewTab));
         }
 
         private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -145,7 +165,7 @@ namespace Bonsai.Editor
             OnNavigate(new ExplorerTreeViewEventArgs(
                 treeView.SelectedNode,
                 TreeViewAction.ByMouse,
-                ExplorerNavigationPreference.NewWindow));
+                NavigationPreference.NewWindow));
         }
 
         private void ShowContextMenu(TreeNode node, int x, int y)
@@ -301,31 +321,24 @@ namespace Bonsai.Editor
         Blocked
     }
 
-    enum ExplorerNavigationPreference
-    {
-        Current,
-        NewTab,
-        NewWindow
-    }
-
     delegate void ExplorerTreeViewEventHandler(object sender, ExplorerTreeViewEventArgs e);
 
     class ExplorerTreeViewEventArgs : TreeViewEventArgs
     {
         public ExplorerTreeViewEventArgs(TreeNode node, TreeViewAction action)
-            : this(node, action, ExplorerNavigationPreference.Current)
+            : this(node, action, NavigationPreference.Current)
         {
         }
 
         public ExplorerTreeViewEventArgs(
             TreeNode node,
             TreeViewAction action,
-            ExplorerNavigationPreference navigationPreference)
+            NavigationPreference navigationPreference)
             : base(node, action)
         {
             NavigationPreference = navigationPreference;
         }
 
-        public ExplorerNavigationPreference NavigationPreference { get; }
+        public NavigationPreference NavigationPreference { get; }
     }
 }

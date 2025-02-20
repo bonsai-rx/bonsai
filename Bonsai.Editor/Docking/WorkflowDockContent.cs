@@ -88,6 +88,18 @@ namespace Bonsai.Editor.Docking
                         }
                     }
                 }
+
+                if (keyData == openNewTabToolStripMenuItem.ShortcutKeys)
+                {
+                    openNewTabToolStripMenuItem_Click(this, EventArgs.Empty);
+                    return true;
+                }
+
+                if (keyData == openNewWindowToolStripMenuItem.ShortcutKeys)
+                {
+                    openNewWindowToolStripMenuItem_Click(this, EventArgs.Empty);
+                    return true;
+                }
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -138,6 +150,16 @@ namespace Bonsai.Editor.Docking
                 CloseOther(pane);
                 commandExecutor.EndCompositeCommand();
             }
+        }
+
+        private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.Navigate(WorkflowGraphView.WorkflowPath, NavigationPreference.NewTab);
+        }
+
+        private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.Navigate(WorkflowGraphView.WorkflowPath, NavigationPreference.NewWindow);
         }
     }
 }

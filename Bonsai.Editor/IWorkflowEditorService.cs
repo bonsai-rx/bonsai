@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 
 namespace Bonsai.Editor
@@ -22,6 +23,8 @@ namespace Bonsai.Editor
         WorkflowBuilder LoadWorkflow(string fileName);
 
         void OpenWorkflow(string fileName);
+
+        void Navigate(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference);
 
         void SelectNextControl(bool forward);
 
