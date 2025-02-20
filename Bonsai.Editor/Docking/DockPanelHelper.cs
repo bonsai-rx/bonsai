@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Xml.Linq;
 using Bonsai.Design;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -146,6 +149,14 @@ namespace Bonsai.Editor.Docking
             }
 
             return null;
+        }
+
+        public static XDocument SaveAsXml(this DockPanel dockPanel)
+        {
+            using var memoryStream = new MemoryStream();
+            dockPanel.SaveAsXml(memoryStream, Encoding.UTF8, upstream: true);
+            memoryStream.Position = 0;
+            return XDocument.Load(memoryStream);
         }
     }
 }

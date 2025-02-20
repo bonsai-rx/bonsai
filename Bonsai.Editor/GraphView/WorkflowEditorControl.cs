@@ -9,6 +9,9 @@ using WeifenLuo.WinFormsUI.Docking;
 using Bonsai.Design;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -208,10 +211,27 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void ResetNavigation()
+        public void SaveEditorLayout(string fileName)
+        {
+            var document = dockPanel.SaveAsXml();
+            document.DescendantNodes().OfType<XComment>().Remove();
+            using var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            using var writer = XmlWriter.Create(fileStream, new XmlWriterSettings { Indent = true });
+            document.WriteTo(writer);
+        }
+
+        public void ResetEditorLayout(string fileName = default)
         {
             CloseAll();
-            CreateDockContent(null);
+            if (File.Exists(fileName))
+            {
+                using var stream = File.OpenRead(fileName);
+                dockPanel.LoadFromXml(stream, content => DockPanelSerializer.DeserializeContent(this, content));
+            }
+            else
+            {
+                CreateDockContent(null);
+            }
         }
 
         internal void ClearGraphNode(WorkflowEditorPath path)

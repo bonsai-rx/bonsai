@@ -18,9 +18,9 @@ namespace Bonsai.Design
         const string MashupSettingsElement = "MashupSettings";
         const string MashupSourceElement = "Source";
 
-        public static string GetLayoutSettingsPath(string fileName)
+        public static string GetCompatibleLayoutPath(string settingsDirectory, string fileName)
         {
-            var newLayoutPath = Editor.Project.GetLayoutSettingsPath(fileName);
+            var newLayoutPath = Editor.Project.GetLayoutSettingsPath(settingsDirectory, fileName);
             return File.Exists(newLayoutPath)
                 ? newLayoutPath
 #pragma warning disable CS0612 // Support for deprecated layout config files

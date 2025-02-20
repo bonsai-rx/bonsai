@@ -780,7 +780,7 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            editorControl.ResetNavigation();
+            editorControl.ResetEditorLayout();
             editorSite.ValidateWorkflow();
             visualizerSettings.Clear();
             ResetProjectStatus();
@@ -827,10 +827,13 @@ namespace Bonsai.Editor
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
             saveWorkflowDialog.FileName = fileName;
-            editorControl.ResetNavigation();
+
+            var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
+            var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
+            editorControl.ResetEditorLayout(editorPath);
             editorSite.ValidateWorkflow();
 
-            var layoutPath = LayoutHelper.GetLayoutSettingsPath(fileName);
+            var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
             if (File.Exists(layoutPath))
             {
                 using var reader = XmlReader.Create(layoutPath);
@@ -890,13 +893,17 @@ namespace Bonsai.Editor
             if (!SaveWorkflowBuilder(fileName, serializerWorkflowBuilder)) return false;
             saveVersion = version;
 
+            var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
+            Directory.CreateDirectory(settingsDirectory);
+
+            var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
+            editorControl.SaveEditorLayout(editorPath);
+
             var visualizerLayout = visualizerSettings.GetVisualizerLayout(workflowBuilder);
             if (visualizerLayout != null)
             {
-                var layoutPath = new FileInfo(Project.GetLayoutSettingsPath(fileName));
-                layoutPath.Directory?.Create();
-
-                SaveVisualizerLayout(layoutPath.FullName, visualizerLayout);
+                var layoutPath = Project.GetLayoutSettingsPath(settingsDirectory, fileName);
+                SaveVisualizerLayout(layoutPath, visualizerLayout);
 #pragma warning disable CS0612 // Support for deprecated layout config files
                 var legacyLayoutPath = new FileInfo(Project.GetLegacyLayoutSettingsPath(fileName));
                 if (legacyLayoutPath.Exists)
