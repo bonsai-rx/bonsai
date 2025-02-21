@@ -115,6 +115,7 @@ namespace Bonsai.Editor
             statusTextLabel.Text = Resources.ReadyStatus;
             formScheduler = new FormScheduler(this);
             themeRenderer = new ThemeRenderer();
+            themeRenderer.LabelHeight = searchTextBox.Height;
             themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
             iconRenderer = new SvgRendererFactory();
             updatesAvailable = new BehaviorSubject<bool>(false);
@@ -3016,17 +3017,10 @@ namespace Bonsai.Editor
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
 
-            var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top;
-            var labelOffset = searchLayoutTop - editorControl.ContentArea.Top;
-            toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
-            propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
-            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
-            {
-                labelOffset += 1;
-            }
-            propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
-            toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
-            explorerLayoutPanel.RowStyles[0].Height -= labelOffset;
+            editorControl.Padding = new Padding(0, toolboxLabel.Top - editorControl.Top, 0, 0);
+            propertiesLayoutPanel.RowStyles[0].Height = themeRenderer.LabelHeight;
+            toolboxLayoutPanel.RowStyles[0].Height = themeRenderer.LabelHeight;
+            explorerLayoutPanel.RowStyles[0].Height = themeRenderer.LabelHeight;
             propertyGrid.Refresh();
             editorControl.InitializeTheme();
         }
@@ -3043,6 +3037,6 @@ namespace Bonsai.Editor
             EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
         }
 
-        #endregion
+#endregion
     }
 }

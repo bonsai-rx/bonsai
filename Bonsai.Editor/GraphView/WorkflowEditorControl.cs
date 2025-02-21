@@ -29,10 +29,8 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
-            lightTheme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
-            lightTheme.Extender.DockPaneStripFactory = new WorkflowDockPaneStripFactory();
-            darkTheme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(provider);
-            darkTheme.Extender.DockPaneStripFactory = new WorkflowDockPaneStripFactory();
+            ConfigureDockTheme(lightTheme);
+            ConfigureDockTheme(darkTheme);
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
@@ -92,22 +90,6 @@ namespace Bonsai.Editor.GraphView
         {
             splitContainer.Panel1Collapsed = true;
             annotationPanel.Tag = null;
-        }
-
-        public Rectangle ContentArea
-        {
-            get
-            {
-                var dockArea = dockPanel.DockArea;
-                if (dockPanel.Panes.Count > 0)
-                {
-                    var tabHeight = dockPanel.Panes[0].TabStripControl.Height;
-                    dockArea.Y += tabHeight;
-                    dockArea.Height -= tabHeight;
-                }
-
-                return dockArea;
-            }
         }
 
         public WorkflowDockContent CreateDockContent(WorkflowEditorPath workflowPath, DockState dockState = DockState.Document)
@@ -331,10 +313,8 @@ namespace Bonsai.Editor.GraphView
                 }
             }
 
-            lightTheme.Skin.DockPaneStripSkin.TextFont = Font;
-            lightTheme.Skin.AutoHideStripSkin.TextFont = Font;
-            darkTheme.Skin.DockPaneStripSkin.TextFont = Font;
-            darkTheme.Skin.AutoHideStripSkin.TextFont = Font;
+            UpdateDockThemeFont(lightTheme);
+            UpdateDockThemeFont(darkTheme);
             base.OnFontChanged(e);
         }
 
@@ -399,14 +379,22 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        private void ConfigureDockTheme(ThemeBase theme)
+        {
+            theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(serviceProvider);
+            theme.Extender.DockPaneStripFactory = new WorkflowDockPaneStripFactory();
+            theme.Measures.DockPadding = 0;
+        }
+
+        private void UpdateDockThemeFont(ThemeBase theme)
+        {
+            theme.Skin.DockPaneStripSkin.TextFont = Font;
+            theme.Skin.AutoHideStripSkin.TextFont = Font;
+        }
+
         internal void InitializeTheme()
         {
-            var labelOffset = browserLabel.Height - ContentArea.Top;
-            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
-            {
-                labelOffset += 1;
-            }
-            browserLayoutPanel.RowStyles[0].Height -= labelOffset;
+            browserLayoutPanel.RowStyles[0].Height = themeRenderer.LabelHeight;
 
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
