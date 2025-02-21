@@ -34,6 +34,8 @@ namespace Bonsai.Editor.GraphView
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
+            if (EditorSettings.IsRunningOnMono)
+                CreateDockContent(null);
             InitializeTheme();
         }
 
