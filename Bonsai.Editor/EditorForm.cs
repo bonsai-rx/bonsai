@@ -342,7 +342,7 @@ namespace Bonsai.Editor
                     })));
                 }
             }
-            else FileName = null;
+            else ClearWorkflow();
 
             initialization.TakeUntil(formClosed).Subscribe();
             base.OnLoad(e);
