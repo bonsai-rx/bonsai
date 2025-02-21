@@ -332,6 +332,10 @@ namespace Bonsai.Editor.GraphView
                 }
             }
 
+            lightTheme.Skin.DockPaneStripSkin.TextFont = Font;
+            lightTheme.Skin.AutoHideStripSkin.TextFont = Font;
+            darkTheme.Skin.DockPaneStripSkin.TextFont = Font;
+            darkTheme.Skin.AutoHideStripSkin.TextFont = Font;
             base.OnFontChanged(e);
         }
 
