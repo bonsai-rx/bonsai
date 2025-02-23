@@ -40,6 +40,8 @@
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openNewWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,6 +75,8 @@
             this.defaultEditorToolStripMenuItem,
             this.docsToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem,
+            this.openNewTabToolStripMenuItem,
+            this.openNewWindowToolStripMenuItem,
             this.toolStripSeparator2,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -90,7 +94,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 502);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 546);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -166,6 +170,26 @@
             this.goToDefinitionToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.goToDefinitionToolStripMenuItem.Text = "Go To Definition...";
             this.goToDefinitionToolStripMenuItem.Click += new System.EventHandler(this.goToDefinitionToolStripMenuItem_Click);
+            // 
+            // openNewTabToolStripMenuItem
+            // 
+            this.openNewTabToolStripMenuItem.Enabled = false;
+            this.openNewTabToolStripMenuItem.Name = "openNewTabToolStripMenuItem";
+            this.openNewTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
+            this.openNewTabToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.openNewTabToolStripMenuItem.Text = "Open in New Tab";
+            this.openNewTabToolStripMenuItem.Visible = false;
+            this.openNewTabToolStripMenuItem.Click += new System.EventHandler(this.openNewTabToolStripMenuItem_Click);
+            // 
+            // openNewWindowToolStripMenuItem
+            // 
+            this.openNewWindowToolStripMenuItem.Enabled = false;
+            this.openNewWindowToolStripMenuItem.Name = "openNewWindowToolStripMenuItem";
+            this.openNewWindowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.openNewWindowToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.openNewWindowToolStripMenuItem.Text = "Open in New Window";
+            this.openNewWindowToolStripMenuItem.Visible = false;
+            this.openNewWindowToolStripMenuItem.Click += new System.EventHandler(this.openNewWindowToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -375,5 +399,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem goToDefinitionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem docsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openNewTabToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openNewWindowToolStripMenuItem;
     }
 }

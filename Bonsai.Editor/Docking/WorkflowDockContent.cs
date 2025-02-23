@@ -89,13 +89,15 @@ namespace Bonsai.Editor.Docking
                     }
                 }
 
-                if (keyData == openNewTabToolStripMenuItem.ShortcutKeys)
+                if (keyData == openNewTabToolStripMenuItem.ShortcutKeys &&
+                    WorkflowGraphView.GraphView.SelectedNode is null)
                 {
                     openNewTabToolStripMenuItem_Click(this, EventArgs.Empty);
                     return true;
                 }
 
-                if (keyData == openNewWindowToolStripMenuItem.ShortcutKeys)
+                if (keyData == openNewWindowToolStripMenuItem.ShortcutKeys &&
+                    WorkflowGraphView.GraphView.SelectedNode is null)
                 {
                     openNewWindowToolStripMenuItem_Click(this, EventArgs.Empty);
                     return true;
@@ -154,12 +156,12 @@ namespace Bonsai.Editor.Docking
 
         private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.Navigate(WorkflowGraphView.WorkflowPath, NavigationPreference.NewTab);
+            editorService.NavigateTo(WorkflowGraphView.WorkflowPath, NavigationPreference.NewTab);
         }
 
         private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.Navigate(WorkflowGraphView.WorkflowPath, NavigationPreference.NewWindow);
+            editorService.NavigateTo(WorkflowGraphView.WorkflowPath, NavigationPreference.NewWindow);
         }
     }
 }

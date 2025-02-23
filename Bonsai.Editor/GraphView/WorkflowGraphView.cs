@@ -480,7 +480,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void LaunchWorkflowView(GraphNode node)
+        public void LaunchWorkflowView(GraphNode node, NavigationPreference navigationPreference = default)
         {
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
             var disableBuilder = builder as DisableBuilder;
@@ -488,13 +488,8 @@ namespace Bonsai.Editor.GraphView
             if (workflowExpressionBuilder != null)
             {
                 var newPath = new WorkflowEditorPath(node.Index, WorkflowPath);
-                LaunchWorkflowPath(newPath);
+                editorService.NavigateTo(newPath, navigationPreference);
             }
-        }
-
-        private void LaunchWorkflowPath(WorkflowEditorPath path)
-        {
-            Editor.NavigateTo(path);
         }
 
         internal void UpdateSelection()
@@ -806,7 +801,7 @@ namespace Bonsai.Editor.GraphView
 
         private void graphView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == goToDefinitionToolStripMenuItem.ShortcutKeys)
+            if (e.KeyData == goToDefinitionToolStripMenuItem.ShortcutKeys)
             {
                 LaunchDefinition(graphView.SelectedNode);
             }
@@ -821,14 +816,24 @@ namespace Bonsai.Editor.GraphView
                 SelectAllGraphNodes();
             }
 
-            if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
+            if (e.KeyData == copyToolStripMenuItem.ShortcutKeys)
             {
                 CopyToClipboard();
             }
 
             if (e.KeyCode == Keys.Back && e.Modifiers == Keys.Control)
             {
-                LaunchWorkflowPath(WorkflowPath?.Parent);
+                editorService.NavigateTo(WorkflowPath?.Parent);
+            }
+
+            if (e.KeyData == openNewTabToolStripMenuItem.ShortcutKeys)
+            {
+                openNewTabToolStripMenuItem_Click(this, EventArgs.Empty);
+            }
+
+            if (e.KeyData == openNewWindowToolStripMenuItem.ShortcutKeys)
+            {
+                openNewWindowToolStripMenuItem_Click(this, EventArgs.Empty);
             }
 
             if (CanEdit)
@@ -1012,6 +1017,16 @@ namespace Bonsai.Editor.GraphView
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefinition(graphView.SelectedNode);
+        }
+
+        private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchWorkflowView(graphView.SelectedNode, NavigationPreference.NewTab);
+        }
+
+        private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchWorkflowView(graphView.SelectedNode, NavigationPreference.NewWindow);
         }
 
         private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1531,6 +1546,13 @@ namespace Bonsai.Editor.GraphView
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
                     createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
+                    if (workflowElement is IWorkflowExpressionBuilder)
+                    {
+                        openNewTabToolStripMenuItem.Visible = true;
+                        openNewTabToolStripMenuItem.Enabled = true;
+                        openNewWindowToolStripMenuItem.Visible = true;
+                        openNewWindowToolStripMenuItem.Enabled = true;
+                    }
                 }
 
                 var activeVisualizer = visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
@@ -1584,6 +1606,8 @@ namespace Bonsai.Editor.GraphView
             createPropertySourceToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
             groupToolStripMenuItem.DropDownItems.Clear();
+            openNewTabToolStripMenuItem.Visible = false;
+            openNewWindowToolStripMenuItem.Visible = false;
             editorService.OnContextMenuClosed(e);
         }
 

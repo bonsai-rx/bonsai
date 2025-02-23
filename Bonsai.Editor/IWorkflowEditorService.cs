@@ -24,7 +24,7 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName);
 
-        void Navigate(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference);
+        void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference = default);
 
         void SelectNextControl(bool forward);
 

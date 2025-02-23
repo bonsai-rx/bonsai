@@ -1834,7 +1834,7 @@ namespace Bonsai.Editor
         private void explorerTreeView_Navigate(object sender, ExplorerTreeViewEventArgs e)
         {
             var workflowPath = (WorkflowEditorPath)e.Node?.Tag;
-            editorSite.Navigate(workflowPath, e.NavigationPreference);
+            editorSite.NavigateTo(workflowPath, e.NavigationPreference);
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -2616,7 +2616,7 @@ namespace Bonsai.Editor
                 siteForm.OpenWorkflow(fileName);
             }
 
-            public void Navigate(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
+            public void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
             {
                 switch (navigationPreference)
                 {
