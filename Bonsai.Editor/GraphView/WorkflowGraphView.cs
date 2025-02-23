@@ -370,7 +370,6 @@ namespace Bonsai.Editor.GraphView
             var workflowBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowBuilder != null && workflowBuilder.Workflow != null)
             {
-                if (workflowBuilder is IncludeWorkflowBuilder) return;
                 LaunchWorkflowView(node);
             }
             else if (builder != null && LaunchBuilderEditor(builder))
@@ -464,10 +463,7 @@ namespace Bonsai.Editor.GraphView
         private void LaunchDefinition(GraphNode node)
         {
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
-            var disableBuilder = builder as DisableBuilder;
-            var includeWorkflow = (disableBuilder != null ? disableBuilder.Builder : builder) as IncludeWorkflowBuilder;
-            if (includeWorkflow != null && includeWorkflow.Workflow != null) LaunchWorkflowView(node);
-            else if (builder != null)
+            if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 try
