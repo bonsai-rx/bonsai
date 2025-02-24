@@ -121,7 +121,8 @@ namespace Bonsai.Design
 
             if (composite.Execute == null)
             {
-                throw new InvalidOperationException("A composite command must have at least one action defined.");
+                composite = null;
+                return;
             }
 
             if (composite.Undo != null)

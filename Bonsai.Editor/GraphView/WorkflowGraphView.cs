@@ -480,6 +480,20 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        public void LaunchWorkflowView(IEnumerable<GraphNode> nodes, NavigationPreference navigationPreference = default)
+        {
+            var sortedNodes = nodes.SortSelection(Workflow).ToArray();
+            if (sortedNodes.Length > 0)
+            {
+                commandExecutor.BeginCompositeCommand();
+                foreach (var node in sortedNodes)
+                {
+                    LaunchWorkflowView(node, navigationPreference);
+                }
+                commandExecutor.EndCompositeCommand();
+            }
+        }
+
         public void LaunchWorkflowView(GraphNode node, NavigationPreference navigationPreference = default)
         {
             var builder = WorkflowEditor.GetGraphNodeBuilder(node);
@@ -1021,12 +1035,12 @@ namespace Bonsai.Editor.GraphView
 
         private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LaunchWorkflowView(graphView.SelectedNode, NavigationPreference.NewTab);
+            LaunchWorkflowView(graphView.SelectedNodes, NavigationPreference.NewTab);
         }
 
         private void openNewWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LaunchWorkflowView(graphView.SelectedNode, NavigationPreference.NewWindow);
+            LaunchWorkflowView(graphView.SelectedNodes, NavigationPreference.NewWindow);
         }
 
         private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1498,6 +1512,13 @@ namespace Bonsai.Editor.GraphView
             {
                 copyToolStripMenuItem.Enabled = true;
                 saveAsWorkflowToolStripMenuItem.Enabled = true;
+                if (Array.Exists(selectedNodes, node => node.NestedCategory != null))
+                {
+                    openNewTabToolStripMenuItem.Visible = true;
+                    openNewTabToolStripMenuItem.Enabled = true;
+                    openNewWindowToolStripMenuItem.Visible = true;
+                    openNewWindowToolStripMenuItem.Enabled = true;
+                }
             }
 
             if (CanEdit)
@@ -1546,13 +1567,6 @@ namespace Bonsai.Editor.GraphView
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
                     createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
-                    if (workflowElement is IWorkflowExpressionBuilder)
-                    {
-                        openNewTabToolStripMenuItem.Visible = true;
-                        openNewTabToolStripMenuItem.Enabled = true;
-                        openNewWindowToolStripMenuItem.Visible = true;
-                        openNewWindowToolStripMenuItem.Enabled = true;
-                    }
                 }
 
                 var activeVisualizer = visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
