@@ -231,6 +231,7 @@ namespace Bonsai.Editor.GraphView
         {
             UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
             selectedView.RefreshSelection();
+            UpdateAllText();
         }
 
         internal void InvalidateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
@@ -262,6 +263,18 @@ namespace Bonsai.Editor.GraphView
                      workflowContent.WorkflowGraphView.WorkflowPath == selectedView.WorkflowPath))
                 {
                     action(workflowContent.WorkflowGraphView);
+                }
+            }
+        }
+
+        void UpdateAllText()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    !workflowContent.WorkflowGraphView.IsDisposed)
+                {
+                    workflowContent.UpdateText();
                 }
             }
         }
