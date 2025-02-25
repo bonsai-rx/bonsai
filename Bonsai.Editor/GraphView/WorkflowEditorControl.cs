@@ -217,7 +217,8 @@ namespace Bonsai.Editor.GraphView
                 });
                 CloseInvalidContents();
             }
-            else
+
+            if (dockPanel.Contents.Count == 0)
             {
                 CreateDockContent(null);
             }
