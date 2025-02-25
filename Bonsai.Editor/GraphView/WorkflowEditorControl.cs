@@ -208,12 +208,27 @@ namespace Bonsai.Editor.GraphView
             CloseAll();
             if (File.Exists(fileName))
             {
+                var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
                 using var stream = File.OpenRead(fileName);
-                dockPanel.LoadFromXml(stream, content => DockPanelSerializer.DeserializeContent(this, content));
+                dockPanel.LoadFromXml(stream, content =>
+                {
+                    try { return DockPanelSerializer.DeserializeContent(this, workflowBuilder, content); }
+                    catch { return new InvalidDockContent(); } // best effort
+                });
+                CloseInvalidContents();
             }
             else
             {
                 CreateDockContent(null);
+            }
+        }
+
+        void CloseInvalidContents()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is InvalidDockContent invalidContent)
+                    invalidContent.Close();
             }
         }
 

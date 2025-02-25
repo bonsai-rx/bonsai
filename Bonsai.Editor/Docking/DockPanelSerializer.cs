@@ -18,7 +18,10 @@ namespace Bonsai.Editor.Docking
                 nameof(contentString));
         }
 
-        public static IDockContent DeserializeContent(WorkflowEditorControl editorControl, string contentString)
+        public static IDockContent DeserializeContent(
+            WorkflowEditorControl editorControl,
+            WorkflowBuilder workflowBuilder,
+            string contentString)
         {
             if (editorControl is null)
                 throw new ArgumentNullException(nameof(editorControl));
@@ -36,6 +39,7 @@ namespace Bonsai.Editor.Docking
                     var workflowPath = contentElements.Length > 1
                         ? WorkflowEditorPath.Parse(contentElements[1])
                         : null;
+                    workflowPath?.Resolve(workflowBuilder);
                     return editorControl.CreateDockContent(workflowPath, DockState.Unknown);
                 default:
                     ThrowNotRecognizedException(contentString);
