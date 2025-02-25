@@ -1,11 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Expressions;
-using Bonsai.Design;
+using Bonsai.Editor.Docking;
 using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphModel;
+using WeifenLuo.WinFormsUI.Docking;
+using Bonsai.Design;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Bonsai.Editor.GraphView
 {
@@ -13,31 +19,40 @@ namespace Bonsai.Editor.GraphView
     {
         readonly IServiceProvider serviceProvider;
         readonly IWorkflowEditorService editorService;
-        readonly TabPageController workflowTab;
         readonly ThemeRenderer themeRenderer;
-        Padding? adjustMargin;
+        readonly CommandExecutor commandExecutor;
 
         public WorkflowEditorControl(IServiceProvider provider)
-            : this(provider, false)
-        {
-        }
-
-        public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
         {
             InitializeComponent();
             serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
-            workflowTab = InitializeTab(workflowTabPage, readOnly, null);
+            commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            ConfigureDockTheme(lightTheme);
+            ConfigureDockTheme(darkTheme);
             annotationPanel.ThemeRenderer = themeRenderer;
             annotationPanel.LinkClicked += (sender, e) => { EditorDialog.OpenUrl(e.LinkText); };
             annotationPanel.CloseRequested += delegate { CollapseAnnotationPanel(); };
-            InitializeTheme(workflowTabPage);
+            if (EditorSettings.IsRunningOnMono)
+                CreateDockContent(null);
+            InitializeTheme();
         }
 
-        public WorkflowGraphView WorkflowGraphView
+        public event EventHandler ActiveContentChanged
         {
-            get { return workflowTab.WorkflowGraphView; }
+            add { dockPanel.ActiveContentChanged += value; }
+            remove { dockPanel.ActiveContentChanged -= value; }
+        }
+
+        public WorkflowGraphView ActiveContent
+        {
+            get
+            {
+                return dockPanel.ActiveContent is WorkflowDockContent workflowContent
+                    ? workflowContent.WorkflowGraphView
+                    : null;
+            }
         }
 
         public AnnotationPanel AnnotationPanel
@@ -60,18 +75,6 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public VisualizerLayout VisualizerLayout
-        {
-            get { return WorkflowGraphView.VisualizerLayout; }
-            set { WorkflowGraphView.VisualizerLayout = value; }
-        }
-
-        public ExpressionBuilderGraph Workflow
-        {
-            get { return WorkflowGraphView.Workflow; }
-            set { WorkflowGraphView.Workflow = value; }
-        }
-
         public void ExpandAnnotationPanel(ExpressionBuilder builder)
         {
             annotationPanel.Tag = builder;
@@ -91,172 +94,259 @@ namespace Bonsai.Editor.GraphView
             annotationPanel.Tag = null;
         }
 
-        public void UpdateVisualizerLayout()
+        public WorkflowDockContent CreateDockContent(WorkflowEditorPath workflowPath, DockState dockState = DockState.Document)
         {
-            WorkflowGraphView.UpdateVisualizerLayout();
+            var currentPath = workflowPath;
+            var editor = new WorkflowEditor(serviceProvider);
+            return dockPanel.CreateDynamicContent(
+                panel => CreateWorkflowDockContent(currentPath, editor),
+                content => currentPath = content.WorkflowGraphView.WorkflowPath,
+                dockState,
+                commandExecutor);
         }
 
-        public TabPageController ActiveTab { get; private set; }
-
-        public int ItemHeight
+        private WorkflowDockContent CreateWorkflowDockContent(WorkflowEditorPath workflowPath, WorkflowEditor editor)
         {
-            get { return tabControl.DisplayRectangle.Y; }
-        }
+            var workflowGraphView = new WorkflowGraphView(serviceProvider, this, editor);
+            var dockContent = new WorkflowDockContent(workflowGraphView, serviceProvider);
+            dockContent.DockAreas = DockAreas.Float | DockAreas.Document;
+            dockContent.SuspendLayout();
 
-        TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
-        {
-            var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
             workflowGraphView.BackColorChanged += (sender, e) =>
             {
-                tabPage.BackColor = workflowGraphView.BackColor;
-                if (tabControl.SelectedTab == tabPage) InitializeTheme(tabPage);
+                dockContent.BackColor = workflowGraphView.BackColor;
             };
+            workflowGraphView.Margin = new Padding(0);
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
-            workflowGraphView.Tag = tabPage;
+            workflowGraphView.Tag = dockContent;
 
-            var tabState = new TabPageController(tabPage, workflowGraphView);
-            tabPage.Tag = tabState;
-            tabPage.SuspendLayout();
-            if (container != null)
+            var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
+            breadcrumbs.Margin = new Padding(0);
+            breadcrumbs.WorkflowPath = null;
+            breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
+            workflowGraphView.WorkflowPathChanged += (sender, e) =>
             {
-                container.TextChanged += (sender, e) => tabState.Text = container.Text;
-                container.Controls.Add(workflowGraphView);
-                tabPage.Controls.Add(container);
+                breadcrumbs.WorkflowPath = workflowGraphView.WorkflowPath;
+                dockContent.UpdateText();
+            };
+
+            var navigationPanel = new TableLayoutPanel();
+            navigationPanel.Dock = DockStyle.Fill;
+            navigationPanel.ColumnCount = 1;
+            navigationPanel.RowCount = 2;
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, breadcrumbs.Height));
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            navigationPanel.Controls.Add(breadcrumbs);
+            navigationPanel.Controls.Add(workflowGraphView);
+            workflowGraphView.TabIndex = 0;
+            breadcrumbs.TabIndex = 1;
+
+            // TODO: This should be handled by docking, but some strange interaction prevents shrinking to min size
+            navigationPanel.Layout += (sender, e) => breadcrumbs.Width = navigationPanel.Width;
+            breadcrumbs.Width = navigationPanel.Width;
+            workflowGraphView.Editor.ResetNavigation(workflowPath);
+
+            dockContent.Controls.Add(navigationPanel);
+            dockContent.BackColor = workflowGraphView.BackColor;
+            dockContent.ResumeLayout(false);
+            dockContent.PerformLayout();
+            return dockContent;
+        }
+
+        public void CloseDockContent(IWorkflowExpressionBuilder workflowBuilder)
+        {
+            if (workflowBuilder is null)
+            {
+                throw new ArgumentNullException(nameof(workflowBuilder));
             }
-            else tabPage.Controls.Add(workflowGraphView);
-            tabPage.BackColor = workflowGraphView.BackColor;
-            tabPage.ResumeLayout(false);
-            tabPage.PerformLayout();
-            return tabState;
-        }
 
-        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, bool readOnly, Control owner)
-        {
-            var tabPage = new TabPage();
-            tabPage.Padding = workflowTabPage.Padding;
-            tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
+            if (workflowBuilder.Workflow is null)
+                return;
 
-            var tabState = InitializeTab(tabPage, readOnly || builder is IncludeWorkflowBuilder, owner);
-            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
-            tabState.WorkflowGraphView.Workflow = builder.Workflow;
-            tabState.Builder = builder;
-            tabControl.TabPages.Add(tabPage);
-            return tabState;
-        }
-
-        public void SelectTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
             {
-                tabControl.SelectTab(tabPage);
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    workflowContent.WorkflowGraphView.Workflow == workflowBuilder.Workflow)
+                {
+                    workflowContent.Close();
+                }
+            }
+
+            foreach (var node in workflowBuilder.Workflow)
+            {
+                if (ExpressionBuilder.GetWorkflowElement(node.Value) is IWorkflowExpressionBuilder nestedBuilder)
+                {
+                    CloseDockContent(nestedBuilder);
+                }
             }
         }
 
         public void SelectTab(WorkflowGraphView workflowGraphView)
         {
-            var tabPage = (TabPage)workflowGraphView.Tag;
-            if (tabPage != null)
+            foreach (var content in dockPanel.Contents)
             {
-                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
-                if (tabIndex >= 0) tabControl.SelectTab(tabIndex);
-            }
-        }
-
-        public void CloseTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                CloseTab(tabState);
-            }
-        }
-
-        void CloseTab(TabPage tabPage)
-        {
-            var tabState = (TabPageController)tabPage.Tag;
-            if (tabState.Builder != null)
-            {
-                CloseTab(tabState);
-            }
-        }
-
-        void CloseTab(TabPageController tabState)
-        {
-            var tabPage = tabState.TabPage;
-            var cancelEventArgs = new CancelEventArgs();
-            tabState.OnTabClosing(cancelEventArgs);
-            if (!cancelEventArgs.Cancel)
-            {
-                tabControl.SuspendLayout();
-                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
-                if (tabControl.SelectedIndex >= tabIndex)
+                if (content is WorkflowDockContent workflowContent &&
+                    workflowContent.WorkflowGraphView == workflowGraphView)
                 {
-                    tabControl.SelectTab(tabIndex - 1);
-                }
-                tabControl.TabPages.Remove(tabPage);
-                tabControl.ResumeLayout();
-                tabPage.Dispose();
-            }
-        }
-
-        public void RefreshTab(IWorkflowExpressionBuilder builder)
-        {
-            var tabPage = FindTab(builder);
-            if (tabPage != null)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                RefreshTab(tabState);
-            }
-        }
-
-        void RefreshTab(TabPageController tabState)
-        {
-            var builder = tabState.Builder;
-            var workflowGraphView = tabState.WorkflowGraphView;
-            if (builder != null && builder.Workflow != workflowGraphView.Workflow)
-            {
-                CloseTab(tabState);
-            }
-        }
-
-        TabPage FindTab(IWorkflowExpressionBuilder builder)
-        {
-            foreach (TabPage tabPage in tabControl.TabPages)
-            {
-                var tabState = (TabPageController)tabPage.Tag;
-                if (tabState.Builder == builder)
-                {
-                    return tabPage;
+                    workflowContent.Activate();
                 }
             }
-
-            return null;
         }
 
-        void ActivateTab(TabPage tabPage)
+        public void SaveEditorLayout(string fileName)
         {
-            var tabState = tabPage != null ? (TabPageController)tabPage.Tag : null;
-            if (tabState != null && ActiveTab != tabState)
+            var document = dockPanel.SaveAsXml();
+            document.DescendantNodes().OfType<XComment>().Remove();
+            using var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            using var writer = XmlWriter.Create(fileStream, new XmlWriterSettings { Indent = true });
+            document.WriteTo(writer);
+        }
+
+        public void ResetEditorLayout(string fileName = default)
+        {
+            CloseAll();
+            if (File.Exists(fileName))
             {
-                ActiveTab = tabState;
-                RefreshTab(ActiveTab);
-                ActiveTab.UpdateSelection();
+                var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+                using var stream = File.OpenRead(fileName);
+                dockPanel.LoadFromXml(stream, content =>
+                {
+                    try { return DockPanelSerializer.DeserializeContent(this, workflowBuilder, content); }
+                    catch { return new InvalidDockContent(); } // best effort
+                });
+                CloseInvalidContents();
+            }
+
+            if (dockPanel.Contents.Count == 0)
+            {
+                CreateDockContent(null);
+            }
+        }
+
+        void CloseInvalidContents()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is InvalidDockContent invalidContent)
+                    invalidContent.Close();
+            }
+        }
+
+        internal void ClearGraphNode(WorkflowEditorPath path)
+        {
+            UpdateGraphView(graphView => graphView.ClearGraphNode(path));
+        }
+
+        internal void HighlightGraphNode(WorkflowGraphView selectedView, WorkflowEditorPath path, bool selectNode)
+        {
+            UpdateGraphView(graphView => graphView.HighlightGraphNode(path, selectNode && graphView == selectedView));
+        }
+
+        internal void RefreshSelection(WorkflowGraphView selectedView)
+        {
+            UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
+            selectedView.RefreshSelection();
+            UpdateAllText();
+        }
+
+        internal void InvalidateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
+        {
+            UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
+            selectedView.InvalidateGraphLayout(validateWorkflow);
+        }
+
+        internal void UpdateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
+        {
+            UpdateGraphView(selectedView, graphView =>
+                graphView.UpdateGraphLayout(validateWorkflow: false, updateSelection: false));
+            selectedView.UpdateGraphLayout(validateWorkflow, updateSelection: true);
+        }
+
+        private void UpdateGraphView(Action<WorkflowGraphView> action)
+        {
+            UpdateGraphView(selectedView: null, action);
+        }
+
+        private void UpdateGraphView(WorkflowGraphView selectedView, Action<WorkflowGraphView> action)
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    workflowContent.WorkflowGraphView != selectedView &&
+                    !workflowContent.WorkflowGraphView.IsDisposed &&
+                    (selectedView is null ||
+                     workflowContent.WorkflowGraphView.WorkflowPath == selectedView.WorkflowPath))
+                {
+                    action(workflowContent.WorkflowGraphView);
+                }
+            }
+        }
+
+        void UpdateAllText()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    !workflowContent.WorkflowGraphView.IsDisposed)
+                {
+                    workflowContent.UpdateText();
+                }
+            }
+        }
+
+        void CloseAll()
+        {
+            var contents = new List<IDockContent>(dockPanel.Contents.Count);
+            IEnumerable<INestedPanesContainer> paneContainers = dockPanel.DockWindows;
+            foreach (var dockWindow in paneContainers.Concat(dockPanel.FloatWindows))
+            {
+                foreach (var nestedPane in dockWindow.NestedPanes)
+                {
+                    WorkflowDockContent firstContent = null;
+                    foreach (var content in nestedPane.Contents)
+                    {
+                        if (content.DockHandler.Pane != nestedPane)
+                            continue;
+
+                        if (firstContent is null && content is WorkflowDockContent dockContent)
+                        {
+                            firstContent = dockContent;
+                            nestedPane.Tag = dockContent.Tag;
+                        }
+
+                        contents.Add(content);
+                    }
+                }
+            }
+
+            for (int i = contents.Count - 1; i >= 0; i--)
+            {
+                if (contents[i] is WorkflowDockContent workflowContent)
+                    workflowContent.Close();
+            }
+
+            var floatWindows = new FloatWindow[dockPanel.FloatWindows.Count];
+            dockPanel.FloatWindows.CopyTo(floatWindows, 0);
+            for (int i = 0; i < floatWindows.Length; i++)
+            {
+                floatWindows[i].Close();
             }
         }
 
         protected override void OnFontChanged(EventArgs e)
         {
-            WorkflowGraphView.Font = Font;
-            base.OnFontChanged(e);
-        }
+            foreach (var content in dockPanel.Contents)
+            {
+                if (content is WorkflowDockContent workflowContent)
+                {
+                    workflowContent.WorkflowGraphView.Font = Font;
+                }
+            }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            ActivateTab(workflowTabPage);
-            base.OnLoad(e);
+            UpdateDockThemeFont(lightTheme);
+            UpdateDockThemeFont(darkTheme);
+            base.OnFontChanged(e);
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -271,175 +361,24 @@ namespace Bonsai.Editor.GraphView
             base.OnKeyDown(e);
         }
 
-        internal class TabPageController
+        protected override void OnEnter(EventArgs e)
         {
-            const string CloseSuffix = "   \u2715";
-            const string ReadOnlySuffix = " [Read-only]";
-            string displayText;
-
-            public TabPageController(TabPage tabPage, WorkflowGraphView graphView)
+            if (dockPanel.GetDocumentPane()?.ActiveContent is WorkflowDockContent workflowContent)
             {
-                TabPage = tabPage ?? throw new ArgumentNullException(nameof(tabPage));
-                WorkflowGraphView = graphView ?? throw new ArgumentNullException(nameof(graphView));
+                workflowContent.Activate();
             }
-
-            public TabPage TabPage { get; private set; }
-
-            public IWorkflowExpressionBuilder Builder { get; set; }
-
-            public WorkflowGraphView WorkflowGraphView { get; private set; }
-
-            public string Text
-            {
-                get { return displayText; }
-                set
-                {
-                    displayText = value;
-                    UpdateDisplayText();
-                }
-            }
-
-            void UpdateDisplayText()
-            {
-                TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
-            }
-
-            public void UpdateSelection()
-            {
-                WorkflowGraphView.UpdateSelection();
-            }
-
-            public event CancelEventHandler TabClosing;
-
-            internal void OnTabClosing(CancelEventArgs e)
-            {
-                TabClosing?.Invoke(this, e);
-            }
-        }
-
-        private void tabControl_Selected(object sender, TabControlEventArgs e)
-        {
-            if (e.Action == TabControlAction.Selected)
-            {
-                ActivateTab(e.TabPage);
-            }
-        }
-
-        private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
-        {
-            e.Cancel = e.TabPageIndex >= tabControl.TabPages.Count;
-        }
-
-        void tabControl_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Control && e.KeyCode == Keys.F4)
-            {
-                var selectedTab = tabControl.SelectedTab;
-                if (selectedTab == null) return;
-                CloseTab(selectedTab);
-            }
-
-            editorService.OnKeyDown(e);
-        }
-
-        void tabControl_MouseUp(object sender, MouseEventArgs e)
-        {
-            var selectedTab = tabControl.SelectedTab;
-            if (selectedTab == null) return;
-
-            if (e.Button == MouseButtons.Middle)
-            {
-                CloseTab(selectedTab);
-                return;
-            }
-
-            if (e.Button == MouseButtons.Right)
-            {
-                tabContextMenuStrip.Show(tabControl, e.Location);
-                return;
-            }
-
-            var tabState = (TabPageController)selectedTab.Tag;
-            var tabRect = tabControl.GetTabRect(tabControl.SelectedIndex);
-            if (tabState.Builder != null && tabRect.Contains(e.Location))
-            {
-                using (var graphics = selectedTab.CreateGraphics())
-                {
-                    var textSize = TextRenderer.MeasureText(
-                        graphics,
-                        selectedTab.Text,
-                        selectedTab.Font,
-                        tabRect.Size,
-                        TextFormatFlags.Default |
-                        TextFormatFlags.NoPadding);
-                    var padSize = TextRenderer.MeasureText(
-                        graphics,
-                        selectedTab.Text.Substring(0, selectedTab.Text.Length - 1),
-                        selectedTab.Font,
-                        tabRect.Size,
-                        TextFormatFlags.Default |
-                        TextFormatFlags.NoPadding);
-                    const float DefaultDpi = 96f;
-                    var offset = graphics.DpiX / DefaultDpi;
-                    var margin = (tabRect.Width - textSize.Width) / 2;
-                    var buttonWidth = textSize.Width - padSize.Width;
-                    var buttonRight = tabRect.Right - margin;
-                    var buttonLeft = buttonRight - buttonWidth;
-                    var buttonTop = tabRect.Top + 2 * selectedTab.Margin.Top;
-                    var buttonBottom = tabRect.Bottom - 2 * selectedTab.Margin.Bottom;
-                    var buttonHeight = buttonBottom - buttonTop;
-                    var buttonBounds = new Rectangle(buttonLeft, buttonTop, (int)(buttonWidth + offset), buttonHeight);
-                    if (buttonBounds.Contains(e.Location))
-                    {
-                        CloseTab(tabState);
-                    }
-                }
-            }
-        }
-
-        private void tabContextMenuStrip_Opening(object sender, CancelEventArgs e)
-        {
-            var selectedTab = tabControl.SelectedTab;
-            if (selectedTab == null) return;
-            closeToolStripMenuItem.Enabled = tabControl.SelectedTab != workflowTabPage;
-            closeAllToolStripMenuItem.Enabled = tabControl.TabCount > 1;
-        }
-
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var selectedTab = tabControl.SelectedTab;
-            if (selectedTab == null) return;
-            CloseTab(selectedTab);
-        }
-
-        private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            while (tabControl.TabCount > 1)
-            {
-                CloseTab(tabControl.TabPages[1]);
-            }
+            base.OnEnter(e);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             base.ScaleControl(factor, specified);
-            var displayX = tabControl.DisplayRectangle.X;
-            var marginLeft = tabControl.Margin.Left;
-            var marginTop = tabControl.Margin.Top;
-            if (adjustMargin.HasValue)
-            {
-                var adjustH = (int)Math.Round(marginLeft * factor.Width - marginLeft);
-                var adjustV = (int)Math.Round(marginTop * factor.Height - marginTop);
-                adjustMargin -= new Padding(adjustH, adjustV, adjustH, adjustH);
-            }
-            else
-            {
-                var adjustH = displayX - marginLeft - 1;
-                var adjustV = displayX - marginTop - displayX / 2 - 1;
-                adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
-            }
             AnnotationPanelSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
             splitContainer.FixedPanel = FixedPanel.Panel1;
+            dockPanel.DefaultFloatWindowSize = Size.Round(new SizeF(
+                width: 320 * factor.Width,
+                height: 240 * factor.Height
+            ));
         }
 
         private void EnsureWebViewSize()
@@ -471,28 +410,41 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        private void InitializeTheme(TabPage tabPage)
+        private void ConfigureDockTheme(ThemeBase theme)
         {
-            var adjustRectangle = tabControl.Margin + adjustMargin.GetValueOrDefault();
-            if (tabPage.BackColor.GetBrightness() > 0.5f)
-            {
-                adjustRectangle.Right -= 2;
-                adjustRectangle.Bottom -= tabControl.Margin.Top - tabControl.Margin.Left + 1;
-            }
-            else adjustRectangle.Bottom = adjustRectangle.Left;
-            tabControl.AdjustRectangle = adjustRectangle;
+            theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(serviceProvider);
+            theme.Extender.DockPaneStripFactory = new WorkflowDockPaneStripFactory();
+            theme.Measures.DockPadding = 0;
+        }
 
-            var labelOffset = browserLabel.Height - ItemHeight + 1;
-            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
-            {
-                labelOffset += 1;
-            }
-            browserLayoutPanel.RowStyles[0].Height -= labelOffset;
+        private void UpdateDockThemeFont(ThemeBase theme)
+        {
+            theme.Skin.DockPaneStripSkin.TextFont = Font;
+            theme.Skin.AutoHideStripSkin.TextFont = Font;
+        }
+
+        internal void InitializeTheme()
+        {
+            browserLayoutPanel.RowStyles[0].Height = themeRenderer.LabelHeight;
 
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             browserLabel.BackColor = closeBrowserButton.BackColor = colorTable.SeparatorDark;
             browserLabel.ForeColor = closeBrowserButton.ForeColor = colorTable.ControlForeColor;
             annotationPanel.InitializeTheme();
+
+            ThemeBase dockTheme = themeRenderer.ActiveTheme == ColorTheme.Light ? lightTheme : darkTheme;
+            if (dockPanel.Theme != dockTheme)
+            {
+                var restoreContents = dockPanel.Contents.Count > 0;
+                if (restoreContents)
+                {
+                    commandExecutor.BeginCompositeCommand();
+                    CloseAll();
+                    commandExecutor.EndCompositeCommand();
+                }
+                dockPanel.Theme = dockTheme;
+                if (restoreContents) commandExecutor.Undo();
+            }
         }
 
         private void annotationPanel_KeyDown(object sender, KeyEventArgs e)
@@ -504,7 +456,10 @@ namespace Bonsai.Editor.GraphView
                     case Keys.F4: CollapseAnnotationPanel(); break;
                     case Keys.Back:
                         e.Handled = true;
-                        ActiveTab.WorkflowGraphView.Focus();
+                        if (dockPanel.ActiveContent is WorkflowDockContent workflowContent)
+                        {
+                            workflowContent.WorkflowGraphView.Focus();
+                        }
                         break;
                 }
             }

@@ -437,6 +437,14 @@ namespace Bonsai.Editor.Properties {
             }
         }
         
+        ///   Looks up a localized string similar to The specified workflow path does not resolve to a workflow expression builder node..
+        /// </summary>
+        internal static string InvalidWorkflowPath_Error {
+            get {
+                return ResourceManager.GetString("InvalidWorkflowPath_Error", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to There was an error opening the workflow {0}:
         ///{1}.
@@ -894,11 +902,31 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WorkflowEditableImage {
+            get {
+                object obj = ResourceManager.GetObject("WorkflowEditableImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Externalized properties of this workflow can be configured below..
         /// </summary>
         internal static string WorkflowPropertiesDescription {
             get {
                 return ResourceManager.GetString("WorkflowPropertiesDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WorkflowReadOnlyImage {
+            get {
+                object obj = ResourceManager.GetObject("WorkflowReadOnlyImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

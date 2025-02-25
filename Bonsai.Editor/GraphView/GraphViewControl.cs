@@ -236,6 +236,8 @@ namespace Bonsai.Editor.GraphView
 
         public Color CursorColor { get; set; }
 
+        public WorkflowPathFlags PathFlags { get; set; }
+
         public SvgRendererFactory IconRenderer { get; set; }
 
         public Image GraphicsProvider { get; set; }
@@ -528,12 +530,13 @@ namespace Bonsai.Editor.GraphView
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            var shift = keyData.HasFlag(Keys.Shift);
-            if (shift) keyData &= ~Keys.Shift;
-            var control = keyData.HasFlag(Keys.Control);
-            if (control) keyData &= ~Keys.Control;
+            var keys = keyData;
+            var shift = keys.HasFlag(Keys.Shift);
+            if (shift) keys &= ~Keys.Shift;
+            var control = keys.HasFlag(Keys.Control);
+            if (control) keys &= ~Keys.Control;
 
-            if (keyData == Keys.Space && CursorNode != null)
+            if (keys == Keys.Space && CursorNode != null)
             {
                 if (selectedNodes.Contains(CursorNode))
                 {
@@ -544,7 +547,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             var stepCursor = false;
-            switch (keyData)
+            switch (keys)
             {
                 case Keys.Up:
                 case Keys.Down:
@@ -556,7 +559,7 @@ namespace Bonsai.Editor.GraphView
 
             if (CursorNode != null && stepCursor)
             {
-                StepCursor(keyData);
+                StepCursor(keys);
                 if (shift)
                 {
                     SelectRange(CursorNode, control);
@@ -1069,7 +1072,7 @@ namespace Bonsai.Editor.GraphView
             iconRendererState.Stroke = stroke;
             iconRendererState.CurrentColor = currentColor;
             iconRendererState.Translation = nodeRectangle.Location;
-            if (layout.Node.IsDisabled)
+            if (layout.Node.IsDisabled || (PathFlags & WorkflowPathFlags.Disabled) != 0)
             {
                 graphics.FillEllipse(Brushes.DarkGray, nodeRectangle);
             }

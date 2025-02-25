@@ -16,6 +16,8 @@ namespace Bonsai.Editor.Themes
             lightRenderer = new ToolStripLightRenderer();
         }
 
+        public int LabelHeight { get; set; }
+
         public ColorTheme ActiveTheme
         {
             get { return activeTheme; }
