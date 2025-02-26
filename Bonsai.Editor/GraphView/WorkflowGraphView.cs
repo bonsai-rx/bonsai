@@ -1499,6 +1499,10 @@ namespace Bonsai.Editor.GraphView
                             visualizerSettings[inspectBuilder] = dialogSettings;
                     }
                 }
+                else if (editorState.WorkflowRunning)
+                {
+                    LaunchVisualizer(selectedNode);
+                }
             });
             return menuItem;
         }
