@@ -1910,7 +1910,7 @@ namespace Bonsai.Editor.GraphModel
 
         public void UngroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            UpdateGraphNodes(nodes, UngroupOrReplaceGraphNode);
+            UpdateGraphNodes(nodes.Where(node => !node.IsDisabled && node.NestedCategory.HasValue), UngroupOrReplaceGraphNode);
         }
 
         private void UngroupOrReplaceGraphNode(GraphNode node)
@@ -2030,12 +2030,12 @@ namespace Bonsai.Editor.GraphModel
 
         public void DisableGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            UpdateGraphNodes(nodes, DisableGraphNode);
+            UpdateGraphNodes(nodes.Where(node => !node.IsDisabled), DisableGraphNode);
         }
 
         public void EnableGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            UpdateGraphNodes(nodes, EnableGraphNode);
+            UpdateGraphNodes(nodes.Where(node => node.IsDisabled), EnableGraphNode);
         }
 
         public void RenameSubject(SubjectDefinition definition, string newName)
