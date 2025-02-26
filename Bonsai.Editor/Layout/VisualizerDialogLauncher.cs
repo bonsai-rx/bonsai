@@ -34,7 +34,7 @@ namespace Bonsai.Design
 
         public Lazy<DialogTypeVisualizer> Visualizer { get; }
 
-        private VisualizerFactory VisualizerFactory { get; }
+        public VisualizerFactory VisualizerFactory { get; }
 
         static IDisposable SubscribeDialog<TSource>(IObservable<TSource> source, TypeVisualizerDialog visualizerDialog)
         {

@@ -1404,13 +1404,22 @@ namespace Bonsai.Editor.GraphView
 
         private string GetActiveVisualizerTypeName(object workflowElement, InspectBuilder inspectBuilder)
         {
-            if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
-                mappingBuilder.VisualizerType is not null)
-                return mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
+            if (editorState.WorkflowRunning)
+            {
+                var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
+                visualizerDialogs.TryGetValue(inspectBuilder, out VisualizerDialogLauncher visualizerDialog);
+                return visualizerDialog?.VisualizerFactory.VisualizerType.FullName;
+            }
             else
-                return visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
-                        ? dialogSettings.VisualizerTypeName
-                        : null;
+            {
+                if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
+                    mappingBuilder.VisualizerType is not null)
+                    return mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
+                else
+                    return visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
+                            ? dialogSettings.VisualizerTypeName
+                            : null;
+            }
         }
 
         private void CreateVisualizerMenuItems(
