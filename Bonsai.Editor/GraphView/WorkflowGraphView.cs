@@ -1421,6 +1421,15 @@ namespace Bonsai.Editor.GraphView
                     }
                     UpdateSelection(forceUpdate: true);
                 }
+                else if (menuItem.Checked)
+                {
+                    var visualizerLauncher = visualizerMapping[inspectBuilder];
+                    var visualizerVisible = visualizerLauncher.Visible;
+                    if (!visualizerVisible)
+                    {
+                        visualizerLauncher.Show(graphView, serviceProvider);
+                    }
+                }
                 else if (!menuItem.Checked)
                 {
                     var dialogSettings = emptyVisualizer ? default : new VisualizerDialogSettings
