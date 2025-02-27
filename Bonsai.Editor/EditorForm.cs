@@ -269,6 +269,9 @@ namespace Bonsai.Editor
 
         void CloseEditorForm()
         {
+            if (!string.IsNullOrEmpty(FileName))
+                SaveWorkflowSettings(FileName);
+
             Application.RemoveMessageFilter(hotKeys);
             EditorSettings.Instance.AnnotationPanelSize = (int)Math.Round(
                 editorControl.AnnotationPanelSize * inverseScaleFactor.Width);
@@ -894,6 +897,19 @@ namespace Bonsai.Editor
             if (!SaveWorkflowBuilder(fileName, serializerWorkflowBuilder)) return false;
             saveVersion = version;
 
+            SaveWorkflowSettings(fileName);
+            UpdateWorkflowDirectory(fileName);
+            UpdateTitle();
+            return true;
+        }
+
+        bool SaveWorkflowBuilder(string fileName, WorkflowBuilder workflowBuilder)
+        {
+            return SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
+        }
+
+        void SaveWorkflowSettings(string fileName)
+        {
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             Directory.CreateDirectory(settingsDirectory);
 
@@ -913,15 +929,6 @@ namespace Bonsai.Editor
                 }
 #pragma warning restore CS0612 // Support for deprecated layout config files
             }
-
-            UpdateWorkflowDirectory(fileName);
-            UpdateTitle();
-            return true;
-        }
-
-        bool SaveWorkflowBuilder(string fileName, WorkflowBuilder workflowBuilder)
-        {
-            return SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
         }
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
