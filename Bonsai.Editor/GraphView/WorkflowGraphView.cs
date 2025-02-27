@@ -1402,6 +1402,50 @@ namespace Bonsai.Editor.GraphView
             return menuItem;
         }
 
+        private string GetActiveVisualizerTypeName(object workflowElement, InspectBuilder inspectBuilder)
+        {
+            if (editorState.WorkflowRunning)
+            {
+                var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
+                visualizerDialogs.TryGetValue(inspectBuilder, out VisualizerDialogLauncher visualizerDialog);
+                return visualizerDialog?.VisualizerFactory.VisualizerType.FullName;
+            }
+            else
+            {
+                if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
+                    mappingBuilder.VisualizerType is not null)
+                    return mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
+                else
+                    return visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
+                            ? dialogSettings.VisualizerTypeName
+                            : null;
+            }
+        }
+
+        private void CreateVisualizerMenuItems(
+            string activeVisualizerTypeName,
+            InspectBuilder visualizerElement,
+            ToolStripMenuItem ownerItem,
+            GraphNode selectedNode)
+        {
+            if (visualizerElement.ObservableType != null &&
+                (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
+            {
+                var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
+                visualizerTypes = visualizerTypes.Concat(typeVisualizerMap.GetTypeVisualizers(visualizerElement));
+                ownerItem.Enabled = true;
+                foreach (var type in visualizerTypes)
+                {
+                    var typeName = type?.FullName ?? string.Empty;
+                    var menuItem = CreateVisualizerMenuItem(typeName, selectedNode);
+                    ownerItem.DropDownItems.Add(menuItem);
+                    menuItem.Checked = type is null
+                        ? activeVisualizerTypeName is null
+                        : typeName == activeVisualizerTypeName;
+                }
+            }
+        }
+
         private ToolStripMenuItem CreateVisualizerMenuItem(string typeName, GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
@@ -1454,6 +1498,10 @@ namespace Bonsai.Editor.GraphView
                         else
                             visualizerSettings[inspectBuilder] = dialogSettings;
                     }
+                }
+                else if (editorState.WorkflowRunning)
+                {
+                    LaunchVisualizer(selectedNode);
                 }
             });
             return menuItem;
@@ -1569,33 +1617,9 @@ namespace Bonsai.Editor.GraphView
                     createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
                 }
 
-                var activeVisualizer = visualizerSettings.TryGetValue(inspectBuilder, out var dialogSettings)
-                    ? dialogSettings.VisualizerTypeName
-                    : null;
-
-                if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
-                    mappingBuilder.VisualizerType != null)
-                {
-                    activeVisualizer = mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
-                }
-
+                var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
                 var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                if (visualizerElement.ObservableType != null &&
-                    (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
-                {
-                    var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
-                    visualizerTypes = visualizerTypes.Concat(typeVisualizerMap.GetTypeVisualizers(visualizerElement));
-                    visualizerToolStripMenuItem.Enabled = true;
-                    foreach (var type in visualizerTypes)
-                    {
-                        var typeName = type?.FullName ?? string.Empty;
-                        var menuItem = CreateVisualizerMenuItem(typeName, selectedNode);
-                        visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
-                        menuItem.Checked = type is null
-                            ? activeVisualizer is null
-                            : typeName == activeVisualizer;
-                    }
-                }
+                CreateVisualizerMenuItems(activeVisualizer, visualizerElement, visualizerToolStripMenuItem, selectedNode);
             }
         }
 

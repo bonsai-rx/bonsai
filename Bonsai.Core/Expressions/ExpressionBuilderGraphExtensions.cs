@@ -1365,6 +1365,18 @@ namespace Bonsai.Expressions
         /// <returns>An enumerable sequence of all the descendant elements in this workflow.</returns>
         public static IEnumerable<ExpressionBuilder> Descendants(this ExpressionBuilderGraph source)
         {
+            return Descendants(source, unwrap: true);
+        }
+
+        /// <summary>
+        /// Returns a filtered collection of the descendant elements for this workflow, including elements
+        /// nested inside grouped workflows. Any descendants of disabled groups will not be included in the result.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to search.</param>
+        /// <param name="unwrap">A value indicating whether to unwrap descendant elements.</param>
+        /// <returns>An enumerable sequence of all the descendant elements in this workflow.</returns>
+        public static IEnumerable<ExpressionBuilder> Descendants(this ExpressionBuilderGraph source, bool unwrap)
+        {
             var stack = new Stack<IEnumerator<Node<ExpressionBuilder, ExpressionBuilderArgument>>>();
             stack.Push(source.GetEnumerator());
 
@@ -1379,8 +1391,9 @@ namespace Bonsai.Expressions
                         break;
                     }
 
-                    var builder = ExpressionBuilder.Unwrap(nodeEnumerator.Current.Value);
-                    yield return builder;
+                    var nodeValue = nodeEnumerator.Current.Value;
+                    var builder = ExpressionBuilder.Unwrap(nodeValue);
+                    yield return unwrap ? builder : nodeValue;
 
                     if (builder is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow != null)
                     {
