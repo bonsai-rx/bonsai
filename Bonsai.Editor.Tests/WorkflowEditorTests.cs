@@ -194,6 +194,27 @@ namespace Bonsai.Editor.Tests
         }
 
         [TestMethod]
+        public void UngroupGraphNodes_OutOfOrderSharedConnectedComponent_IsReversible()
+        {
+            var workflow = new TestWorkflow()
+                .AppendValue(0)
+                .AppendBranch(source => source
+                    .AppendNested(nested => nested
+                        .Append(new GroupWorkflowBuilder { Name = "A" }),
+                        graph => new GroupWorkflowBuilder(graph) { Name = "B" })
+                    .ResetCursor()
+                    .Append(new GroupWorkflowBuilder { Name = "C" })
+                    .AddArguments(source))
+                .TopologicalSort()
+                .ToInspectableGraph();
+
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var nodesToUngroup = new[] { editor.FindNode("B") };
+            editor.UngroupGraphNodes(nodesToUngroup);
+            assertIsReversible();
+        }
+
+        [TestMethod]
         public void DisconnectGraphNodes_TargetIsNotRoot_InsertAfterClosestRoot()
         {
             var workflow = EditorHelper.CreateEditorGraph("A", "B", "C", "D");
