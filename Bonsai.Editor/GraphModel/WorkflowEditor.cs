@@ -588,7 +588,7 @@ namespace Bonsai.Editor.GraphModel
             Node<ExpressionBuilder, ExpressionBuilderArgument> source,
             Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
-            ConnectGraphNodes(new[] { source }, target, validate: false);
+            ConnectGraphNodes(new[] { source }, target, validate: false, sort: false);
         }
 
         static void FindNextIndex(ref int index, ref int offset, int[] indices)
@@ -603,13 +603,14 @@ namespace Bonsai.Editor.GraphModel
         {
             var target = GetGraphNodeTag(Workflow, graphViewTarget);
             var sourceNodes = graphViewSources.Select(node => GetGraphNodeTag(Workflow, node)).ToArray();
-            ConnectGraphNodes(sourceNodes, target, validate);
+            ConnectGraphNodes(sourceNodes, target, validate, sort: true);
         }
 
         private void ConnectGraphNodes(
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sourceNodes,
             Node<ExpressionBuilder, ExpressionBuilderArgument> target,
-            bool validate)
+            bool validate,
+            bool sort)
         {
             var workflow = this.Workflow;
             var addConnection = EmptyAction;
@@ -646,17 +647,21 @@ namespace Bonsai.Editor.GraphModel
                 updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             }
 
-            GraphCommand reorder;
-            var targetIndex = workflow.IndexOf(target);
-            if (sinkNodes != null)
+            if (sort)
             {
-                reorder = GetReversibleSort();
-                addConnection += () => workflow.InsertRange(targetIndex, sinkNodes);
-            }
-            else reorder = GetSimpleSort();
+                GraphCommand reorder;
+                var targetIndex = workflow.IndexOf(target);
+                if (sinkNodes != null)
+                {
+                    reorder = GetReversibleSort();
+                    addConnection += () => workflow.InsertRange(targetIndex, sinkNodes);
+                }
+                else reorder = GetSimpleSort();
 
-            addConnection += reorder.Command;
-            removeConnection += reorder.Undo;
+                addConnection += reorder.Command;
+                removeConnection += reorder.Undo;
+            }
+
             commandExecutor.Execute(
             () =>
             {
@@ -1983,6 +1988,16 @@ namespace Bonsai.Editor.GraphModel
                 EmptyAction,
                 EmptyAction);
 
+            // Strict reversing is required since connection topology may scramble insertion order
+            commandExecutor.Execute(
+                EmptyAction,
+                () =>
+                {
+                    workflow.InsertRange(0, groupWorkflow);
+                    workflow.RemoveRange(0, groupWorkflow.Count);
+                    workflow.InsertRange(insertIndex, groupWorkflow);
+                });
+
             // Connect incoming nodes to internal targets
             var mainSink = groupSinks.FirstOrDefault();
             var inputConnections = predecessors
@@ -2005,6 +2020,8 @@ namespace Bonsai.Editor.GraphModel
             {
                 ConnectInternalNodes(source, target);
             }
+
+            commandExecutor.Execute(SortWorkflow, EmptyAction);
         }
 
         void DisableGraphNode(GraphNode node)
