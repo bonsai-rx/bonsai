@@ -48,7 +48,7 @@ namespace Bonsai.Editor.GraphModel
         public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder, out WorkflowPathFlags pathFlags)
         {
             pathFlags = WorkflowPathFlags.None;
-            var builder = default(ExpressionBuilder);
+            var result = default(ExpressionBuilder);
             var workflow = workflowBuilder.Workflow;
             foreach (var pathElement in GetPathElements())
             {
@@ -57,7 +57,8 @@ namespace Bonsai.Editor.GraphModel
                     throw new ArgumentException($"Unable to resolve workflow editor path.", nameof(workflowBuilder));
                 }
 
-                builder = ExpressionBuilder.Unwrap(workflow[pathElement.Index].Value);
+                result = workflow[pathElement.Index].Value;
+                var builder = ExpressionBuilder.Unwrap(result);
                 if (builder is DisableBuilder disableBuilder)
                 {
                     builder = disableBuilder.Builder;
@@ -73,7 +74,7 @@ namespace Bonsai.Editor.GraphModel
                 else workflow = null;
             }
 
-            return builder;
+            return result;
         }
 
         public static WorkflowEditorPath GetExceptionPath(WorkflowBuilder workflowBuilder, WorkflowException ex)
