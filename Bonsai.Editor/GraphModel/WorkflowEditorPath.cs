@@ -48,7 +48,7 @@ namespace Bonsai.Editor.GraphModel
         public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder, out WorkflowPathFlags pathFlags)
         {
             pathFlags = WorkflowPathFlags.None;
-            var builder = default(ExpressionBuilder);
+            var result = default(ExpressionBuilder);
             var workflow = workflowBuilder.Workflow;
             foreach (var pathElement in GetPathElements())
             {
@@ -57,7 +57,8 @@ namespace Bonsai.Editor.GraphModel
                     throw new ArgumentException($"Unable to resolve workflow editor path.", nameof(workflowBuilder));
                 }
 
-                builder = ExpressionBuilder.Unwrap(workflow[pathElement.Index].Value);
+                result = workflow[pathElement.Index].Value;
+                var builder = ExpressionBuilder.Unwrap(result);
                 if (builder is DisableBuilder disableBuilder)
                 {
                     builder = disableBuilder.Builder;
@@ -73,7 +74,7 @@ namespace Bonsai.Editor.GraphModel
                 else workflow = null;
             }
 
-            return builder;
+            return result;
         }
 
         public static WorkflowEditorPath GetExceptionPath(WorkflowBuilder workflowBuilder, WorkflowException ex)
@@ -108,16 +109,22 @@ namespace Bonsai.Editor.GraphModel
 
         static WorkflowEditorPath GetBuilderPath(ExpressionBuilderGraph workflow, ExpressionBuilder target, List<int> pathElements)
         {
+            if (workflow is null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
             for (int i = 0; i < workflow.Count; i++)
             {
-                var builder = ExpressionBuilder.GetWorkflowElement(workflow[i].Value);
+                var builder = ExpressionBuilder.Unwrap(workflow[i].Value);
                 if (builder == target)
                 {
                     pathElements.Add(i);
                     return GetBuilderPath(pathElements);
                 }
 
-                if (builder is IWorkflowExpressionBuilder workflowBuilder)
+                if (builder is IWorkflowExpressionBuilder workflowBuilder &&
+                    workflowBuilder.Workflow is not null)
                 {
                     pathElements.Add(i);
                     var path = GetBuilderPath(workflowBuilder.Workflow, target, pathElements);

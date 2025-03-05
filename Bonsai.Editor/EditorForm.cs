@@ -489,7 +489,7 @@ namespace Bonsai.Editor
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
                 handler => selectionModel.SelectionChanged -= handler)
-                .Select(evt => selectionModel.SelectedView.WorkflowPath)
+                .Select(evt => selectionModel.SelectedView?.WorkflowPath)
                 .DistinctUntilChanged()
                 .Do(explorerTreeView.SelectNode)
                 .IgnoreElements()
@@ -830,7 +830,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
-            saveWorkflowDialog.FileName = fileName;
+            FileName = fileName;
 
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
@@ -858,7 +858,7 @@ namespace Bonsai.Editor
                     Resources.UpgradeWorkflow_Warning_Caption,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                saveWorkflowDialog.FileName = null;
+                FileName = null;
                 version++;
             }
 
@@ -936,10 +936,14 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
-        void SaveWorkflowExtension(string fileName, GraphNode node)
+        void SaveWorkflowExtension(WorkflowGraphView model, string fileName, GraphNode node)
         {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
             var groupNode = node;
-            var model = selectionModel.SelectedView;
             if (groupNode == null)
             {
                 model.Editor.GroupGraphNodes(selectionModel.SelectedNodes);
@@ -1002,10 +1006,10 @@ namespace Bonsai.Editor
             if (setWorkingDirectory && directoryToolStripItem.Text != workflowDirectory)
             {
                 Environment.CurrentDirectory = workflowDirectory;
-                saveWorkflowDialog.FileName = fileName;
                 EditorResult = EditorResult.ReloadEditor;
                 ResetProjectStatus();
                 Close();
+                FileName = fileName;
             }
             else
             {
@@ -1021,6 +1025,11 @@ namespace Bonsai.Editor
 
         void ExportImage(WorkflowGraphView model, string fileName)
         {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
             var workflow = model.Workflow;
             if (model.GraphView.SelectedNodes.Count() > 0)
             {
@@ -1098,6 +1107,9 @@ namespace Bonsai.Editor
             editorSite.EnsureExtensionsDirectory();
             if (!extensionsPath.Exists) return;
 
+            var model = selectionModel.SelectedView;
+            if (model is null) return;
+
             string fileName = null;
             GraphNode groupNode = null;
             var selectedNodes = selectionModel.SelectedNodes;
@@ -1125,13 +1137,13 @@ namespace Bonsai.Editor
                 saveWorkflowDialog.InitialDirectory = openWorkflowDialog.InitialDirectory;
             }
 
-            SaveWorkflowExtension(fileName, groupNode);
+            SaveWorkflowExtension(model, fileName, groupNode);
         }
 
         private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.Workflow.Count > 0)
+            if (model?.Workflow.Count > 0)
             {
                 if (exportImageDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -1393,9 +1405,9 @@ namespace Bonsai.Editor
             var builderPath = WorkflowEditorPath.GetBuilderPath(workflowBuilder, builder);
             if (builderPath != null)
             {
-                var selectedView = selectionModel.SelectedView;
-                selectedView.WorkflowPath = builderPath.Parent;
+                editorSite.NavigateTo(builderPath.Parent, NavigationPreference.Current);
 
+                var selectedView = selectionModel.SelectedView;
                 var graphNode = selectedView.FindGraphNode(builderPath.Resolve(workflowBuilder));
                 if (graphNode == null)
                 {
@@ -1442,7 +1454,7 @@ namespace Bonsai.Editor
         private void DeleteSelectedNode()
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.Editor.DeleteGraphNodes(selectionModel.SelectedNodes);
             }
@@ -1537,8 +1549,8 @@ namespace Bonsai.Editor
 
         private string GetProjectDisplayName()
         {
-            return !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
-                ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
+            return !string.IsNullOrEmpty(FileName)
+                ? Path.GetFileNameWithoutExtension(FileName)
                 : "Workflow";
         }
 
@@ -1554,10 +1566,14 @@ namespace Bonsai.Editor
 
             var selectedView = selectionModel.SelectedView;
             var canEdit = selectedView != null && selectedView.CanEdit;
+            var hasSelectableObjects = selectedView?.Workflow.Count > 0;
             var hasSelectedObjects = selectedObjects.Length > 0;
             saveAsWorkflowToolStripMenuItem.Enabled = hasSelectedObjects;
             pasteToolStripMenuItem.Enabled = canEdit;
             copyToolStripMenuItem.Enabled = hasSelectedObjects;
+            copyAsImageToolStripMenuItem.Enabled = hasSelectableObjects;
+            selectAllToolStripMenuItem.Enabled = hasSelectableObjects;
+            exportImageToolStripMenuItem.Enabled = hasSelectableObjects;
             cutToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             deleteToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             groupToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
@@ -1707,11 +1723,10 @@ namespace Bonsai.Editor
                         break;
                     case Keys.Return:
                         toolboxTreeView_KeyDown(sender, e);
-                        searchTextBox.Clear();
-                        var selectedView = selectionModel.SelectedView;
-                        if (selectedView != null)
+                        if (e.Handled)
                         {
-                            selectedView.Focus();
+                            searchTextBox.Clear();
+                            selectionModel.SelectedView?.Focus();
                         }
                         break;
                 }
@@ -1729,11 +1744,8 @@ namespace Bonsai.Editor
             return arguments.Length == 2 ? arguments[1] : string.Empty;
         }
 
-        void CreateGraphNode(TreeNode typeNode, Keys modifiers)
+        void CreateGraphNode(WorkflowGraphView model, TreeNode typeNode, Keys modifiers)
         {
-            var model = selectionModel.SelectedView;
-            if (!model.CanEdit) return;
-
             var group = modifiers.HasFlag(WorkflowGraphView.GroupModifier);
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
@@ -1801,7 +1813,7 @@ namespace Bonsai.Editor
         void FindNextGraphNode(bool findPrevious)
         {
             var model = selectionModel.SelectedView;
-            if (!model.GraphView.Focused) return;
+            if (model?.GraphView.Focused is not true) return;
 
             var selection = selectionModel.SelectedNodes.ToArray();
             if (selection.Length == 0) return;
@@ -1849,7 +1861,10 @@ namespace Bonsai.Editor
             var selectedNode = toolboxTreeView.SelectedNode;
             if (e.KeyCode == Keys.Return && selectedNode?.Tag != null)
             {
-                CreateGraphNode(selectedNode, e.Modifiers);
+                var model = selectionModel.SelectedView;
+                if (model?.CanEdit is not true) return;
+
+                CreateGraphNode(model, selectedNode, e.Modifiers);
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
@@ -1868,8 +1883,8 @@ namespace Bonsai.Editor
                 if (!selectedNode.IsEditing && elementCategory == ~ElementCategory.Source)
                 {
                     var currentName = selectedNode.Name;
-                    var selectedView = selectionModel.SelectedView;
-                    var definition = workflowBuilder.GetSubjectDefinition(selectedView.Workflow, currentName);
+                    var targetWorkflow = selectionModel.SelectedView?.Workflow ?? workflowBuilder.Workflow;
+                    var definition = workflowBuilder.GetSubjectDefinition(targetWorkflow, currentName);
                     if (definition == null || rename && definition.IsReadOnly)
                     {
                         var message = definition == null
@@ -2013,7 +2028,7 @@ namespace Bonsai.Editor
             if (!toolboxTreeView.Focused)
             {
                 var model = selectionModel.SelectedView;
-                if (!model.GraphView.Focused) return;
+                if (model?.GraphView.Focused is not true) return;
 
                 var selection = selectionModel.SelectedNodes.ToArray();
                 var selectedBuilder = selection.Length == 1 && selection[0].Value is InspectBuilder inspectBuilder ? inspectBuilder.Builder : null;
@@ -2065,7 +2080,7 @@ namespace Bonsai.Editor
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.CutToClipboard();
             }
@@ -2080,7 +2095,7 @@ namespace Bonsai.Editor
             else
             {
                 var model = selectionModel.SelectedView;
-                if (model.GraphView.Focused)
+                if (model?.GraphView.Focused is true)
                 {
                     model.CopyToClipboard();
                 }
@@ -2089,13 +2104,17 @@ namespace Bonsai.Editor
 
         private void copyAsImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ExportImage(selectionModel.SelectedView);
+            var model = selectionModel.SelectedView;
+            if (model?.Workflow.Count > 0)
+            {
+                ExportImage(model);
+            }
         }
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.PasteFromClipboard();
             }
@@ -2104,7 +2123,7 @@ namespace Bonsai.Editor
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.SelectAllGraphNodes();
             }
@@ -2113,7 +2132,7 @@ namespace Bonsai.Editor
         private void groupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.Editor.GroupGraphNodes(selectionModel.SelectedNodes);
             }
@@ -2122,7 +2141,7 @@ namespace Bonsai.Editor
         private void ungroupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.Editor.UngroupGraphNodes(selectionModel.SelectedNodes);
             }
@@ -2131,7 +2150,7 @@ namespace Bonsai.Editor
         private void enableToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.Editor.EnableGraphNodes(selectionModel.SelectedNodes);
             }
@@ -2140,7 +2159,7 @@ namespace Bonsai.Editor
         private void disableToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 model.Editor.DisableGraphNodes(selectionModel.SelectedNodes);
             }
@@ -2283,7 +2302,6 @@ namespace Bonsai.Editor
             try
             {
                 var showExternal = ModifierKeys.HasFlag(Keys.Control);
-                var editorControl = selectionModel.SelectedView.EditorControl;
                 var url = await documentationProvider.GetDocumentationAsync(assemblyName, uid);
                 if (!showExternal && editorControl.AnnotationPanel.HasWebView)
                 {
@@ -2350,7 +2368,7 @@ namespace Bonsai.Editor
             }
 
             var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (model?.GraphView.Focused is true)
             {
                 var selectedNode = selectionModel.SelectedNodes.FirstOrDefault();
                 if (selectedNode != null)
@@ -2441,7 +2459,8 @@ namespace Bonsai.Editor
             {
                 if (serviceType == typeof(ExpressionBuilderGraph))
                 {
-                    return siteForm.selectionModel.SelectedView.Workflow;
+                    return siteForm.selectionModel.SelectedView?.Workflow
+                        ?? siteForm.workflowBuilder.Workflow;
                 }
 
                 if (serviceType == typeof(WorkflowBuilder))
@@ -2628,7 +2647,10 @@ namespace Bonsai.Editor
                 switch (navigationPreference)
                 {
                     case NavigationPreference.Current:
-                        siteForm.selectionModel.SelectedView.WorkflowPath = workflowPath;
+                        var model = siteForm.selectionModel.SelectedView;
+                        if (model is null)
+                            goto case NavigationPreference.NewTab;
+                        model.WorkflowPath = workflowPath;
                         break;
                     case NavigationPreference.NewTab:
                         siteForm.editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
@@ -2898,8 +2920,8 @@ namespace Bonsai.Editor
             var selectedObjects = propertyGrid.SelectedObjects;
             if (selectedObjects != null && selectedObjects.Length > 0)
             {
-                var selectedView = selectionModel.SelectedView;
-                if (selectedObjects.Length > 1 || selectedObjects[0] != selectedView.Workflow)
+                var model = selectionModel.SelectedView;
+                if (selectedObjects.Length > 1 || model != null && selectedObjects[0] != model.Workflow)
                 {
                     GetSelectionDescription(selectedObjects, out string displayName, out string description);
                     UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
