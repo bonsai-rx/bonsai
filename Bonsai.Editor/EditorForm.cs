@@ -830,7 +830,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
-            saveWorkflowDialog.FileName = fileName;
+            FileName = fileName;
 
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
@@ -858,7 +858,7 @@ namespace Bonsai.Editor
                     Resources.UpgradeWorkflow_Warning_Caption,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                saveWorkflowDialog.FileName = null;
+                FileName = null;
                 version++;
             }
 
@@ -1002,10 +1002,10 @@ namespace Bonsai.Editor
             if (setWorkingDirectory && directoryToolStripItem.Text != workflowDirectory)
             {
                 Environment.CurrentDirectory = workflowDirectory;
-                saveWorkflowDialog.FileName = fileName;
                 EditorResult = EditorResult.ReloadEditor;
                 ResetProjectStatus();
                 Close();
+                FileName = fileName;
             }
             else
             {
@@ -1537,8 +1537,8 @@ namespace Bonsai.Editor
 
         private string GetProjectDisplayName()
         {
-            return !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
-                ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
+            return !string.IsNullOrEmpty(FileName)
+                ? Path.GetFileNameWithoutExtension(FileName)
                 : "Workflow";
         }
 
