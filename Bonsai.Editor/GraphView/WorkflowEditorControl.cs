@@ -240,7 +240,8 @@ namespace Bonsai.Editor.GraphView
 
         internal void HighlightGraphNode(WorkflowGraphView selectedView, WorkflowEditorPath path, bool selectNode)
         {
-            UpdateGraphView(graphView => graphView.HighlightGraphNode(path, selectNode && graphView == selectedView));
+            UpdateGraphView(selectedView, graphView => graphView.HighlightGraphNode(path, selectNode: false));
+            selectedView?.HighlightGraphNode(path, selectNode);
         }
 
         internal void RefreshSelection(WorkflowGraphView selectedView)
