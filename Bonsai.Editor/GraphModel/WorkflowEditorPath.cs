@@ -109,16 +109,22 @@ namespace Bonsai.Editor.GraphModel
 
         static WorkflowEditorPath GetBuilderPath(ExpressionBuilderGraph workflow, ExpressionBuilder target, List<int> pathElements)
         {
+            if (workflow is null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
             for (int i = 0; i < workflow.Count; i++)
             {
-                var builder = ExpressionBuilder.GetWorkflowElement(workflow[i].Value);
+                var builder = ExpressionBuilder.Unwrap(workflow[i].Value);
                 if (builder == target)
                 {
                     pathElements.Add(i);
                     return GetBuilderPath(pathElements);
                 }
 
-                if (builder is IWorkflowExpressionBuilder workflowBuilder)
+                if (builder is IWorkflowExpressionBuilder workflowBuilder &&
+                    workflowBuilder.Workflow is not null)
                 {
                     pathElements.Add(i);
                     var path = GetBuilderPath(workflowBuilder.Workflow, target, pathElements);
