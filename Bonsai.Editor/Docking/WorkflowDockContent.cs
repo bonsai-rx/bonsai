@@ -11,6 +11,7 @@ namespace Bonsai.Editor.Docking
     {
         const string ReadOnlyPrefix = "🔒 ";
         readonly IWorkflowEditorService editorService;
+        readonly WorkflowSelectionModel selectionModel;
         readonly CommandExecutor commandExecutor;
 
         public WorkflowDockContent(WorkflowGraphView graphView, IServiceProvider provider)
@@ -23,6 +24,7 @@ namespace Bonsai.Editor.Docking
             InitializeComponent();
             WorkflowGraphView = graphView ?? throw new ArgumentNullException(nameof(graphView));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
         }
 
@@ -52,6 +54,14 @@ namespace Bonsai.Editor.Docking
             base.OnEnter(e);
         }
 
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (!SelectNextContent(Pane?.Contents))
+                if (!SelectNextContent(DockPanel.Contents))
+                    selectionModel.UpdateSelection(null);
+            base.OnFormClosed(e);
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (DockPanel != null)
@@ -69,24 +79,9 @@ namespace Bonsai.Editor.Docking
                 if (shift) keys &= ~Keys.Shift;
                 if (control && keys == Keys.Tab)
                 {
-                    var offset = shift ? -1 : 1;
-                    for (int i = 0; i < DockPanel.Contents.Count; i++)
-                    {
-                        if (DockPanel.Contents[i] == this)
-                        {
-                            var nextIndex = i + offset;
-                            if (nextIndex < 0 || nextIndex >= DockPanel.Contents.Count)
-                            {
-                                editorService.SelectNextControl(nextIndex >= 0);
-                                return true;
-                            }
-                            else if (DockPanel.Contents[nextIndex] is DockContent nextContent)
-                            {
-                                nextContent.Activate();
-                                return true;
-                            }
-                        }
-                    }
+                    var forward = !shift;
+                    if (!SelectNextContent(DockPanel.Contents, forward))
+                        editorService.SelectNextControl(forward);
                 }
 
                 if (keyData == openNewTabToolStripMenuItem.ShortcutKeys &&
@@ -105,6 +100,41 @@ namespace Bonsai.Editor.Docking
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private bool SelectNextContent(DockContentCollection contents, bool? forward = null)
+        {
+            if (contents is null)
+                return false;
+
+            int contentIndex = -1;
+            DockContent nextContent = null;
+            for (int i = contents.Count - 1; i >= 0; i--)
+            {
+                if (contentIndex < 0 && contents[i] == this)
+                {
+                    contentIndex = i;
+                    if (!forward.HasValue && nextContent is not null ||
+                        forward.GetValueOrDefault())
+                        break;
+                    else
+                        continue;
+                }
+
+                if (contents[i] is DockContent dockContent && !dockContent.IsHidden)
+                {
+                    nextContent = dockContent;
+                    if (contentIndex >= 0)
+                        break;
+                }
+            }
+
+            if (contentIndex >= 0 && nextContent is not null)
+            {
+                nextContent.Activate();
+                return true;
+            }
+            return false;
         }
 
         public void UpdateText()

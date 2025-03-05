@@ -25,8 +25,8 @@ namespace Bonsai.Editor.GraphView
 
         public void UpdateSelection(WorkflowGraphView selectedView)
         {
-            SelectedView = selectedView ?? throw new ArgumentNullException(nameof(selectedView));
-            SelectedNodes = selectedView.GraphView.SelectedNodes;
+            SelectedView = selectedView;
+            SelectedNodes = selectedView?.GraphView.SelectedNodes ?? Enumerable.Empty<GraphNode>();
             OnSelectionChanged(EventArgs.Empty);
         }
     }
