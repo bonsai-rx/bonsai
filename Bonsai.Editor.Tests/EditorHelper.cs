@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
@@ -43,6 +44,11 @@ namespace Bonsai.Editor.Tests
         {
             var node = editor.Workflow.First(n => ExpressionBuilder.Unwrap(n.Value) == builder);
             return editor.FindGraphNode(node.Value);
+        }
+
+        internal static IEnumerable<GraphNode> FindNodes(this WorkflowEditor editor, params string[] names)
+        {
+            return Array.ConvertAll(names, name => editor.FindNode(name));
         }
 
         internal static void ConnectNodes(this WorkflowEditor editor, string source, string target)
