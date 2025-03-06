@@ -87,6 +87,11 @@ namespace Bonsai.Core.Tests
             return Append(new WorkflowOutputBuilder());
         }
 
+        public TestWorkflow AppendNamed(string name)
+        {
+            return Append(new GroupWorkflowBuilder { Name = name });
+        }
+
         public TestWorkflow AppendPropertyMapping(params string[] propertyNames)
         {
             var mappingBuilder = new PropertyMappingBuilder();

@@ -231,6 +231,30 @@ namespace Bonsai.Editor.Tests
         }
 
         [TestMethod]
+        public void DeleteGraphNodes_SinglePathWithMultipleMergePoints_KeepConnectedPath()
+        {
+            var workflow = new TestWorkflow()
+                .AppendNamed("A")
+                .AppendNamed("B")
+                .AppendBranch(source => source.AddArguments(source.AppendInput(index: 0)))
+                .AppendNamed("C")
+                .AppendBranch(source => source.AddArguments(source.AppendInput(index: 1)))
+                .AppendNamed("D")
+                .TopologicalSort()
+                .ToInspectableGraph();
+
+            var (editor, assertIsReversible) = CreateMockEditor(workflow);
+            var nodesToDelete = editor.FindNodes("B", "Source1", "C", "Source2");
+            editor.DeleteGraphNodes(nodesToDelete);
+
+            var sourceNode = editor.FindNode("A");
+            var targetNode = editor.FindNode("D");
+            Assert.AreEqual(expected: 1, sourceNode.Successors.Count());
+            Assert.IsTrue(sourceNode.Successors.Any(edge => edge.Node == targetNode));
+            assertIsReversible();
+        }
+
+        [TestMethod]
         public void CreateAnnotation_EmptySelection_InsertAfterClosestRoot()
         {
             var workflow = EditorHelper.CreateEditorGraph("A");
