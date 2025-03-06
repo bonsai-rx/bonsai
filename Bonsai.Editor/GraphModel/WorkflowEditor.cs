@@ -1502,7 +1502,7 @@ namespace Bonsai.Editor.GraphModel
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, reorder.Undo + updateGraphLayout);
-            foreach (var node in nodes)
+            foreach (var node in nodes.SortSelection(Workflow).ToList())
             {
                 DeleteGraphNode(node);
             }
