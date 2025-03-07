@@ -677,7 +677,7 @@ namespace Bonsai.Expressions
             }
 
             try { return source.Build(buildContext); }
-            catch
+            finally
             {
                 foreach (var node in source)
                 {
@@ -686,10 +686,7 @@ namespace Bonsai.Expressions
                         builder.ResetVisualizerMappings();
                     }
                 }
-                throw;
-            }
-            finally
-            {
+
                 foreach (var parameter in parameters)
                 {
                     parameter.Source = null;
