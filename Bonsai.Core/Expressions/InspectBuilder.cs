@@ -54,6 +54,11 @@ namespace Bonsai.Expressions
             return visualizerElement;
         }
 
+        private void BuildVisualizerMappings()
+        {
+            MappingList?.BuildVisualizerMappings();
+        }
+
         internal void ResetVisualizerMappings()
         {
             MappingList?.ResetVisualizerMappings();
@@ -128,7 +133,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             ObservableType = null;
-            ResetVisualizerMappings();
+            BuildVisualizerMappings();
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
             if (IsReducible(source))
@@ -296,9 +301,13 @@ namespace Bonsai.Expressions
                 ((List<VisualizerMapping>)VisualizerMappings).AddRange(mappings);
             }
 
-            public void ResetVisualizerMappings()
+            public void BuildVisualizerMappings()
             {
                 VisualizerMappings = localMappings.Values.ToList();
+            }
+
+            public void ResetVisualizerMappings()
+            {
                 localMappings.Clear();
             }
 
