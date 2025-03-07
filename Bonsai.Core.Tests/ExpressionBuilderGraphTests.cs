@@ -140,6 +140,22 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_WithBuildTargetBeforeVisualizerMapping_ReturnsExpression()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/1591
+            var workflow = new TestWorkflow()
+                .AppendBranch(root => root
+                    .AppendValue(0)
+                    .Append(new VisualizerMappingBuilder())
+                    .AppendValue(1)
+                    .AddArguments(root.AppendUnit()))
+                .ToInspectableGraph();
+            var buildTarget = workflow[workflow.Count - 1].Value;
+            var partialBuild = workflow.Build(buildTarget);
+            Assert.IsNotNull(workflow.Build());
+        }
+
+        [TestMethod]
         public void Build_ActiveBranch_HasMulticastExpression()
         {
             var workflow = new ExpressionBuilderGraph();
