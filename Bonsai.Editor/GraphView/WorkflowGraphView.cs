@@ -1196,14 +1196,14 @@ namespace Bonsai.Editor.GraphView
 
         private ToolStripMenuItem CreateOutputMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
         {
-            var menuItem = new ToolStripMenuItem(memberName, null, CanEdit ? delegate
+            var menuItem = new ToolStripOutputMenuItem(memberName, null, !CanEdit ? null : delegate
             {
                 var builder = new MemberSelectorBuilder { Selector = memberSelector };
                 var successor = selectedNode.Successors.Select(edge => WorkflowEditor.GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
                 var branch = Control.ModifierKeys.HasFlag(Keys.Alt) || successor != null && successor is MemberSelectorBuilder;
                 Editor.CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
-            } : (EventHandler)null);
+            });
 
             InitializeOutputMenuItem(menuItem, memberSelector, memberType);
             return menuItem;
@@ -1647,6 +1647,29 @@ namespace Bonsai.Editor.GraphView
             openNewTabToolStripMenuItem.Visible = false;
             openNewWindowToolStripMenuItem.Visible = false;
             editorService.OnContextMenuClosed(e);
+        }
+
+        #endregion
+
+        #region ToolStripOutputMenuItem Class
+
+        class ToolStripOutputMenuItem : ToolStripMenuItem
+        {
+            public ToolStripOutputMenuItem(string text, Image image, EventHandler onClick)
+                : base(text, image, onClick)
+            {
+            }
+
+            protected override bool ProcessDialogKey(Keys keyData)
+            {
+                if (keyData == Keys.Return)
+                {
+                    OnClick(EventArgs.Empty);
+                    return true;
+                }
+
+                return base.ProcessDialogKey(keyData);
+            }
         }
 
         #endregion
