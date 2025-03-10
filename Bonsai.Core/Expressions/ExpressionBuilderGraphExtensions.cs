@@ -657,6 +657,44 @@ namespace Bonsai.Expressions
 
         #endregion
 
+        #region Branch Pruning
+
+        static HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>> GetPrunedBranches(
+            IEnumerable<DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder)
+        {
+            HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>> result = new();
+            foreach (var component in buildOrder)
+            {
+                for (int i = component.Count - 1; i >= 0; i--)
+                {
+                    var node = component[i];
+                    if (ExpressionBuilder.Unwrap(node.Value) is not DisableBuilder)
+                        continue;
+
+                    if (AllSuccessorsPruned(result, node.Successors))
+                        result.Add(node);
+                }
+            }
+
+            return result;
+        }
+
+        static bool AllSuccessorsPruned(
+            HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>> result,
+            EdgeCollection<ExpressionBuilder, ExpressionBuilderArgument> successors)
+        {
+            for (int k = successors.Count - 1; k >= 0; k--)
+            {
+                var successor = successors[k];
+                if (successor.Label != null && !result.Contains(successor.Target))
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+
         #region Nested Workflows
 
         internal static IEnumerable<WorkflowInputBuilder> GetNestedParameters(this ExpressionBuilderGraph source)
@@ -704,7 +742,7 @@ namespace Bonsai.Expressions
             HashSet<string> externalizedProperties = null;
             var argumentLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var dependencyLists = new Dictionary<ExpressionBuilder, ArgumentList>();
-            var edgeCollection = new List<Edge<ExpressionBuilder, ExpressionBuilderArgument>>();
+            var nodeSuccessors = new List<Edge<ExpressionBuilder, ExpressionBuilderArgument>>();
             var componentConnections = new List<Expression>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
@@ -718,6 +756,7 @@ namespace Bonsai.Expressions
                 throw CreateDependencyException(message, cyclicalDependency);
             }
 
+            var prunedBranches = GetPrunedBranches(buildOrder);
             foreach (var component in buildOrder)
             {
                 Expression workflowOutput = null;
@@ -802,20 +841,22 @@ namespace Bonsai.Expressions
                     // Filter disabled successors for property mapping nodes
                     var argumentBuilder = workflowElement as IArgumentBuilder;
                     var propertyMappingBuilder = ExpressionBuilder.IsBuildDependency(argumentBuilder);
-                    IList<Edge<ExpressionBuilder, ExpressionBuilderArgument>> nodeSuccessors;
+
+                    nodeSuccessors.Clear();
                     if (propertyMappingBuilder)
                     {
-                        edgeCollection.Clear();
-                        edgeCollection.AddRange(node.Successors.Where(edge => !(ExpressionBuilder.Unwrap(edge.Target.Value) is DisableBuilder)));
-                        nodeSuccessors = edgeCollection;
+                        nodeSuccessors.AddRange(node.Successors
+                            .Where(edge => edge.Label != null && ExpressionBuilder.Unwrap(edge.Target.Value) is not DisableBuilder));
                     }
-                    else nodeSuccessors = node.Successors;
+                    else
+                    {
+                        nodeSuccessors.AddRange(node.Successors
+                            .Where(edge => edge.Label != null && !prunedBranches.Contains(edge.Target)));
+                    }
 
                     // Remove all closing scopes
                     var disable = expression as DisableExpression;
-                    var successorCount = requireBuildContext != null
-                        ? nodeSuccessors.Count(edge => edge.Label != null)
-                        : nodeSuccessors.Count;
+                    var successorCount = nodeSuccessors.Count;
                     multicastMap.RemoveAll(scope =>
                     {
                         var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
@@ -838,10 +879,11 @@ namespace Bonsai.Expressions
                             do
                             {
                                 // If there are no successors, or the expression is a disabled build dependency, this scope should never close
-                                if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
-                                else scope.References.AddRange(nodeSuccessors
-                                    .Where(successor => successor.Label != null)
-                                    .Select(successor => successor.Target.Value));
+                                if (successorCount == 0 || expression == DisconnectExpression.Instance)
+                                    scope.References.Add(null);
+                                else
+                                    scope.References.AddRange(nodeSuccessors
+                                        .Select(successor => successor.Target.Value));
                             }
                             while (expandedArguments != null && expandedArguments.MoveNext());
                         }
@@ -926,14 +968,12 @@ namespace Bonsai.Expressions
                         // Ensure publish/subscribe subject dependencies are not multicast
                         var multicastScope = new MulticastScope(multicastBuilder);
                         multicastScope.References.AddRange(nodeSuccessors
-                            .Where(successor => successor.Label != null)
                             .Select(successor => successor.Target.Value));
                         multicastMap.Insert(0, multicastScope);
                     }
 
                     foreach (var successor in nodeSuccessors)
                     {
-                        if (successor.Label == null) continue;
                         var argument = expression;
                         var buildDependency = false;
                         if (argumentBuilder != null)
@@ -958,31 +998,6 @@ namespace Bonsai.Expressions
                         else componentConnections.Add(expression);
                     }
                 }
-
-                // Prune disabled multicast branches from output
-                multicastMap.RemoveAll(scope =>
-                {
-                    var index = -1;
-                    int? argumentIndex = null;
-                    var branchesRemoved = componentConnections.RemoveAll(connection =>
-                    {
-                        index++;
-                        if (connection is MulticastBranchExpression branchExpression &&
-                            branchExpression == scope.MulticastBuilder.BranchExpression)
-                        {
-                            argumentIndex ??= index;
-                            return true;
-                        }
-
-                        return false;
-                    });
-
-                    var activeBranches = scope.References.Count - branchesRemoved;
-                    if (activeBranches > 1) return false;
-                    if (activeBranches == 1) scope.MulticastBuilder.BranchExpression.Cancel();
-                    if (activeBranches == 0) componentConnections.Insert(argumentIndex.Value, scope.MulticastBuilder.Source);
-                    return true;
-                });
 
                 var componentOutput = ExpressionBuilder.BuildOutput(workflowOutput, componentConnections);
                 multicastMap.RemoveAll(scope =>
