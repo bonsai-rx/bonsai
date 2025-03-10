@@ -36,6 +36,11 @@ namespace Bonsai.Core.Tests
                 return this;
         }
 
+        public TestWorkflow ResetCursor(Node<ExpressionBuilder, ExpressionBuilderArgument> cursor)
+        {
+            return new TestWorkflow(Workflow, cursor);
+        }
+
         public TestWorkflow Capture(out ExpressionBuilder builder)
         {
             builder = Cursor?.Value;
