@@ -1,0 +1,6 @@
+<Project>
+  <!-- Automatically expose internals to tests -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+    <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
+  </ItemGroup>
+</Project>
