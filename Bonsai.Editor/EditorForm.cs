@@ -1378,6 +1378,7 @@ namespace Bonsai.Editor
 
         void HandleWorkflowError(Exception e)
         {
+            var building = this.building; // Ensure the current value of `building` is used when if the handler below is invoked
             Action selectExceptionNode = () =>
             {
                 var workflowException = e as WorkflowException;
@@ -1386,7 +1387,7 @@ namespace Bonsai.Editor
                     workflowError = workflowException;
                     HighlightExceptionBuilderNode(workflowException, building);
                 }
-                else editorSite.ShowError(e.Message, Name);
+                else editorSite.ShowError(e.Message, "Unexpected Exception");
             };
 
             if (InvokeRequired) BeginInvoke(selectExceptionNode);
