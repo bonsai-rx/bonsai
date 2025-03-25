@@ -206,7 +206,7 @@ namespace Bonsai.Osc
             }
         }
 
-        static string ToString(object obj)
+        static string Format(object obj)
         {
             if (obj is object[] array)
             {
@@ -215,18 +215,18 @@ namespace Bonsai.Osc
                 values[values.Length - 1] = "]";
                 for (int i = 0; i < array.Length; i++)
                 {
-                    values[i + 1] = ToString(array[i]);
+                    values[i + 1] = Format(array[i]);
                 }
                 return string.Join(CultureInfo.InvariantCulture.TextInfo.ListSeparator, values);
             }
             else if (obj is byte[] blob) return string.Format("{0}[{1}]", typeof(byte).Name, blob.Length);
-            else return obj.ToString();
+            else return string.Format(CultureInfo.InvariantCulture, "{0}", obj);
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            var contentValues = GetContents().Cast<object>().Select(obj => ToString(obj)).ToArray();
+            var contentValues = GetContents().Cast<object>().Select(Format).ToArray();
             var contents = string.Join(CultureInfo.InvariantCulture.TextInfo.ListSeparator, contentValues);
             return string.Format("Address: {0} TypeTag: {1} Contents: {{{2}}}", Address, TypeTag, contents);
         }
