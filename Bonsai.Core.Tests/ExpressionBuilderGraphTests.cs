@@ -173,12 +173,13 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_DisabledBranch_AvoidMulticastExpression()
         {
-            var workflow = new ExpressionBuilderGraph();
-            var source = workflow.Add(new UnitBuilder());
-            var sink = workflow.Add(new CombinatorBuilder { Combinator = new IntProperty() });
-            var sink2 = workflow.Add(new DisableBuilder(new UnitBuilder()));
-            workflow.AddEdge(source, sink, index: 0);
-            workflow.AddEdge(source, sink2, index: 0);
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .AppendBranch(source => source
+                    .AppendCombinator(new IntProperty())
+                    .ResetCursor(source.Cursor)
+                    .Append(new DisableBuilder(new UnitBuilder())))
+                .Workflow;
             var expression = workflow.Build();
             var visitor = new PublishBranchVisitor();
             visitor.Visit(expression);
@@ -188,17 +189,51 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void Build_DisableAllBranches_ReturnSourceExpression()
         {
-            var workflow = new ExpressionBuilderGraph();
-            var source = workflow.Add(new UnitBuilder());
-            var sink = workflow.Add(new DisableBuilder(new FormatBuilder()));
-            var sink2 = workflow.Add(new DisableBuilder(new FormatBuilder()));
-            workflow.AddEdge(source, sink, index: 0);
-            workflow.AddEdge(source, sink2, index: 0);
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .AppendBranch(source => source
+                    .Append(new DisableBuilder(new FormatBuilder()))
+                    .ResetCursor(source.Cursor)
+                    .Append(new DisableBuilder(new FormatBuilder())))
+                .Workflow;
             var expression = workflow.Build();
             var visitor = new MergeBranchVisitor();
             visitor.Visit(expression);
             Assert.AreEqual(expected: 0, visitor.BranchCount);
             Assert.AreEqual(expected: typeof(IObservable<Unit>), expression.Type);
+        }
+
+        [TestMethod]
+        public void Build_DisableCombinatorInChain_KeepSourceExpression()
+        {
+            var workflow = new TestWorkflow()
+                .AppendValue(0)
+                .Append(new DisableBuilder(new UnitBuilder()))
+                .Append(new MemberSelectorBuilder())
+                .Workflow;
+
+            var expression = workflow.Build();
+            Assert.IsNotNull(expression);
+        }
+
+        [TestMethod]
+        public void Build_DisableDanglingBranchParallelWithMerge_KeepMulticastBranch()
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/2007
+            var workflow = new TestWorkflow()
+                .AppendValue(0)
+                .AppendBranch(source => source
+                    .AppendUnit()
+                    .AppendCombinator(new Merge())
+                    .AddArguments(source.AppendUnit())
+                    .ResetCursor(source.Cursor)
+                    .Append(new DisableBuilder(new UnitBuilder())))
+                .Workflow;
+
+            var expression = workflow.Build();
+            var visitor = new PublishBranchVisitor();
+            visitor.Visit(expression);
+            Assert.IsTrue(visitor.HasPublishBranch);
         }
 
         [TestMethod]
