@@ -433,7 +433,7 @@ namespace Bonsai.Editor.GraphView
 
             var builder = (InspectBuilder)Workflow[node.Index].Value;
             var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
-            if (visualizerDialogs != null)
+            if (visualizerDialogs != null && builder.TryGetRuntimeVisualizerSource(out var _))
             {
                 if (!visualizerDialogs.TryGetValue(builder, out VisualizerDialogLauncher visualizerLauncher))
                 {

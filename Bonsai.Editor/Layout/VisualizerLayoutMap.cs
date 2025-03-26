@@ -31,6 +31,8 @@ namespace Bonsai.Design
             for (int i = 0; i < workflow.Count; i++)
             {
                 var builder = (InspectBuilder)workflow[i].Value;
+                if (builder.ObservableType is null) continue;
+
                 if (lookup.TryGetValue(builder, out VisualizerDialogSettings dialogSettings))
                 {
                     visualizerDialogs.Add(builder, workflow, dialogSettings);
