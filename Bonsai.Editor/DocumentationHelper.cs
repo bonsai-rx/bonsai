@@ -54,7 +54,7 @@ namespace Bonsai.Editor
             for (int i = 0; i < hrefs.Length; i++)
             {
                 try { return await GetXRefMapAsync($"{baseUrl}{hrefs[i]}"); }
-                catch (WebException ex) when (ex.Response is HttpWebResponse { StatusCode: HttpStatusCode.NotFound })
+                catch (HttpRequestException ex)
                 { lastException ??= ex; } // Always prefer a DocumentationException as it'll be more specific
                 catch (DocumentationException ex)
                 { lastException = ex; }
