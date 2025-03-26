@@ -1424,12 +1424,15 @@ namespace Bonsai.Editor.GraphView
 
         private void CreateVisualizerMenuItems(
             string activeVisualizerTypeName,
-            InspectBuilder visualizerElement,
+            InspectBuilder inspectBuilder,
             ToolStripMenuItem ownerItem,
             GraphNode selectedNode)
         {
-            if (visualizerElement.ObservableType != null &&
-                (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+            if (visualizerElement.ObservableType is not null &&
+                (!editorState.WorkflowRunning ||
+                visualizerElement.PublishNotifications &&
+                inspectBuilder.Builder is not VisualizerMappingBuilder))
             {
                 var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
                 visualizerTypes = visualizerTypes.Concat(typeVisualizerMap.GetTypeVisualizers(visualizerElement));
@@ -1618,8 +1621,7 @@ namespace Bonsai.Editor.GraphView
                 }
 
                 var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
-                var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                CreateVisualizerMenuItems(activeVisualizer, visualizerElement, visualizerToolStripMenuItem, selectedNode);
+                CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
             }
         }
 
