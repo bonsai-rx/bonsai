@@ -418,6 +418,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified workflow path does not resolve to a workflow expression builder node..
+        /// </summary>
+        internal static string InvalidWorkflowPath_Error {
+            get {
+                return ResourceManager.GetString("InvalidWorkflowPath_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap NewMenuImage {
@@ -434,14 +443,6 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("OpenMenuImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        ///   Looks up a localized string similar to The specified workflow path does not resolve to a workflow expression builder node..
-        /// </summary>
-        internal static string InvalidWorkflowPath_Error {
-            get {
-                return ResourceManager.GetString("InvalidWorkflowPath_Error", resourceCulture);
             }
         }
         
@@ -680,6 +681,24 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("SelectAllMenuImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select Visualizer.
+        /// </summary>
+        internal static string SelectVisualizerMenuItem {
+            get {
+                return ResourceManager.GetString("SelectVisualizerMenuItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Visualizer.
+        /// </summary>
+        internal static string ShowVisualizerMenuItem {
+            get {
+                return ResourceManager.GetString("ShowVisualizerMenuItem", resourceCulture);
             }
         }
         

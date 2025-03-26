@@ -93,18 +93,16 @@ namespace Bonsai.Design
             TypeVisualizerMap typeVisualizerMap,
             ExpressionBuilderGraph workflow)
         {
-            var inspectBuilder = ExpressionBuilder.GetVisualizerElement(source);
-            if (inspectBuilder.ObservableType == null || !inspectBuilder.PublishNotifications ||
-                source.Builder is VisualizerMappingBuilder)
+            if (!source.TryGetRuntimeVisualizerSource(out InspectBuilder inspectBuilder))
             {
-                return null;
+                throw new ArgumentException("The specified source cannot be visualized.", nameof(source));
             }
 
             var visualizerType = typeVisualizerMap.GetVisualizerType(layoutSettings?.VisualizerTypeName ?? string.Empty);
             visualizerType ??= typeVisualizerMap.GetTypeVisualizers(inspectBuilder).FirstOrDefault();
             if (visualizerType is null)
             {
-                return null;
+                throw new ArgumentException("No compatible type visualizer was found.", nameof(typeVisualizerMap));
             }
 
             var mashupArguments = GetMashupArguments(inspectBuilder, typeVisualizerMap);
@@ -119,6 +117,20 @@ namespace Bonsai.Design
             var launcher = new VisualizerDialogLauncher(visualizer, visualizerFactory, workflow, source);
             launcher.Text = source != null ? ExpressionBuilder.GetElementDisplayName(source) : null;
             return launcher;
+        }
+
+        public static bool TryGetRuntimeVisualizerSource(this InspectBuilder source, out InspectBuilder inspectBuilder)
+        {
+            var builder = ExpressionBuilder.GetVisualizerElement(source);
+            if (builder.ObservableType is not null && builder.PublishNotifications &&
+                source.Builder is not VisualizerMappingBuilder)
+            {
+                inspectBuilder = builder;
+                return true;
+            }
+
+            inspectBuilder = default;
+            return false;
         }
 
         static IReadOnlyList<VisualizerFactory> GetMashupArguments(InspectBuilder builder, TypeVisualizerMap typeVisualizerMap)

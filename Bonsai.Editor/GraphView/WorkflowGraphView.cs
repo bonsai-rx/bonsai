@@ -433,7 +433,7 @@ namespace Bonsai.Editor.GraphView
 
             var builder = (InspectBuilder)Workflow[node.Index].Value;
             var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
-            if (visualizerDialogs != null)
+            if (visualizerDialogs != null && builder.TryGetRuntimeVisualizerSource(out var _))
             {
                 if (!visualizerDialogs.TryGetValue(builder, out VisualizerDialogLauncher visualizerLauncher))
                 {
@@ -1424,12 +1424,17 @@ namespace Bonsai.Editor.GraphView
 
         private void CreateVisualizerMenuItems(
             string activeVisualizerTypeName,
-            InspectBuilder visualizerElement,
+            InspectBuilder inspectBuilder,
             ToolStripMenuItem ownerItem,
             GraphNode selectedNode)
         {
-            if (visualizerElement.ObservableType != null &&
-                (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+            var canShowVisualizer = inspectBuilder.Builder is not VisualizerMappingBuilder;
+            ownerItem.Text = canShowVisualizer ? Resources.ShowVisualizerMenuItem : Resources.SelectVisualizerMenuItem;
+            if (visualizerElement.ObservableType is not null &&
+                (!editorState.WorkflowRunning ||
+                visualizerElement.PublishNotifications &&
+                canShowVisualizer))
             {
                 var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
                 visualizerTypes = visualizerTypes.Concat(typeVisualizerMap.GetTypeVisualizers(visualizerElement));
@@ -1618,8 +1623,7 @@ namespace Bonsai.Editor.GraphView
                 }
 
                 var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
-                var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-                CreateVisualizerMenuItems(activeVisualizer, visualizerElement, visualizerToolStripMenuItem, selectedNode);
+                CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
             }
         }
 
@@ -1638,6 +1642,7 @@ namespace Bonsai.Editor.GraphView
 
             outputToolStripMenuItem.Text = Resources.OutputMenuItemLabel;
             subjectTypeToolStripMenuItem.Text = Resources.CreateSourceMenuItemLabel;
+            visualizerToolStripMenuItem.Text = Resources.ShowVisualizerMenuItem;
             outputToolStripMenuItem.DropDownItems.Clear();
             subjectTypeToolStripMenuItem.DropDownItems.Clear();
             externalizeToolStripMenuItem.DropDownItems.Clear();
