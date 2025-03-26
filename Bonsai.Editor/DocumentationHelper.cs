@@ -39,8 +39,15 @@ namespace Bonsai.Editor
 
         static async Task<Uri> GetDocumentationAsync(string baseUrl, string uid)
         {
-            var lookup = await GetXRefMapAsync(baseUrl.TrimEnd('/'), "/docs", string.Empty);
-            return new Uri(lookup[uid]);
+            try
+            {
+                var lookup = await GetXRefMapAsync(baseUrl.TrimEnd('/'), "/docs", string.Empty);
+                return new Uri(lookup[uid]);
+            }
+            catch (Exception ex) when (ex is DocumentationException || ex is HttpRequestException)
+            {
+                return new Uri(baseUrl);
+            }
         }
 
         static async Task<Dictionary<string, string>> GetXRefMapAsync(string baseUrl, params string[] hrefs)
@@ -54,7 +61,7 @@ namespace Bonsai.Editor
             for (int i = 0; i < hrefs.Length; i++)
             {
                 try { return await GetXRefMapAsync($"{baseUrl}{hrefs[i]}"); }
-                catch (WebException ex) when (ex.Response is HttpWebResponse { StatusCode: HttpStatusCode.NotFound })
+                catch (HttpRequestException ex)
                 { lastException ??= ex; } // Always prefer a DocumentationException as it'll be more specific
                 catch (DocumentationException ex)
                 { lastException = ex; }
