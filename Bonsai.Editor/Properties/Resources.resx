@@ -342,6 +342,12 @@ NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   <data name="Editor_HelpLabel" xml:space="preserve">
     <value>Help</value>
   </data>
+  <data name="ShowVisualizerMenuItem" xml:space="preserve">
+    <value>Show Visualizer</value>
+  </data>
+  <data name="SelectVisualizerMenuItem" xml:space="preserve">
+    <value>Select Visualizer</value>
+  </data>
   <data name="BrowseDirectoryMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
