@@ -290,6 +290,16 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_PropertyMappingToInheritedHiddenProperty_PreferDerivedProperty()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(DerivedValueProperty.Value))
+                .AppendCombinator(new DerivedNewProperty())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
         {
@@ -323,6 +333,11 @@ namespace Bonsai.Core.Tests
         {
             [Range(0, 100)]
             public new int Value { get; set; }
+        }
+
+        class DerivedNewProperty : DerivedValueProperty
+        {
+            public int AnotherValue { get; set; }
         }
 
         class MergeBranchVisitor : ExpressionVisitor
