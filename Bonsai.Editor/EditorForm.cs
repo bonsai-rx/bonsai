@@ -1148,6 +1148,7 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model?.Workflow.Count > 0)
             {
+                exportImageDialog.FileName = Path.GetFileNameWithoutExtension(FileName);
                 if (exportImageDialog.ShowDialog() == DialogResult.OK)
                 {
                     ExportImage(model, exportImageDialog.FileName);
