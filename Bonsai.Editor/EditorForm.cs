@@ -832,6 +832,7 @@ namespace Bonsai.Editor
             }
 
             workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
+            ClearWorkflowError();
             FileName = fileName;
 
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
