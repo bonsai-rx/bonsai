@@ -64,7 +64,7 @@ namespace Bonsai.Expressions
 
                 left = expression;
                 var operandExpression = Expression.Constant(operand);
-                right = Expression.Property(operandExpression, "Value");
+                right = ExpressionHelper.Property(operandExpression, "Value");
             }
 
             return BuildSelector(left, right);

@@ -133,7 +133,7 @@ namespace Bonsai.Expressions
                 var accumulator = Expression.Variable(elementType);
                 var loopLabel = Expression.Label(elementType);
                 var moveNext = Expression.Call(enumerator, MoveNextMethod);
-                var current = Expression.Property(enumerator, "Current");
+                var current = Expression.Property(enumerator, nameof(IEnumerator.Current));
                 return Expression.Block(new[] { enumerator, accumulator },
                     Expression.Assign(enumerator, enumeratorCall),
                     Expression.IfThen(
@@ -166,7 +166,7 @@ namespace Bonsai.Expressions
 
                 left = expression;
                 var operandExpression = Expression.Constant(operand);
-                right = Expression.Property(operandExpression, "Value");
+                right = ExpressionHelper.Property(operandExpression, "Value");
             }
 
             return ConvertAndBuildSelector(left, right);
