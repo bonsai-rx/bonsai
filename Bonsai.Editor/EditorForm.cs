@@ -784,6 +784,7 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
+            editorControl.ClearAnnotationPanel();
             editorControl.ResetEditorLayout();
             editorSite.ValidateWorkflow();
             visualizerSettings.Clear();
