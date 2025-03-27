@@ -91,6 +91,12 @@ namespace Bonsai.Editor.GraphView
         public void CollapseAnnotationPanel()
         {
             splitContainer.Panel1Collapsed = true;
+            ClearAnnotationPanel();
+        }
+
+        public void ClearAnnotationPanel()
+        {
+            annotationPanel.NavigateToString(string.Empty);
             annotationPanel.Tag = null;
         }
 

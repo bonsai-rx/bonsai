@@ -784,6 +784,8 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
+            if (editorControl.AnnotationPanel.Tag is ExpressionBuilder)
+                editorControl.ClearAnnotationPanel();
             editorControl.ResetEditorLayout();
             editorSite.ValidateWorkflow();
             visualizerSettings.Clear();

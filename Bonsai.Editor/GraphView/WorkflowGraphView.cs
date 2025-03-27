@@ -553,8 +553,7 @@ namespace Bonsai.Editor.GraphView
                     var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
                     if (!workflowBuilder.Workflow.Descendants().Contains(builder))
                     {
-                        EditorControl.AnnotationPanel.NavigateToString(string.Empty);
-                        EditorControl.AnnotationPanel.Tag = null;
+                        EditorControl.ClearAnnotationPanel();
                     }
                 }
             }
