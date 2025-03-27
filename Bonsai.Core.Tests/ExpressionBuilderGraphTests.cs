@@ -312,7 +312,7 @@ namespace Bonsai.Core.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
+        public void BuildObservable_InvalidWorkflowType_ThrowsInvalidOperationException()
         {
             new TestWorkflow()
                 .AppendValue(0)
