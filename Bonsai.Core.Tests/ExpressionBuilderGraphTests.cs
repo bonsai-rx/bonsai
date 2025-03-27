@@ -280,8 +280,39 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_PropertyMappingToHiddenProperty_PreferDerivedProperty()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(DerivedValueProperty.Value))
+                .AppendCombinator(new DerivedValueProperty())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
+        public void Build_PropertyMappingToInheritedHiddenProperty_PreferDerivedProperty()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(DerivedValueProperty.Value))
+                .AppendCombinator(new DerivedNewProperty())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_PropertyMappingToMissingProperty_ThrowsWorkflowBuildException()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(DerivedNewProperty.AnotherValue))
+                .AppendCombinator(new DerivedValueProperty())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
+        public void BuildObservable_InvalidWorkflowType_ThrowsInvalidOperationException()
         {
             new TestWorkflow()
                 .AppendValue(0)

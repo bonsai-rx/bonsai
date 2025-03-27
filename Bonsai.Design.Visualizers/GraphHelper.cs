@@ -97,11 +97,11 @@ namespace Bonsai.Design.Visualizers
                 indexLabel = "Time";
             }
 
-            if (selectedIndex.Type == typeof(DateTimeOffset)) selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
+            if (selectedIndex.Type == typeof(DateTimeOffset))
+                selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
+
             if (selectedIndex.Type == typeof(DateTime))
-            {
                 selectedIndex = Expression.Convert(selectedIndex, typeof(XDate));
-            }
 
             return selectedIndex;
         }

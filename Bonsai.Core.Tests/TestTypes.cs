@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using Bonsai.Expressions;
 
 namespace Bonsai.Core.Tests
 {
@@ -29,5 +30,20 @@ namespace Bonsai.Core.Tests
         public class ExtraType : PolymorphicType
         {
         }
+    }
+
+    class DerivedValueProperty : WorkflowProperty<int>
+    {
+        [Range(0, 100)]
+        public new int Value { get; set; }
+
+        internal int InternalField;
+    }
+
+    class DerivedNewProperty : DerivedValueProperty
+    {
+        public int AnotherValue { get; set; }
+
+        internal new int InternalField;
     }
 }
