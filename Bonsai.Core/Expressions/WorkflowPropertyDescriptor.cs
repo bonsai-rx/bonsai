@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
             : base(name, attrs)
         {
             var propertyExpression = Expression.Constant(property);
-            var valueProperty = Expression.Property(propertyExpression, "Value");
+            var valueProperty = ExpressionHelper.Property(propertyExpression, "Value");
             var getterBody = Expression.Convert(valueProperty, typeof(object));
             getValue = Expression.Lambda<Func<object>>(getterBody).Compile();
 

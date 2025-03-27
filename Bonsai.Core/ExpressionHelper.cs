@@ -257,6 +257,23 @@ namespace Bonsai
             return instance;
         }
 
+        internal static MemberExpression Property(Expression expression, string propertyName)
+        {
+            var type = expression.Type;
+            while (type is not null)
+            {
+                var bindingFlags = BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
+                var property = type.GetProperty(propertyName, bindingFlags | BindingFlags.Public);
+                property ??= type.GetProperty(propertyName, bindingFlags | BindingFlags.NonPublic);
+                if (property is not null)
+                    return Expression.Property(expression, property);
+
+                type = type.BaseType;
+            }
+
+            throw new ArgumentException($"Instance property '{propertyName}' is not defined for type '{expression.Type}'");
+        }
+
         static Expression PropertyOrField(Expression instance, string propertyOrFieldName)
         {
             if (instance.Type.IsInterface)

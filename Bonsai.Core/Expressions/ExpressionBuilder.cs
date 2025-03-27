@@ -1101,7 +1101,7 @@ namespace Bonsai.Expressions
                 else property = Expression.Property(instance, propertyInfo);
             }
 
-            property ??= Expression.Property(instance, propertyName);
+            property ??= ExpressionHelper.Property(instance, propertyName);
             if (source == EmptyExpression.Instance) return source;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
