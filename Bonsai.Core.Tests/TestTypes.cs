@@ -36,10 +36,14 @@ namespace Bonsai.Core.Tests
     {
         [Range(0, 100)]
         public new int Value { get; set; }
+
+        internal int InternalField;
     }
 
     class DerivedNewProperty : DerivedValueProperty
     {
         public int AnotherValue { get; set; }
+
+        internal new int InternalField;
     }
 }

@@ -73,5 +73,12 @@ namespace Bonsai.Core.Tests
             var derivedValue = Expression.Constant(new DerivedValueProperty());
             ExpressionHelper.MemberAccess(derivedValue, nameof(DerivedValueProperty.Value));
         }
+
+        [TestMethod]
+        public void MemberAccess_SameNameInternalFieldInDerivedType_PreferDerivedField()
+        {
+            var derivedValue = Expression.Constant(new DerivedNewProperty());
+            ExpressionHelper.MemberAccess(derivedValue, nameof(DerivedNewProperty.InternalField));
+        }
     }
 }
