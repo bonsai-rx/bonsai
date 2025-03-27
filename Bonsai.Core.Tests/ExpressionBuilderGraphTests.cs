@@ -300,6 +300,17 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_PropertyMappingToMissingProperty_ThrowsWorkflowBuildException()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(DerivedNewProperty.AnotherValue))
+                .AppendCombinator(new DerivedValueProperty())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void BuildObservable_InvalidWorkflowType_ThrowsArgumentException()
         {
