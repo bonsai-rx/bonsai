@@ -7,7 +7,6 @@ namespace Bonsai.Core.Tests
     [TestClass]
     public class ExpressionHelperTests
     {
-        static readonly Expression NullConstant = Expression.Constant(null);
         static readonly Expression PrimitiveConstant = Expression.Constant(string.Empty);
         static readonly Type PrimitiveAccessMemberType = typeof(int);
         const string PrimitiveAccess = "Length";
@@ -66,6 +65,13 @@ namespace Bonsai.Core.Tests
         public void MemberAccess_MethodName_ThrowsArgumentException()
         {
             ExpressionHelper.MemberAccess(PrimitiveConstant, "ToString");
+        }
+
+        [TestMethod]
+        public void MemberAccess_HiddenPropertyInDerivedType_PreferDerivedProperty()
+        {
+            var derivedValue = Expression.Constant(new DerivedValueProperty());
+            ExpressionHelper.MemberAccess(derivedValue, nameof(DerivedValueProperty.Value));
         }
     }
 }

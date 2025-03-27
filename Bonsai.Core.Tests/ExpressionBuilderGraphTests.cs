@@ -340,17 +340,6 @@ namespace Bonsai.Core.Tests
             Assert.IsNotNull(workflow);
         }
 
-        class DerivedValueProperty : WorkflowProperty<int>
-        {
-            [Range(0, 100)]
-            public new int Value { get; set; }
-        }
-
-        class DerivedNewProperty : DerivedValueProperty
-        {
-            public int AnotherValue { get; set; }
-        }
-
         class MergeBranchVisitor : ExpressionVisitor
         {
             public int BranchCount { get; private set; }
