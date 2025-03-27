@@ -274,25 +274,51 @@ namespace Bonsai
             throw new ArgumentException($"Instance property '{propertyName}' is not defined for type '{expression.Type}'");
         }
 
-        static Expression PropertyOrField(Expression instance, string propertyOrFieldName)
+        internal static MemberExpression PropertyOrField(Expression expression, string propertyOrFieldName)
         {
-            if (instance.Type.IsInterface)
+            if (expression.Type.IsInterface)
             {
-                foreach (var type in Enumerable.Repeat(instance.Type, 1)
-                                               .Concat(instance.Type.GetInterfaces()))
+                foreach (var type in Enumerable.Repeat(expression.Type, 1)
+                                               .Concat(expression.Type.GetInterfaces()))
                 {
                     var property = type.GetProperty(propertyOrFieldName);
                     if (property != null)
                     {
-                        return Expression.Property(instance, property);
+                        return Expression.Property(expression, property);
                     }
                 }
 
                 throw new ArgumentException(
-                    string.Format("'{0}' is not a member of type '{1}'", propertyOrFieldName, instance.Type),
+                    string.Format("'{0}' is not a member of type '{1}'", propertyOrFieldName, expression.Type),
                     nameof(propertyOrFieldName));
             }
-            else return Expression.PropertyOrField(instance, propertyOrFieldName);
+            else
+            {
+                var type = expression.Type;
+                while (type is not null)
+                {
+                    var bindingFlags = BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
+                    var property = type.GetProperty(propertyOrFieldName, bindingFlags | BindingFlags.Public);
+                    if (property is not null)
+                        return Expression.Property(expression, property);
+
+                    var field = type.GetField(propertyOrFieldName, bindingFlags | BindingFlags.Public);
+                    if (field is not null)
+                        return Expression.Field(expression, field);
+
+                    property = type.GetProperty(propertyOrFieldName, bindingFlags | BindingFlags.NonPublic);
+                    if (property is not null)
+                        return Expression.Property(expression, property);
+
+                    field = type.GetField(propertyOrFieldName, bindingFlags | BindingFlags.NonPublic);
+                    if (field is not null)
+                        return Expression.Field(expression, field);
+
+                    type = type.BaseType;
+                }
+
+                throw new ArgumentException($"Instance property '{propertyOrFieldName}' is not defined for type '{expression.Type}'");
+            }
         }
 
         internal static Type[] GetIndexerTypes(Expression expression, int length)
