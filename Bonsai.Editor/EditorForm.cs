@@ -76,10 +76,10 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         VisualizerDialogMap visualizerDialogs;
         WorkflowException workflowError;
+        IDisposable building;
         IDisposable running;
         bool requireValidation;
         bool debugging;
-        bool building;
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
@@ -1228,7 +1228,7 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
-                building = false;
+                building = null;
                 if (visualizerDialogs != null)
                 {
                     visualizerSettings.Update(visualizerDialogs);
@@ -1242,9 +1242,9 @@ namespace Bonsai.Editor
         {
             if (running == null)
             {
-                building = true;
                 debugging = debug;
                 ClearWorkflowError();
+                building = ShutdownSequence();
                 visualizerDialogs = visualizerSettings.CreateVisualizerDialogs(workflowBuilder);
                 LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debug);
                 if (!debug)
@@ -1255,26 +1255,16 @@ namespace Bonsai.Editor
                 running = Observable.Using(
                     () =>
                     {
-                        var shutdown = ShutdownSequence();
-                        try
+                        var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
+                        Invoke(() =>
                         {
-                            var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
-                            Invoke((Action)(() =>
-                            {
-                                statusTextLabel.Text = Resources.RunningStatus;
-                                statusImageLabel.Image = statusRunningImage;
-                                visualizerDialogs.Show(visualizerSettings, editorSite, this);
-                                editorSite.OnWorkflowStarted(EventArgs.Empty);
-                                Activate();
-                            }));
-                            return new WorkflowDisposable(runtimeWorkflow, shutdown);
-                        }
-                        catch (Exception ex)
-                        {
-                            HandleWorkflowError(ex);
-                            shutdown.Dispose();
-                            throw;
-                        }
+                            statusTextLabel.Text = Resources.RunningStatus;
+                            statusImageLabel.Image = statusRunningImage;
+                            visualizerDialogs.Show(visualizerSettings, editorSite, this);
+                            editorSite.OnWorkflowStarted(EventArgs.Empty);
+                            Activate();
+                        });
+                        return new WorkflowDisposable(runtimeWorkflow, building);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
                         .InspectErrorsEx()
@@ -1385,25 +1375,25 @@ namespace Bonsai.Editor
 
         bool HandleSchedulerError(Exception e)
         {
-            using var shutdown = ShutdownSequence();
             HandleWorkflowError(e);
             return true;
         }
 
         void HandleWorkflowError(Exception e)
         {
+            using var shutdown = building;
             Action selectExceptionNode = () =>
             {
                 var workflowException = e as WorkflowException;
                 if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(workflowException, building);
+                    HighlightExceptionBuilderNode(workflowException, showMessageBox: shutdown != null);
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
 
-            if (InvokeRequired) BeginInvoke(selectExceptionNode);
+            if (InvokeRequired) Invoke(selectExceptionNode);
             else selectExceptionNode();
         }
 
