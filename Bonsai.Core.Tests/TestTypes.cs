@@ -37,13 +37,13 @@ namespace Bonsai.Core.Tests
         [Range(0, 100)]
         public new int Value { get; set; }
 
-        internal int InternalField;
+        internal int InternalField = 0;
     }
 
     class DerivedNewProperty : DerivedValueProperty
     {
         public int AnotherValue { get; set; }
 
-        internal new int InternalField;
+        internal new int InternalField = 1;
     }
 }
