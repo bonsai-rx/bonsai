@@ -8,7 +8,7 @@ namespace Bonsai.Shaders
     /// <summary>
     /// Represents an array of texture objects.
     /// </summary>
-    public class TextureArray : IDisposable, IEnumerable<int>
+    public class TextureArray : IDisposable, ITextureArray
     {
         readonly int[] textures;
 
