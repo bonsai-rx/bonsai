@@ -1,10 +1,12 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
 
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
     /// Represents the vertical and horizontal span of a table layout cell.
     /// </summary>
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     public class TableLayoutPanelCellSpan
     {
         /// <summary>

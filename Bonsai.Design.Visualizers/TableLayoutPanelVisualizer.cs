@@ -9,13 +9,16 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 [assembly: TypeVisualizer(typeof(DialogTypeVisualizer), Target = typeof(MashupSource<TableLayoutPanelVisualizer>))]
+#pragma warning restore CS0618 // Type or member is obsolete
 
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
     /// Provides a type visualizer that can be used to arrange other visualizers in a grid.
     /// </summary>
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     public class TableLayoutPanelVisualizer : MashupVisualizer
     {
         internal TableLayoutPanel Panel { get; private set; }

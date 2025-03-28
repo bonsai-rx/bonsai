@@ -14,6 +14,7 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(LineGraphVisualizer))]
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     [Description("A visualizer that plots each element of the sequence as a line graph.")]
     public class LineGraphBuilder : SingleArgumentExpressionBuilder
     {

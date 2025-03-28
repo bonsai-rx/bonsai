@@ -14,6 +14,7 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(RollingGraphVisualizer))]
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     [Description("A visualizer that plots each element of the sequence as a rolling graph.")]
     public class RollingGraphBuilder : SingleArgumentExpressionBuilder
     {

@@ -1,13 +1,13 @@
 ﻿using Bonsai.Expressions;
 using System;
 using System.Windows.Forms;
-using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
     /// <summary>
     /// Provides a type visualizer to display an object as a rolling graph.
     /// </summary>
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     public class RollingGraphVisualizer : BufferedVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);

@@ -14,6 +14,7 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(BarGraphVisualizer))]
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     [Description("A visualizer that plots each element of the sequence as a bar graph.")]
     public class BarGraphBuilder : SingleArgumentExpressionBuilder
     {

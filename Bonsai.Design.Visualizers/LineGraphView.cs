@@ -5,6 +5,7 @@ using System.Globalization;
 
 namespace Bonsai.Design.Visualizers
 {
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     partial class LineGraphView : UserControl
     {
         readonly ToolStripEditableLabel minEditableLabelX;

@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     class BarGraph : RollingGraph
     {
         public BarBase BaseAxis
