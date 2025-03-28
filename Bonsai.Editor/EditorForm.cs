@@ -1371,9 +1371,11 @@ namespace Bonsai.Editor
 
         void HandleWorkflowError(Exception e)
         {
-            using var shutdown = building;
-            Action selectExceptionNode = () =>
+            if (InvokeRequired)
+                BeginInvoke(HandleWorkflowError, e);
+            else
             {
+                using var shutdown = building;
                 var workflowException = e as WorkflowException;
                 if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
@@ -1382,9 +1384,6 @@ namespace Bonsai.Editor
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
-
-            if (InvokeRequired) Invoke(selectExceptionNode);
-            else selectExceptionNode();
         }
 
         void HandleWorkflowCompleted()
