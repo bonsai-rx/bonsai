@@ -5,7 +5,7 @@ namespace Bonsai.Design.Visualizers
     /// <summary>
     /// Provides a legacy graph control type.
     /// </summary>
-    [Obsolete]
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     public class ChartControl : GraphControl
     {
     }

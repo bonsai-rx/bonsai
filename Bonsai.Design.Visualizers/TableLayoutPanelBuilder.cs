@@ -18,6 +18,7 @@ namespace Bonsai.Design.Visualizers
     /// </summary>
     [DefaultProperty(nameof(CellSpans))]
     [TypeVisualizer(typeof(TableLayoutPanelVisualizer))]
+    [Obsolete(ObsoleteMessages.TypeTransferredToGuiPackage)]
     [Description("Specifies a mashup visualizer panel that can be used to arrange other visualizers in a grid.")]
     public class TableLayoutPanelBuilder : VariableArgumentExpressionBuilder, INamedElement
     {
