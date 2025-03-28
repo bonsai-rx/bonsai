@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Text;
 using Bonsai.Expressions;
 
 namespace Bonsai.Editor.GraphModel
@@ -44,14 +46,30 @@ namespace Bonsai.Editor.GraphModel
 
         public static string GetElementDescription(object component)
         {
+            string description;
             if (component is WorkflowExpressionBuilder workflowExpressionBuilder)
             {
-                var description = workflowExpressionBuilder.Description;
+                description = workflowExpressionBuilder.Description;
                 if (!string.IsNullOrEmpty(description)) return description;
             }
 
-            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(component)[typeof(DescriptionAttribute)];
-            return descriptionAttribute.Description;
+            var attributes = TypeDescriptor.GetAttributes(component);
+            var descriptionAttribute = (DescriptionAttribute)attributes[typeof(DescriptionAttribute)];
+            description = descriptionAttribute.Description;
+
+            if (attributes[typeof(ObsoleteAttribute)] is ObsoleteAttribute obsoleteAttribute)
+            {
+                var messageBuilder = new StringBuilder();
+                messageBuilder.Append("This operator is obsolete");
+                if (!string.IsNullOrEmpty(obsoleteAttribute.Message))
+                    messageBuilder.AppendFormat(": {0}", obsoleteAttribute.Message);
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine();
+                messageBuilder.Append(description);
+                description = messageBuilder.ToString();
+            }
+
+            return description;
         }
     }
 }
