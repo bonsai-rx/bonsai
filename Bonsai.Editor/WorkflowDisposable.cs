@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Threading;
 
 namespace Bonsai.Editor
@@ -9,10 +10,10 @@ namespace Bonsai.Editor
         int disposed;
         readonly IDisposable disposable;
 
-        public WorkflowDisposable(IObservable<Unit> workflow, IDisposable disposable)
+        public WorkflowDisposable(IObservable<Unit> workflow, Action dispose)
         {
             Workflow = workflow;
-            this.disposable = disposable;
+            disposable = Disposable.Create(dispose);
         }
 
         public IObservable<Unit> Workflow { get; private set; }
