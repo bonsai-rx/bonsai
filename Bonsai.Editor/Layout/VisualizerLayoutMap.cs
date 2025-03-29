@@ -161,6 +161,10 @@ namespace Bonsai.Design
                     dialogSettings.VisualizerSettings = layoutSettings.VisualizerSettings;
                     if (!string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
                     {
+                        if (typeVisualizerMap.GetVisualizerType(layoutSettings.VisualizerTypeName) is null)
+                            throw new InvalidOperationException(
+                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' is not available.");
+
                         var visualizerElement = ExpressionBuilder.GetVisualizerElement(builder);
                         var visualizerTypes = typeVisualizerMap.GetTypeVisualizers(visualizerElement);
                         if (!visualizerTypes.Any(type => type.FullName == layoutSettings.VisualizerTypeName))
