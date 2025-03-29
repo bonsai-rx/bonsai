@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Bonsai.Expressions;
 
 namespace Bonsai.Design
@@ -156,8 +158,17 @@ namespace Bonsai.Design
                     dialogSettings.Bounds = layoutSettings.Bounds;
                     dialogSettings.WindowState = layoutSettings.WindowState;
                     dialogSettings.Visible = layoutSettings.Visible;
-                    dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
                     dialogSettings.VisualizerSettings = layoutSettings.VisualizerSettings;
+                    if (!string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
+                    {
+                        var visualizerElement = ExpressionBuilder.GetVisualizerElement(builder);
+                        var visualizerTypes = typeVisualizerMap.GetTypeVisualizers(visualizerElement);
+                        if (!visualizerTypes.Any(type => type.FullName == layoutSettings.VisualizerTypeName))
+                            throw new InvalidOperationException(
+                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be " +
+                                $"applied to {ExpressionBuilder.GetWorkflowElement(visualizerElement).GetType()}.");
+                        dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
+                    }
                     Add(dialogSettings);
 
                     if (layoutSettings.NestedLayout != null &&
