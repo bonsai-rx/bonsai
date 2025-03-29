@@ -912,6 +912,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Visualizer Layout.
+        /// </summary>
+        internal static string VisualizerLayout_Caption {
+            get {
+                return ResourceManager.GetString("VisualizerLayout_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The visualizer layout may be corrupt. Do you want to delete the layout file?.
+        /// </summary>
+        internal static string VisualizerLayoutCorrupt_Question {
+            get {
+                return ResourceManager.GetString("VisualizerLayoutCorrupt_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot set visualizer layout with a null workflow..
         /// </summary>
         internal static string VisualizerLayoutOnNullWorkflow_Error {
