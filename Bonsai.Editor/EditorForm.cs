@@ -840,16 +840,30 @@ namespace Bonsai.Editor
             editorControl.ResetEditorLayout(editorPath);
             editorSite.ValidateWorkflow();
 
+            visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
             if (File.Exists(layoutPath))
             {
-                using var reader = XmlReader.Create(layoutPath);
                 try
                 {
+                    using var reader = XmlReader.Create(layoutPath);
                     var visualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }
-                catch (InvalidOperationException) { }
+                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+                {
+                    var icon = MessageBoxIcon.Error;
+                    var caption = Resources.VisualizerLayout_Caption;
+                    var message = $"""
+                        {ex.Message}
+
+                        {Resources.VisualizerLayoutCorrupt_Question}
+                        """;
+                    if (MessageBox.Show(this, message, caption, MessageBoxButtons.YesNo, icon) == DialogResult.Yes)
+                    {
+                        File.Delete(layoutPath);
+                    }
+                }
             }
 
             ResetProjectStatus();
