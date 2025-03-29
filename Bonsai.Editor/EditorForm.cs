@@ -325,11 +325,11 @@ namespace Bonsai.Editor
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
-            var shutdown = ShutdownSequence();
-            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers())
-                .TakeLast(1)
-                .Finally(shutdown.Dispose)
-                .ObserveOn(Scheduler.Default);
+            var initialization = Observable.Using(
+                () => ShutdownSequence(),
+                _ => InitializeToolbox().Merge(InitializeTypeVisualizers()))
+                .TakeLast(1);
+
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
@@ -340,11 +340,11 @@ namespace Bonsai.Editor
                 var loadAction = LoadAction;
                 if (loadAction != LoadAction.None)
                 {
-                    initialization = initialization.Do(xs => BeginInvoke((Action)(() =>
+                    initialization = initialization.Do(xs =>
                     {
                         var debugging = loadAction == LoadAction.Start;
                         StartWorkflow(debugging);
-                    })));
+                    });
                 }
             }
             else ClearWorkflow();
@@ -1207,7 +1207,7 @@ namespace Bonsai.Editor
 
         IDisposable ShutdownSequence()
         {
-            return new ScheduledDisposable(formScheduler, Disposable.Create(() =>
+            return Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
@@ -1235,7 +1235,7 @@ namespace Bonsai.Editor
                     visualizerDialogs = null;
                 }
                 UpdateTitle();
-            }));
+            });
         }
 
         void StartWorkflow(bool debug)
