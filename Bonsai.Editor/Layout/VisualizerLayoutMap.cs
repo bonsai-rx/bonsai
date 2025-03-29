@@ -9,7 +9,7 @@ namespace Bonsai.Design
     internal class VisualizerLayoutMap : IEnumerable<VisualizerDialogSettings>
     {
         readonly TypeVisualizerMap typeVisualizerMap;
-        readonly Dictionary<InspectBuilder, VisualizerDialogSettings> lookup;
+        Dictionary<InspectBuilder, VisualizerDialogSettings> lookup;
 
         public VisualizerLayoutMap(TypeVisualizerMap typeVisualizers)
         {
@@ -134,13 +134,14 @@ namespace Bonsai.Design
             TypeVisualizerMap typeVisualizers)
         {
             var visualizerSettings = new VisualizerLayoutMap(typeVisualizers);
-            visualizerSettings.SetVisualizerLayout(workflowBuilder, layout);
+            visualizerSettings.SetVisualizerLayout(workflowBuilder.Workflow, layout);
             return visualizerSettings;
         }
 
         public void SetVisualizerLayout(WorkflowBuilder workflowBuilder, VisualizerLayout layout)
         {
-            SetVisualizerLayout(workflowBuilder.Workflow, layout);
+            var visualizerSettings = FromVisualizerLayout(workflowBuilder, layout, typeVisualizerMap);
+            lookup = visualizerSettings.lookup;
         }
 
         private void SetVisualizerLayout(ExpressionBuilderGraph workflow, VisualizerLayout layout)
