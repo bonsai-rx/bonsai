@@ -23,6 +23,7 @@ using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphView;
 using Bonsai.Editor.GraphModel;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Net;
 
 namespace Bonsai.Editor
@@ -1206,7 +1207,7 @@ namespace Bonsai.Editor
 
         IDisposable ShutdownSequence()
         {
-            return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
+            return new ScheduledDisposable(formScheduler, Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
@@ -1228,7 +1229,6 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
-                building = null;
                 if (visualizerDialogs != null)
                 {
                     visualizerSettings.Update(visualizerDialogs);
@@ -1264,7 +1264,7 @@ namespace Bonsai.Editor
                             editorSite.OnWorkflowStarted(EventArgs.Empty);
                             Activate();
                         });
-                        return new WorkflowDisposable(runtimeWorkflow, building);
+                        return new WorkflowDisposable(runtimeWorkflow, HandleWorkflowDispose);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
                         .InspectErrorsEx()
@@ -1373,6 +1373,16 @@ namespace Bonsai.Editor
             }
         }
 
+        void HandleWorkflowDispose()
+        {
+            if (InvokeRequired)
+                BeginInvoke(HandleWorkflowDispose);
+            else if (Interlocked.Exchange(ref building, null) is IDisposable shutdown)
+            {
+                shutdown.Dispose();
+            }
+        }
+
         bool HandleSchedulerError(Exception e)
         {
             HandleWorkflowError(e);
@@ -1385,9 +1395,9 @@ namespace Bonsai.Editor
                 BeginInvoke(HandleWorkflowError, e);
             else
             {
-                using var shutdown = building;
-                var workflowException = e as WorkflowException;
-                if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
+                using var shutdown = Interlocked.Exchange(ref building, null);
+                if (e is WorkflowException workflowException && workflowException.Builder != null ||
+                    exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
                     HighlightExceptionBuilderNode(workflowException, showMessageBox: shutdown != null);
