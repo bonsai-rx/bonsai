@@ -840,6 +840,7 @@ namespace Bonsai.Editor
             editorControl.ResetEditorLayout(editorPath);
             editorSite.ValidateWorkflow();
 
+            visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
             if (File.Exists(layoutPath))
             {

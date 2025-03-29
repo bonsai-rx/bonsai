@@ -134,13 +134,12 @@ namespace Bonsai.Design
             TypeVisualizerMap typeVisualizers)
         {
             var visualizerSettings = new VisualizerLayoutMap(typeVisualizers);
-            visualizerSettings.SetVisualizerLayout(workflowBuilder.Workflow, layout);
+            visualizerSettings.SetVisualizerLayout(workflowBuilder, layout);
             return visualizerSettings;
         }
 
         public void SetVisualizerLayout(WorkflowBuilder workflowBuilder, VisualizerLayout layout)
         {
-            Clear();
             SetVisualizerLayout(workflowBuilder.Workflow, layout);
         }
 
