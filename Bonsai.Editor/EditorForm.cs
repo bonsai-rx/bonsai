@@ -1830,7 +1830,8 @@ namespace Bonsai.Editor
             if (selection.Length == 0) return;
 
             Func<ExpressionBuilder, bool> predicate;
-            var currentBuilder = ExpressionBuilder.Unwrap(selection[0].Value);
+            var inspectBuilder = selection[0].Value;
+            var currentBuilder = ExpressionBuilder.Unwrap(inspectBuilder);
             if (currentBuilder is SubjectExpressionBuilder ||
                 currentBuilder is SubscribeSubject ||
                 currentBuilder is MulticastSubject)
@@ -1849,15 +1850,16 @@ namespace Bonsai.Editor
                 predicate = builder => builder.MatchElementType(typeName);
             }
 
-            FindNextMatch(predicate, currentBuilder, findPrevious);
+            FindNextMatch(predicate, inspectBuilder, findPrevious);
         }
 
         void FindNextMatch(Func<ExpressionBuilder, bool> predicate, ExpressionBuilder current, bool findPrevious)
         {
             var match = workflowBuilder.Find(predicate, current, findPrevious);
-            if (match != null)
+            if (match is not null)
             {
-                SelectBuilderNode(match);
+                var builder = ExpressionBuilder.Unwrap(match.Builder);
+                SelectBuilderNode(builder);
             }
         }
 
