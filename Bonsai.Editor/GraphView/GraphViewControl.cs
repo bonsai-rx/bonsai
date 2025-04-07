@@ -236,10 +236,13 @@ namespace Bonsai.Editor.GraphView
 
         public Color CursorColor { get; set; }
 
+        [DefaultValue(null)]
         public WorkflowPathFlags PathFlags { get; set; }
 
+        [DefaultValue(null)]
         public SvgRendererFactory IconRenderer { get; set; }
 
+        [DefaultValue(null)]
         public Image GraphicsProvider { get; set; }
 
         public IReadOnlyList<GraphNodeGrouping> Nodes
