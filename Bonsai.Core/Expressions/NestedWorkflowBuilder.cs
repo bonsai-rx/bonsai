@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Reactive.Linq;
 using System;
 using Bonsai.Reactive;
 
