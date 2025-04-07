@@ -79,7 +79,7 @@ namespace Bonsai.Editor.GraphModel
                         break;
                     }
 
-                    if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
+                    if (element.Builder is IWorkflowExpressionBuilder workflowBuilder && !workflowBuilder.IsGroup())
                     {
                         callContext.Push(new ContextGrouping(workflowBuilder.Workflow, element.IsReadOnly));
                     }
