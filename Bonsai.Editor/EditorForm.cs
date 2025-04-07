@@ -420,17 +420,17 @@ namespace Bonsai.Editor
 
         Task InitializeSubjectSourcesAsync(CancellationToken cancellationToken)
         {
-            var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
+            var selectedPathChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
                 handler => selectionModel.SelectionChanged -= handler)
                 .Select(evt => selectionModel.SelectedView)
-                .DistinctUntilChanged();
+                .DistinctUntilChanged(view => view?.WorkflowPath);
             var workflowValidating = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(WorkflowValidating, handler),
                 handler => Events.RemoveHandler(WorkflowValidating, handler))
                 .Select(evt => selectionModel.SelectedView);
             return Observable
-                .Merge(selectedViewChanged, workflowValidating)
+                .Merge(selectedPathChanged, workflowValidating)
                 .Do(view =>
                 {
                     toolboxTreeView.BeginUpdate();
