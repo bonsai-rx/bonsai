@@ -2592,7 +2592,7 @@ namespace Bonsai.Editor
             public void OnKeyPress(KeyPressEventArgs e)
             {
                 var selectedView = siteForm.selectionModel.SelectedView;
-                if (selectedView != null && selectedView.CanEdit && selectedView.GraphView.Focused)
+                if (selectedView != null && selectedView.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
