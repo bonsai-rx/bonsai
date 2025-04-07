@@ -274,9 +274,6 @@ namespace Bonsai.Editor
 
         void CloseEditorForm()
         {
-            if (!string.IsNullOrEmpty(FileName))
-                SaveWorkflowSettings(FileName);
-
             Application.RemoveMessageFilter(hotKeys);
             EditorSettings.Instance.AnnotationPanelSize = (int)Math.Round(
                 editorControl.AnnotationPanelSize * inverseScaleFactor.Width);
@@ -761,9 +758,12 @@ namespace Bonsai.Editor
                     saveToolStripMenuItem_Click(this, EventArgs.Empty);
                     return saveVersion == version;
                 }
-                else return result == DialogResult.No;
+                else if (result == DialogResult.Cancel)
+                    return false;
             }
 
+            if (!string.IsNullOrEmpty(FileName))
+                SaveWorkflowSettings(FileName);
             return true;
         }
 
@@ -1019,6 +1019,7 @@ namespace Bonsai.Editor
             {
                 Environment.CurrentDirectory = workflowDirectory;
                 EditorResult = EditorResult.ReloadEditor;
+                selectionModel.UpdateSelection(null);
                 ResetProjectStatus();
                 Close();
                 FileName = fileName;
@@ -3074,6 +3075,6 @@ namespace Bonsai.Editor
             EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
         }
 
-#endregion
+        #endregion
     }
 }
