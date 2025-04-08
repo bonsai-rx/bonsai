@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using Bonsai.Expressions;
 
@@ -37,6 +38,23 @@ namespace Bonsai.Editor.GraphModel
             foreach (var element in stack)
             {
                 yield return element;
+            }
+        }
+
+        public static IEnumerable<KeyValuePair<string, WorkflowEditorPath>> GetPathDisplayElements(WorkflowEditorPath workflowPath, WorkflowBuilder workflowBuilder)
+        {
+            var workflow = workflowBuilder.Workflow;
+            foreach (var pathElement in workflowPath?.GetPathElements() ?? Enumerable.Empty<WorkflowEditorPath>())
+            {
+                var builder = workflow[pathElement.Index].Value;
+                if (ExpressionBuilder.GetWorkflowElement(builder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
+                {
+                    workflow = nestedWorkflowBuilder.Workflow;
+                }
+
+                yield return new(
+                    key: ExpressionBuilder.GetElementDisplayName(builder),
+                    value: pathElement);
             }
         }
 

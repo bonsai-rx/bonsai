@@ -654,4 +654,13 @@ The visualizer layout may be corrupt. Do you want to delete the layout file?</va
         kQDw7TLDa/cHU8MIBKODqWCEAq6GEPQwAoGoHmYA1FrXs7P8/yQ7mKAz9dbnzhUAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="ToolTipClose" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ToolTipOptions" xml:space="preserve">
+    <value>Window Position</value>
+  </data>
+  <data name="ToolTipAutoHide" xml:space="preserve">
+    <value>Auto Hide</value>
+  </data>
 </root>

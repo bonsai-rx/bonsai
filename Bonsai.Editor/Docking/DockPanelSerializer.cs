@@ -42,6 +42,8 @@ namespace Bonsai.Editor.Docking
                     workflowPath?.Resolve(workflowBuilder);
                     return editorControl.CreateDockContent(workflowPath, DockState.Unknown);
                 default:
+                    if (editorControl.ToolWindows.Contains(contentString))
+                        return editorControl.ToolWindows[contentString];
                     ThrowNotRecognizedException(contentString);
                     return default;
             }

@@ -1033,6 +1033,11 @@ namespace Bonsai.Editor.GraphView
             LaunchDefinition(graphView.SelectedNode);
         }
 
+        private void findAllReferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.OnKeyDown(new KeyEventArgs(findAllReferencesToolStripMenuItem.ShortcutKeys));
+        }
+
         private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchWorkflowView(graphView.SelectedNodes, NavigationPreference.NewTab);
@@ -1608,6 +1613,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
                     goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
+                    findAllReferencesToolStripMenuItem.Enabled = true;
                     docsToolStripMenuItem.Enabled = true;
 
                     var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);

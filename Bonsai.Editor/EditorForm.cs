@@ -482,6 +482,7 @@ namespace Bonsai.Editor
                 if (workflowBuilder.Workflow == null)
                     return;
 
+                editorControl.UpdateFindResults();
                 explorerTreeView.UpdateWorkflow(
                     GetProjectDisplayName(),
                     workflowBuilder);
@@ -1412,12 +1413,38 @@ namespace Bonsai.Editor
             else clearErrors();
         }
 
-        void SelectBuilderNode(ExpressionBuilder builder)
+        void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
+        {
+            switch (navigationPreference)
+            {
+                case NavigationPreference.Current:
+                    var model = selectionModel.SelectedView;
+                    if (model is null)
+                        goto case NavigationPreference.NewTab;
+                    model.WorkflowPath = workflowPath;
+                    break;
+                case NavigationPreference.NewTab:
+                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
+                    break;
+                case NavigationPreference.NewWindow:
+                    editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Float);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void SelectBuilderNode(ExpressionBuilder builder, NavigationPreference navigationPreference = default)
         {
             var builderPath = WorkflowEditorPath.GetBuilderPath(workflowBuilder, builder);
+            SelectBuilderNode(builderPath, navigationPreference);
+        }
+
+        void SelectBuilderNode(WorkflowEditorPath builderPath, NavigationPreference navigationPreference = default)
+        {
             if (builderPath != null)
             {
-                editorSite.NavigateTo(builderPath.Parent, NavigationPreference.Current);
+                NavigateTo(builderPath.Parent, navigationPreference);
 
                 var selectedView = selectionModel.SelectedView;
                 var graphNode = selectedView.FindGraphNode(builderPath.Resolve(workflowBuilder));
@@ -1731,6 +1758,7 @@ namespace Bonsai.Editor
                         break;
                     case Keys.F2:
                     case Keys.F3:
+                    case Keys.F12:
                         toolboxTreeView_KeyDown(sender, e);
                         break;
                     case Keys.Return:
@@ -1808,66 +1836,60 @@ namespace Bonsai.Editor
             }
         }
 
-        void FindNextTypeMatch(TreeNode typeNode, bool findPrevious)
-        {
-            var currentNode = selectionModel.SelectedNodes.FirstOrDefault();
-            var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
-            Func<ExpressionBuilder, bool> predicate = elementCategory switch
-            {
-                ~ElementCategory.Workflow => builder => builder.MatchIncludeWorkflow(typeNode.Name),
-                ~ElementCategory.Source => builder => builder.MatchSubjectReference(typeNode.Name),
-                _ => builder => builder.MatchElementType(typeNode.Name),
-            };
-
-            FindNextMatch(predicate, currentNode?.Value, findPrevious);
-        }
-
-        void FindNextGraphNode(bool findPrevious)
+        void FindAllReferences()
         {
             var model = selectionModel.SelectedView;
             if (model?.GraphView.Focused is not true) return;
 
             var selection = selectionModel.SelectedNodes.ToArray();
-            if (selection.Length == 0) return;
+            if (selection.Length != 1) return;
 
-            Func<ExpressionBuilder, bool> predicate;
             var inspectBuilder = selection[0].Value;
-            var currentBuilder = ExpressionBuilder.Unwrap(inspectBuilder);
-            if (currentBuilder is SubjectExpressionBuilder ||
-                currentBuilder is SubscribeSubject ||
-                currentBuilder is MulticastSubject)
-            {
-                var subjectName = ((INamedElement)currentBuilder).Name;
-                predicate = builder => builder.MatchSubjectReference(subjectName);
-            }
-            else if (currentBuilder is IncludeWorkflowBuilder includeBuilder)
-            {
-                predicate = builder => builder.MatchIncludeWorkflow(includeBuilder.Path);
-            }
-            else
-            {
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(currentBuilder);
-                var typeName = workflowElement.GetType().AssemblyQualifiedName;
-                predicate = builder => builder.MatchElementType(typeName);
-            }
-
-            FindNextMatch(predicate, inspectBuilder, findPrevious);
+            var matches = workflowBuilder.FindAllReferences(model.Workflow, inspectBuilder);
+            var elementDisplayName = ExpressionBuilder.GetElementDisplayName(inspectBuilder);
+            editorControl.ShowFindResults($"'{elementDisplayName}' references", matches);
         }
 
-        void FindNextMatch(Func<ExpressionBuilder, bool> predicate, ExpressionBuilder current, bool findPrevious)
+        void FindAllReferences(TreeNode typeNode)
         {
-            var match = workflowBuilder.Find(predicate, current, findPrevious);
+            var targetWorkflow = selectionModel.SelectedView?.Workflow;
+            var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+            var matches = workflowBuilder.FindAllReferences(targetWorkflow, elementCategory, typeNode.Name);
+            editorControl.ShowFindResults($"'{typeNode.Text}' references", matches);
+        }
+
+        void FindReference(bool findPrevious)
+        {
+            var model = selectionModel.SelectedView;
+            if (model?.GraphView.Focused is not true) return;
+
+            var selection = selectionModel.SelectedNodes.ToArray();
+            if (selection.Length != 1) return;
+
+            var inspectBuilder = selection[0].Value;
+            var match = workflowBuilder.FindReference(model.Workflow, inspectBuilder, findPrevious);
             if (match is not null)
-            {
-                var builder = ExpressionBuilder.Unwrap(match.Builder);
-                SelectBuilderNode(builder);
-            }
+                SelectBuilderNode(match.Builder);
         }
 
-        private void explorerTreeView_Navigate(object sender, ExplorerTreeViewEventArgs e)
+        void FindReference(TreeNode typeNode, bool findPrevious)
         {
-            var workflowPath = (WorkflowEditorPath)e.Node?.Tag;
-            editorSite.NavigateTo(workflowPath, e.NavigationPreference);
+            var currentNode = selectionModel.SelectedNodes.FirstOrDefault();
+            var targetWorkflow = selectionModel.SelectedView?.Workflow;
+            var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
+            var match = workflowBuilder.FindReference(
+                targetWorkflow,
+                elementCategory,
+                typeNode.Name,
+                currentNode?.Value,
+                findPrevious);
+            if (match is not null)
+                SelectBuilderNode(match.Builder);
+        }
+
+        private void explorerTreeView_Navigate(object sender, WorkflowNavigateEventArgs e)
+        {
+            NavigateTo(e.WorkflowPath, e.NavigationPreference);
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -1883,14 +1905,19 @@ namespace Bonsai.Editor
                 e.SuppressKeyPress = true;
             }
 
-            if (e.KeyCode == Keys.F3 && selectedNode?.Tag != null)
+            if (e.KeyData == findAllReferencesToolStripMenuItem.ShortcutKeys && selectedNode?.Tag != null)
             {
-                var findPrevious = e.Modifiers == Keys.Shift;
-                FindNextTypeMatch(selectedNode, findPrevious);
+                FindAllReferences(selectedNode);
             }
 
-            var rename = e.KeyCode == Keys.F2;
-            var goToDefinition = e.KeyCode == Keys.F12;
+            if (e.KeyCode == findNextToolStripMenuItem.ShortcutKeys && selectedNode?.Tag != null)
+            {
+                var findPrevious = e.Modifiers == Keys.Shift;
+                FindReference(selectedNode, findPrevious);
+            }
+
+            var rename = e.KeyData == renameSubjectToolStripMenuItem.ShortcutKeys;
+            var goToDefinition = e.KeyData == goToDefinitionToolStripMenuItem.ShortcutKeys;
             if ((rename || goToDefinition) && selectedNode?.Tag != null)
             {
                 var elementCategory = WorkflowGraphView.GetToolboxElementCategory(selectedNode);
@@ -1978,6 +2005,7 @@ namespace Bonsai.Editor
                             multicastSubjectToolStripMenuItem.Visible = true;
                             renameSubjectToolStripMenuItem.Visible = true;
                             goToDefinitionToolStripMenuItem.Visible = true;
+                            findAllReferencesToolStripMenuItem.Visible = true;
                             replaceToolStripMenuItem.Visible = true;
                             findNextToolStripMenuItem.Visible = true;
                             findPreviousToolStripMenuItem.Visible = true;
@@ -2064,7 +2092,7 @@ namespace Bonsai.Editor
             {
                 toolboxTreeView_KeyDown(sender, new KeyEventArgs(findNextToolStripMenuItem.ShortcutKeys));
             }
-            else FindNextGraphNode(findPrevious: false);
+            else FindReference(findPrevious: false);
         }
 
         private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2073,7 +2101,16 @@ namespace Bonsai.Editor
             {
                 toolboxTreeView_KeyDown(sender, new KeyEventArgs(findPreviousToolStripMenuItem.ShortcutKeys));
             }
-            else FindNextGraphNode(findPrevious: true);
+            else FindReference(findPrevious: true);
+        }
+
+        private void findAllReferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (toolboxTreeView.Focused || searchTextBox.Focused)
+            {
+                toolboxTreeView_KeyDown(sender, new KeyEventArgs(findAllReferencesToolStripMenuItem.ShortcutKeys));
+            }
+            else FindAllReferences();
         }
 
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2586,6 +2623,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.renameSubjectToolStripMenuItem, siteForm.renameSubjectToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findNextToolStripMenuItem, siteForm.findNextToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findPreviousToolStripMenuItem, siteForm.findPreviousToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.findAllReferencesToolStripMenuItem, siteForm.findAllReferencesToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.docsToolStripMenuItem, siteForm.docsToolStripMenuItem_Click);
             }
 
@@ -2653,23 +2691,7 @@ namespace Bonsai.Editor
 
             public void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
             {
-                switch (navigationPreference)
-                {
-                    case NavigationPreference.Current:
-                        var model = siteForm.selectionModel.SelectedView;
-                        if (model is null)
-                            goto case NavigationPreference.NewTab;
-                        model.WorkflowPath = workflowPath;
-                        break;
-                    case NavigationPreference.NewTab:
-                        siteForm.editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Document);
-                        break;
-                    case NavigationPreference.NewWindow:
-                        siteForm.editorControl.CreateDockContent(workflowPath, WeifenLuo.WinFormsUI.Docking.DockState.Float);
-                        break;
-                    default:
-                        break;
-                }
+                siteForm.NavigateTo(workflowPath, navigationPreference);
             }
 
             public string GetPackageDisplayName(string packageKey)
@@ -2689,9 +2711,14 @@ namespace Bonsai.Editor
                 siteForm.Activate();
             }
 
-            public void SelectBuilderNode(ExpressionBuilder builder)
+            public void SelectBuilderNode(ExpressionBuilder builder, NavigationPreference navigationPreference)
             {
-                siteForm.SelectBuilderNode(builder);
+                siteForm.SelectBuilderNode(builder, navigationPreference);
+            }
+
+            public void SelectBuilderNode(WorkflowEditorPath builderPath, NavigationPreference navigationPreference)
+            {
+                siteForm.SelectBuilderNode(builderPath, navigationPreference);
             }
 
             public bool ValidateWorkflow()

@@ -85,6 +85,7 @@ namespace Bonsai.Editor.Docking
         private Rectangle _activeClose;
         private int _selectMenuMargin = 5;
         private bool m_suspendDrag = false;
+
         #endregion
 
         #region Properties
