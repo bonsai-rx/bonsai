@@ -640,6 +640,37 @@ namespace Bonsai.Editor
             }
         }
 
+        static string GetElementTypeDisplayName(ExpressionBuilder builder)
+        {
+            var matchTarget = ExpressionBuilder.Unwrap(builder);
+            if (matchTarget is SubjectExpressionBuilder ||
+                matchTarget is SubscribeSubject ||
+                matchTarget is MulticastSubject)
+            {
+                var subjectName = ((INamedElement)matchTarget).Name;
+                return $"{subjectName} ({SubjectCategoryName})";
+            }
+            else if (matchTarget is IncludeWorkflowBuilder includeBuilder && !string.IsNullOrEmpty(includeBuilder.Path))
+            {
+                if (Path.IsPathRooted(includeBuilder.Path))
+                    return includeBuilder.Name;
+
+                string includeNamespace;
+                if (TryGetAssemblyResource(includeBuilder.Path, out string _, out string resourceName))
+                {
+                    var nameSeparator = resourceName.LastIndexOf(ExpressionHelper.MemberSeparator);
+                    includeNamespace = nameSeparator >= 0 ? resourceName.Substring(0, nameSeparator) : resourceName;
+                }
+                else includeNamespace = Project.GetFileNamespace(includeBuilder.Path);
+                return $"{includeBuilder.Name} ({includeNamespace})";
+            }
+            else
+            {
+                var elementType = ExpressionBuilder.GetWorkflowElement(matchTarget).GetType();
+                return $"{elementType.Name} ({GetPackageDisplayName(elementType.Namespace)})";
+            }
+        }
+
         static string GetPackageDisplayName(string packageKey)
         {
             const string BonsaiPackageName = "Bonsai";
@@ -1850,8 +1881,8 @@ namespace Bonsai.Editor
 
             var inspectBuilder = selection[0].Value;
             var matches = workflowBuilder.FindAllReferences(model.Workflow, inspectBuilder);
-            var elementDisplayName = ExpressionBuilder.GetElementDisplayName(inspectBuilder);
-            editorControl.ShowFindResults($"'{elementDisplayName}' references", matches);
+            var elementTypeDisplayName = GetElementTypeDisplayName(inspectBuilder);
+            editorControl.ShowFindResults($"'{elementTypeDisplayName}' references", matches);
         }
 
         void FindAllReferences(TreeNode typeNode)
@@ -1859,7 +1890,8 @@ namespace Bonsai.Editor
             var targetWorkflow = selectionModel.SelectedView?.Workflow;
             var elementCategory = WorkflowGraphView.GetToolboxElementCategory(typeNode);
             var matches = workflowBuilder.FindAllReferences(targetWorkflow, elementCategory, typeNode.Name);
-            editorControl.ShowFindResults($"'{typeNode.Text}' references", matches);
+            var displayName = typeNode.Parent is null ? typeNode.Text : $"{typeNode.Text} ({typeNode.Parent.Text})";
+            editorControl.ShowFindResults($"'{displayName}' references", matches);
         }
 
         void FindReference(bool findPrevious)
