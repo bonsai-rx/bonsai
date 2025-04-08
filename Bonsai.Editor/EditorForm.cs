@@ -33,7 +33,6 @@ namespace Bonsai.Editor
     {
         const float DefaultEditorScale = 1.0f;
         const string EditorUid = "editor";
-        const string BonsaiPackageName = "Bonsai";
         const string WorkflowCategoryName = "Workflow";
         const string SubjectCategoryName = "Subject";
         static readonly AttributeCollection DesignTimeAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
@@ -643,9 +642,14 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
-            if (packageKey == null) return Project.ExtensionsDirectory;
-            if (packageKey == BonsaiPackageName) return packageKey;
-            return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
+            const string BonsaiPackageName = "Bonsai";
+            const string BonsaiNamespacePrefix = BonsaiPackageName + ".";
+            if (string.IsNullOrEmpty(packageKey))
+                return Project.ExtensionsDirectory;
+            if (packageKey == BonsaiPackageName || !packageKey.StartsWith(BonsaiNamespacePrefix))
+                return packageKey;
+            else
+                return packageKey.Substring(BonsaiNamespacePrefix.Length);
         }
 
         void InitializeToolboxCategory(string categoryName, IEnumerable<WorkflowElementDescriptor> types)
