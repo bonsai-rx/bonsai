@@ -10,7 +10,7 @@ namespace Bonsai.Editor
 {
     static class Project
     {
-        const string DefaultWorkflowNamespace = "Unspecified";
+        internal const string DefaultWorkflowNamespace = "Unspecified";
         internal const string BonsaiExtension = ".bonsai";
         internal const string LayoutExtension = ".layout";
         internal const string EditorExtension = ".editor";

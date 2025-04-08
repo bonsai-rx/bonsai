@@ -652,16 +652,19 @@ namespace Bonsai.Editor
             }
             else if (matchTarget is IncludeWorkflowBuilder includeBuilder && !string.IsNullOrEmpty(includeBuilder.Path))
             {
-                if (Path.IsPathRooted(includeBuilder.Path))
-                    return includeBuilder.Name;
-
-                string includeNamespace;
+                var includeNamespace = Project.DefaultWorkflowNamespace;
                 if (TryGetAssemblyResource(includeBuilder.Path, out string _, out string resourceName))
                 {
                     var nameSeparator = resourceName.LastIndexOf(ExpressionHelper.MemberSeparator);
                     includeNamespace = nameSeparator >= 0 ? resourceName.Substring(0, nameSeparator) : resourceName;
                 }
-                else includeNamespace = Project.GetFileNamespace(includeBuilder.Path);
+                else
+                {
+                    var fullPath = Path.GetFullPath(includeBuilder.Path);
+                    var relativePath = PathConvert.GetProjectPath(fullPath);
+                    if (relativePath != fullPath)
+                        includeNamespace = Project.GetFileNamespace(relativePath);
+                }
                 return $"{includeBuilder.Name} ({includeNamespace})";
             }
             else
