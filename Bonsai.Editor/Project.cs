@@ -114,6 +114,15 @@ namespace Bonsai.Editor
             return Path.Combine(Path.GetTempPath(), DefinitionsDirectory + "." + GuidHelper.GetProcessGuid().ToString());
         }
 
+        internal static string GetFileNamespace(string relativePath)
+        {
+            var fileNamespace = Path.GetDirectoryName(relativePath)
+                                    .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                    .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
+            if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
+            return fileNamespace;
+        }
+
         public static IEnumerable<WorkflowElementDescriptor> EnumerateExtensionWorkflows(string basePath)
         {
             IEnumerable<string> workflowFiles;
@@ -137,11 +146,7 @@ namespace Bonsai.Editor
                 catch (SystemException) { continue; }
 
                 var relativePath = PathConvert.GetProjectPath(fileName);
-                var fileNamespace = Path.GetDirectoryName(relativePath)
-                                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                        .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
-                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
-
+                var fileNamespace = GetFileNamespace(relativePath);
                 yield return new WorkflowElementDescriptor
                 {
                     Name = Path.GetFileNameWithoutExtension(relativePath),
