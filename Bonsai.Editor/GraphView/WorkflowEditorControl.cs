@@ -21,6 +21,8 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly ThemeRenderer themeRenderer;
         readonly CommandExecutor commandExecutor;
+        readonly WorkflowFindToolWindow findToolWindow;
+        readonly EditorToolWindowCollection toolWindows;
 
         public WorkflowEditorControl(IServiceProvider provider)
         {
@@ -29,6 +31,11 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            findToolWindow = new WorkflowFindToolWindow(provider);
+            findToolWindow.Navigate += findToolWindow_Navigate;
+            toolWindows = new EditorToolWindowCollection { findToolWindow };
+            AssignToolWindows();
+
             ConfigureDockTheme(lightTheme);
             ConfigureDockTheme(darkTheme);
             annotationPanel.ThemeRenderer = themeRenderer;
@@ -37,6 +44,11 @@ namespace Bonsai.Editor.GraphView
             if (EditorSettings.IsRunningOnMono)
                 CreateDockContent(null);
             InitializeTheme();
+        }
+
+        public EditorToolWindowCollection ToolWindows
+        {
+            get { return toolWindows; }
         }
 
         public event EventHandler ActiveContentChanged
@@ -200,10 +212,46 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void SaveEditorLayout(string fileName)
+        public void ShowFindResults(string text, IEnumerable<WorkflowQueryResult> query)
+        {
+            findToolWindow.Query = query;
+            findToolWindow.Text = text;
+            if (findToolWindow.DockState == DockState.Hidden)
+                findToolWindow.Show(dockPanel);
+            else if (findToolWindow.DockState == DockState.Unknown)
+                findToolWindow.Show(dockPanel, DockState.DockBottom);
+            else
+                findToolWindow.Activate();
+        }
+
+        private XDocument PersistEditorLayout()
         {
             var document = dockPanel.SaveAsXml();
             document.DescendantNodes().OfType<XComment>().Remove();
+            return document;
+        }
+
+        private void RestoreEditorLayout(XDocument document)
+        {
+            using var memoryStream = new MemoryStream();
+            document.Save(memoryStream);
+            memoryStream.Position = 0;
+            RestoreEditorLayout(memoryStream);
+        }
+
+        private void RestoreEditorLayout(Stream stream)
+        {
+            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+            dockPanel.LoadFromXml(stream, content =>
+            {
+                try { return DockPanelSerializer.DeserializeContent(this, workflowBuilder, content); }
+                catch { return new InvalidDockContent(); } // best effort
+            });
+        }
+
+        public void SaveEditorLayout(string fileName)
+        {
+            var document = PersistEditorLayout();
             using var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
             using var writer = XmlWriter.Create(fileStream, new XmlWriterSettings { Indent = true });
             document.WriteTo(writer);
@@ -214,17 +262,14 @@ namespace Bonsai.Editor.GraphView
             CloseAll();
             if (File.Exists(fileName))
             {
-                var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+                CloseToolWindows();
                 using var stream = File.OpenRead(fileName);
-                dockPanel.LoadFromXml(stream, content =>
-                {
-                    try { return DockPanelSerializer.DeserializeContent(this, workflowBuilder, content); }
-                    catch { return new InvalidDockContent(); } // best effort
-                });
+                RestoreEditorLayout(stream);
                 CloseInvalidContents();
+                AssignToolWindows();
             }
 
-            if (dockPanel.Contents.Count == 0)
+            if (!dockPanel.Documents.Any())
             {
                 CreateDockContent(null);
             }
@@ -290,6 +335,18 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        internal void UpdateFindResults()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowFindToolWindow findToolWindow &&
+                    findToolWindow.DockState != DockState.Hidden)
+                {
+                    findToolWindow.UpdateResults();
+                }
+            }
+        }
+
         void UpdateAllText()
         {
             for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
@@ -329,8 +386,34 @@ namespace Bonsai.Editor.GraphView
 
             for (int i = contents.Count - 1; i >= 0; i--)
             {
-                if (contents[i] is WorkflowDockContent workflowContent)
-                    workflowContent.Close();
+                if (contents[i] is DockContent dockContent && !dockContent.HideOnClose)
+                    dockContent.Close();
+            }
+
+            var floatWindows = new FloatWindow[dockPanel.FloatWindows.Count];
+            dockPanel.FloatWindows.CopyTo(floatWindows, 0);
+            for (int i = 0; i < floatWindows.Length; i++)
+            {
+                if (floatWindows[i].NestedPanes.All(nestedPane => nestedPane.Contents.Count == 0))
+                    floatWindows[i].Close();
+            }
+        }
+
+        private void AssignToolWindows()
+        {
+            foreach (var toolWindow in toolWindows)
+            {
+                toolWindow.DockPanel ??= dockPanel;
+            }
+        }
+
+        private void CloseToolWindows()
+        {
+            var contents = new IDockContent[dockPanel.Contents.Count];
+            dockPanel.Contents.CopyTo(contents, 0);
+            for (int i = contents.Length - 1; i >= 0; i--)
+            {
+                contents[i].DockHandler.DockPanel = null;
             }
 
             var floatWindows = new FloatWindow[dockPanel.FloatWindows.Count];
@@ -381,6 +464,8 @@ namespace Bonsai.Editor.GraphView
         {
             base.ScaleControl(factor, specified);
             AnnotationPanelSize = (int)Math.Round(splitContainer.SplitterDistance * factor.Width);
+            ScaleDockTheme(lightTheme, factor);
+            ScaleDockTheme(darkTheme, factor);
             splitContainer.FixedPanel = FixedPanel.Panel1;
             dockPanel.DefaultFloatWindowSize = Size.Round(new SizeF(
                 width: 320 * factor.Width,
@@ -420,8 +505,15 @@ namespace Bonsai.Editor.GraphView
         private void ConfigureDockTheme(ThemeBase theme)
         {
             theme.Extender.FloatWindowFactory = new WorkflowFloatWindowFactory(serviceProvider);
+            theme.Extender.DockPaneCaptionFactory = new WorkflowDockPaneCaptionFactory();
             theme.Extender.DockPaneStripFactory = new WorkflowDockPaneStripFactory();
             theme.Measures.DockPadding = 0;
+        }
+
+        private void ScaleDockTheme(ThemeBase theme, SizeF factor)
+        {
+            theme.Measures.SplitterSize = (int)Math.Round(6 * factor.Height);
+            theme.Measures.AutoHideSplitterSize = (int)Math.Round(3 * factor.Height);
         }
 
         private void UpdateDockThemeFont(ThemeBase theme)
@@ -449,7 +541,11 @@ namespace Bonsai.Editor.GraphView
                     CloseAll();
                     commandExecutor.EndCompositeCommand();
                 }
+
+                var toolWindowLayout = PersistEditorLayout();
+                CloseToolWindows();
                 dockPanel.Theme = dockTheme;
+                RestoreEditorLayout(toolWindowLayout);
                 if (restoreContents) commandExecutor.Undo();
             }
         }
@@ -475,6 +571,11 @@ namespace Bonsai.Editor.GraphView
         private void closeBrowserButton_Click(object sender, EventArgs e)
         {
             CollapseAnnotationPanel();
+        }
+
+        private void findToolWindow_Navigate(object sender, WorkflowNavigateEventArgs e)
+        {
+            editorService.SelectBuilderNode(e.WorkflowPath, e.NavigationPreference);
         }
     }
 }

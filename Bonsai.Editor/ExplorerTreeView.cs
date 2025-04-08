@@ -60,15 +60,15 @@ namespace Bonsai.Editor
             set => treeView.Renderer = value;
         }
 
-        public event ExplorerTreeViewEventHandler Navigate
+        public event WorkflowNavigateEventHandler Navigate
         {
             add { Events.AddHandler(EventNavigate, value); }
             remove { Events.RemoveHandler(EventNavigate, value); }
         }
 
-        protected virtual void OnNavigate(ExplorerTreeViewEventArgs e)
+        protected virtual void OnNavigate(WorkflowNavigateEventArgs e)
         {
-            if (Events[EventNavigate] is ExplorerTreeViewEventHandler handler)
+            if (Events[EventNavigate] is WorkflowNavigateEventHandler handler)
             {
                 handler(this, e);
             }
@@ -80,7 +80,7 @@ namespace Bonsai.Editor
                 e.Button == MouseButtons.Left &&
                 treeView.HitTest(e.Location).Location == TreeViewHitTestLocations.Label)
             {
-                OnNavigate(new ExplorerTreeViewEventArgs(e.Node, TreeViewAction.ByMouse));
+                OnNavigate(new WorkflowNavigateEventArgs((WorkflowEditorPath)e.Node.Tag));
             }
         }
 
@@ -91,9 +91,8 @@ namespace Bonsai.Editor
 
             if (e.KeyData == openNewTabToolStripMenuItem.ShortcutKeys)
             {
-                OnNavigate(new ExplorerTreeViewEventArgs(
-                    treeView.SelectedNode,
-                    TreeViewAction.ByKeyboard,
+                OnNavigate(new WorkflowNavigateEventArgs(
+                    (WorkflowEditorPath)treeView.SelectedNode.Tag,
                     NavigationPreference.NewTab));
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -101,9 +100,8 @@ namespace Bonsai.Editor
 
             if (e.KeyData == openNewWindowToolStripMenuItem.ShortcutKeys)
             {
-                OnNavigate(new ExplorerTreeViewEventArgs(
-                    treeView.SelectedNode,
-                    TreeViewAction.ByKeyboard,
+                OnNavigate(new WorkflowNavigateEventArgs(
+                    (WorkflowEditorPath)treeView.SelectedNode.Tag,
                     NavigationPreference.NewWindow));
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -111,7 +109,7 @@ namespace Bonsai.Editor
 
             if (e.KeyCode == Keys.Return)
             {
-                OnNavigate(new ExplorerTreeViewEventArgs(treeView.SelectedNode, TreeViewAction.ByKeyboard));
+                OnNavigate(new WorkflowNavigateEventArgs((WorkflowEditorPath)treeView.SelectedNode.Tag));
             }
 
             if (e.Shift && e.KeyCode == Keys.F10)
@@ -151,9 +149,8 @@ namespace Bonsai.Editor
             if (treeView.SelectedNode is null)
                 return;
 
-            OnNavigate(new ExplorerTreeViewEventArgs(
-                treeView.SelectedNode,
-                TreeViewAction.ByMouse,
+            OnNavigate(new WorkflowNavigateEventArgs(
+                (WorkflowEditorPath)treeView.SelectedNode.Tag,
                 NavigationPreference.NewTab));
         }
 
@@ -162,9 +159,8 @@ namespace Bonsai.Editor
             if (treeView.SelectedNode is null)
                 return;
 
-            OnNavigate(new ExplorerTreeViewEventArgs(
-                treeView.SelectedNode,
-                TreeViewAction.ByMouse,
+            OnNavigate(new WorkflowNavigateEventArgs(
+                (WorkflowEditorPath)treeView.SelectedNode.Tag,
                 NavigationPreference.NewWindow));
         }
 
@@ -319,26 +315,5 @@ namespace Bonsai.Editor
     {
         Ready,
         Blocked
-    }
-
-    delegate void ExplorerTreeViewEventHandler(object sender, ExplorerTreeViewEventArgs e);
-
-    class ExplorerTreeViewEventArgs : TreeViewEventArgs
-    {
-        public ExplorerTreeViewEventArgs(TreeNode node, TreeViewAction action)
-            : this(node, action, NavigationPreference.Current)
-        {
-        }
-
-        public ExplorerTreeViewEventArgs(
-            TreeNode node,
-            TreeViewAction action,
-            NavigationPreference navigationPreference)
-            : base(node, action)
-        {
-            NavigationPreference = navigationPreference;
-        }
-
-        public NavigationPreference NavigationPreference { get; }
     }
 }
