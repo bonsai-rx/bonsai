@@ -172,7 +172,7 @@ namespace Bonsai.Editor.GraphModel
                 if (predicate(builder))
                     yield return new WorkflowQueryResult(node.Value, path = new WorkflowEditorPath(i, parent));
 
-                if (builder is IWorkflowExpressionBuilder workflowBuilder)
+                if (builder is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow is not null)
                 {
                     path ??= new WorkflowEditorPath(i, parent);
                     foreach (var result in Query(workflowBuilder.Workflow, predicate, path))
