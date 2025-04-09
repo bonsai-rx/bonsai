@@ -150,7 +150,9 @@ namespace Bonsai.Design
             {
                 var layoutSettings = layout.DialogSettings[i];
                 var index = layoutSettings.Index.GetValueOrDefault(i);
-                if (index < workflow.Count)
+                if (index < 0 || index >= workflow.Count)
+                    throw new InvalidOperationException($"Element #{index} does not exist in the workflow.");
+                else
                 {
                     var builder = (InspectBuilder)workflow[index].Value;
                     var dialogSettings = new VisualizerDialogSettings();
@@ -163,14 +165,16 @@ namespace Bonsai.Design
                     {
                         if (typeVisualizerMap.GetVisualizerType(layoutSettings.VisualizerTypeName) is null)
                             throw new InvalidOperationException(
-                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' is not available.");
+                                $"Visualizer cannot be applied to element #{index}: " +
+                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}. The visualizer type " +
+                                $"'{layoutSettings.VisualizerTypeName}' is not available.");
 
                         var visualizerElement = ExpressionBuilder.GetVisualizerElement(builder);
                         var visualizerTypes = typeVisualizerMap.GetTypeVisualizers(visualizerElement);
                         if (!visualizerTypes.Any(type => type.FullName == layoutSettings.VisualizerTypeName))
                             throw new InvalidOperationException(
-                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be " +
-                                $"applied to {ExpressionBuilder.GetWorkflowElement(visualizerElement).GetType()}.");
+                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be applied " +
+                                $"to element #{index}: {ExpressionBuilder.GetWorkflowElement(builder).GetType()}.");
                         dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
                     }
                     Add(dialogSettings);
@@ -178,7 +182,14 @@ namespace Bonsai.Design
                     if (layoutSettings.NestedLayout != null &&
                         ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
                     {
-                        SetVisualizerLayout(workflowBuilder.Workflow, layoutSettings.NestedLayout);
+                        try { SetVisualizerLayout(workflowBuilder.Workflow, layoutSettings.NestedLayout); }
+                        catch (InvalidOperationException innerException)
+                        {
+                            throw new InvalidOperationException(
+                                $"Visualizer cannot be applied to an inner element of nested layout #{index}: " +
+                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}.",
+                                innerException);
+                        }
                     }
                 }
             }
