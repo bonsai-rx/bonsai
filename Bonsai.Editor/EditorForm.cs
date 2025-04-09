@@ -23,6 +23,7 @@ using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphView;
 using Bonsai.Editor.GraphModel;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Net;
 
 namespace Bonsai.Editor
@@ -76,10 +77,10 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         VisualizerDialogMap visualizerDialogs;
         WorkflowException workflowError;
+        IDisposable building;
         IDisposable running;
         bool requireValidation;
         bool debugging;
-        bool building;
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
@@ -324,11 +325,11 @@ namespace Bonsai.Editor
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
-            var shutdown = ShutdownSequence();
-            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers())
-                .TakeLast(1)
-                .Finally(shutdown.Dispose)
-                .ObserveOn(Scheduler.Default);
+            var initialization = Observable.Using(
+                () => ShutdownSequence(),
+                _ => InitializeToolbox().Merge(InitializeTypeVisualizers()))
+                .TakeLast(1);
+
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
@@ -339,11 +340,11 @@ namespace Bonsai.Editor
                 var loadAction = LoadAction;
                 if (loadAction != LoadAction.None)
                 {
-                    initialization = initialization.Do(xs => BeginInvoke((Action)(() =>
+                    initialization = initialization.Do(xs =>
                     {
                         var debugging = loadAction == LoadAction.Start;
                         StartWorkflow(debugging);
-                    })));
+                    });
                 }
             }
             else ClearWorkflow();
@@ -1206,7 +1207,7 @@ namespace Bonsai.Editor
 
         IDisposable ShutdownSequence()
         {
-            return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
+            return Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
@@ -1228,23 +1229,22 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
-                building = false;
                 if (visualizerDialogs != null)
                 {
                     visualizerSettings.Update(visualizerDialogs);
                     visualizerDialogs = null;
                 }
                 UpdateTitle();
-            }));
+            });
         }
 
         void StartWorkflow(bool debug)
         {
             if (running == null)
             {
-                building = true;
                 debugging = debug;
                 ClearWorkflowError();
+                building = ShutdownSequence();
                 visualizerDialogs = visualizerSettings.CreateVisualizerDialogs(workflowBuilder);
                 LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debug);
                 if (!debug)
@@ -1255,26 +1255,16 @@ namespace Bonsai.Editor
                 running = Observable.Using(
                     () =>
                     {
-                        var shutdown = ShutdownSequence();
-                        try
+                        var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
+                        Invoke(() =>
                         {
-                            var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
-                            Invoke((Action)(() =>
-                            {
-                                statusTextLabel.Text = Resources.RunningStatus;
-                                statusImageLabel.Image = statusRunningImage;
-                                visualizerDialogs.Show(visualizerSettings, editorSite, this);
-                                editorSite.OnWorkflowStarted(EventArgs.Empty);
-                                Activate();
-                            }));
-                            return new WorkflowDisposable(runtimeWorkflow, shutdown);
-                        }
-                        catch (Exception ex)
-                        {
-                            HandleWorkflowError(ex);
-                            shutdown.Dispose();
-                            throw;
-                        }
+                            statusTextLabel.Text = Resources.RunningStatus;
+                            statusImageLabel.Image = statusRunningImage;
+                            visualizerDialogs.Show(visualizerSettings, editorSite, this);
+                            editorSite.OnWorkflowStarted(EventArgs.Empty);
+                            Activate();
+                        });
+                        return new WorkflowDisposable(runtimeWorkflow, HandleWorkflowDispose);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
                         .InspectErrorsEx()
@@ -1383,28 +1373,37 @@ namespace Bonsai.Editor
             }
         }
 
+        void HandleWorkflowDispose()
+        {
+            if (InvokeRequired)
+                BeginInvoke(HandleWorkflowDispose);
+            else if (Interlocked.Exchange(ref building, null) is IDisposable shutdown)
+            {
+                shutdown.Dispose();
+            }
+        }
+
         bool HandleSchedulerError(Exception e)
         {
-            using var shutdown = ShutdownSequence();
             HandleWorkflowError(e);
             return true;
         }
 
         void HandleWorkflowError(Exception e)
         {
-            Action selectExceptionNode = () =>
+            if (InvokeRequired)
+                BeginInvoke(HandleWorkflowError, e);
+            else
             {
-                var workflowException = e as WorkflowException;
-                if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
+                using var shutdown = Interlocked.Exchange(ref building, null);
+                if (e is WorkflowException workflowException && workflowException.Builder != null ||
+                    exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(workflowException, building);
+                    HighlightExceptionBuilderNode(workflowException, showMessageBox: shutdown != null);
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
-
-            if (InvokeRequired) BeginInvoke(selectExceptionNode);
-            else selectExceptionNode();
         }
 
         void HandleWorkflowCompleted()
