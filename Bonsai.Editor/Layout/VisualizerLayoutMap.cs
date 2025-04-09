@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Bonsai.Expressions;
 
 namespace Bonsai.Design
@@ -7,7 +9,7 @@ namespace Bonsai.Design
     internal class VisualizerLayoutMap : IEnumerable<VisualizerDialogSettings>
     {
         readonly TypeVisualizerMap typeVisualizerMap;
-        readonly Dictionary<InspectBuilder, VisualizerDialogSettings> lookup;
+        Dictionary<InspectBuilder, VisualizerDialogSettings> lookup;
 
         public VisualizerLayoutMap(TypeVisualizerMap typeVisualizers)
         {
@@ -138,8 +140,8 @@ namespace Bonsai.Design
 
         public void SetVisualizerLayout(WorkflowBuilder workflowBuilder, VisualizerLayout layout)
         {
-            Clear();
-            SetVisualizerLayout(workflowBuilder.Workflow, layout);
+            var visualizerSettings = FromVisualizerLayout(workflowBuilder, layout, typeVisualizerMap);
+            lookup = visualizerSettings.lookup;
         }
 
         private void SetVisualizerLayout(ExpressionBuilderGraph workflow, VisualizerLayout layout)
@@ -148,7 +150,9 @@ namespace Bonsai.Design
             {
                 var layoutSettings = layout.DialogSettings[i];
                 var index = layoutSettings.Index.GetValueOrDefault(i);
-                if (index < workflow.Count)
+                if (index < 0 || index >= workflow.Count)
+                    throw new InvalidOperationException($"Element #{index} does not exist in the workflow.");
+                else
                 {
                     var builder = (InspectBuilder)workflow[index].Value;
                     var dialogSettings = new VisualizerDialogSettings();
@@ -156,14 +160,36 @@ namespace Bonsai.Design
                     dialogSettings.Bounds = layoutSettings.Bounds;
                     dialogSettings.WindowState = layoutSettings.WindowState;
                     dialogSettings.Visible = layoutSettings.Visible;
-                    dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
                     dialogSettings.VisualizerSettings = layoutSettings.VisualizerSettings;
+                    if (!string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
+                    {
+                        if (typeVisualizerMap.GetVisualizerType(layoutSettings.VisualizerTypeName) is null)
+                            throw new InvalidOperationException(
+                                $"Visualizer cannot be applied to element #{index}: " +
+                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}. The visualizer type " +
+                                $"'{layoutSettings.VisualizerTypeName}' is not available.");
+
+                        var visualizerElement = ExpressionBuilder.GetVisualizerElement(builder);
+                        var visualizerTypes = typeVisualizerMap.GetTypeVisualizers(visualizerElement);
+                        if (!visualizerTypes.Any(type => type.FullName == layoutSettings.VisualizerTypeName))
+                            throw new InvalidOperationException(
+                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be applied " +
+                                $"to element #{index}: {ExpressionBuilder.GetWorkflowElement(builder).GetType()}.");
+                        dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
+                    }
                     Add(dialogSettings);
 
                     if (layoutSettings.NestedLayout != null &&
                         ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
                     {
-                        SetVisualizerLayout(workflowBuilder.Workflow, layoutSettings.NestedLayout);
+                        try { SetVisualizerLayout(workflowBuilder.Workflow, layoutSettings.NestedLayout); }
+                        catch (InvalidOperationException innerException)
+                        {
+                            throw new InvalidOperationException(
+                                $"Visualizer cannot be applied to an inner element of nested layout #{index}: " +
+                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}.",
+                                innerException);
+                        }
                     }
                 }
             }
