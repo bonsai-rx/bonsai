@@ -40,7 +40,7 @@ namespace Bonsai.Resources
 
         static bool IsGroup(IWorkflowExpressionBuilder builder)
         {
-            return builder is IncludeWorkflowBuilder || builder is GroupWorkflowBuilder;
+            return builder is GroupWorkflowBuilder || builder is IncludeWorkflowBuilder;
         }
 
         static IEnumerable<ExpressionBuilder> SelectContextElements(ExpressionBuilderGraph source)
@@ -51,8 +51,7 @@ namespace Bonsai.Resources
                 if (element is DisableBuilder) continue;
                 yield return element;
 
-                var workflowBuilder = element as IWorkflowExpressionBuilder;
-                if (IsGroup(workflowBuilder))
+                if (element is IWorkflowExpressionBuilder workflowBuilder && IsGroup(workflowBuilder))
                 {
                     var workflow = workflowBuilder.Workflow;
                     if (workflow == null) continue;
@@ -74,13 +73,12 @@ namespace Bonsai.Resources
 
             foreach (var element in SelectContextElements(source))
             {
-                var groupBuilder = element as IWorkflowExpressionBuilder;
-                if (IsGroup(groupBuilder) && groupBuilder.Workflow == target)
+                if (element is IWorkflowExpressionBuilder groupBuilder && IsGroup(groupBuilder))
                 {
-                    return true;
+                    if (groupBuilder.Workflow == target)
+                        return true;
                 }
-
-                if (element is WorkflowExpressionBuilder workflowBuilder)
+                else if (element is WorkflowExpressionBuilder workflowBuilder)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
                     {
