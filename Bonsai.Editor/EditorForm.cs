@@ -801,8 +801,9 @@ namespace Bonsai.Editor
 
         bool OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
+            WorkflowBuilder builderCandidate;
             SemanticVersion workflowVersion;
-            try { workflowBuilder = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
+            try { builderCandidate = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
             catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
             {
                 var activeException = ex.InnerException ?? ex;
@@ -820,9 +821,9 @@ namespace Bonsai.Editor
             UpdateWorkflowDirectory(fileName, setWorkingDirectory);
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
-            if (workflowBuilder.Workflow.Count > 0)
+            if (builderCandidate.Workflow.Count > 0)
             {
-                try { workflowBuilder.Workflow.Build(); }
+                try { builderCandidate.Workflow.Build(); }
                 catch (WorkflowBuildException ex)
                 {
                     var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
@@ -832,7 +833,7 @@ namespace Bonsai.Editor
                 }
             }
 
-            workflowBuilder = PrepareWorkflow(workflowBuilder, workflowVersion, out bool upgraded);
+            workflowBuilder = PrepareWorkflow(builderCandidate, workflowVersion, out bool upgraded);
             ClearWorkflowError();
             FileName = fileName;
 
