@@ -96,8 +96,10 @@ namespace Bonsai.Editor.GraphModel
             var matches = FindAll(source, predicate);
             if (current != null)
             {
-                if (findPrevious) matches = matches.TakeWhile(match => match.Builder != current);
-                else matches = matches.SkipWhile(match => match.Builder != current).Skip(1);
+                if (findPrevious)
+                    return matches.TakeWhile(match => match.Builder != current).LastOrDefault();
+                else
+                    matches = matches.SkipWhile(match => match.Builder != current).Skip(1);
             }
             return matches.FirstOrDefault();
         }
