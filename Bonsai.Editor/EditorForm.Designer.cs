@@ -147,6 +147,7 @@
             this.findNextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findPreviousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findAllReferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.workflowFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
@@ -1212,9 +1213,10 @@
             this.renameSubjectToolStripMenuItem,
             this.findNextToolStripMenuItem,
             this.findPreviousToolStripMenuItem,
-            this.goToDefinitionToolStripMenuItem});
+            this.goToDefinitionToolStripMenuItem,
+            this.findAllReferencesToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 268);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(232, 312);
             // 
             // toolboxDocsToolStripMenuItem
             // 
@@ -1318,6 +1320,14 @@
             this.goToDefinitionToolStripMenuItem.Text = "Go To Definition";
             this.goToDefinitionToolStripMenuItem.Click += new System.EventHandler(this.goToDefinitionToolStripMenuItem_Click);
             // 
+            // findAllReferencesToolStripMenuItem
+            // 
+            this.findAllReferencesToolStripMenuItem.Name = "findAllReferencesToolStripMenuItem";
+            this.findAllReferencesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F12)));
+            this.findAllReferencesToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.findAllReferencesToolStripMenuItem.Text = "Find All References";
+            this.findAllReferencesToolStripMenuItem.Click += new System.EventHandler(this.findAllReferencesToolStripMenuItem_Click);
+            // 
             // commandExecutor
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
@@ -1389,7 +1399,7 @@
             this.explorerTreeView.Name = "explorerTreeView";
             this.explorerTreeView.Size = new System.Drawing.Size(200, 137);
             this.explorerTreeView.TabIndex = 3;
-            this.explorerTreeView.Navigate += new Bonsai.Editor.ExplorerTreeViewEventHandler(explorerTreeView_Navigate);
+            this.explorerTreeView.Navigate += new Bonsai.Editor.WorkflowNavigateEventHandler(explorerTreeView_Navigate);
             // 
             // EditorForm
             // 
@@ -1546,6 +1556,7 @@
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem goToDefinitionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findAllReferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reloadExtensionsDebugToolStripMenuItem;

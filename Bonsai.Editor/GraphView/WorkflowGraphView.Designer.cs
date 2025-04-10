@@ -58,6 +58,7 @@
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findAllReferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -75,6 +76,7 @@
             this.defaultEditorToolStripMenuItem,
             this.docsToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem,
+            this.findAllReferencesToolStripMenuItem,
             this.openNewTabToolStripMenuItem,
             this.openNewWindowToolStripMenuItem,
             this.toolStripSeparator2,
@@ -94,7 +96,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 546);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 568);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -168,7 +170,7 @@
             this.goToDefinitionToolStripMenuItem.Name = "goToDefinitionToolStripMenuItem";
             this.goToDefinitionToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F12;
             this.goToDefinitionToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.goToDefinitionToolStripMenuItem.Text = "Go To Definition...";
+            this.goToDefinitionToolStripMenuItem.Text = "Go To Definition";
             this.goToDefinitionToolStripMenuItem.Click += new System.EventHandler(this.goToDefinitionToolStripMenuItem_Click);
             // 
             // openNewTabToolStripMenuItem
@@ -330,6 +332,15 @@
             this.disableToolStripMenuItem.Text = "Disable";
             this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
             // 
+            // findAllReferencesToolStripMenuItem
+            // 
+            this.findAllReferencesToolStripMenuItem.Enabled = false;
+            this.findAllReferencesToolStripMenuItem.Name = "findAllReferencesToolStripMenuItem";
+            this.findAllReferencesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F12)));
+            this.findAllReferencesToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.findAllReferencesToolStripMenuItem.Text = "Find All References";
+            this.findAllReferencesToolStripMenuItem.Click += new System.EventHandler(this.findAllReferencesToolStripMenuItem_Click);
+            // 
             // graphView
             // 
             this.graphView.AllowDrop = true;
@@ -401,5 +412,6 @@
         private System.Windows.Forms.ToolStripMenuItem docsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openNewWindowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findAllReferencesToolStripMenuItem;
     }
 }

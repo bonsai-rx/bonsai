@@ -42,9 +42,12 @@ namespace Bonsai.Expressions
             foreach (var inspectBuilder in SelectContextElements(source))
             {
                 var element = inspectBuilder.Builder;
-                if (element is IGroupWorkflowBuilder groupBuilder && groupBuilder.Workflow == target) return true;
-
-                if (element is WorkflowExpressionBuilder workflowBuilder)
+                if (element is IGroupWorkflowBuilder groupBuilder)
+                {
+                    if (groupBuilder.Workflow == target)
+                        return true;
+                }
+                else if (element is WorkflowExpressionBuilder workflowBuilder)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
                     {

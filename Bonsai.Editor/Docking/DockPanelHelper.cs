@@ -78,7 +78,7 @@ namespace Bonsai.Editor.Docking
                 if (dockState == DockState.Unknown)
                     return;
 
-                var dockPane = dockPanel.GetPaneFromId(dockPaneId);
+                var dockPane = dockPanel.GetDocumentPaneFromId(dockPaneId);
                 if (dockPane != null && !singletonContent)
                 {
                     dockContent.Show(dockPane, contentIndex);
@@ -87,7 +87,7 @@ namespace Bonsai.Editor.Docking
 
                 contentIndex = -1;
                 singletonContent = default;
-                dockPane = dockPanel.GetPaneFromId(previousPaneId);
+                dockPane = dockPanel.GetDocumentPaneFromId(previousPaneId);
                 if (dockPane is DockPane previousPane)
                 {
                     dockContent.Show(previousPane, dockAlignment.Value, dockProportion);
@@ -128,12 +128,13 @@ namespace Bonsai.Editor.Docking
             pane.DockPanel.ResumeLayout(performLayout: true, allWindows: true);
         }
 
-        static DockPane GetPaneFromId(this DockPanel dockPanel, object paneId)
+        static DockPane GetDocumentPaneFromId(this DockPanel dockPanel, object paneId)
         {
             for (int i = 0; i < dockPanel.Panes.Count; i++)
             {
-                if (ReferenceEquals(paneId, dockPanel.Panes[i].Tag))
-                    return dockPanel.Panes[i];
+                var pane = dockPanel.Panes[i];
+                if (pane.IsDockStateValid(DockState.Document) && ReferenceEquals(paneId, pane.Tag))
+                    return pane;
             }
 
             return null;

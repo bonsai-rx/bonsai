@@ -108,7 +108,7 @@ namespace Bonsai.Editor.Docking
                 return false;
 
             int contentIndex = -1;
-            DockContent nextContent = null;
+            WorkflowDockContent nextContent = null;
             for (int i = contents.Count - 1; i >= 0; i--)
             {
                 if (contentIndex < 0 && contents[i] == this)
@@ -121,7 +121,7 @@ namespace Bonsai.Editor.Docking
                         continue;
                 }
 
-                if (contents[i] is DockContent dockContent && !dockContent.IsHidden)
+                if (contents[i] is WorkflowDockContent dockContent && !dockContent.IsHidden)
                 {
                     nextContent = dockContent;
                     if (contentIndex >= 0)
