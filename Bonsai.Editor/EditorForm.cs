@@ -18,6 +18,7 @@ using System.Reactive.Concurrency;
 using System.Reactive;
 using System.Globalization;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using Bonsai.Editor.Scripting;
 using Bonsai.Editor.Themes;
 using Bonsai.Editor.GraphView;
@@ -71,12 +72,14 @@ namespace Bonsai.Editor
         readonly List<WorkflowElementDescriptor> workflowElements;
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
+        readonly CancellationTokenSource formCancellation;
         readonly string definitionsPath;
         AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
         WorkflowBuilder workflowBuilder;
         VisualizerDialogMap visualizerDialogs;
         WorkflowException workflowError;
+        Task initialization;
         IDisposable building;
         IDisposable running;
         bool requireValidation;
@@ -111,6 +114,7 @@ namespace Bonsai.Editor
             }
 
             InitializeComponent();
+            formCancellation = new CancellationTokenSource();
             statusTextLabel = new ToolStripStatusLabel();
             statusTextLabel.Spring = true;
             statusTextLabel.Text = Resources.ReadyStatus;
@@ -286,6 +290,7 @@ namespace Bonsai.Editor
             }
             else EditorSettings.Instance.WindowState = WindowState;
             EditorSettings.Instance.Save();
+            formCancellation.Cancel();
         }
 
         void HandleUpdatesAvailable(bool value)
@@ -303,13 +308,10 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
-                handler => FormClosed += handler,
-                handler => FormClosed -= handler);
-            InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
-            InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
-            InitializeWorkflowExplorerWatcher().TakeUntil(formClosed).Subscribe();
-            updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
+            InitializeSubjectSources(formCancellation.Token);
+            InitializeWorkflowFileWatcher(formCancellation.Token);
+            InitializeWorkflowExplorerWatcher(formCancellation.Token);
+            updatesAvailable.ObserveOn(formScheduler).Do(HandleUpdatesAvailable).ToTask(formCancellation.Token);
 
             var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
             var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
@@ -325,31 +327,8 @@ namespace Bonsai.Editor
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
-            var initialization = Observable.Using(
-                () => ShutdownSequence(),
-                _ => InitializeToolbox().Merge(InitializeTypeVisualizers()))
-                .TakeLast(1);
-
-            if (validFileName && OpenWorkflow(initialFileName, false))
-            {
-                foreach (var assignment in propertyAssignments)
-                {
-                    workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
-                }
-
-                var loadAction = LoadAction;
-                if (loadAction != LoadAction.None)
-                {
-                    initialization = initialization.Do(xs =>
-                    {
-                        var debugging = loadAction == LoadAction.Start;
-                        StartWorkflow(debugging);
-                    });
-                }
-            }
-            else ClearWorkflow();
-
-            initialization.TakeUntil(formClosed).Subscribe();
+            initialization = InitializeEditorExtensions(formCancellation.Token);
+            _ = InitializeWorkflow(validFileName ? initialFileName : default, formCancellation.Token);
             base.OnLoad(e);
         }
 
@@ -442,7 +421,7 @@ namespace Bonsai.Editor
             }
         }
 
-        IObservable<Unit> InitializeSubjectSources()
+        Task InitializeSubjectSources(CancellationToken cancellationToken)
         {
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -482,10 +461,10 @@ namespace Bonsai.Editor
                     toolboxTreeView.EndUpdate();
                 })
                 .IgnoreElements()
-                .Select(xs => Unit.Default);
+                .ToTask(cancellationToken);
         }
 
-        IObservable<Unit> InitializeWorkflowExplorerWatcher()
+        Task InitializeWorkflowExplorerWatcher(CancellationToken cancellationToken)
         {
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -511,15 +490,19 @@ namespace Bonsai.Editor
                     workflowBuilder);
             })
             .IgnoreElements()
-            .Select(xs => Unit.Default));
+            .Select(xs => Unit.Default))
+            .ToTask(cancellationToken);
         }
 
-        IObservable<Unit> InitializeWorkflowFileWatcher()
+        Task InitializeWorkflowFileWatcher(CancellationToken cancellationToken)
         {
             var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
                 handler => Events.RemoveHandler(ExtensionsDirectoryChanged, handler));
-            return extensionsDirectoryChanged.Select(evt => Observable.Defer(RefreshWorkflowExtensions)).Switch();
+            return extensionsDirectoryChanged
+                .Select(evt => Observable.Defer(RefreshWorkflowExtensions))
+                .Switch()
+                .ToTask(cancellationToken);
         }
 
         IObservable<Unit> RefreshWorkflowExtensions()
@@ -591,7 +574,7 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        IObservable<Unit> InitializeTypeVisualizers()
+        Task InitializeTypeVisualizers(CancellationToken cancellationToken)
         {
             var visualizerMapping = from typeVisualizer in visualizerElements
                                     let targetType = Type.GetType(typeVisualizer.TargetTypeName)
@@ -603,11 +586,10 @@ namespace Bonsai.Editor
                 .ObserveOn(formScheduler)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.targetType, typeMapping.visualizerType))
                 .SubscribeOn(Scheduler.Default)
-                .TakeLast(1)
-                .Select(xs => Unit.Default);
+                .ToTask(cancellationToken);
         }
 
-        IObservable<Unit> InitializeToolbox()
+        Task InitializeToolbox(CancellationToken cancellationToken)
         {
             return toolboxElements
                 .ObserveOn(formScheduler)
@@ -615,8 +597,34 @@ namespace Bonsai.Editor
                     package.Key,
                     InitializeWorkflowExtensions(package)))
                 .SubscribeOn(Scheduler.Default)
-                .TakeLast(1)
-                .Select(xs => Unit.Default);
+                .ToTask(cancellationToken);
+        }
+
+        async Task InitializeEditorExtensions(CancellationToken cancellationToken)
+        {
+            using var shutdown = ShutdownSequence();
+            await Task.WhenAll(
+                InitializeToolbox(cancellationToken),
+                InitializeTypeVisualizers(cancellationToken));
+        }
+
+        async Task InitializeWorkflow(string initialFileName, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrEmpty(initialFileName) && await OpenWorkflow(initialFileName, false, cancellationToken))
+            {
+                foreach (var assignment in propertyAssignments)
+                {
+                    workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
+                }
+
+                var loadAction = LoadAction;
+                if (loadAction != LoadAction.None)
+                {
+                    var debugging = loadAction == LoadAction.Start;
+                    StartWorkflow(debugging);
+                }
+            }
+            else ClearWorkflow();
         }
 
         IEnumerable<WorkflowElementDescriptor> InitializeWorkflowExtensions(IEnumerable<WorkflowElementDescriptor> types)
@@ -794,13 +802,16 @@ namespace Bonsai.Editor
             UpdateTitle();
         }
 
-        bool OpenWorkflow(string fileName)
+        Task<bool> OpenWorkflow(string fileName, CancellationToken cancellationToken)
         {
-            return OpenWorkflow(fileName, true);
+            return OpenWorkflow(fileName, true, cancellationToken);
         }
 
-        bool OpenWorkflow(string fileName, bool setWorkingDirectory)
+        async Task<bool> OpenWorkflow(string fileName, bool setWorkingDirectory, CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested)
+                return false;
+
             WorkflowBuilder builderCandidate;
             SemanticVersion workflowVersion;
             try { builderCandidate = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
@@ -838,6 +849,7 @@ namespace Bonsai.Editor
                 {
                     using var reader = XmlReader.Create(layoutPath);
                     var visualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
+                    await initialization;
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
@@ -1079,7 +1091,7 @@ namespace Bonsai.Editor
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                OpenWorkflow(openWorkflowDialog.FileName);
+                OpenWorkflow(openWorkflowDialog.FileName, formCancellation.Token);
             }
         }
 
@@ -2410,7 +2422,7 @@ namespace Bonsai.Editor
                     {
                         ClearWorkflow();
                     }
-                    else OpenWorkflow(fileName);
+                    else OpenWorkflow(fileName, formCancellation.Token);
                 }
                 else
                 {
@@ -2637,11 +2649,6 @@ namespace Bonsai.Editor
             {
                 var workflow = ElementStore.LoadWorkflow(fileName, out SemanticVersion version);
                 return siteForm.PrepareWorkflow(workflow, version, out _);
-            }
-
-            public void OpenWorkflow(string fileName)
-            {
-                siteForm.OpenWorkflow(fileName);
             }
 
             public void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference)
