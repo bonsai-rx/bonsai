@@ -328,7 +328,7 @@ namespace Bonsai.Editor
 
             InitializeEditorToolboxTypes();
             initialization = InitializeEditorExtensions(formCancellation.Token);
-            _ = InitializeWorkflow(validFileName ? initialFileName : default, formCancellation.Token);
+            _ = InitializeWorkflow(validFileName ? initialFileName : default);
             base.OnLoad(e);
         }
 
@@ -608,9 +608,9 @@ namespace Bonsai.Editor
                 InitializeTypeVisualizers(cancellationToken));
         }
 
-        async Task InitializeWorkflow(string initialFileName, CancellationToken cancellationToken)
+        async Task InitializeWorkflow(string initialFileName)
         {
-            if (!string.IsNullOrEmpty(initialFileName) && await OpenWorkflow(initialFileName, false, cancellationToken))
+            if (!string.IsNullOrEmpty(initialFileName) && await OpenWorkflow(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
                 {
@@ -802,16 +802,13 @@ namespace Bonsai.Editor
             UpdateTitle();
         }
 
-        Task<bool> OpenWorkflow(string fileName, CancellationToken cancellationToken)
+        Task<bool> OpenWorkflow(string fileName)
         {
-            return OpenWorkflow(fileName, true, cancellationToken);
+            return OpenWorkflow(fileName, true);
         }
 
-        async Task<bool> OpenWorkflow(string fileName, bool setWorkingDirectory, CancellationToken cancellationToken)
+        async Task<bool> OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
-            if (cancellationToken.IsCancellationRequested)
-                return false;
-
             WorkflowBuilder builderCandidate;
             SemanticVersion workflowVersion;
             try { builderCandidate = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
@@ -1085,13 +1082,13 @@ namespace Bonsai.Editor
             ClearWorkflow();
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!CloseWorkflow()) return;
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                OpenWorkflow(openWorkflowDialog.FileName, formCancellation.Token);
+                await OpenWorkflow(openWorkflowDialog.FileName);
             }
         }
 
@@ -2411,7 +2408,7 @@ namespace Bonsai.Editor
             EditorDialog.ShowAboutBox();
         }
 
-        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var result = EditorDialog.ShowStartScreen(out string fileName);
             if (result != EditorResult.Exit && CloseWorkflow())
@@ -2422,7 +2419,7 @@ namespace Bonsai.Editor
                     {
                         ClearWorkflow();
                     }
-                    else OpenWorkflow(fileName, formCancellation.Token);
+                    else await OpenWorkflow(fileName);
                 }
                 else
                 {
