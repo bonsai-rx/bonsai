@@ -81,6 +81,7 @@ namespace Bonsai.Editor.GraphView
 
         private void WorkflowWatch_Tick(object sender, EventArgs e)
         {
+            var hasActiveCounter = false;
             var layers = graphView.Nodes;
             if (layers != null)
             {
@@ -91,13 +92,9 @@ namespace Bonsai.Editor.GraphView
                         if (node.Value is null)
                             continue;
 
-                        if (!workflowWatch.Enabled)
+                        if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
                         {
-                            node.Status = null;
-                            node.NotifyingCounter = -1;
-                        }
-                        else if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
-                        {
+                            hasActiveCounter = true;
                             node.Status = counter.GetStatus();
                             if (node.Status == WorkflowElementStatus.Notifying)
                             {
@@ -108,11 +105,18 @@ namespace Bonsai.Editor.GraphView
                                 node.NotifyingCounter = -1;
                             }
                         }
+                        else
+                        {
+                            hasActiveCounter |= node.Status is not null;
+                            node.Status = null;
+                            node.NotifyingCounter = -1;
+                        }
                     }
                 }
             }
 
-            graphView.Invalidate();
+            if (hasActiveCounter)
+                graphView.Invalidate();
         }
 
         internal WorkflowEditor Editor { get; }
