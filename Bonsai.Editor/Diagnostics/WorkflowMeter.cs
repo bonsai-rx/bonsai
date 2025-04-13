@@ -36,12 +36,12 @@ namespace Bonsai.Editor.Diagnostics
                     }
 
                     var inspectBuilder = (InspectBuilder)nodeEnumerator.Current.Value;
-                    if (inspectBuilder.Output != null)
+                    if (inspectBuilder.PublishNotifications && inspectBuilder.Watch is not null)
                     {
                         yield return inspectBuilder;
 
                         if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
-                            workflowBuilder.Workflow != null)
+                            workflowBuilder.Workflow is not null)
                         {
                             stack.Push(workflowBuilder.Workflow.GetEnumerator());
                             break;
