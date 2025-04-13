@@ -308,9 +308,9 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            InitializeSubjectSources(formCancellation.Token);
-            InitializeWorkflowFileWatcher(formCancellation.Token);
-            InitializeWorkflowExplorerWatcher(formCancellation.Token);
+            InitializeSubjectSourcesAsync(formCancellation.Token);
+            InitializeWorkflowFileWatcherAsync(formCancellation.Token);
+            InitializeWorkflowExplorerWatcherAsync(formCancellation.Token);
             updatesAvailable.ObserveOn(formScheduler).Do(HandleUpdatesAvailable).ToTask(formCancellation.Token);
 
             var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
@@ -327,8 +327,8 @@ namespace Bonsai.Editor
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
-            initialization = InitializeEditorExtensions(formCancellation.Token);
-            _ = InitializeWorkflow(validFileName ? initialFileName : default);
+            initialization = InitializeEditorExtensionsAsync(formCancellation.Token);
+            _ = InitializeWorkflowAsync(validFileName ? initialFileName : default);
             base.OnLoad(e);
         }
 
@@ -421,7 +421,7 @@ namespace Bonsai.Editor
             }
         }
 
-        Task InitializeSubjectSources(CancellationToken cancellationToken)
+        Task InitializeSubjectSourcesAsync(CancellationToken cancellationToken)
         {
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -464,7 +464,7 @@ namespace Bonsai.Editor
                 .ToTask(cancellationToken);
         }
 
-        Task InitializeWorkflowExplorerWatcher(CancellationToken cancellationToken)
+        Task InitializeWorkflowExplorerWatcherAsync(CancellationToken cancellationToken)
         {
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -494,7 +494,7 @@ namespace Bonsai.Editor
             .ToTask(cancellationToken);
         }
 
-        Task InitializeWorkflowFileWatcher(CancellationToken cancellationToken)
+        Task InitializeWorkflowFileWatcherAsync(CancellationToken cancellationToken)
         {
             var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
@@ -574,7 +574,7 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        Task InitializeTypeVisualizers(CancellationToken cancellationToken)
+        Task InitializeTypeVisualizersAsync(CancellationToken cancellationToken)
         {
             var visualizerMapping = from typeVisualizer in visualizerElements
                                     let targetType = Type.GetType(typeVisualizer.TargetTypeName)
@@ -589,7 +589,7 @@ namespace Bonsai.Editor
                 .ToTask(cancellationToken);
         }
 
-        Task InitializeToolbox(CancellationToken cancellationToken)
+        Task InitializeToolboxAsync(CancellationToken cancellationToken)
         {
             return toolboxElements
                 .ObserveOn(formScheduler)
@@ -600,17 +600,17 @@ namespace Bonsai.Editor
                 .ToTask(cancellationToken);
         }
 
-        async Task InitializeEditorExtensions(CancellationToken cancellationToken)
+        async Task InitializeEditorExtensionsAsync(CancellationToken cancellationToken)
         {
             using var shutdown = ShutdownSequence();
             await Task.WhenAll(
-                InitializeToolbox(cancellationToken),
-                InitializeTypeVisualizers(cancellationToken));
+                InitializeToolboxAsync(cancellationToken),
+                InitializeTypeVisualizersAsync(cancellationToken));
         }
 
-        async Task InitializeWorkflow(string initialFileName)
+        async Task InitializeWorkflowAsync(string initialFileName)
         {
-            if (!string.IsNullOrEmpty(initialFileName) && await OpenWorkflow(initialFileName, false))
+            if (!string.IsNullOrEmpty(initialFileName) && await OpenWorkflowAsync(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
                 {
@@ -802,12 +802,12 @@ namespace Bonsai.Editor
             UpdateTitle();
         }
 
-        Task<bool> OpenWorkflow(string fileName)
+        Task<bool> OpenWorkflowAsync(string fileName)
         {
-            return OpenWorkflow(fileName, true);
+            return OpenWorkflowAsync(fileName, true);
         }
 
-        async Task<bool> OpenWorkflow(string fileName, bool setWorkingDirectory)
+        async Task<bool> OpenWorkflowAsync(string fileName, bool setWorkingDirectory)
         {
             WorkflowBuilder builderCandidate;
             SemanticVersion workflowVersion;
@@ -1088,7 +1088,7 @@ namespace Bonsai.Editor
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                await OpenWorkflow(openWorkflowDialog.FileName);
+                await OpenWorkflowAsync(openWorkflowDialog.FileName);
             }
         }
 
@@ -2419,7 +2419,7 @@ namespace Bonsai.Editor
                     {
                         ClearWorkflow();
                     }
-                    else await OpenWorkflow(fileName);
+                    else await OpenWorkflowAsync(fileName);
                 }
                 else
                 {
