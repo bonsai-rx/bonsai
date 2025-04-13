@@ -821,18 +821,6 @@ namespace Bonsai.Editor
             UpdateWorkflowDirectory(fileName, setWorkingDirectory);
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
-            if (builderCandidate.Workflow.Count > 0)
-            {
-                try { builderCandidate.Workflow.Build(); }
-                catch (WorkflowBuildException ex)
-                {
-                    var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(fileName), errorMessage);
-                    MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-            }
-
             workflowBuilder = PrepareWorkflow(builderCandidate, workflowVersion, out bool upgraded);
             ClearWorkflowError();
             FileName = fileName;
