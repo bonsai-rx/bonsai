@@ -46,8 +46,11 @@ namespace Bonsai.Editor.GraphModel
                 if (expressionBuilder.IsBuildDependency()) Flags |= NodeFlags.BuildDependency;
                 Category = elementCategoryAttribute.Category;
                 Icon = new ElementIcon(workflowElement);
-                if (workflowElement is IWorkflowExpressionBuilder)
+                if (workflowElement is IWorkflowExpressionBuilder workflowBuilder)
                 {
+                    if (workflowBuilder.Workflow is null)
+                        Flags |= NodeFlags.RangeUndefined;
+
                     if (Category == ElementCategory.Workflow)
                     {
                         Category = ElementCategory.Combinator;
@@ -84,7 +87,12 @@ namespace Bonsai.Editor.GraphModel
 
         public Range<int> ArgumentRange
         {
-            get { return (Flags & NodeFlags.Disabled) != 0 || Value == null ? EmptyRange : Value.ArgumentRange; }
+            get
+            {
+                return (Flags & NodeFlags.Disabled | NodeFlags.RangeUndefined) != 0 || Value is null
+                    ? EmptyRange
+                    : Value.ArgumentRange;
+            }
         }
 
         public ExpressionBuilder Value { get; private set; }
@@ -178,7 +186,8 @@ namespace Bonsai.Editor.GraphModel
             BuildDependency = 0x8,
             NestedScope = 0x10,
             NestedGroup = 0x20,
-            Annotation = 0x40
+            Annotation = 0x40,
+            RangeUndefined = 0x80
         }
 
         static class CategoryColors

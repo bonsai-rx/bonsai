@@ -112,7 +112,8 @@ namespace Bonsai.Design
                     layoutSettings.VisualizerSettings = dialogSettings.VisualizerSettings;
                 }
 
-                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
+                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
+                    workflowBuilder.Workflow is not null)
                 {
                     layoutSettings.NestedLayout = GetVisualizerLayout(workflowBuilder.Workflow);
                 }
