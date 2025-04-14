@@ -431,14 +431,15 @@ namespace Bonsai.Editor.GraphView
                 return;
             }
 
-            var builder = (InspectBuilder)Workflow[node.Index].Value;
+            var source = (InspectBuilder)Workflow[node.Index].Value;
             var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
-            if (visualizerDialogs != null && builder.TryGetRuntimeVisualizerSource(out var _))
+            if (visualizerDialogs != null && source.Builder is not DisableBuilder &&
+                source.TryGetRuntimeVisualizerSource(out var _))
             {
-                if (!visualizerDialogs.TryGetValue(builder, out VisualizerDialogLauncher visualizerLauncher))
+                if (!visualizerDialogs.TryGetValue(source, out VisualizerDialogLauncher visualizerLauncher))
                 {
-                    visualizerSettings.TryGetValue(builder, out VisualizerDialogSettings dialogSettings);
-                    visualizerLauncher = visualizerDialogs.Add(builder, Workflow, dialogSettings);
+                    visualizerSettings.TryGetValue(source, out VisualizerDialogSettings dialogSettings);
+                    visualizerLauncher = visualizerDialogs.Add(source, Workflow, dialogSettings);
                 }
 
                 var ownerWindow = uiService.GetDialogOwnerWindow();
