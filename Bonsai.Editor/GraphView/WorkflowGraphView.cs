@@ -1603,13 +1603,13 @@ namespace Bonsai.Editor.GraphView
                 }
 
                 var builder = WorkflowEditor.GetGraphNodeBuilder(selectedNode);
-                defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
-                goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
-                docsToolStripMenuItem.Enabled = true;
-
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                if (workflowElement != null)
+                if (builder is not DisableBuilder)
                 {
+                    defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
+                    goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
+                    docsToolStripMenuItem.Enabled = true;
+
+                    var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                     if (CanEdit)
                     {
                         CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, inspectBuilder.ObservableType, selectedNode);
@@ -1619,10 +1619,10 @@ namespace Bonsai.Editor.GraphView
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
                     createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
-                }
 
-                var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
-                CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
+                    var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
+                    CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
+                }
             }
         }
 
