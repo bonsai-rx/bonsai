@@ -71,6 +71,7 @@ namespace Bonsai.Editor
         readonly List<WorkflowElementDescriptor> workflowElements;
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
+        readonly WorkflowWatch workflowWatch;
         readonly string definitionsPath;
         AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
@@ -149,6 +150,7 @@ namespace Bonsai.Editor
             }
 
             serviceProvider = provider;
+            workflowWatch = new WorkflowWatch();
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
@@ -1208,6 +1210,7 @@ namespace Bonsai.Editor
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 pasteToolStripMenuItem.Enabled = true;
+                watchToolStripMenuItem.Enabled = true;
                 startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
                 stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
                 restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
@@ -1218,6 +1221,7 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
+                workflowWatch.Stop();
                 if (visualizerDialogs != null)
                 {
                     visualizerSettings.Update(visualizerDialogs);
@@ -1247,6 +1251,8 @@ namespace Bonsai.Editor
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         Invoke(() =>
                         {
+                            if (watchToolStripMenuItem.Checked)
+                                workflowWatch.Start(workflowBuilder.Workflow);
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
                             visualizerDialogs.Show(visualizerSettings, editorSite, this);
@@ -1273,6 +1279,7 @@ namespace Bonsai.Editor
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
             pasteToolStripMenuItem.Enabled = false;
+            watchToolStripMenuItem.Enabled = false;
             startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = false;
             stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
             restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
@@ -2169,6 +2176,15 @@ namespace Bonsai.Editor
 
         #endregion
 
+        #region Watch
+
+        private void watchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            workflowWatch.Enabled = watchToolStripMenuItem.Checked;
+        }
+
+        #endregion
+
         #region Undo/Redo
 
         private void commandExecutor_StatusChanged(object sender, EventArgs e)
@@ -2503,6 +2519,11 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(SvgRendererFactory))
                 {
                     return siteForm.iconRenderer;
+                }
+
+                if (serviceType == typeof(WorkflowWatch))
+                {
+                    return siteForm.workflowWatch;
                 }
 
                 if (serviceType == typeof(DialogTypeVisualizer))
