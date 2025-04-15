@@ -431,14 +431,15 @@ namespace Bonsai.Editor.GraphView
                 return;
             }
 
-            var builder = (InspectBuilder)Workflow[node.Index].Value;
+            var source = (InspectBuilder)Workflow[node.Index].Value;
             var visualizerDialogs = (VisualizerDialogMap)serviceProvider.GetService(typeof(VisualizerDialogMap));
-            if (visualizerDialogs != null && builder.TryGetRuntimeVisualizerSource(out var _))
+            if (visualizerDialogs != null && source.Builder is not DisableBuilder &&
+                source.TryGetRuntimeVisualizerSource(out var _))
             {
-                if (!visualizerDialogs.TryGetValue(builder, out VisualizerDialogLauncher visualizerLauncher))
+                if (!visualizerDialogs.TryGetValue(source, out VisualizerDialogLauncher visualizerLauncher))
                 {
-                    visualizerSettings.TryGetValue(builder, out VisualizerDialogSettings dialogSettings);
-                    visualizerLauncher = visualizerDialogs.Add(builder, Workflow, dialogSettings);
+                    visualizerSettings.TryGetValue(source, out VisualizerDialogSettings dialogSettings);
+                    visualizerLauncher = visualizerDialogs.Add(source, Workflow, dialogSettings);
                 }
 
                 var ownerWindow = uiService.GetDialogOwnerWindow();
@@ -1603,13 +1604,13 @@ namespace Bonsai.Editor.GraphView
                 }
 
                 var builder = WorkflowEditor.GetGraphNodeBuilder(selectedNode);
-                defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
-                goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
-                docsToolStripMenuItem.Enabled = true;
-
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                if (workflowElement != null)
+                if (builder is not DisableBuilder)
                 {
+                    defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
+                    goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
+                    docsToolStripMenuItem.Enabled = true;
+
+                    var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                     if (CanEdit)
                     {
                         CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, inspectBuilder.ObservableType, selectedNode);
@@ -1619,10 +1620,10 @@ namespace Bonsai.Editor.GraphView
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
                     createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
-                }
 
-                var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
-                CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
+                    var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
+                    CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
+                }
             }
         }
 
