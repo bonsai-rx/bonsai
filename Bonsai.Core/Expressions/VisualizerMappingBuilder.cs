@@ -11,28 +11,13 @@ namespace Bonsai.Expressions
     /// Represents an expression builder specifying an observable sequence to be combined
     /// in a mashup visualizer.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Property)]
-    [WorkflowElementIcon("Bonsai:ElementIcon.Visualizer")]
     [XmlType("VisualizerMapping", Namespace = Constants.XmlNamespace)]
     [Description("Specifies an observable sequence to be combined in a mashup visualizer.")]
-    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, ISerializableElement
+    public sealed class VisualizerMappingBuilder : VisualizerMappingExpressionBuilder, INamedElement, IArgumentBuilder
     {
-        /// <summary>
-        /// Gets or sets a value specifying the visualizer type used to combine the
-        /// observable sequence with a mashup visualizer.
-        /// </summary>
-        [Externalizable(false)]
-        [Description("Specifies the visualizer type used to combine the observable sequence with a mashup visualizer.")]
-        public TypeMapping VisualizerType { get; set; }
-
         string INamedElement.Name
         {
             get { return VisualizerType?.TargetType.Name; }
-        }
-
-        object ISerializableElement.Element
-        {
-            get { return VisualizerType; }
         }
 
         /// <summary>

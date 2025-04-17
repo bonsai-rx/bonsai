@@ -1417,7 +1417,7 @@ namespace Bonsai.Editor.GraphView
             }
             else
             {
-                if (workflowElement is VisualizerMappingBuilder mappingBuilder &&
+                if (workflowElement is VisualizerMappingExpressionBuilder mappingBuilder &&
                     mappingBuilder.VisualizerType is not null)
                     return mappingBuilder.VisualizerType.GetType().GetGenericArguments()[0].FullName;
                 else
@@ -1434,7 +1434,7 @@ namespace Bonsai.Editor.GraphView
             GraphNode selectedNode)
         {
             var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-            var canShowVisualizer = inspectBuilder.Builder is not VisualizerMappingBuilder;
+            var canShowVisualizer = inspectBuilder.Builder is not VisualizerMappingExpressionBuilder;
             ownerItem.Text = canShowVisualizer ? Resources.ShowVisualizerMenuItem : Resources.SelectVisualizerMenuItem;
             if (visualizerElement.ObservableType is not null &&
                 (!editorState.WorkflowRunning ||
@@ -1464,7 +1464,7 @@ namespace Bonsai.Editor.GraphView
             menuItem = new ToolStripMenuItem(itemText, null, delegate
             {
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
-                if (ExpressionBuilder.Unwrap(inspectBuilder) is VisualizerMappingBuilder mappingBuilder)
+                if (inspectBuilder.Builder is VisualizerMappingExpressionBuilder mappingBuilder)
                 {
                     if (emptyVisualizer) mappingBuilder.VisualizerType = null;
                     else

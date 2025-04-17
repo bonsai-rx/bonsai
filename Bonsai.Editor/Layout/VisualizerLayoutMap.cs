@@ -32,15 +32,30 @@ namespace Bonsai.Design
         {
             for (int i = 0; i < workflow.Count; i++)
             {
-                var builder = (InspectBuilder)workflow[i].Value;
-                if (builder.ObservableType is null) continue;
+                var source = (InspectBuilder)workflow[i].Value;
+                if (source.ObservableType is null) continue;
 
-                if (lookup.TryGetValue(builder, out VisualizerDialogSettings dialogSettings))
+                if (source.Builder is VisualizerWindow visualizerWindow)
                 {
-                    visualizerDialogs.Add(builder, workflow, dialogSettings);
+                    lookup[source] = new VisualizerDialogSettings
+                    {
+                        Visible = visualizerWindow.Visible,
+                        Location = visualizerWindow.Location,
+                        Size = visualizerWindow.Size,
+                        WindowState = visualizerWindow.WindowState,
+                        VisualizerTypeName = visualizerWindow.VisualizerType?
+                            .GetType()
+                            .GetGenericArguments()[0]
+                            .FullName
+                    };
                 }
 
-                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
+                if (lookup.TryGetValue(source, out VisualizerDialogSettings dialogSettings))
+                {
+                    visualizerDialogs.Add(source, workflow, dialogSettings);
+                }
+
+                if (source.Builder is IWorkflowExpressionBuilder workflowBuilder)
                 {
                     CreateVisualizerDialogs(workflowBuilder.Workflow, visualizerDialogs);
                 }
@@ -59,6 +74,12 @@ namespace Bonsai.Design
             var unused = new HashSet<InspectBuilder>(lookup.Keys);
             foreach (var dialog in visualizerDialogs)
             {
+                if (dialog.Source.Builder is VisualizerWindow)
+                {
+                    dialog.Hide();
+                    continue;
+                }
+
                 unused.Remove(dialog.Source);
                 if (!lookup.TryGetValue(dialog.Source, out VisualizerDialogSettings dialogSettings))
                 {
