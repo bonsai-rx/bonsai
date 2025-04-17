@@ -1429,9 +1429,14 @@ namespace Bonsai.Editor.GraphView
             GraphNode selectedNode)
         {
             var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
-            var canShowVisualizer = inspectBuilder.Builder is not IVisualizerMappingBuilder;
+            var isRunningVisualizerWindow = editorState.WorkflowRunning && inspectBuilder.Builder is VisualizerWindow;
+            var canShowVisualizer = inspectBuilder.Builder is not IVisualizerMappingBuilder || isRunningVisualizerWindow;
             ownerItem.Text = canShowVisualizer ? Resources.ShowVisualizerMenuItem : Resources.SelectVisualizerMenuItem;
-            if (visualizerElement.ObservableType is not null &&
+            if (isRunningVisualizerWindow)
+            {
+                ownerItem.Enabled = true;
+            }
+            else if (visualizerElement.ObservableType is not null &&
                 (!editorState.WorkflowRunning ||
                 visualizerElement.PublishNotifications &&
                 canShowVisualizer))
@@ -1624,6 +1629,18 @@ namespace Bonsai.Editor.GraphView
                     var activeVisualizer = GetActiveVisualizerTypeName(workflowElement, inspectBuilder);
                     CreateVisualizerMenuItems(activeVisualizer, inspectBuilder, visualizerToolStripMenuItem, selectedNode);
                 }
+            }
+        }
+
+        private void visualizerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!editorState.WorkflowRunning || visualizerToolStripMenuItem.HasDropDownItems)
+                return;
+
+            var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            if (selectedNodes.Length == 1)
+            {
+                LaunchVisualizer(selectedNodes[0]);
             }
         }
 
