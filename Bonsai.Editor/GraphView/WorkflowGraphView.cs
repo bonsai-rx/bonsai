@@ -1504,7 +1504,7 @@ namespace Bonsai.Editor.GraphView
                             visualizerSettings[inspectBuilder] = dialogSettings;
                     }
                 }
-                else if (editorState.WorkflowRunning)
+                else if (editorState.WorkflowRunning && !emptyVisualizer)
                 {
                     LaunchVisualizer(selectedNode);
                 }
