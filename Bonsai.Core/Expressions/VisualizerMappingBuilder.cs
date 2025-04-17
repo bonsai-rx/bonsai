@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
     [WorkflowElementIcon("Bonsai:ElementIcon.Visualizer")]
     [XmlType("VisualizerMapping", Namespace = Constants.XmlNamespace)]
     [Description("Specifies an observable sequence to be combined in a mashup visualizer.")]
-    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, ISerializableElement
+    public sealed class VisualizerMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder, IVisualizerMappingBuilder, ISerializableElement
     {
         /// <summary>
         /// Gets or sets a value specifying the visualizer type used to combine the
