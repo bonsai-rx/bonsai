@@ -144,6 +144,7 @@
             this.visualizerToolStripMenuItem.Name = "visualizerToolStripMenuItem";
             this.visualizerToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.visualizerToolStripMenuItem.Text = global::Bonsai.Editor.Properties.Resources.ShowVisualizerMenuItem;
+            this.visualizerToolStripMenuItem.Click += new System.EventHandler(this.visualizerToolStripMenuItem_Click);
             // 
             // defaultEditorToolStripMenuItem
             // 
