@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Bonsai.Design
@@ -6,12 +7,12 @@ namespace Bonsai.Design
     /// <summary>
     /// Represents a window or panel where a type visualizer can be displayed.
     /// </summary>
-    public partial class TypeVisualizerDialog : Form, IDialogTypeVisualizerService
+    public partial class TypeVisualizerWindow : Form, IDialogTypeVisualizerService
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TypeVisualizerDialog"/> class.
+        /// Initializes a new instance of the <see cref="TypeVisualizerWindow"/> class.
         /// </summary>
-        public TypeVisualizerDialog()
+        public TypeVisualizerWindow()
         {
             InitializeComponent();
         }
@@ -45,5 +46,18 @@ namespace Bonsai.Design
             }
             base.OnKeyDown(e);
         }
+    }
+
+    /// <summary>
+    /// Represents a window or panel where a type visualizer can be displayed.
+    /// </summary>
+    /// <remarks>
+    /// This type has been superseded by <see cref="TypeVisualizerWindow"/> since
+    /// the suffix Dialog implies a blocking modal window rather than the modeless
+    /// panel represented by this class.
+    /// </remarks>
+    [Obsolete("Use TypeVisualizerWindow instead for consistent UI terminology.")]
+    public class TypeVisualizerDialog : TypeVisualizerWindow
+    {
     }
 }

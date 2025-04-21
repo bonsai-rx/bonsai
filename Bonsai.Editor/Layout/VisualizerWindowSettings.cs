@@ -9,7 +9,7 @@ namespace Bonsai.Design
 #pragma warning disable CS0612 // Type or member is obsolete
     [XmlInclude(typeof(WorkflowEditorSettings))]
 #pragma warning restore CS0612 // Type or member is obsolete
-    public class VisualizerDialogSettings
+    public class VisualizerWindowSettings
     {
         [XmlIgnore]
         public int? Index { get; set; }
@@ -60,7 +60,7 @@ namespace Bonsai.Design
 
         public bool WindowStateSpecified => WindowState != FormWindowState.Normal;
 
-        public bool NestedLayoutSpecified => NestedLayout?.DialogSettings.Count > 0;
+        public bool NestedLayoutSpecified => NestedLayout?.WindowSettings.Count > 0;
 
         public bool MashupsSpecified => false;
     }

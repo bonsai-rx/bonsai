@@ -24,14 +24,14 @@ namespace Bonsai
         const string TypeAttributeName = "type";
         const char AssemblySeparator = ':';
 
-        static IEnumerable<VisualizerDialogSettings> GetVisualizerSettings(VisualizerLayout root)
+        static IEnumerable<VisualizerWindowSettings> GetVisualizerSettings(VisualizerLayout root)
         {
             var stack = new Stack<VisualizerLayout>();
             stack.Push(root);
             while (stack.Count > 0)
             {
                 var layout = stack.Pop();
-                foreach (var settings in layout.DialogSettings)
+                foreach (var settings in layout.WindowSettings)
                 {
                     yield return settings;
                     if (settings.NestedLayout != null)

@@ -65,7 +65,7 @@ namespace Bonsai.Vision.Design
 
                 var propertyDescriptor = context.PropertyDescriptor;
 
-                using (var visualizerDialog = new TypeVisualizerDialog())
+                using (var visualizerDialog = new TypeVisualizerWindow())
                 {
                     var imageControl = new ImageQuadranglePicker();
                     imageControl.Dock = DockStyle.Fill;

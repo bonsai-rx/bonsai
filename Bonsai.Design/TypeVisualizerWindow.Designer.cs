@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Design
 {
-    partial class TypeVisualizerDialog
+    partial class TypeVisualizerWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -30,15 +30,15 @@
         {
             this.SuspendLayout();
             // 
-            // TypeVisualizerDialog
+            // TypeVisualizerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(184, 162);
             this.KeyPreview = true;
-            this.Name = "TypeVisualizerDialog";
+            this.Name = "TypeVisualizerWindow";
             this.ShowIcon = false;
-            this.Text = "TypeVisualizerDialog";
+            this.Text = "TypeVisualizerWindow";
             this.ResumeLayout(false);
 
         }

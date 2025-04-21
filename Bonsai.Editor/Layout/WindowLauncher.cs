@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    abstract class DialogLauncher
+    abstract class WindowLauncher
     {
         public Rectangle Bounds { get; set; }
 
@@ -12,10 +12,10 @@ namespace Bonsai.Design
 
         public bool Visible
         {
-            get { return VisualizerDialog != null; }
+            get { return VisualizerWindow != null; }
         }
 
-        protected LauncherDialog VisualizerDialog { get; private set; }
+        protected LauncherWindow VisualizerWindow { get; private set; }
 
         public void Show()
         {
@@ -29,58 +29,58 @@ namespace Bonsai.Design
 
         public virtual void Show(IWin32Window owner, IServiceProvider provider)
         {
-            if (VisualizerDialog == null)
+            if (VisualizerWindow == null)
             {
-                VisualizerDialog = CreateVisualizerDialog(provider);
-                VisualizerDialog.Load += delegate
+                VisualizerWindow = CreateVisualizerWindow(provider);
+                VisualizerWindow.Load += delegate
                 {
                     var bounds = Bounds;
                     if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.IntersectsWith(bounds) || WindowState != FormWindowState.Normal))
                     {
-                        VisualizerDialog.LayoutBounds = bounds;
-                        VisualizerDialog.WindowState = WindowState;
+                        VisualizerWindow.LayoutBounds = bounds;
+                        VisualizerWindow.WindowState = WindowState;
                     }
                 };
 
-                VisualizerDialog.FormClosed += delegate
+                VisualizerWindow.FormClosed += delegate
                 {
-                    Bounds = VisualizerDialog.LayoutBounds;
-                    if (VisualizerDialog.WindowState == FormWindowState.Minimized)
+                    Bounds = VisualizerWindow.LayoutBounds;
+                    if (VisualizerWindow.WindowState == FormWindowState.Minimized)
                     {
                         WindowState = FormWindowState.Normal;
                     }
-                    else WindowState = VisualizerDialog.WindowState;
-                    VisualizerDialog.Dispose();
+                    else WindowState = VisualizerWindow.WindowState;
+                    VisualizerWindow.Dispose();
                 };
 
-                VisualizerDialog.HandleDestroyed += (sender, e) => VisualizerDialog = null;
-                InitializeComponents(VisualizerDialog, provider);
-                if (VisualizerDialog.TopLevel)
+                VisualizerWindow.HandleDestroyed += (sender, e) => VisualizerWindow = null;
+                InitializeComponents(VisualizerWindow, provider);
+                if (VisualizerWindow.TopLevel)
                 {
-                    if (owner != null) VisualizerDialog.Show(owner);
-                    else VisualizerDialog.Show();
+                    if (owner != null) VisualizerWindow.Show(owner);
+                    else VisualizerWindow.Show();
                 }
             }
 
-            VisualizerDialog.Activate();
+            VisualizerWindow.Activate();
         }
 
-        protected virtual LauncherDialog CreateVisualizerDialog(IServiceProvider provider)
+        protected virtual LauncherWindow CreateVisualizerWindow(IServiceProvider provider)
         {
-            return new LauncherDialog();
+            return new LauncherWindow();
         }
 
-        protected abstract void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider);
+        protected abstract void InitializeComponents(TypeVisualizerWindow visualizerWindow, IServiceProvider provider);
 
         public virtual void Hide()
         {
-            if (VisualizerDialog != null)
+            if (VisualizerWindow != null)
             {
-                VisualizerDialog.Close();
+                VisualizerWindow.Close();
             }
         }
 
-        protected class LauncherDialog : TypeVisualizerDialog
+        protected class LauncherWindow : TypeVisualizerWindow
         {
             SizeF inverseScaleFactor;
             SizeF scaleFactor;

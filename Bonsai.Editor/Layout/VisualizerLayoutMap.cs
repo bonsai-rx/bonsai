@@ -6,10 +6,10 @@ using Bonsai.Expressions;
 
 namespace Bonsai.Design
 {
-    internal class VisualizerLayoutMap : IEnumerable<VisualizerDialogSettings>
+    internal class VisualizerLayoutMap : IEnumerable<VisualizerWindowSettings>
     {
         readonly TypeVisualizerMap typeVisualizerMap;
-        Dictionary<InspectBuilder, VisualizerDialogSettings> lookup;
+        Dictionary<InspectBuilder, VisualizerWindowSettings> lookup;
 
         public VisualizerLayoutMap(TypeVisualizerMap typeVisualizers)
         {
@@ -17,18 +17,18 @@ namespace Bonsai.Design
             lookup = new();
         }
 
-        public VisualizerDialogSettings this[InspectBuilder key]
+        public VisualizerWindowSettings this[InspectBuilder key]
         {
             get => lookup[key];
             set => lookup[key] = value;
         }
 
-        public bool TryGetValue(InspectBuilder key, out VisualizerDialogSettings value)
+        public bool TryGetValue(InspectBuilder key, out VisualizerWindowSettings value)
         {
             return lookup.TryGetValue(key, out value);
         }
 
-        private void CreateVisualizerDialogs(ExpressionBuilderGraph workflow, VisualizerDialogMap visualizerDialogs)
+        private void CreateVisualizerWindows(ExpressionBuilderGraph workflow, VisualizerWindowMap visualizerWindows)
         {
             for (int i = 0; i < workflow.Count; i++)
             {
@@ -37,10 +37,10 @@ namespace Bonsai.Design
 
                 if (source.Builder is VisualizerWindow visualizerWindow)
                 {
-                    if (!lookup.TryGetValue(source, out VisualizerDialogSettings cachedSettings))
+                    if (!lookup.TryGetValue(source, out VisualizerWindowSettings cachedSettings))
                         cachedSettings = new();
 
-                    lookup[source] = new VisualizerDialogSettings
+                    lookup[source] = new VisualizerWindowSettings
                     {
                         Visible = visualizerWindow.Visible.GetValueOrDefault(cachedSettings.Visible),
                         Location = visualizerWindow.Location.GetValueOrDefault(cachedSettings.Location),
@@ -53,52 +53,52 @@ namespace Bonsai.Design
                     };
                 }
 
-                if (lookup.TryGetValue(source, out VisualizerDialogSettings dialogSettings))
+                if (lookup.TryGetValue(source, out VisualizerWindowSettings windowSettings))
                 {
-                    visualizerDialogs.Add(source, workflow, dialogSettings);
+                    visualizerWindows.Add(source, workflow, windowSettings);
                 }
 
                 if (source.Builder is IWorkflowExpressionBuilder workflowBuilder)
                 {
-                    CreateVisualizerDialogs(workflowBuilder.Workflow, visualizerDialogs);
+                    CreateVisualizerWindows(workflowBuilder.Workflow, visualizerWindows);
                 }
             }
         }
 
-        public VisualizerDialogMap CreateVisualizerDialogs(WorkflowBuilder workflowBuilder)
+        public VisualizerWindowMap CreateVisualizerWindows(WorkflowBuilder workflowBuilder)
         {
-            var visualizerDialogs = new VisualizerDialogMap(typeVisualizerMap);
-            CreateVisualizerDialogs(workflowBuilder.Workflow, visualizerDialogs);
-            return visualizerDialogs;
+            var visualizerWindows = new VisualizerWindowMap(typeVisualizerMap);
+            CreateVisualizerWindows(workflowBuilder.Workflow, visualizerWindows);
+            return visualizerWindows;
         }
 
-        public void Update(IEnumerable<VisualizerDialogLauncher> visualizerDialogs)
+        public void Update(IEnumerable<VisualizerWindowLauncher> visualizerWindows)
         {
             var unused = new HashSet<InspectBuilder>(lookup.Keys);
-            foreach (var dialog in visualizerDialogs)
+            foreach (var window in visualizerWindows)
             {
-                unused.Remove(dialog.Source);
-                if (!lookup.TryGetValue(dialog.Source, out VisualizerDialogSettings dialogSettings))
+                unused.Remove(window.Source);
+                if (!lookup.TryGetValue(window.Source, out VisualizerWindowSettings windowSettings))
                 {
-                    dialogSettings = new VisualizerDialogSettings();
-                    dialogSettings.Tag = dialog.Source;
-                    lookup.Add(dialog.Source, dialogSettings);
+                    windowSettings = new VisualizerWindowSettings();
+                    windowSettings.Tag = window.Source;
+                    lookup.Add(window.Source, windowSettings);
                 }
 
-                var visible = dialog.Visible;
-                dialog.Hide();
-                dialogSettings.Visible = visible;
-                dialogSettings.Bounds = dialog.Bounds;
-                dialogSettings.WindowState = dialog.WindowState;
+                var visible = window.Visible;
+                window.Hide();
+                windowSettings.Visible = visible;
+                windowSettings.Bounds = window.Bounds;
+                windowSettings.WindowState = window.WindowState;
 
-                var visualizer = dialog.Visualizer.Value;
+                var visualizer = window.Visualizer.Value;
                 var visualizerType = visualizer.GetType();
-                if (visualizerType.IsPublic && dialog.Source.Builder is not VisualizerWindow)
+                if (visualizerType.IsPublic && window.Source.Builder is not VisualizerWindow)
                 {
-                    dialogSettings.VisualizerTypeName = visualizerType.FullName;
-                    dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(
+                    windowSettings.VisualizerTypeName = visualizerType.FullName;
+                    windowSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(
                         visualizer,
-                        dialog.Workflow);
+                        window.Workflow);
                 }
             }
 
@@ -119,15 +119,15 @@ namespace Bonsai.Design
             for (int i = 0; i < workflow.Count; i++)
             {
                 var builder = (InspectBuilder)workflow[i].Value;
-                var layoutSettings = new VisualizerDialogSettings { Index = i };
+                var layoutSettings = new VisualizerWindowSettings { Index = i };
 
-                if (lookup.TryGetValue(builder, out VisualizerDialogSettings dialogSettings))
+                if (lookup.TryGetValue(builder, out VisualizerWindowSettings windowSettings))
                 {
-                    layoutSettings.Visible = dialogSettings.Visible;
-                    layoutSettings.Bounds = dialogSettings.Bounds;
-                    layoutSettings.WindowState = dialogSettings.WindowState;
-                    layoutSettings.VisualizerTypeName = dialogSettings.VisualizerTypeName;
-                    layoutSettings.VisualizerSettings = dialogSettings.VisualizerSettings;
+                    layoutSettings.Visible = windowSettings.Visible;
+                    layoutSettings.Bounds = windowSettings.Bounds;
+                    layoutSettings.WindowState = windowSettings.WindowState;
+                    layoutSettings.VisualizerTypeName = windowSettings.VisualizerTypeName;
+                    layoutSettings.VisualizerSettings = windowSettings.VisualizerSettings;
                 }
 
                 if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder &&
@@ -138,9 +138,9 @@ namespace Bonsai.Design
 
                 if (!layoutSettings.Bounds.IsEmpty ||
                     layoutSettings.VisualizerTypeName != null ||
-                    layoutSettings.NestedLayout?.DialogSettings.Count > 0)
+                    layoutSettings.NestedLayout?.WindowSettings.Count > 0)
                 {
-                    layout.DialogSettings.Add(layoutSettings);
+                    layout.WindowSettings.Add(layoutSettings);
                 }
             }
 
@@ -165,21 +165,21 @@ namespace Bonsai.Design
 
         private void SetVisualizerLayout(ExpressionBuilderGraph workflow, VisualizerLayout layout)
         {
-            for (int i = 0; i < layout.DialogSettings.Count; i++)
+            for (int i = 0; i < layout.WindowSettings.Count; i++)
             {
-                var layoutSettings = layout.DialogSettings[i];
+                var layoutSettings = layout.WindowSettings[i];
                 var index = layoutSettings.Index.GetValueOrDefault(i);
                 if (index < 0 || index >= workflow.Count)
                     throw new InvalidOperationException($"Element #{index} does not exist in the workflow.");
                 else
                 {
                     var builder = (InspectBuilder)workflow[index].Value;
-                    var dialogSettings = new VisualizerDialogSettings();
-                    dialogSettings.Tag = builder;
-                    dialogSettings.Bounds = layoutSettings.Bounds;
-                    dialogSettings.WindowState = layoutSettings.WindowState;
-                    dialogSettings.Visible = layoutSettings.Visible;
-                    dialogSettings.VisualizerSettings = layoutSettings.VisualizerSettings;
+                    var windowSettings = new VisualizerWindowSettings();
+                    windowSettings.Tag = builder;
+                    windowSettings.Bounds = layoutSettings.Bounds;
+                    windowSettings.WindowState = layoutSettings.WindowState;
+                    windowSettings.Visible = layoutSettings.Visible;
+                    windowSettings.VisualizerSettings = layoutSettings.VisualizerSettings;
                     if (!string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
                     {
                         if (typeVisualizerMap.GetVisualizerType(layoutSettings.VisualizerTypeName) is null)
@@ -194,9 +194,9 @@ namespace Bonsai.Design
                             throw new InvalidOperationException(
                                 $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be applied " +
                                 $"to element #{index}: {ExpressionBuilder.GetWorkflowElement(builder).GetType()}.");
-                        dialogSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
+                        windowSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
                     }
-                    Add(dialogSettings);
+                    Add(windowSettings);
 
                     if (layoutSettings.NestedLayout != null &&
                         ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
@@ -214,7 +214,7 @@ namespace Bonsai.Design
             }
         }
 
-        public void Add(VisualizerDialogSettings item)
+        public void Add(VisualizerWindowSettings item)
         {
             var builder = (InspectBuilder)item.Tag;
             lookup.Add(builder, item);
@@ -235,7 +235,7 @@ namespace Bonsai.Design
             lookup.Clear();
         }
 
-        public IEnumerator<VisualizerDialogSettings> GetEnumerator()
+        public IEnumerator<VisualizerWindowSettings> GetEnumerator()
         {
             return lookup.Values.GetEnumerator();
         }

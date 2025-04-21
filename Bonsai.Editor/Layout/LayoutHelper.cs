@@ -44,12 +44,12 @@ namespace Bonsai.Design
             }
         }
 
-        public static void SetLayoutNotifications(ExpressionBuilderGraph source, VisualizerDialogMap lookup)
+        public static void SetLayoutNotifications(ExpressionBuilderGraph source, VisualizerWindowMap lookup)
         {
             foreach (var node in source.DescendantNodes())
             {
                 var inspectBuilder = (InspectBuilder)node.Value;
-                if (lookup.TryGetValue(inspectBuilder, out VisualizerDialogLauncher _))
+                if (lookup.TryGetValue(inspectBuilder, out VisualizerWindowLauncher _))
                 {
                     SetVisualizerNotifications(inspectBuilder);
                 }
@@ -87,9 +87,9 @@ namespace Bonsai.Design
             return mashupSource;
         }
 
-        public static VisualizerDialogLauncher CreateVisualizerLauncher(
+        public static VisualizerWindowLauncher CreateVisualizerLauncher(
             InspectBuilder source,
-            VisualizerDialogSettings layoutSettings,
+            VisualizerWindowSettings layoutSettings,
             TypeVisualizerMap typeVisualizerMap,
             ExpressionBuilderGraph workflow)
         {
@@ -114,7 +114,7 @@ namespace Bonsai.Design
                 visualizerFactory,
                 typeVisualizerMap));
 
-            var launcher = new VisualizerDialogLauncher(visualizer, visualizerFactory, workflow, source);
+            var launcher = new VisualizerWindowLauncher(visualizer, visualizerFactory, workflow, source);
             launcher.Text = source != null ? ExpressionBuilder.GetElementDisplayName(source) : null;
             return launcher;
         }
@@ -207,14 +207,14 @@ namespace Bonsai.Design
             visualizerSettings = new XDocument(
                 new XElement(MashupSettingsElement,
                 sourceIndex.HasValue ? new XElement(MashupSourceElement, sourceIndex.Value) : null,
-                new XElement(nameof(VisualizerDialogSettings.VisualizerTypeName), visualizerType.FullName),
-                new XElement(nameof(VisualizerDialogSettings.VisualizerSettings), visualizerSettings.Root)));
+                new XElement(nameof(VisualizerWindowSettings.VisualizerTypeName), visualizerType.FullName),
+                new XElement(nameof(VisualizerWindowSettings.VisualizerSettings), visualizerSettings.Root)));
             return visualizerSettings.Root;
         }
 
         public static DialogTypeVisualizer DeserializeVisualizerSettings(
             Type visualizerType,
-            VisualizerDialogSettings layoutSettings,
+            VisualizerWindowSettings layoutSettings,
             ExpressionBuilderGraph workflow,
             VisualizerFactory visualizerFactory,
             TypeVisualizerMap typeVisualizerMap)
@@ -230,13 +230,13 @@ namespace Bonsai.Design
                 foreach (var mashup in mashupSettings.Zip(layoutSettings.Mashups, (element, index) => (element, index)))
                 {
                     mashup.element.AddFirst(new XElement(MashupSourceElement, mashup.index));
-                    var visualizerSettings = mashup.element.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
-                    var visualizerTypeName = mashup.element.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
+                    var visualizerSettings = mashup.element.Element(nameof(VisualizerWindowSettings.VisualizerSettings));
+                    var visualizerTypeName = mashup.element.Element(nameof(VisualizerWindowSettings.VisualizerTypeName))?.Value;
                     if (visualizerSettings != null && visualizerTypeName != null)
                     {
                         visualizerSettings.Remove();
                         visualizerSettings.Name = visualizerTypeName.Split('.').LastOrDefault();
-                        mashup.element.Add(new XElement(nameof(VisualizerDialogSettings.VisualizerSettings), visualizerSettings));
+                        mashup.element.Add(new XElement(nameof(VisualizerWindowSettings.VisualizerSettings), visualizerSettings));
                     }
                 }
                 layoutSettings.Mashups.Clear();
@@ -291,7 +291,7 @@ namespace Bonsai.Design
 
                         var mashupSourceIndex = int.Parse(mashupSourceElement.Value);
                         var mashupSource = (InspectBuilder)workflow[mashupSourceIndex].Value;
-                        var mashupVisualizerTypeName = mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName))?.Value;
+                        var mashupVisualizerTypeName = mashup.Element(nameof(VisualizerWindowSettings.VisualizerTypeName))?.Value;
                         var mashupVisualizerType = typeVisualizerMap.GetVisualizerType(mashupVisualizerTypeName);
                         mashupFactory = new VisualizerFactory(mashupSource, mashupVisualizerType);
                     }
@@ -330,9 +330,9 @@ namespace Bonsai.Design
             var mashupVisualizerSettings = default(XElement);
             if (mashup != null)
             {
-                var mashupVisualizerSettingsElement = mashup.Element(nameof(VisualizerDialogSettings.VisualizerSettings));
+                var mashupVisualizerSettingsElement = mashup.Element(nameof(VisualizerWindowSettings.VisualizerSettings));
                 mashupVisualizerSettings = mashupVisualizerSettingsElement.Elements().FirstOrDefault();
-                if (mashup.Element(nameof(VisualizerDialogSettings.VisualizerTypeName)).Value != mashupFactory.VisualizerType.FullName)
+                if (mashup.Element(nameof(VisualizerWindowSettings.VisualizerTypeName)).Value != mashupFactory.VisualizerType.FullName)
                 {
                     mashupVisualizerSettings = default;
                 }
