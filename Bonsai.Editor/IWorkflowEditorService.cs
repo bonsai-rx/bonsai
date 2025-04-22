@@ -24,9 +24,11 @@ namespace Bonsai.Editor
 
         void NavigateTo(WorkflowEditorPath workflowPath, NavigationPreference navigationPreference = default);
 
-        void SelectNextControl(bool forward);
+        void SelectBuilderNode(ExpressionBuilder builder, NavigationPreference navigationPreference = default);
 
-        void SelectBuilderNode(ExpressionBuilder builder);
+        void SelectBuilderNode(WorkflowEditorPath builderPath, NavigationPreference navigationPreference = default);
+
+        void SelectNextControl(bool forward);
 
         bool ValidateWorkflow();
 

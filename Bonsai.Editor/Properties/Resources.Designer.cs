@@ -829,6 +829,33 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Auto Hide.
+        /// </summary>
+        internal static string ToolTipAutoHide {
+            get {
+                return ResourceManager.GetString("ToolTipAutoHide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string ToolTipClose {
+            get {
+                return ResourceManager.GetString("ToolTipClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Window Position.
+        /// </summary>
+        internal static string ToolTipOptions {
+            get {
+                return ResourceManager.GetString("ToolTipOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified type could not be found..
         /// </summary>
         internal static string TypeNotFound_Error {

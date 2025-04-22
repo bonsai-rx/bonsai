@@ -817,7 +817,7 @@ namespace Bonsai.Editor.GraphView
         {
             if (e.KeyData == goToDefinitionToolStripMenuItem.ShortcutKeys)
             {
-                LaunchDefinition(graphView.SelectedNode);
+                goToDefinitionToolStripMenuItem_Click(sender, e);
             }
 
             if (e.KeyCode == Keys.Return && !CanEdit)
@@ -1025,12 +1025,17 @@ namespace Bonsai.Editor.GraphView
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.OnKeyDown(new KeyEventArgs(Keys.F1));
+            editorService.OnKeyDown(new KeyEventArgs(docsToolStripMenuItem.ShortcutKeys));
         }
 
         private void goToDefinitionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefinition(graphView.SelectedNode);
+        }
+
+        private void findAllReferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.OnKeyDown(new KeyEventArgs(findAllReferencesToolStripMenuItem.ShortcutKeys));
         }
 
         private void openNewTabToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1045,7 +1050,7 @@ namespace Bonsai.Editor.GraphView
 
         private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Shift | Keys.S));
+            editorService.OnKeyDown(new KeyEventArgs(saveAsWorkflowToolStripMenuItem.ShortcutKeys));
         }
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1608,6 +1613,7 @@ namespace Bonsai.Editor.GraphView
                 {
                     defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
                     goToDefinitionToolStripMenuItem.Enabled = HasDefinition(builder);
+                    findAllReferencesToolStripMenuItem.Enabled = true;
                     docsToolStripMenuItem.Enabled = true;
 
                     var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);

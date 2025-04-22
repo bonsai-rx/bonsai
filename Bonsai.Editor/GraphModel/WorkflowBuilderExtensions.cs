@@ -8,7 +8,7 @@ namespace Bonsai.Editor.GraphModel
     {
         public static bool IsGroup(this IWorkflowExpressionBuilder builder)
         {
-            return builder is IncludeWorkflowBuilder || builder is GroupWorkflowBuilder;
+            return builder is GroupWorkflowBuilder || builder is IncludeWorkflowBuilder;
         }
 
         static bool GetCallContext(ExpressionBuilderGraph source, bool readOnly, ExpressionBuilderGraph target, Stack<ContextGrouping> callContext)
@@ -22,13 +22,12 @@ namespace Bonsai.Editor.GraphModel
 
             foreach (var element in context)
             {
-                var groupBuilder = element.Builder as IWorkflowExpressionBuilder;
-                if (IsGroup(groupBuilder) && groupBuilder.Workflow == target)
+                if (element.Builder is IWorkflowExpressionBuilder groupBuilder && IsGroup(groupBuilder))
                 {
-                    return true;
+                    if (groupBuilder.Workflow == target)
+                        return true;
                 }
-
-                if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
+                else if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, element.IsReadOnly, target, callContext))
                     {
@@ -79,7 +78,7 @@ namespace Bonsai.Editor.GraphModel
                         break;
                     }
 
-                    if (element.Builder is WorkflowExpressionBuilder workflowBuilder)
+                    if (element.Builder is WorkflowExpressionBuilder workflowBuilder && !IsGroup(workflowBuilder))
                     {
                         callContext.Push(new ContextGrouping(workflowBuilder.Workflow, element.IsReadOnly));
                     }
