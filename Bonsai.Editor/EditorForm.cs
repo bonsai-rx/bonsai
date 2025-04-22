@@ -424,12 +424,12 @@ namespace Bonsai.Editor
                 handler => selectionModel.SelectionChanged -= handler)
                 .Select(evt => selectionModel.SelectedView)
                 .DistinctUntilChanged(view => view?.WorkflowPath);
-            var workflowValidating = Observable.FromEventPattern<EventHandler, EventArgs>(
-                handler => Events.AddHandler(WorkflowValidating, handler),
-                handler => Events.RemoveHandler(WorkflowValidating, handler))
+            var workflowValidated = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => Events.AddHandler(WorkflowValidated, handler),
+                handler => Events.RemoveHandler(WorkflowValidated, handler))
                 .Select(evt => selectionModel.SelectedView);
             return Observable
-                .Merge(selectedPathChanged, workflowValidating)
+                .Merge(selectedPathChanged, workflowValidated)
                 .Do(view =>
                 {
                     toolboxTreeView.BeginUpdate();
