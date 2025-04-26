@@ -943,11 +943,11 @@ namespace Bonsai.Editor
             return true;
         }
 
-        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error)
+        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error, XmlSerializerNamespaces namespaces = null)
         {
             try
             {
-                ElementStore.SaveElement(serializer, fileName, o);
+                ElementStore.SaveElement(serializer, fileName, o, namespaces);
                 return true;
             }
             catch (IOException ex)
@@ -1010,7 +1010,7 @@ namespace Bonsai.Editor
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
         {
-            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
+            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error, ElementStore.EmptyNamespaces);
         }
 
         void SaveWorkflowExtension(WorkflowGraphView model, string fileName, GraphNode node)

@@ -1,19 +1,17 @@
 ﻿using Bonsai.Dag;
+using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Bonsai.Design
 {
     static class LayoutHelper
     {
-        static readonly XName XsdAttributeName = XNamespace.Xmlns + "xsd";
-        static readonly XName XsiAttributeName = XNamespace.Xmlns + "xsi";
         const string MashupSettingsElement = "MashupSettings";
         const string MashupSourceElement = "Source";
 
@@ -157,7 +155,7 @@ namespace Bonsai.Design
             var serializer = new XmlSerializer(visualizerType);
             using (var writer = visualizerSettings.CreateWriter())
             {
-                serializer.Serialize(writer, visualizer);
+                serializer.Serialize(writer, visualizer, ElementStore.EmptyNamespaces);
             }
             var root = visualizerSettings.Root;
             if (visualizer is MashupVisualizer mashupVisualizer)
@@ -165,10 +163,6 @@ namespace Bonsai.Design
                 SerializeMashupVisualizerSettings(root, mashupVisualizer, topologicalOrder);
             }
             root.Remove();
-            var xsdAttribute = root.Attribute(XsdAttributeName);
-            if (xsdAttribute != null) xsdAttribute.Remove();
-            var xsiAttribute = root.Attribute(XsiAttributeName);
-            if (xsiAttribute != null) xsiAttribute.Remove();
             return root;
         }
 
@@ -195,7 +189,7 @@ namespace Bonsai.Design
             var serializer = new XmlSerializer(visualizerType);
             using (var writer = visualizerSettings.CreateWriter())
             {
-                serializer.Serialize(writer, visualizer);
+                serializer.Serialize(writer, visualizer, ElementStore.EmptyNamespaces);
             }
 
             if (visualizer is MashupVisualizer mashupVisualizer)
@@ -262,8 +256,6 @@ namespace Bonsai.Design
             DialogTypeVisualizer visualizer;
             if (visualizerSettings != null)
             {
-                visualizerSettings.SetAttributeValue(XsdAttributeName, XmlSchema.Namespace);
-                visualizerSettings.SetAttributeValue(XsiAttributeName, XmlSchema.InstanceNamespace);
                 var serializer = new XmlSerializer(visualizerFactory.VisualizerType);
                 using var reader = visualizerSettings.CreateReader();
                 visualizer = (DialogTypeVisualizer)(serializer.CanDeserialize(reader)
