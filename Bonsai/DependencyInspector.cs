@@ -11,12 +11,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace Bonsai
 {
     sealed class DependencyInspector : MarshalByRefObject
     {
-        const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
@@ -59,7 +59,7 @@ namespace Bonsai
                         while (workflowReader.ReadToFollowing(ExpressionElementName))
                         {
                             if (!workflowReader.HasAttributes) continue;
-                            if (workflowReader.GetAttribute(TypeAttributeName, XsiAttributeValue) == IncludeWorkflowTypeName)
+                            if (workflowReader.GetAttribute(TypeAttributeName, XmlSchema.InstanceNamespace) == IncludeWorkflowTypeName)
                             {
                                 var includePath = workflowReader.GetAttribute(PathAttributeName);
                                 var separatorIndex = includePath != null ? includePath.IndexOf(AssemblySeparator) : -1;

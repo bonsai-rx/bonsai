@@ -5,16 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Bonsai.Design
 {
     static class LayoutHelper
     {
-        static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
-        static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
-        const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
-        const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
+        static readonly XName XsdAttributeName = XNamespace.Xmlns + "xsd";
+        static readonly XName XsiAttributeName = XNamespace.Xmlns + "xsi";
         const string MashupSettingsElement = "MashupSettings";
         const string MashupSourceElement = "Source";
 
@@ -263,8 +262,8 @@ namespace Bonsai.Design
             DialogTypeVisualizer visualizer;
             if (visualizerSettings != null)
             {
-                visualizerSettings.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
-                visualizerSettings.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
+                visualizerSettings.SetAttributeValue(XsdAttributeName, XmlSchema.Namespace);
+                visualizerSettings.SetAttributeValue(XsiAttributeName, XmlSchema.InstanceNamespace);
                 var serializer = new XmlSerializer(visualizerFactory.VisualizerType);
                 using var reader = visualizerSettings.CreateReader();
                 visualizer = (DialogTypeVisualizer)(serializer.CanDeserialize(reader)
