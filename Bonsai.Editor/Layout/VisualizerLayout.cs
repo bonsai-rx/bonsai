@@ -4,6 +4,9 @@ namespace Bonsai.Design
 {
     public class VisualizerLayout
     {
+        [XmlAttribute]
+        public string Version { get; set; }
+
         [XmlElement(nameof(WindowSettings))]
         public VisualizerWindowSettingsCollection WindowSettings { get; } = new VisualizerWindowSettingsCollection();
 

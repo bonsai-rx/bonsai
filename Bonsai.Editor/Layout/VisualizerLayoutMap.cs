@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Bonsai.Editor;
 using Bonsai.Expressions;
 
 namespace Bonsai.Design
@@ -110,7 +111,9 @@ namespace Bonsai.Design
 
         public VisualizerLayout GetVisualizerLayout(WorkflowBuilder workflowBuilder)
         {
-            return GetVisualizerLayout(workflowBuilder.Workflow);
+            var layout = GetVisualizerLayout(workflowBuilder.Workflow);
+            layout.Version = AboutBox.AssemblyVersion;
+            return layout;
         }
 
         private VisualizerLayout GetVisualizerLayout(ExpressionBuilderGraph workflow)
