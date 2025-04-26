@@ -909,8 +909,7 @@ namespace Bonsai.Editor
             {
                 try
                 {
-                    using var reader = XmlReader.Create(layoutPath);
-                    var visualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
+                    var visualizerLayout = VisualizerLayout.Load(layoutPath);
                     await initialization;
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }

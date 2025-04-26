@@ -198,8 +198,8 @@ namespace Bonsai.Design
                                 $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be applied " +
                                 $"to element #{index}: {ExpressionBuilder.GetWorkflowElement(builder).GetType()}.");
                         windowSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
+                        Add(windowSettings);
                     }
-                    Add(windowSettings);
 
                     if (layoutSettings.NestedLayout != null &&
                         ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
@@ -213,6 +213,22 @@ namespace Bonsai.Design
                                 innerException);
                         }
                     }
+
+#pragma warning disable CS0612 // Type or member is obsolete
+                    if (layoutSettings is WorkflowEditorSettings editorSettings &&
+                        editorSettings.EditorVisualizerLayout is not null &&
+                        ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder editorWorkflowBuilder)
+                    {
+                        try { SetVisualizerLayout(editorWorkflowBuilder.Workflow, editorSettings.EditorVisualizerLayout); }
+                        catch (InvalidOperationException innerException)
+                        {
+                            throw new InvalidOperationException(
+                                $"Visualizer cannot be applied to an inner element of nested layout #{index}: " +
+                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}.",
+                                innerException);
+                        }
+                    }
+#pragma warning restore CS0612 // Type or member is obsolete
                 }
             }
         }

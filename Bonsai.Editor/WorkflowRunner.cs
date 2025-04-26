@@ -127,12 +127,7 @@ namespace Bonsai.Editor
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {
-                VisualizerLayout layout = null;
-                using (var reader = XmlReader.Create(layoutPath))
-                {
-                    layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
-                }
-
+                var layout = VisualizerLayout.Load(layoutPath);
                 RunLayout(workflowBuilder, propertyAssignments, visualizerProvider, layout, fileName);
             }
             else RunHeadless(workflowBuilder, propertyAssignments);

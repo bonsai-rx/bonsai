@@ -91,17 +91,14 @@ namespace Bonsai
                                             .ToDictionary(type => type.FullName)
                                             .Wait());
 
-                    using (var reader = XmlReader.Create(layoutPath))
+                    var layout = VisualizerLayout.Load(layoutPath);
+                    foreach (var settings in GetVisualizerSettings(layout))
                     {
-                        var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
-                        foreach (var settings in GetVisualizerSettings(layout))
+                        var typeName = settings.VisualizerTypeName;
+                        if (typeName == null) continue;
+                        if (visualizerMap.Value.TryGetValue(typeName, out Type type))
                         {
-                            var typeName = settings.VisualizerTypeName;
-                            if (typeName == null) continue;
-                            if (visualizerMap.Value.TryGetValue(typeName, out Type type))
-                            {
-                                assemblies.Add(type.Assembly);
-                            }
+                            assemblies.Add(type.Assembly);
                         }
                     }
                 }
