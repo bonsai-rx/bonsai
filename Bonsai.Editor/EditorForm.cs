@@ -834,7 +834,8 @@ namespace Bonsai.Editor
             workflowBuilder.Workflow.Clear();
             if (editorControl.AnnotationPanel.Tag is ExpressionBuilder)
                 editorControl.ClearAnnotationPanel();
-            editorControl.ResetEditorLayout();
+            editorControl.CloseAll();
+            editorControl.InitializeEditorLayout();
             editorSite.ValidateWorkflow();
             visualizerSettings.Clear();
             ResetProjectStatus();
@@ -872,10 +873,11 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             FileName = fileName;
 
+            editorControl.CloseAll();
+            editorSite.ValidateWorkflow();
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
-            editorControl.ResetEditorLayout(editorPath);
-            editorSite.ValidateWorkflow();
+            editorControl.InitializeEditorLayout(editorPath);
 
             visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
