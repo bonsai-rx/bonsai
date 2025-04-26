@@ -257,9 +257,8 @@ namespace Bonsai.Editor.GraphView
             document.WriteTo(writer);
         }
 
-        public void ResetEditorLayout(string fileName = default)
+        public void InitializeEditorLayout(string fileName = default)
         {
-            CloseAll();
             if (File.Exists(fileName))
             {
                 CloseToolWindows();
@@ -359,7 +358,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        void CloseAll()
+        public void CloseAll()
         {
             var contents = new List<IDockContent>(dockPanel.Contents.Count);
             IEnumerable<INestedPanesContainer> paneContainers = dockPanel.DockWindows;
