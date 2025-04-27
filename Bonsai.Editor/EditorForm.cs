@@ -289,13 +289,20 @@ namespace Bonsai.Editor
             formCancellation.Cancel();
         }
 
-        void HandleUpdatesAvailable(bool value)
+        Task HandleUpdatesAvailableAsync(CancellationToken cancellationToken)
         {
-            if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
-            else toolStrip.Items.Remove(statusUpdateAvailableLabel);
+            return updatesAvailable
+                .ObserveOn(formScheduler)
+                .Do(value =>
+                {
+                    if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
+                    else toolStrip.Items.Remove(statusUpdateAvailableLabel);
+                })
+                .IgnoreElements()
+                .ToTask(cancellationToken);
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override async void OnLoad(EventArgs e)
         {
             RestoreEditorSettings();
             var initialFileName = FileName;
@@ -304,10 +311,12 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            InitializeSubjectSourcesAsync(formCancellation.Token);
-            InitializeWorkflowFileWatcherAsync(formCancellation.Token);
-            InitializeWorkflowExplorerWatcherAsync(formCancellation.Token);
-            updatesAvailable.ObserveOn(formScheduler).Do(HandleUpdatesAvailable).ToTask(formCancellation.Token);
+            var backgroundTasks = Task.WhenAny(Task.WhenAll(
+                InitializeSubjectSourcesAsync(formCancellation.Token),
+                InitializeWorkflowFileWatcherAsync(formCancellation.Token),
+                InitializeWorkflowExplorerWatcherAsync(formCancellation.Token),
+                HandleUpdatesAvailableAsync(formCancellation.Token)),
+                formCancellation.Token.ToTask());
 
             var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
             var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
@@ -324,8 +333,10 @@ namespace Bonsai.Editor
 
             InitializeEditorToolboxTypes();
             initialization = InitializeEditorExtensionsAsync(formCancellation.Token);
-            _ = InitializeWorkflowAsync(validFileName ? initialFileName : default);
             base.OnLoad(e);
+
+            await InitializeWorkflowAsync(validFileName ? initialFileName : default);
+            await backgroundTasks;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
