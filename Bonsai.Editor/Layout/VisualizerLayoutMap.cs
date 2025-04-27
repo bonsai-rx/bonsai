@@ -37,12 +37,15 @@ namespace Bonsai.Design
 
                 if (source.Builder is VisualizerWindow visualizerWindow)
                 {
+                    if (!lookup.TryGetValue(source, out VisualizerDialogSettings cachedSettings))
+                        cachedSettings = new();
+
                     lookup[source] = new VisualizerDialogSettings
                     {
-                        Visible = visualizerWindow.Visible,
-                        Location = visualizerWindow.Location,
-                        Size = visualizerWindow.Size,
-                        WindowState = visualizerWindow.WindowState,
+                        Visible = visualizerWindow.Visible.GetValueOrDefault(cachedSettings.Visible),
+                        Location = visualizerWindow.Location.GetValueOrDefault(cachedSettings.Location),
+                        Size = visualizerWindow.Size.GetValueOrDefault(cachedSettings.Size),
+                        WindowState = visualizerWindow.WindowState.GetValueOrDefault(cachedSettings.WindowState),
                         VisualizerTypeName = visualizerWindow.VisualizerType?
                             .GetType()
                             .GetGenericArguments()[0]
@@ -74,12 +77,6 @@ namespace Bonsai.Design
             var unused = new HashSet<InspectBuilder>(lookup.Keys);
             foreach (var dialog in visualizerDialogs)
             {
-                if (dialog.Source.Builder is VisualizerWindow)
-                {
-                    dialog.Hide();
-                    continue;
-                }
-
                 unused.Remove(dialog.Source);
                 if (!lookup.TryGetValue(dialog.Source, out VisualizerDialogSettings dialogSettings))
                 {
@@ -96,7 +93,7 @@ namespace Bonsai.Design
 
                 var visualizer = dialog.Visualizer.Value;
                 var visualizerType = visualizer.GetType();
-                if (visualizerType.IsPublic)
+                if (visualizerType.IsPublic && dialog.Source.Builder is not VisualizerWindow)
                 {
                     dialogSettings.VisualizerTypeName = visualizerType.FullName;
                     dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(

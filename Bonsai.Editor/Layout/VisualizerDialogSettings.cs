@@ -24,7 +24,7 @@ namespace Bonsai.Design
         [XmlIgnore]
         public object Tag { get; set; }
 
-        public bool Visible { get; set; }
+        public bool Visible { get; set; } = true;
 
         public Point Location { get; set; }
 
@@ -52,7 +52,7 @@ namespace Bonsai.Design
         // [Obsolete]
         public Collection<int> Mashups { get; } = new Collection<int>();
 
-        public bool VisibleSpecified => Visible;
+        public bool VisibleSpecified => !Visible;
 
         public bool LocationSpecified => !Location.IsEmpty;
 

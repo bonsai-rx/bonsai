@@ -27,28 +27,40 @@ namespace Bonsai.Design
         /// Gets or sets a value specifying whether the visualizer window is visible
         /// on start.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the value in the cached layout settings is used.
+        /// </remarks>
         [Description("Specifies whether the visualizer window is visible on start.")]
-        public bool Visible { get; set; } = true;
+        public bool? Visible { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value specifying the position of the upper-left corner of the
         /// visualizer window, in screen coordinates.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the value in the cached layout settings is used.
+        /// </remarks>
         [Description("Specifies the position of the upper-left corner of the visualizer window, in screen coordinates.")]
-        public Point Location { get; set; }
+        public Point? Location { get; set; }
 
         /// <summary>
         /// Gets or sets a value specifying the size of the visualizer window.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the value in the cached layout settings is used.
+        /// </remarks>
         [Description("Specifies the size of the visualizer window.")]
-        public Size Size { get; set; }
+        public Size? Size { get; set; }
 
         /// <summary>
         /// Gets or sets a value specifying whether the visualizer window should start
         /// minimized, maximized, or normal.
         /// </summary>
+        /// <remarks>
+        /// If no value is specified, the value in the cached layout settings is used.
+        /// </remarks>
         [Description("Specifies whether the visualizer window should start minimized, maximized, or normal.")]
-        public FormWindowState WindowState { get; set; }
+        public FormWindowState? WindowState { get; set; }
 
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
