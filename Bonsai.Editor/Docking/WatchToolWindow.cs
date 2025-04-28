@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.GraphView;
@@ -31,7 +32,7 @@ namespace Bonsai.Editor.Docking
 
         public WorkflowWatchMap WatchMap => watchMap;
 
-        public void UpdateWatchList()
+        public void UpdateWatchList(IEnumerable<InspectBuilder> selectedItems = default)
         {
             watchListView.BeginUpdate();
             if (watchListView.Items.Count > 0)
@@ -44,6 +45,7 @@ namespace Bonsai.Editor.Docking
                 {
                     var inspectBuilder = (InspectBuilder)watch.Builder;
                     var item = CreateNavigationViewItem(inspectBuilder, watch.Path, workflowBuilder);
+                    item.Selected = selectedItems?.Contains(inspectBuilder) is true;
                     watchListView.Items.Add(item);
                 }
 
