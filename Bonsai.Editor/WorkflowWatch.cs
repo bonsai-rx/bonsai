@@ -36,7 +36,7 @@ namespace Bonsai.Editor
             Update?.Invoke(this, e);
         }
 
-        public void Start(ExpressionBuilderGraph workflow)
+        public void Start(ExpressionBuilderGraph workflow, WorkflowWatchMap watchMap)
         {
             if (workflowMeter is not null)
             {
@@ -44,7 +44,7 @@ namespace Bonsai.Editor
                     $"{nameof(Stop)} must be called before starting a new watch.");
             }
 
-            workflowMeter = new WorkflowMeter(workflow);
+            workflowMeter = new WorkflowMeter(workflow, watchMap);
             OnUpdate(EventArgs.Empty);
             watchTimer.Start();
         }
