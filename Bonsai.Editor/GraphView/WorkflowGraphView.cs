@@ -226,6 +226,34 @@ namespace Bonsai.Editor.GraphView
             uiService.ShowError(errorMessage);
         }
 
+        public void AddWatch(IEnumerable<GraphNode> nodes)
+        {
+            var selectedNodes = nodes.Where(node => !watchMap.Contains(node.Value)).ToArray();
+            if (selectedNodes.Length > 0)
+            {
+                foreach (var node in selectedNodes)
+                {
+                    watchMap.Add((InspectBuilder)node.Value);
+                }
+            }
+            EditorControl.UpdateWatchLayout(WorkflowPath);
+            EditorControl.ShowWatchTool();
+        }
+
+        public void DeleteWatch(IEnumerable<GraphNode> nodes)
+        {
+            var selectedNodes = nodes.Where(node => watchMap.Contains(node.Value)).ToArray();
+            if (selectedNodes.Length > 0)
+            {
+                foreach (var node in selectedNodes)
+                {
+                    watchMap.Remove((InspectBuilder)node.Value);
+                }
+            }
+            EditorControl.UpdateWatchLayout(WorkflowPath);
+            EditorControl.UpdateWatchTool();
+        }
+
         public void CutToClipboard()
         {
             try
@@ -873,6 +901,16 @@ namespace Bonsai.Editor.GraphView
                 goToDefinitionToolStripMenuItem_Click(sender, e);
             }
 
+            if (e.KeyData == addWatchToolStripMenuItem.ShortcutKeys)
+            {
+                addWatchToolStripMenuItem_Click(sender, e);
+            }
+
+            if (e.KeyData == deleteWatchToolStripMenuItem.ShortcutKeys)
+            {
+                deleteWatchToolStripMenuItem_Click(sender, e);
+            }
+
             if (e.KeyCode == Keys.Return && !CanEdit)
             {
                 LaunchDefaultAction(graphView.SelectedNode);
@@ -1075,6 +1113,16 @@ namespace Bonsai.Editor.GraphView
         private void defaultEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefaultEditor(graphView.SelectedNode);
+        }
+
+        private void addWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddWatch(graphView.SelectedNodes);
+        }
+
+        private void deleteWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DeleteWatch(graphView.SelectedNodes);
         }
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1628,6 +1676,8 @@ namespace Bonsai.Editor.GraphView
             if (selectedNodes.Length > 0)
             {
                 copyToolStripMenuItem.Enabled = true;
+                addWatchToolStripMenuItem.Enabled = true;
+                deleteWatchToolStripMenuItem.Enabled = true;
                 saveAsWorkflowToolStripMenuItem.Enabled = true;
                 if (Array.Exists(selectedNodes, node => node.NestedCategory != null))
                 {
