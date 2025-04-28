@@ -35,9 +35,9 @@
             this.operatorTypeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.observableTypeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openNewWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -86,35 +86,35 @@
             // contextMenuStrip
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.selectToolStripMenuItem,
+            this.showToolStripMenuItem,
             this.openNewTabToolStripMenuItem,
             this.openNewWindowToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(236, 92);
+            this.contextMenuStrip.Size = new System.Drawing.Size(234, 70);
+            // 
+            // showToolStripMenuItem
+            // 
+            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
+            this.showToolStripMenuItem.ShortcutKeyDisplayString = "Enter";
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.showToolStripMenuItem.Text = "Show";
+            this.showToolStripMenuItem.Click += new System.EventHandler(this.findListView_ItemActivate);
             // 
             // openNewTabToolStripMenuItem
             // 
             this.openNewTabToolStripMenuItem.Name = "openNewTabToolStripMenuItem";
             this.openNewTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
-            this.openNewTabToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
-            this.openNewTabToolStripMenuItem.Text = "Select in New Tab";
+            this.openNewTabToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.openNewTabToolStripMenuItem.Text = "Show in New Tab";
             this.openNewTabToolStripMenuItem.Click += new System.EventHandler(this.openNewTabToolStripMenuItem_Click);
             // 
             // openNewWindowToolStripMenuItem
             // 
             this.openNewWindowToolStripMenuItem.Name = "openNewWindowToolStripMenuItem";
             this.openNewWindowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.openNewWindowToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
-            this.openNewWindowToolStripMenuItem.Text = "Select in New Window";
+            this.openNewWindowToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.openNewWindowToolStripMenuItem.Text = "Show in New Window";
             this.openNewWindowToolStripMenuItem.Click += new System.EventHandler(this.openNewWindowToolStripMenuItem_Click);
-            // 
-            // selectToolStripMenuItem
-            // 
-            this.selectToolStripMenuItem.Name = "selectToolStripMenuItem";
-            this.selectToolStripMenuItem.ShortcutKeyDisplayString = "Enter";
-            this.selectToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
-            this.selectToolStripMenuItem.Text = "Select";
-            this.selectToolStripMenuItem.Click += new System.EventHandler(this.findListView_ItemActivate);
             // 
             // WorkflowFindToolWindow
             // 
@@ -140,6 +140,6 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem openNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openNewWindowToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
     }
 }
