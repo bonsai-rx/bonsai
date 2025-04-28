@@ -47,6 +47,7 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly TypeVisualizerMap typeVisualizerMap;
         readonly VisualizerLayoutMap visualizerSettings;
+        readonly WorkflowWatchMap watchMap;
         readonly IServiceProvider serviceProvider;
         readonly IUIService uiService;
         readonly ThemeRenderer themeRenderer;
@@ -69,6 +70,7 @@ namespace Bonsai.Editor.GraphView
             typeVisualizerMap = (TypeVisualizerMap)provider.GetService(typeof(TypeVisualizerMap));
             visualizerSettings = (VisualizerLayoutMap)provider.GetService(typeof(VisualizerLayoutMap));
             editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
+            watchMap = (WorkflowWatchMap)provider.GetService(typeof(WorkflowWatchMap));
             workflowWatch = (WorkflowWatch)provider.GetService(typeof(WorkflowWatch));
 
             workflowWatch.Update += WorkflowWatch_Tick;
@@ -588,6 +590,7 @@ namespace Bonsai.Editor.GraphView
         internal void UpdateGraphLayout(bool validateWorkflow, bool updateSelection)
         {
             graphView.Nodes = Workflow.ConnectedComponentLayering();
+            watchMap.InitializeWatchState(Editor);
             graphView.Invalidate();
             if (validateWorkflow)
             {
@@ -608,6 +611,12 @@ namespace Bonsai.Editor.GraphView
                 UpdateSelection();
                 editorService.RefreshEditor();
             }
+        }
+
+        internal void UpdateWatchLayout()
+        {
+            watchMap.InitializeWatchState(Editor);
+            graphView.Invalidate();
         }
 
         internal void InvalidateGraphLayout(bool validateWorkflow)

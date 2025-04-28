@@ -10,16 +10,16 @@ namespace Bonsai.Editor.Diagnostics
     {
         readonly Dictionary<ExpressionBuilder, WorkflowElementCounter> counters;
 
-        public WorkflowMeter(ExpressionBuilderGraph workflow)
+        public WorkflowMeter(ExpressionBuilderGraph workflow, WorkflowWatchMap watchMap)
         {
-            counters = GetElements(workflow).ToDictionary(
+            counters = GetElements(workflow, watchMap).ToDictionary(
                 inspectBuilder => (ExpressionBuilder)inspectBuilder,
                 inspectBuilder => new WorkflowElementCounter(inspectBuilder));
         }
 
         public IReadOnlyDictionary<ExpressionBuilder, WorkflowElementCounter> Counters => counters;
 
-        static IEnumerable<InspectBuilder> GetElements(ExpressionBuilderGraph workflow)
+        static IEnumerable<InspectBuilder> GetElements(ExpressionBuilderGraph workflow, WorkflowWatchMap watchMap)
         {
             var stack = new Stack<IEnumerator<Node<ExpressionBuilder, ExpressionBuilderArgument>>>();
             stack.Push(workflow.GetEnumerator());
@@ -36,7 +36,9 @@ namespace Bonsai.Editor.Diagnostics
                     }
 
                     var inspectBuilder = (InspectBuilder)nodeEnumerator.Current.Value;
-                    if (inspectBuilder.PublishNotifications && inspectBuilder.Watch is not null)
+                    if (inspectBuilder.PublishNotifications &&
+                        inspectBuilder.Watch is not null &&
+                        watchMap.Contains(inspectBuilder))
                     {
                         yield return inspectBuilder;
 

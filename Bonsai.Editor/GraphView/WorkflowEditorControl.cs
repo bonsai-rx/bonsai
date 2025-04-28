@@ -224,37 +224,54 @@ namespace Bonsai.Editor.GraphView
                 findToolWindow.Activate();
         }
 
-        private XDocument PersistEditorLayout()
+        private XElement PersistDockingLayout()
         {
-            var document = dockPanel.SaveAsXml();
-            document.DescendantNodes().OfType<XComment>().Remove();
-            return document;
+            var element = dockPanel.SaveAsXml();
+            element.DescendantNodes().OfType<XComment>().Remove();
+            return element;
         }
 
-        private void RestoreEditorLayout(XDocument document)
+        private void RestoreDockingLayout(XElement element)
         {
             using var memoryStream = new MemoryStream();
-            document.Save(memoryStream);
+            element.Save(memoryStream);
             memoryStream.Position = 0;
-            RestoreEditorLayout(memoryStream);
-        }
 
-        private void RestoreEditorLayout(Stream stream)
-        {
             var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
-            dockPanel.LoadFromXml(stream, content =>
+            dockPanel.LoadFromXml(memoryStream, content =>
             {
                 try { return DockPanelSerializer.DeserializeContent(this, workflowBuilder, content); }
                 catch { return new InvalidDockContent(); } // best effort
             });
         }
 
+        private void LoadEditorLayout(string fileName)
+        {
+            using var stream = File.OpenRead(fileName);
+            var editorSettings = (WorkflowEditorSettings)WorkflowEditorSettings.Serializer.Deserialize(stream);
+            RestoreDockingLayout(editorSettings.DockPanel);
+
+            if (editorSettings.WatchSettings is not null)
+            {
+                var watchMap = (WorkflowWatchMap)serviceProvider.GetService(typeof(WorkflowWatchMap));
+                var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+                watchMap.SetWatchSettings(workflowBuilder, editorSettings.WatchSettings);
+                UpdateWatchLayout();
+            }
+        }
+
         public void SaveEditorLayout(string fileName)
         {
-            var document = PersistEditorLayout();
-            using var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-            using var writer = XmlWriter.Create(fileStream, new XmlWriterSettings { Indent = true });
-            document.WriteTo(writer);
+            var editorSettings = new WorkflowEditorSettings();
+            editorSettings.Version = AboutBox.AssemblyVersion;
+            editorSettings.DockPanel = PersistDockingLayout();
+
+            var watchMap = (WorkflowWatchMap)serviceProvider.GetService(typeof(WorkflowWatchMap));
+            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+            if (watchMap.Count > 0)
+                editorSettings.WatchSettings = watchMap.GetWatchSettings(workflowBuilder);
+
+            ElementStore.SaveElement(WorkflowEditorSettings.Serializer, fileName, editorSettings, ElementStore.EmptyNamespaces);
         }
 
         public void InitializeEditorLayout(string fileName = default)
@@ -262,8 +279,7 @@ namespace Bonsai.Editor.GraphView
             if (File.Exists(fileName))
             {
                 CloseToolWindows();
-                using var stream = File.OpenRead(fileName);
-                RestoreEditorLayout(stream);
+                LoadEditorLayout(fileName);
                 CloseInvalidContents();
                 AssignToolWindows();
             }
@@ -299,6 +315,25 @@ namespace Bonsai.Editor.GraphView
             UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
             selectedView.RefreshSelection();
             UpdateAllText();
+        }
+
+        internal void UpdateWatchLayout()
+        {
+            UpdateGraphView(graphView => graphView.UpdateWatchLayout());
+        }
+
+        internal void UpdateWatchLayout(WorkflowEditorPath path)
+        {
+            UpdateWatchLayout(new[] { path });
+        }
+
+        internal void UpdateWatchLayout(IEnumerable<WorkflowEditorPath> editorPaths)
+        {
+            UpdateGraphView(graphView =>
+            {
+                if (editorPaths.Contains(graphView.WorkflowPath))
+                    graphView.UpdateWatchLayout();
+            });
         }
 
         internal void InvalidateGraphLayout(WorkflowGraphView selectedView, bool validateWorkflow)
@@ -541,10 +576,10 @@ namespace Bonsai.Editor.GraphView
                     commandExecutor.EndCompositeCommand();
                 }
 
-                var toolWindowLayout = PersistEditorLayout();
+                var toolWindowLayout = PersistDockingLayout();
                 CloseToolWindows();
                 dockPanel.Theme = dockTheme;
-                RestoreEditorLayout(toolWindowLayout);
+                RestoreDockingLayout(toolWindowLayout);
                 if (restoreContents) commandExecutor.Undo();
             }
         }

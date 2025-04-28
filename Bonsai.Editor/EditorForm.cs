@@ -68,6 +68,7 @@ namespace Bonsai.Editor
         readonly FormScheduler formScheduler;
         readonly TypeVisualizerMap typeVisualizers;
         readonly VisualizerLayoutMap visualizerSettings;
+        readonly WorkflowWatchMap watchMap;
         readonly List<WorkflowElementDescriptor> workflowElements;
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
@@ -162,6 +163,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             visualizerSettings = new VisualizerLayoutMap(typeVisualizers);
+            watchMap = new WorkflowWatchMap();
             workflowElements = new List<WorkflowElementDescriptor>();
             workflowExtensions = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
@@ -895,6 +897,7 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             FileName = fileName;
 
+            watchMap.Clear();
             editorControl.CloseAll();
             editorSite.ValidateWorkflow();
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
@@ -1319,6 +1322,7 @@ namespace Bonsai.Editor
                 if (!debug)
                 {
                     LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
+                    watchMap.SetWatchNotifications(workflowBuilder);
                 }
 
                 running = Observable.Using(
@@ -1327,8 +1331,8 @@ namespace Bonsai.Editor
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         Invoke(() =>
                         {
-                            if (watchToolStripMenuItem.Checked)
-                                workflowWatch.Start(workflowBuilder.Workflow);
+                            if (watchMap.Count > 0)
+                                workflowWatch.Start(workflowBuilder.Workflow, watchMap);
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
                             visualizerWindows.Show(visualizerSettings, editorSite, this);
@@ -2634,6 +2638,11 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(SvgRendererFactory))
                 {
                     return siteForm.iconRenderer;
+                }
+
+                if (serviceType == typeof(WorkflowWatchMap))
+                {
+                    return siteForm.watchMap;
                 }
 
                 if (serviceType == typeof(WorkflowWatch))
