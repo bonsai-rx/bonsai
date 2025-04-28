@@ -233,15 +233,15 @@ namespace Bonsai.Editor.GraphView
             remove { Events.RemoveHandler(EventSelectedNodeChanged, value); }
         }
 
-        public Color FocusedSelectionColor { get; set; }
+        public Color FocusedSelectionColor { get; private set; }
 
-        public Color ContrastSelectionColor { get; set; }
+        public Color ContrastSelectionColor { get; private set; }
 
-        public Color UnfocusedSelectionColor { get; set; }
+        public Color UnfocusedSelectionColor { get; private set; }
 
-        public Color CursorColor { get; set; }
+        public Color CursorColor { get; private set; }
 
-        [DefaultValue(null)]
+        [DefaultValue(WorkflowPathFlags.None)]
         public WorkflowPathFlags PathFlags { get; set; }
 
         [DefaultValue(null)]
