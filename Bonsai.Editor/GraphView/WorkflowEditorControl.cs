@@ -227,14 +227,14 @@ namespace Bonsai.Editor.GraphView
             ShowFindResults();
         }
 
-        public void UpdateWatchTool()
+        public void UpdateWatchTool(IEnumerable<InspectBuilder> selectedItems = default)
         {
-            watchToolWindow.UpdateWatchList();
+            watchToolWindow.UpdateWatchList(selectedItems);
         }
 
-        public void ShowWatchTool()
+        public void ShowWatchTool(IEnumerable<InspectBuilder> selectedItems = default)
         {
-            UpdateWatchTool();
+            UpdateWatchTool(selectedItems);
             ActivateToolWindow(watchToolWindow);
         }
 

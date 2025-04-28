@@ -228,26 +228,32 @@ namespace Bonsai.Editor.GraphView
 
         public void AddWatch(IEnumerable<GraphNode> nodes)
         {
-            var selectedNodes = nodes.Where(node => !watchMap.Contains(node.Value)).ToArray();
-            if (selectedNodes.Length > 0)
+            var selectedItems = nodes
+                .Where(node => !watchMap.Contains(node.Value))
+                .Select(node => (InspectBuilder)node.Value)
+                .ToHashSet();
+            if (selectedItems.Count > 0)
             {
-                foreach (var node in selectedNodes)
+                foreach (var watch in selectedItems)
                 {
-                    watchMap.Add((InspectBuilder)node.Value);
+                    watchMap.Add(watch);
                 }
             }
             EditorControl.UpdateWatchLayout(WorkflowPath);
-            EditorControl.ShowWatchTool();
+            EditorControl.ShowWatchTool(selectedItems);
         }
 
         public void DeleteWatch(IEnumerable<GraphNode> nodes)
         {
-            var selectedNodes = nodes.Where(node => watchMap.Contains(node.Value)).ToArray();
-            if (selectedNodes.Length > 0)
+            var selectedItems = nodes
+                .Where(node => watchMap.Contains(node.Value))
+                .Select(node => (InspectBuilder)node.Value)
+                .ToHashSet();
+            if (selectedItems.Count > 0)
             {
-                foreach (var node in selectedNodes)
+                foreach (var watch in selectedItems)
                 {
-                    watchMap.Remove((InspectBuilder)node.Value);
+                    watchMap.Remove(watch);
                 }
             }
             EditorControl.UpdateWatchLayout(WorkflowPath);
