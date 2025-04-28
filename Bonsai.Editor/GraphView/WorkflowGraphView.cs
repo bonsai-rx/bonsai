@@ -901,16 +901,6 @@ namespace Bonsai.Editor.GraphView
                 goToDefinitionToolStripMenuItem_Click(sender, e);
             }
 
-            if (e.KeyData == addWatchToolStripMenuItem.ShortcutKeys)
-            {
-                addWatchToolStripMenuItem_Click(sender, e);
-            }
-
-            if (e.KeyData == deleteWatchToolStripMenuItem.ShortcutKeys)
-            {
-                deleteWatchToolStripMenuItem_Click(sender, e);
-            }
-
             if (e.KeyCode == Keys.Return && !CanEdit)
             {
                 LaunchDefaultAction(graphView.SelectedNode);
@@ -1117,12 +1107,12 @@ namespace Bonsai.Editor.GraphView
 
         private void addWatchToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddWatch(graphView.SelectedNodes);
+            editorService.OnKeyDown(new KeyEventArgs(addWatchToolStripMenuItem.ShortcutKeys));
         }
 
         private void deleteWatchToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DeleteWatch(graphView.SelectedNodes);
+            editorService.OnKeyDown(new KeyEventArgs(deleteWatchToolStripMenuItem.ShortcutKeys));
         }
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
