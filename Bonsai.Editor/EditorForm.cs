@@ -289,13 +289,20 @@ namespace Bonsai.Editor
             formCancellation.Cancel();
         }
 
-        void HandleUpdatesAvailable(bool value)
+        IObservable<Unit> HandleUpdatesAvailableAsync()
         {
-            if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
-            else toolStrip.Items.Remove(statusUpdateAvailableLabel);
+            return updatesAvailable
+                .ObserveOn(formScheduler)
+                .Do(value =>
+                {
+                    if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
+                    else toolStrip.Items.Remove(statusUpdateAvailableLabel);
+                })
+                .IgnoreElements()
+                .Select(xs => Unit.Default);
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override async void OnLoad(EventArgs e)
         {
             RestoreEditorSettings();
             var initialFileName = FileName;
@@ -304,10 +311,12 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            InitializeSubjectSourcesAsync(formCancellation.Token);
-            InitializeWorkflowFileWatcherAsync(formCancellation.Token);
-            InitializeWorkflowExplorerWatcherAsync(formCancellation.Token);
-            updatesAvailable.ObserveOn(formScheduler).Do(HandleUpdatesAvailable).ToTask(formCancellation.Token);
+            Observable.Merge(
+                InitializeSubjectSourcesAsync(),
+                InitializeWorkflowFileWatcherAsync(),
+                InitializeWorkflowExplorerWatcherAsync(),
+                HandleUpdatesAvailableAsync())
+                .Subscribe(formCancellation.Token);
 
             var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
             var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
@@ -324,8 +333,9 @@ namespace Bonsai.Editor
 
             InitializeEditorToolboxTypes();
             initialization = InitializeEditorExtensionsAsync(formCancellation.Token);
-            _ = InitializeWorkflowAsync(validFileName ? initialFileName : default);
             base.OnLoad(e);
+
+            await InitializeWorkflowAsync(validFileName ? initialFileName : default);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
@@ -417,7 +427,7 @@ namespace Bonsai.Editor
             }
         }
 
-        Task InitializeSubjectSourcesAsync(CancellationToken cancellationToken)
+        IObservable<Unit> InitializeSubjectSourcesAsync()
         {
             var selectedPathChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -457,10 +467,10 @@ namespace Bonsai.Editor
                     toolboxTreeView.EndUpdate();
                 })
                 .IgnoreElements()
-                .ToTask(cancellationToken);
+                .Select(xs => Unit.Default);
         }
 
-        Task InitializeWorkflowExplorerWatcherAsync(CancellationToken cancellationToken)
+        IObservable<Unit> InitializeWorkflowExplorerWatcherAsync()
         {
             var selectedViewChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => selectionModel.SelectionChanged += handler,
@@ -487,19 +497,17 @@ namespace Bonsai.Editor
                     workflowBuilder);
             })
             .IgnoreElements()
-            .Select(xs => Unit.Default))
-            .ToTask(cancellationToken);
+            .Select(xs => Unit.Default));
         }
 
-        Task InitializeWorkflowFileWatcherAsync(CancellationToken cancellationToken)
+        IObservable<Unit> InitializeWorkflowFileWatcherAsync()
         {
             var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
                 handler => Events.RemoveHandler(ExtensionsDirectoryChanged, handler));
             return extensionsDirectoryChanged
                 .Select(evt => Observable.Defer(RefreshWorkflowExtensions))
-                .Switch()
-                .ToTask(cancellationToken);
+                .Switch();
         }
 
         IObservable<Unit> RefreshWorkflowExtensions()
