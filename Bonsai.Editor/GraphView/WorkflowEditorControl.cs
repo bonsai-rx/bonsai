@@ -215,11 +215,16 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
+        public void ShowFindResults()
+        {
+            ActivateToolWindow(findToolWindow);
+        }
+
         public void ShowFindResults(string text, IEnumerable<WorkflowQueryResult> query)
         {
             findToolWindow.Query = query;
             findToolWindow.Text = text;
-            ActivateToolWindow(findToolWindow);
+            ShowFindResults();
         }
 
         public void UpdateWatchTool()
