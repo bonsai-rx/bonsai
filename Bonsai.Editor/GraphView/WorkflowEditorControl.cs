@@ -21,6 +21,7 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly ThemeRenderer themeRenderer;
         readonly CommandExecutor commandExecutor;
+        readonly WatchToolWindow watchToolWindow;
         readonly WorkflowFindToolWindow findToolWindow;
         readonly EditorToolWindowCollection toolWindows;
 
@@ -31,9 +32,11 @@ namespace Bonsai.Editor.GraphView
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            watchToolWindow = new WatchToolWindow(provider, this);
+            watchToolWindow.Navigate += ToolWindow_Navigate;
             findToolWindow = new WorkflowFindToolWindow(provider);
-            findToolWindow.Navigate += findToolWindow_Navigate;
-            toolWindows = new EditorToolWindowCollection { findToolWindow };
+            findToolWindow.Navigate += ToolWindow_Navigate;
+            toolWindows = new EditorToolWindowCollection { findToolWindow, watchToolWindow };
             AssignToolWindows();
 
             ConfigureDockTheme(lightTheme);
@@ -216,12 +219,31 @@ namespace Bonsai.Editor.GraphView
         {
             findToolWindow.Query = query;
             findToolWindow.Text = text;
-            if (findToolWindow.DockState == DockState.Hidden)
-                findToolWindow.Show(dockPanel);
-            else if (findToolWindow.DockState == DockState.Unknown)
-                findToolWindow.Show(dockPanel, DockState.DockBottom);
+            ActivateToolWindow(findToolWindow);
+        }
+
+        public void UpdateWatchTool()
+        {
+            watchToolWindow.UpdateWatchList();
+        }
+
+        public void ShowWatchTool()
+        {
+            UpdateWatchTool();
+            ActivateToolWindow(watchToolWindow);
+        }
+
+        private void ActivateToolWindow(EditorToolWindow toolWindow)
+        {
+            if (toolWindow.DockState == DockState.Hidden)
+                toolWindow.Show(dockPanel);
+            else if (toolWindow.DockState == DockState.Unknown)
+                toolWindow.Show(dockPanel, DockState.DockBottom);
+            else if (toolWindow.DockState >= DockState.DockTopAutoHide &&
+                     toolWindow.DockState <= DockState.DockRightAutoHide)
+                dockPanel.ActiveAutoHideContent = toolWindow;
             else
-                findToolWindow.Activate();
+                toolWindow.Activate();
         }
 
         private XElement PersistDockingLayout()
@@ -256,6 +278,7 @@ namespace Bonsai.Editor.GraphView
                 var watchMap = (WorkflowWatchMap)serviceProvider.GetService(typeof(WorkflowWatchMap));
                 var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
                 watchMap.SetWatchSettings(workflowBuilder, editorSettings.WatchSettings);
+                UpdateWatchTool();
                 UpdateWatchLayout();
             }
         }
@@ -607,7 +630,7 @@ namespace Bonsai.Editor.GraphView
             CollapseAnnotationPanel();
         }
 
-        private void findToolWindow_Navigate(object sender, WorkflowNavigateEventArgs e)
+        private void ToolWindow_Navigate(object sender, WorkflowNavigateEventArgs e)
         {
             editorService.SelectBuilderNode(e.WorkflowPath, e.NavigationPreference);
         }

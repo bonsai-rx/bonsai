@@ -674,11 +674,31 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="WatchMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
-        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7CAAAOwgEVKEqAAAAAv0lE
-        QVQ4T2MYRkBRUTEJiPeDMFQIBcDkQOqgQgggIyMjpKCgsElKSkoYKoQV4FQnLy+fBcJQLl6AoZZY22EA
-        Qz0ptsMAih6gaY+AAfMfC34AkgfRaOJgDNIHNgDI+SsnJyeJjpEV45D/BzYAaNILoHMMkCWB/ACg+FWo
-        BRdAfGR5ZWVlI6D4c5gB24A4HlkBkL8aqKkAakAOiI8sD5RLBIptgRmQB3ImMgaKvQKFNkgeqEEQxMei
-        Jg9swFAHDAwAKi9WPOw18+QAAAAASUVORK5CYII=
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7AAAAOwAFq1okJAAAAvklE
+        QVQ4T92QSwrCQBBEcwV1ZQjTVeQC4km8gehSJHgvdyJuvYIb9+Im4h000mEGJvMBt1rQDD2vuuZTFP8j
+        kmuSZ62QqRxTX8iKqqrGAA5lWU5C5ivrE5GN1mAzo8ibTc0o8keJX2gwA+BOskvUTbmuCdbpXB9A8mWM
+        mYblm0Nm+dvd4CEiMx+KyALA1R5w0d7ndV3PSbYu4ARg6RsA7EVkZwO22gcHrAAcXUCTeN9Tf1u5MWak
+        fcLT9AG/rw8qL1Y83UltdgAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="DeleteWatchMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7BAAAOwQG4kWvtAAAA/klE
+        QVQ4T2M4wiVeephb3IEBCkBskBiMTxAc5hG1OcIl9vIot7gTMhtdHV4AsVXsJQgju4ZoQJEBR3hEbIn1
+        gqKi4n4oToILwgJRRkZGSEFBwZ1QIILUKSoqbgTRKBKKiorZ8vLyWSiCOABIHYpaqO2bpKSkhFFU4gAY
+        6jFMJAKg6FFQUHikqKj4Hwt+AJIH0Vjk/oP0gQ1QVFT8KycnJ4mOkRWjy0Hl/8Fc8EJeXt4AWVJeXj5A
+        QUHhKtSCCyA+sryysrKRoqLic5gB2xQUFOKRFSgoKKyWl5cvgBqQA+KjWZCooKCwBWZAHhb/vYLFtZyc
+        nCCIj0VNHtiAAQUAuIl4kpXmGr0AAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="ClearAllMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7CAAAOwgEVKEqAAAAAaklE
+        QVQ4T2NgoAY4wiVeephb3AHGB7FBYiC2oqLif1wYbsBhHlGbI1xiL49yizshs+EKiAEQW8VegjCya4gG
+        uAxAdzZWLxzhEbGlyAv4ApFigO5srF4YeIDuNGIxujkDCNCdRixGN2dgAADmiWng2iRjRwAAAABJRU5E
+        rkJggg==
 </value>
   </data>
 </root>
