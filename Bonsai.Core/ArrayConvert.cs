@@ -131,7 +131,7 @@ namespace Bonsai
                         var columns = row.Split(new[] { ColumnSeparator }, StringSplitOptions.RemoveEmptyEntries);
                         if (numColumns != null && numColumns != columns.Length)
                         {
-                            throw new ArgumentException("Matrix specification must be rectangular.", nameof(value));
+                            throw new FormatException("Matrix specification must be rectangular.");
                         }
 
                         numColumns = columns.Length;
