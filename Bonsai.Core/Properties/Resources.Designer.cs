@@ -115,7 +115,7 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No property or named element &apos;{0}&apos; was found in the workflow. .
+        ///   Looks up a localized string similar to No property or named element &apos;{0}&apos; was found in the workflow..
         /// </summary>
         internal static string Exception_PropertyNotFound {
             get {
@@ -165,15 +165,6 @@ namespace Bonsai.Properties {
         internal static string Exception_UnsupportedMinArgumentCount {
             get {
                 return ResourceManager.GetString("Exception_UnsupportedMinArgumentCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The named element &apos;{0}&apos; does not support nested element assignment..
-        /// </summary>
-        internal static string Exception_UnsupportedNestedAssignment {
-            get {
-                return ResourceManager.GetString("Exception_UnsupportedNestedAssignment", resourceCulture);
             }
         }
     }

@@ -60,42 +60,29 @@ namespace Bonsai.Expressions
                 throw new ArgumentException("The workflow property name cannot be null or whitespace.", nameof(name));
             }
 
-            object component = source;
             var memberChain = name.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < memberChain.Length - 1; i++)
             {
-                var namedBuilders = (from node in source
-                                     let builder = ExpressionBuilder.Unwrap(node.Value) as ISupportPropertyAssignment
-                                     where builder != null && builder.Name == memberChain[i]
-                                     select builder).ToArray();
-                if (namedBuilders.Length == 0)
+                var workflowBuilders = (from node in source
+                                        let builder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder
+                                        where builder != null && builder.Name == memberChain[i]
+                                        select builder).ToArray();
+                if (workflowBuilders.Length == 0)
                 {
-                    throw new KeyNotFoundException(string.Format(
-                        Resources.Exception_PropertyNotFound,
-                        string.Join(ExpressionHelper.MemberSeparator, memberChain, 0, i + 1)));
+                    throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
                 }
-                else if (namedBuilders.Length > 1)
+                else if (workflowBuilders.Length > 1)
                 {
                     throw new InvalidOperationException(string.Format(
                         Resources.Exception_AmbiguousNamedElement,
                         string.Join(ExpressionHelper.MemberSeparator, memberChain, 0, i + 1)));
                 }
 
-                component = namedBuilders[0];
-                if (component is IWorkflowExpressionBuilder workflowBuilder)
-                {
-                    source = workflowBuilder.Workflow;
-                }
-                else if (i < memberChain.Length - 2)
-                {
-                    throw new InvalidOperationException(string.Format(
-                        Resources.Exception_UnsupportedNestedAssignment,
-                        string.Join(ExpressionHelper.MemberSeparator, memberChain, 0, i + 1)));
-                }
+                source = workflowBuilders[0].Workflow;
             }
 
             name = memberChain[memberChain.Length - 1];
-            var propertyDescriptor = TypeDescriptor.GetProperties(component).Find(name, false);
+            var propertyDescriptor = TypeDescriptor.GetProperties(source).Find(name, false);
             if (propertyDescriptor == null)
             {
                 throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
@@ -105,7 +92,7 @@ namespace Bonsai.Expressions
             {
                 try
                 {
-                    var context = new SimpleTypeDescriptorContext(component, propertyDescriptor);
+                    var context = new SimpleTypeDescriptorContext(source, propertyDescriptor);
                     value = propertyDescriptor.Converter.ConvertFrom(context, CultureInfo.InvariantCulture, value);
                 }
                 catch (Exception ex)
@@ -114,7 +101,7 @@ namespace Bonsai.Expressions
                 }
             }
 
-            propertyDescriptor.SetValue(component, value);
+            propertyDescriptor.SetValue(source, value);
         }
 
         class SimpleTypeDescriptorContext : ITypeDescriptorContext

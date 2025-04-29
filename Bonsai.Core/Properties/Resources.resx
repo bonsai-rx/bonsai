@@ -136,7 +136,7 @@
     <value>Pending property assignments have been found on some of the missing included workflows. Please restore the missing files and reload the workflow.</value>
   </data>
   <data name="Exception_PropertyNotFound" xml:space="preserve">
-    <value>No property or named element '{0}' was found in the workflow. </value>
+    <value>No property or named element '{0}' was found in the workflow.</value>
   </data>
   <data name="Exception_SerializingNonPublicType" xml:space="preserve">
     <value>The workflow contains non-public types. Please ensure any internal operators have been fully converted or removed before saving the workflow.</value>
@@ -152,8 +152,5 @@
   </data>
   <data name="Exception_UnsupportedMinArgumentCount" xml:space="preserve">
     <value>Unsupported number of arguments. This node requires at least {0} input connection(s).</value>
-  </data>
-  <data name="Exception_UnsupportedNestedAssignment" xml:space="preserve">
-    <value>The named element '{0}' does not support nested element assignment.</value>
   </data>
 </root>
