@@ -88,6 +88,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Property value is not valid..
+        /// </summary>
+        internal static string Exception_InvalidPropertyValue {
+            get {
+                return ResourceManager.GetString("Exception_InvalidPropertyValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve the XML type &apos;{0}&apos; without a valid clr-namespace..
         /// </summary>
         internal static string Exception_InvalidTypeNamespace {

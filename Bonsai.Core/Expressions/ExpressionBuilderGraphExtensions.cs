@@ -103,7 +103,14 @@ namespace Bonsai.Expressions
 
             if (value is not null && value.GetType() != propertyDescriptor.PropertyType)
             {
-                value = propertyDescriptor.Converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
+                try
+                {
+                    value = propertyDescriptor.Converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
+                }
+                catch (Exception ex)
+                {
+                    throw new FormatException(Resources.Exception_InvalidPropertyValue, ex);
+                }
             }
 
             propertyDescriptor.SetValue(component, value);
