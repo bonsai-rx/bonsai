@@ -619,7 +619,23 @@ namespace Bonsai.Editor
             {
                 foreach (var assignment in propertyAssignments)
                 {
-                    workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
+                    try
+                    {
+                        workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
+                    }
+                    catch (Exception ex) when (ex is KeyNotFoundException or InvalidOperationException or FormatException)
+                    {
+                        var icon = MessageBoxIcon.Error;
+                        var caption = Resources.OpenWorkflow_Error_Caption;
+                        var innerMessage = ex is FormatException fex && fex.InnerException is not null
+                            ? $"{ex.Message} {ex.InnerException.Message}"
+                            : ex.Message;
+                        var message = string.Format(Resources.PropertyAssignment_Error, assignment.Key, innerMessage);
+                        if (MessageBox.Show(this, message, caption, MessageBoxButtons.YesNo, icon, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                            continue;
+                        else
+                            return;
+                    }
                 }
 
                 var loadAction = LoadAction;

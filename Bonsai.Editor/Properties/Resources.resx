@@ -354,6 +354,11 @@ The visualizer layout may be corrupt. Do you want to delete the layout file?</va
   <data name="VisualizerLayout_Caption" xml:space="preserve">
     <value>Visualizer Layout</value>
   </data>
+  <data name="PropertyAssignment_Error" xml:space="preserve">
+    <value>There was an error assigning to property '{0}': {1}
+
+Do you want to continue assigning any remaining properties and/or running the workflow?</value>
+  </data>
   <data name="BrowseDirectoryMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO

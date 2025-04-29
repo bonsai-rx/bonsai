@@ -21,7 +21,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Workflow)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
-    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
+    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, ISupportPropertyAssignment, IRequireBuildContext
     {
         const char AssemblySeparator = ':';
         internal const string BuildUriPrefix = "::build:";

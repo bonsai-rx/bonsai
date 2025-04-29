@@ -19,7 +19,7 @@ namespace Bonsai.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -88,6 +88,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Property value is not valid..
+        /// </summary>
+        internal static string Exception_InvalidPropertyValue {
+            get {
+                return ResourceManager.GetString("Exception_InvalidPropertyValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve the XML type &apos;{0}&apos; without a valid clr-namespace..
         /// </summary>
         internal static string Exception_InvalidTypeNamespace {
@@ -106,7 +115,7 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified property &apos;{0}&apos; was not found in the workflow. .
+        ///   Looks up a localized string similar to No property or named element &apos;{0}&apos; was found in the workflow. .
         /// </summary>
         internal static string Exception_PropertyNotFound {
             get {
@@ -156,6 +165,15 @@ namespace Bonsai.Properties {
         internal static string Exception_UnsupportedMinArgumentCount {
             get {
                 return ResourceManager.GetString("Exception_UnsupportedMinArgumentCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The named element &apos;{0}&apos; does not support nested element assignment..
+        /// </summary>
+        internal static string Exception_UnsupportedNestedAssignment {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedNestedAssignment", resourceCulture);
             }
         }
     }
