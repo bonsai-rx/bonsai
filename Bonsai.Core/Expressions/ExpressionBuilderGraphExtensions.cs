@@ -105,7 +105,8 @@ namespace Bonsai.Expressions
             {
                 try
                 {
-                    value = propertyDescriptor.Converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
+                    var context = new SimpleTypeDescriptorContext(component, propertyDescriptor);
+                    value = propertyDescriptor.Converter.ConvertFrom(context, CultureInfo.InvariantCulture, value);
                 }
                 catch (Exception ex)
                 {
@@ -114,6 +115,27 @@ namespace Bonsai.Expressions
             }
 
             propertyDescriptor.SetValue(component, value);
+        }
+
+        class SimpleTypeDescriptorContext : ITypeDescriptorContext
+        {
+            public SimpleTypeDescriptorContext(object instance, PropertyDescriptor descriptor)
+            {
+                Instance = instance;
+                PropertyDescriptor = descriptor;
+            }
+
+            public IContainer Container => null;
+
+            public object Instance { get; }
+
+            public PropertyDescriptor PropertyDescriptor { get; }
+
+            public void OnComponentChanged() { }
+
+            public bool OnComponentChanging() => false;
+
+            public object GetService(Type serviceType) => null;
         }
 
         #region Error Handling
