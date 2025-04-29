@@ -514,6 +514,17 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error assigning to property &apos;{0}&apos;: {1}
+        ///
+        ///Do you want to continue assigning any remaining properties and/or running the workflow?.
+        /// </summary>
+        internal static string PropertyAssignment_Error {
+            get {
+                return ResourceManager.GetString("PropertyAssignment_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified subject definition is read-only..
         /// </summary>
         internal static string ReadOnlySubjectDefinition_Error {
