@@ -35,7 +35,7 @@ namespace Bonsai.Design
                 VisualizerDialog.Load += delegate
                 {
                     var bounds = Bounds;
-                    if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.Contains(bounds) || WindowState != FormWindowState.Normal))
+                    if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.IntersectsWith(bounds) || WindowState != FormWindowState.Normal))
                     {
                         VisualizerDialog.LayoutBounds = bounds;
                         VisualizerDialog.WindowState = WindowState;
