@@ -1,9 +1,10 @@
 ﻿using Bonsai.Reactive;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
-    class TextureSequence : Texture, ITextureSequence
+    class TextureSequence : Texture, ITextureSequence, ITextureArray
     {
         readonly TextureArray textures;
 
@@ -65,5 +66,23 @@ namespace Bonsai.Shaders
             {
             }
         }
+
+        #region ITextureArray Members
+
+        int ITextureArray.Length => textures.Length;
+
+        int ITextureArray.this[int index] => textures[index];
+
+        IEnumerator<int> IEnumerable<int>.GetEnumerator()
+        {
+            return textures.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return textures.GetEnumerator();
+        }
+
+        #endregion
     }
 }
