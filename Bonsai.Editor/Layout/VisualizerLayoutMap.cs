@@ -32,15 +32,33 @@ namespace Bonsai.Design
         {
             for (int i = 0; i < workflow.Count; i++)
             {
-                var builder = (InspectBuilder)workflow[i].Value;
-                if (builder.ObservableType is null) continue;
+                var source = (InspectBuilder)workflow[i].Value;
+                if (source.ObservableType is null) continue;
 
-                if (lookup.TryGetValue(builder, out VisualizerDialogSettings dialogSettings))
+                if (source.Builder is VisualizerWindow visualizerWindow)
                 {
-                    visualizerDialogs.Add(builder, workflow, dialogSettings);
+                    if (!lookup.TryGetValue(source, out VisualizerDialogSettings cachedSettings))
+                        cachedSettings = new();
+
+                    lookup[source] = new VisualizerDialogSettings
+                    {
+                        Visible = visualizerWindow.Visible.GetValueOrDefault(cachedSettings.Visible),
+                        Location = visualizerWindow.Location.GetValueOrDefault(cachedSettings.Location),
+                        Size = visualizerWindow.Size.GetValueOrDefault(cachedSettings.Size),
+                        WindowState = visualizerWindow.WindowState.GetValueOrDefault(cachedSettings.WindowState),
+                        VisualizerTypeName = visualizerWindow.VisualizerType?
+                            .GetType()
+                            .GetGenericArguments()[0]
+                            .FullName
+                    };
                 }
 
-                if (ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
+                if (lookup.TryGetValue(source, out VisualizerDialogSettings dialogSettings))
+                {
+                    visualizerDialogs.Add(source, workflow, dialogSettings);
+                }
+
+                if (source.Builder is IWorkflowExpressionBuilder workflowBuilder)
                 {
                     CreateVisualizerDialogs(workflowBuilder.Workflow, visualizerDialogs);
                 }
@@ -75,7 +93,7 @@ namespace Bonsai.Design
 
                 var visualizer = dialog.Visualizer.Value;
                 var visualizerType = visualizer.GetType();
-                if (visualizerType.IsPublic)
+                if (visualizerType.IsPublic && dialog.Source.Builder is not VisualizerWindow)
                 {
                     dialogSettings.VisualizerTypeName = visualizerType.FullName;
                     dialogSettings.VisualizerSettings = LayoutHelper.SerializeVisualizerSettings(

@@ -5,9 +5,9 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents the target type to be created from selected member variables. This type is manipulated internally
-    /// by <see cref="InputMappingBuilder"/>, <see cref="MemberSelectorBuilder"/> and <see cref="VisualizerMappingBuilder"/>
-    /// to specify output and visualizer types.
+    /// Represents the target type to be used by a mapping operator. Instances of this type are
+    /// manipulated internally by <see cref="InputMappingBuilder"/>, <see cref="MemberSelectorBuilder"/>,
+    /// and instances of <see cref="VisualizerMappingExpressionBuilder"/> to specify output and visualizer types.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [TypeConverter(typeof(TypeMappingConverter))]
@@ -17,13 +17,13 @@ namespace Bonsai.Expressions
     }
 
     /// <summary>
-    /// Represents the target type to be created from selected member variables. This type is manipulated internally
-    /// by <see cref="InputMappingBuilder"/> and <see cref="MemberSelectorBuilder"/> to force a specific
-    /// output type.
+    /// Represents the target type to be used by a mapping operator. Instances of this type are
+    /// manipulated internally by <see cref="InputMappingBuilder"/>, <see cref="MemberSelectorBuilder"/>,
+    /// and instances of <see cref="VisualizerMappingExpressionBuilder"/> to specify output and visualizer types.
     /// </summary>
-    /// <typeparam name="T">The target type to be created from selected member variables.</typeparam>
+    /// <typeparam name="T">The target type to be used by the mapping operator.</typeparam>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    public class TypeMapping<T> : TypeMapping
+    public sealed class TypeMapping<T> : TypeMapping
     {
         internal override Type TargetType
         {
