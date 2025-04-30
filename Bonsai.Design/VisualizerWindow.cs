@@ -12,16 +12,16 @@ namespace Bonsai.Design
     /// Represents an expression builder specifying that a visualizer window should be
     /// displayed on this operator at workflow start.
     /// </summary>
-    [DefaultProperty(nameof(Name))]
+    [DefaultProperty(nameof(Text))]
     [Description("Specifies that a visualizer window should be displayed on this operator at workflow start.")]
     public sealed class VisualizerWindow : VisualizerMappingExpressionBuilder, INamedElement
     {
         /// <summary>
-        /// Gets or sets the name of the visualizer window.
+        /// Gets or sets the text of the visualizer window title bar.
         /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The name of the visualizer window.")]
-        public string Name { get; set; }
+        [Category(nameof(CategoryAttribute.Appearance))]
+        [Description("The text of the visualizer window title bar.")]
+        public string Text { get; set; }
 
         /// <summary>
         /// Gets or sets a value specifying whether the visualizer window is visible
@@ -40,6 +40,7 @@ namespace Bonsai.Design
         /// <remarks>
         /// If no value is specified, the value in the cached layout settings is used.
         /// </remarks>
+        [Category(nameof(CategoryAttribute.Layout))]
         [Description("Specifies the position of the upper-left corner of the visualizer window, in screen coordinates.")]
         public Point? Location { get; set; }
 
@@ -49,6 +50,7 @@ namespace Bonsai.Design
         /// <remarks>
         /// If no value is specified, the value in the cached layout settings is used.
         /// </remarks>
+        [Category(nameof(CategoryAttribute.Layout))]
         [Description("Specifies the size of the visualizer window.")]
         public Size? Size { get; set; }
 
@@ -59,8 +61,11 @@ namespace Bonsai.Design
         /// <remarks>
         /// If no value is specified, the value in the cached layout settings is used.
         /// </remarks>
+        [Category(nameof(CategoryAttribute.Layout))]
         [Description("Specifies whether the visualizer window should start minimized, maximized, or normal.")]
         public FormWindowState? WindowState { get; set; }
+
+        string INamedElement.Name => Text;
 
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
