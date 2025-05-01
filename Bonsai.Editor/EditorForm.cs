@@ -764,9 +764,9 @@ namespace Bonsai.Editor
             UpdatePropertyGrid();
         }
 
-        bool EnsureWorkflowFile(bool force = false)
+        bool EnsureWorkflowFile()
         {
-            if (string.IsNullOrEmpty(FileName) || force)
+            if (string.IsNullOrEmpty(FileName))
             {
                 var result = MessageBox.Show(
                     this,
@@ -776,12 +776,8 @@ namespace Bonsai.Editor
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
                 if (result != DialogResult.Yes) return false;
-                if (string.IsNullOrEmpty(FileName))
-                {
-                    saveAsToolStripMenuItem_Click(this, EventArgs.Empty);
-                    if (string.IsNullOrEmpty(FileName)) return false;
-                }
-                else return SaveWorkflow(FileName);
+                saveAsToolStripMenuItem_Click(this, EventArgs.Empty);
+                return !string.IsNullOrEmpty(FileName);
             }
 
             return true;
@@ -1232,7 +1228,7 @@ namespace Bonsai.Editor
 
         private void exportPackageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (EnsureWorkflowFile(force: true))
+            if (EnsureWorkflowFile())
             {
                 EditorResult = EditorResult.ExportPackage;
                 Close();
