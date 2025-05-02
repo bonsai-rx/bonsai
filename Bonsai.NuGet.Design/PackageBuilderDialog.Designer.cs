@@ -45,7 +45,7 @@
             this.metadataProperties.DisabledItemForeColor = System.Drawing.SystemColors.ControlText;
             this.metadataProperties.Location = new System.Drawing.Point(12, 25);
             this.metadataProperties.Name = "metadataProperties";
-            this.metadataProperties.PropertySort = System.Windows.Forms.PropertySort.NoSort;
+            this.metadataProperties.PropertySort = System.Windows.Forms.PropertySort.Categorized;
             this.metadataProperties.Size = new System.Drawing.Size(283, 375);
             this.metadataProperties.TabIndex = 2;
             // 
