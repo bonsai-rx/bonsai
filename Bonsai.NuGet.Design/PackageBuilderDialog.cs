@@ -409,6 +409,14 @@ namespace Bonsai.NuGet.Design
                         return new SimplePropertyDescriptor(descriptor, attributes);
                     }
 
+                    if (descriptor.Name == "LicenseMetadata")
+                    {
+                        var typeConverterAttribute = new TypeConverterAttribute(typeof(LicenseMetadataConverter));
+                        var editorAttribute = new EditorAttribute(typeof(LicenseMetadataEditor).AssemblyQualifiedName, DesignTypes.UITypeEditor);
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, typeConverterAttribute, editorAttribute };
+                        return new SimplePropertyDescriptor(descriptor, "License", attributes);
+                    }
+
                     if (descriptor.Name == "Readme" || descriptor.Name == "Icon")
                     {
                         var editorAttribute = new EditorAttribute(DesignTypes.OpenFileNameEditor, DesignTypes.UITypeEditor);
