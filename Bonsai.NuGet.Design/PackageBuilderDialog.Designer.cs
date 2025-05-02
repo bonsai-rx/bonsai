@@ -39,8 +39,8 @@
             // 
             // metadataProperties
             // 
-            this.metadataProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.metadataProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.metadataProperties.DisabledItemForeColor = System.Drawing.SystemColors.ControlText;
             this.metadataProperties.Location = new System.Drawing.Point(12, 25);
@@ -51,8 +51,8 @@
             // 
             // contentView
             // 
-            this.contentView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right))));
+            this.contentView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.contentView.Location = new System.Drawing.Point(301, 51);
             this.contentView.Name = "contentView";
             this.contentView.Size = new System.Drawing.Size(311, 349);
@@ -70,6 +70,8 @@
             // 
             // contentLabel
             // 
+            this.contentLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.contentLabel.AutoSize = true;
             this.contentLabel.Location = new System.Drawing.Point(301, 9);
             this.contentLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
