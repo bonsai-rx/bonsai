@@ -270,7 +270,10 @@ namespace Bonsai.NuGet.Design
 
         class PackageBuilderTypeDescriptionProvider : TypeDescriptionProvider
         {
-            readonly PackageBuilderTypeDescriptor typeDescriptor = new PackageBuilderTypeDescriptor();
+            const string RequiredCategory = "\t\t\tRequired";
+            const string LicenseCategory = "\t\tLicense";
+            const string AboutCategory = "\tAbout";
+            readonly PackageBuilderTypeDescriptor typeDescriptor = new();
 
             public override ICustomTypeDescriptor GetTypeDescriptor(Type objectType, object instance)
             {
@@ -297,19 +300,19 @@ namespace Bonsai.NuGet.Design
                 {
                     "Id",
                     "Version",
-                    "Description",
                     "Authors",
-
-                    "Title",
-                    "Owners",
-                    "ProjectUrl",
-                    "LicenseUrl",
-                    "IconUrl",
-                    "RequireLicenseAcceptance",
-                    "Summary",
-                    "ReleaseNotes",
-                    "Copyright",
+                    "Description",
                     "Tags",
+
+                    "License",
+                    "RequireLicenseAcceptance",
+
+                    "ProjectUrl",
+                    "Copyright",
+                    "Readme",
+                    "Icon",
+
+                    "ReleaseNotes",
                     "DependencySets",
                 };
 
@@ -317,25 +320,39 @@ namespace Bonsai.NuGet.Design
                 {
                     { "Id", "The case-insensitive package identifier, which must be unique across the package gallery. IDs may not contain spaces or characters that are not valid for a URL." },
                     { "Version", "The version of the package, following the major.minor.patch pattern. Version numbers may include a pre-release suffix." },
-                    { "Description", "A long description of the package for UI display." },
                     { "Authors", "A comma-separated list of package authors, matching the profile names on nuget.org." },
-                    { "Title", "A human-friendly title of the package. If not specified, the package ID is used instead." },
-                    { "Owners", "A comma-separated list of the package creators using profile names on nuget.org. This is often the same list as in authors." },
-                    { "ProjectUrl", "A URL for the package's home page, often shown in UI displays as well as nuget.org." },
-                    { "LicenseUrl", "A URL for the package's license, often shown in UI displays as well as nuget.org." },
-                    { "IconUrl", "A URL for a 64x64 image with transparent background to use as the icon for the package in UI display." },
-                    { "RequireLicenseAcceptance", "A value specifying whether the client must prompt the consumer to accept the package license before installing the package." },
-                    { "Summary", "A short description of the package for UI display. If omitted, a truncated version of the description is used." },
-                    { "ReleaseNotes", "A description of the changes made in this release of the package, often used in the Updates tab in place of the package description. " },
-                    { "Copyright", "Copyright details for the package." },
+                    { "Description", "A long description of the package for UI display." },
                     { "Tags", "A space-delimited list of tags and keywords that describe the package and aid discoverability of packages through search and filtering mechanisms." },
+                    { "LicenseMetadata", "The SPDX license expression or path to a license file within the package, often shown in UI displays as well as nuget.org." },
+                    { "RequireLicenseAcceptance", "A value specifying whether the client must prompt the consumer to accept the package license before installing the package." },
+                    { "ProjectUrl", "A URL for the package's home page, often shown in UI displays as well as nuget.org." },
+                    { "Copyright", "Copyright details for the package." },
+                    { "Readme", "The path to the package README file, relative to the root of the project." },
+                    { "Icon", "A path to an image file within the package to be used as the package icon." },
+                    { "ReleaseNotes", "A description of the changes made in this release of the package, often used in the Updates tab in place of the package description. " },
                     { "DependencyGroups", "The collection of dependencies for the package." }
                 };
 
-                DescriptionAttribute GetDescriptionAttribute(PropertyDescriptor descriptor)
+                static readonly Dictionary<string, string> CategoryMap = new Dictionary<string, string>
                 {
-                    string description;
-                    if (DescriptionMap.TryGetValue(descriptor.Name, out description))
+                    { "Id", RequiredCategory },
+                    { "Version", RequiredCategory },
+                    { "Authors", RequiredCategory },
+                    { "Description", RequiredCategory },
+                    { "Tags", RequiredCategory },
+                    { "LicenseMetadata", LicenseCategory },
+                    { "RequireLicenseAcceptance", LicenseCategory },
+                    { "ProjectUrl", AboutCategory },
+                    { "Copyright", AboutCategory },
+                    { "Readme", AboutCategory },
+                    { "Icon", AboutCategory },
+                    { "ReleaseNotes", default },
+                    { "DependencyGroups", default }
+                };
+
+                static DescriptionAttribute GetDescriptionAttribute(PropertyDescriptor descriptor)
+                {
+                    if (DescriptionMap.TryGetValue(descriptor.Name, out string description))
                     {
                         return new DescriptionAttribute(description);
                     }
@@ -343,50 +360,74 @@ namespace Bonsai.NuGet.Design
                     return DescriptionAttribute.Default;
                 }
 
-                PropertyDescriptor ConvertPropertyDescriptor(PropertyDescriptor descriptor)
+                static CategoryAttribute GetCategoryAttribute(PropertyDescriptor descriptor)
+                {
+                    if (CategoryMap.TryGetValue(descriptor.Name, out string category))
+                    {
+                        return new CategoryAttribute(category);
+                    }
+
+                    return CategoryAttribute.Default;
+                }
+
+                static PropertyDescriptor ConvertPropertyDescriptor(PropertyDescriptor descriptor)
                 {
                     var descriptionAttribute = GetDescriptionAttribute(descriptor);
+                    var categoryAttribute = GetCategoryAttribute(descriptor);
                     if (descriptor.Name == "DependencyGroups")
                     {
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(DependencySetConverter));
-                        var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, typeConverterAttribute };
                         return new SimplePropertyDescriptor(descriptor, "Dependencies", attributes);
                     }
 
                     if (descriptor.Name == "Authors" || descriptor.Name == "Owners")
                     {
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(CommaDelimitedSetConverter));
-                        var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, typeConverterAttribute };
                         return new SetPropertyDescriptor(descriptor, attributes);
                     }
 
                     if (descriptor.Name == "Version")
                     {
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(NuGetVersionConverter));
-                        var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, typeConverterAttribute };
                         return new SimplePropertyDescriptor(descriptor, attributes);
                     }
 
                     if (descriptor.Name == "Tags")
                     {
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(TagSetConverter));
-                        var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, typeConverterAttribute };
                         return new SetPropertyDescriptor(descriptor, attributes);
                     }
 
-                    if (descriptor.Name == "Description" || descriptor.Name == "Summary" || descriptor.Name == "ReleaseNotes")
+                    if (descriptor.Name == "Description" || descriptor.Name == "ReleaseNotes")
                     {
                         var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor);
-                        return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute, editorAttribute });
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, editorAttribute };
+                        return new SimplePropertyDescriptor(descriptor, attributes);
                     }
 
-                    return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute });
+                    if (descriptor.Name == "Readme" || descriptor.Name == "Icon")
+                    {
+                        var editorAttribute = new EditorAttribute(DesignTypes.OpenFileNameEditor, DesignTypes.UITypeEditor);
+                        var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, editorAttribute };
+                        return new SimplePropertyDescriptor(descriptor, attributes);
+                    }
+
+                    return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute, categoryAttribute });
                 }
 
                 public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
                 {
                     var properties = from property in base.GetProperties(attributes).Cast<PropertyDescriptor>()
-                                     where property.Name != nameof(PackageBuilder.Files) &&
+                                     where property.Name != nameof(PackageBuilder.Title) &&
+                                           property.Name != nameof(PackageBuilder.Owners) &&
+                                           property.Name != nameof(PackageBuilder.IconUrl) &&
+                                           property.Name != nameof(PackageBuilder.LicenseUrl) &&
+                                           property.Name != nameof(PackageBuilder.Summary) &&
+                                           property.Name != nameof(PackageBuilder.Files) &&
                                            property.Name != nameof(PackageBuilder.Language) &&
                                            property.Name != nameof(PackageBuilder.MinClientVersion) &&
                                            property.Name != nameof(PackageBuilder.ContentFiles) &&
@@ -401,10 +442,7 @@ namespace Bonsai.NuGet.Design
                                            property.Name != nameof(PackageBuilder.Repository) &&
                                            property.Name != nameof(PackageBuilder.Serviceable) &&
                                            property.Name != nameof(PackageBuilder.TargetFrameworks) &&
-                                           property.Name != nameof(PackageBuilder.Icon) &&
-                                           property.Name != nameof(PackageBuilder.LicenseMetadata) &&
-                                           property.Name != nameof(PackageBuilder.EmitRequireLicenseAcceptance) &&
-                                           property.Name != nameof(PackageBuilder.Readme)
+                                           property.Name != nameof(PackageBuilder.EmitRequireLicenseAcceptance)
                                      select ConvertPropertyDescriptor(property);
                     var output = new PropertyDescriptorCollection(properties.ToArray()).Sort(SortOrder);
                     return output;
