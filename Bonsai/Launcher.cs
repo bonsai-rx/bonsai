@@ -224,6 +224,7 @@ namespace Bonsai
             var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration, out updateDependencies);
             using (var builderDialog = new PackageBuilderDialog())
             {
+                Environment.CurrentDirectory = Path.GetDirectoryName(fileName);
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
                 builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryTag);
                 builderDialog.SetPackageBuilder(builder);
