@@ -12,6 +12,11 @@ namespace Bonsai.Vision.Design
     {
         internal static IObservable<object> ImageInput(IServiceProvider provider)
         {
+            return ObservableInput(provider, typeof(IplImage));
+        }
+
+        internal static IObservable<object> ObservableInput(IServiceProvider provider, Type observableType)
+        {
             var inputInspector = default(InspectBuilder);
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -24,7 +29,7 @@ namespace Bonsai.Vision.Design
                                          .FirstOrDefault();
             }
 
-            if (inputInspector != null && inputInspector.ObservableType == typeof(IplImage))
+            if (inputInspector != null && inputInspector.ObservableType == observableType)
             {
                 return inputInspector.Output.Merge();
             }
