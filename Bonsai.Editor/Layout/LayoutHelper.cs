@@ -46,10 +46,10 @@ namespace Bonsai.Design
 
         public static void SetLayoutNotifications(ExpressionBuilderGraph source, VisualizerDialogMap lookup)
         {
-            foreach (var builder in source.Descendants(unwrap: false))
+            foreach (var node in source.DescendantNodes())
             {
-                var inspectBuilder = (InspectBuilder)builder;
-                if (lookup.TryGetValue((InspectBuilder)builder, out VisualizerDialogLauncher _))
+                var inspectBuilder = (InspectBuilder)node.Value;
+                if (lookup.TryGetValue(inspectBuilder, out VisualizerDialogLauncher _))
                 {
                     SetVisualizerNotifications(inspectBuilder);
                 }
