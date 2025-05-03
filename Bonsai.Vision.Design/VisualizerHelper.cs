@@ -1,5 +1,4 @@
-﻿using Bonsai.Dag;
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using Bonsai.Expressions;
 using OpenCV.Net;
 using System;
@@ -22,11 +21,10 @@ namespace Bonsai.Vision.Design
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             if (workflow != null && context != null)
             {
-                inputInspector = workflow.Where(node => node.Value == context.Source)
-                                         .Select(node => workflow.Predecessors(node)
-                                                                 .Select(p => p.Value as InspectBuilder)
-                                                                 .FirstOrDefault())
-                                         .FirstOrDefault();
+                inputInspector = (from node in workflow.DescendantNodes()
+                                  from successor in node.Successors
+                                  where successor.Target.Value == context.Source
+                                  select node.Value as InspectBuilder).FirstOrDefault();
             }
 
             if (inputInspector != null && inputInspector.ObservableType == observableType)
