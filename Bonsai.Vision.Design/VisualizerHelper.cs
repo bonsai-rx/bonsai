@@ -21,10 +21,7 @@ namespace Bonsai.Vision.Design
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             if (workflow != null && context != null)
             {
-                inputInspector = (from node in workflow.DescendantNodes()
-                                  from successor in node.Successors
-                                  where successor.Target.Value == context.Source
-                                  select node.Value as InspectBuilder).FirstOrDefault();
+                inputInspector = FindObservableInput(workflow, context.Source);
             }
 
             if (inputInspector != null && inputInspector.ObservableType == observableType)
@@ -32,6 +29,35 @@ namespace Bonsai.Vision.Design
                 return inputInspector.Output.Merge();
             }
             else return null;
+        }
+
+        static InspectBuilder FindObservableInput(ExpressionBuilderGraph workflow, InspectBuilder target)
+        {
+            foreach (var node in workflow)
+            {
+                if (node.Value is not InspectBuilder inspectBuilder)
+                    continue;
+
+                foreach (var successor in node.Successors)
+                {
+                    var candidate = successor.Target.Value;
+                    if (candidate == target)
+                        return inspectBuilder;
+                }
+
+                if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
+                    workflowBuilder.Workflow is not null &&
+                    ExpressionBuilder.GetVisualizerElement(inspectBuilder) is InspectBuilder visualizerElement &&
+                    visualizerElement != inspectBuilder &&
+                    (visualizerElement == target ||
+                     ExpressionBuilder.GetVisualizerMappings(inspectBuilder)
+                                      .Any(mapping => mapping.Source == target)))
+                {
+                    return FindObservableInput(workflowBuilder.Workflow, target);
+                }
+            }
+
+            return null;
         }
     }
 }
