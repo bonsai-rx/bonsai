@@ -85,12 +85,11 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilder Unwrap(ExpressionBuilder builder)
         {
-            if (builder == null)
-            {
+            if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
-            }
 
-            if (builder is InspectBuilder inspectBuilder) return Unwrap(inspectBuilder.Builder);
+            if (builder is InspectBuilder inspectBuilder)
+                return inspectBuilder.Builder;
             return builder;
         }
 
