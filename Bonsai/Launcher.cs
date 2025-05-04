@@ -226,7 +226,7 @@ namespace Bonsai
             {
                 Environment.CurrentDirectory = Path.GetDirectoryName(fileName);
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
-                builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryTag);
+                builderDialog.InitialDirectory = Environment.CurrentDirectory;
                 builderDialog.SetPackageBuilder(builder);
                 if (updateDependencies)
                 {
