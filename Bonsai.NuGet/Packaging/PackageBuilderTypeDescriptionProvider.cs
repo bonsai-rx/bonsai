@@ -144,7 +144,7 @@ namespace Bonsai.NuGet.Packaging
                 {
                     var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor);
                     var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, editorAttribute };
-                    return new SimplePropertyDescriptor(descriptor, attributes);
+                    return new NonEmptyPropertyDescriptor(descriptor, attributes);
                 }
 
                 if (descriptor.Name == "LicenseMetadata")
@@ -161,7 +161,7 @@ namespace Bonsai.NuGet.Packaging
                 {
                     var editorAttribute = new EditorAttribute(DesignTypes.OpenFileNameEditor, DesignTypes.UITypeEditor);
                     var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, editorAttribute };
-                    return new SimplePropertyDescriptor(descriptor, attributes);
+                    return new NonEmptyPropertyDescriptor(descriptor, attributes);
                 }
 
                 return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute, categoryAttribute });
@@ -255,6 +255,22 @@ namespace Bonsai.NuGet.Packaging
                 public override bool ShouldSerializeValue(object component)
                 {
                     return descriptor.ShouldSerializeValue(component);
+                }
+            }
+
+            class NonEmptyPropertyDescriptor : SimplePropertyDescriptor
+            {
+                public NonEmptyPropertyDescriptor(PropertyDescriptor descr, Attribute[] attrs)
+                    : base(descr, attrs)
+                {
+                }
+
+                public override void SetValue(object component, object value)
+                {
+                    if (value is string text && string.IsNullOrEmpty(text))
+                        value = null;
+
+                    base.SetValue(component, value);
                 }
             }
 
