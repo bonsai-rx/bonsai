@@ -4,9 +4,9 @@ using System.Globalization;
 using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
 
-namespace Bonsai.NuGet.Design
+namespace Bonsai.NuGet.Packaging
 {
-    class LicenseMetadataConverter : TypeConverter
+    public class LicenseMetadataConverter : TypeConverter
     {
         const string ExpressionPrefix = "spdx:";
         const string FilePrefix = "file:";
