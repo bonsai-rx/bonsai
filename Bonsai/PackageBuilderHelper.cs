@@ -14,35 +14,16 @@ namespace Bonsai
 {
     static class PackageBuilderHelper
     {
-        static string GetRelativePath(string path, string basePath)
-        {
-            var pathUri = new Uri(path);
-            var rootUri = new Uri(basePath);
-            var relativeUri = rootUri.MakeRelativeUri(pathUri);
-            return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-        }
-
-        static IEnumerable<ManifestFile> GetContentFiles(string basePath)
-        {
-            return from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
-                   let extension = Path.GetExtension(file)
-                   where extension != NuGetConstants.ManifestExtension &&
-                         extension != NuGetConstants.PackageExtension
-                   select new ManifestFile
-                   {
-                       Source = file,
-                       Target = Path.Combine("content", GetRelativePath(file, basePath))
-                   };
-        }
+        static readonly string ExcludeFiles =
+            $@"**\*{NuGetConstants.ManifestExtension};" +
+            $@"**\*{NuGetConstants.PackageExtension};";
 
         public static Manifest CreatePackageManifest(string metadataPath)
         {
             if (File.Exists(metadataPath))
             {
-                using (var stream = File.OpenRead(metadataPath))
-                {
-                    return Manifest.ReadFrom(stream, true);
-                }
+                using var stream = File.OpenRead(metadataPath);
+                return Manifest.ReadFrom(stream, true);
             }
             else
             {
@@ -72,9 +53,9 @@ namespace Bonsai
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
             if (packageBuilder.LicenseMetadata is not null)
                 packageBuilder.LicenseUrl = null;
+            if (manifest.Files?.Count == 0)
+                packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
 
-            var files = manifest.Files?.Count == 0 ? GetContentFiles(basePath) : manifest.Files;
-            packageBuilder.PopulateFiles(basePath, files);
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
             foreach (var dependency in packageBuilder.DependencyGroups.Where(group => group.TargetFramework == NuGetFramework.AnyFramework)
                                                                       .SelectMany(group => group.Packages))
