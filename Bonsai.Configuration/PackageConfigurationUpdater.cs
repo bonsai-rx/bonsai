@@ -33,7 +33,6 @@ namespace Bonsai.Configuration
         readonly SourceRepository galleryRepository;
         readonly PackageConfiguration packageConfiguration;
         readonly PackageConfigurationPlugin configurationPlugin;
-        static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly NuGetFramework NativeFramework = NuGetFramework.ParseFrameworkName("native,Version=v0.0", DefaultFrameworkNameProvider.Instance);
         static readonly NuGetFramework WindowsFramework = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion);

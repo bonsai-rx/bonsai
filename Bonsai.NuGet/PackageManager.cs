@@ -19,6 +19,11 @@ namespace Bonsai.NuGet
 {
     public class PackageManager : IPackageManager
     {
+        static PackageManager()
+        {
+            UserAgent.SetUserAgentString(new UserAgentStringBuilder(nameof(Bonsai)));
+        }
+
         public PackageManager(PackageSourceProvider packageSourceProvider, string path)
             : this(packageSourceProvider.Settings, packageSourceProvider, path)
         {
