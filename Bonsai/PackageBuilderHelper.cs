@@ -53,7 +53,10 @@ namespace Bonsai
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
             if (packageBuilder.LicenseMetadata is not null)
                 packageBuilder.LicenseUrl = null;
-            if (manifest.Files?.Count == 0)
+
+            foreach (var file in manifest.Files)
+                packageBuilder.AddFiles(basePath, file.Source, file.Target, file.Exclude);
+            if (!manifest.HasFilesNode)
                 packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
 
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
