@@ -14,24 +14,20 @@ namespace Bonsai.Vision.Design
             return ObservableInput(provider, typeof(IplImage));
         }
 
-        internal static IObservable<object> ObservableInput(IServiceProvider provider, Type observableType)
+        internal static IObservable<object> ObservableInput(IServiceProvider provider, Type targetType)
         {
-            var inputInspector = default(InspectBuilder);
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             if (workflow != null && context != null)
             {
-                inputInspector = FindObservableInput(workflow, context.Source);
+                return FindObservableInput(workflow, context.Source, targetType)
+                    ?? FindObservableInput(workflow, ExpressionBuilder.GetVisualizerElement(context.Source), targetType);
             }
 
-            if (inputInspector != null && inputInspector.ObservableType == observableType)
-            {
-                return inputInspector.Output.Merge();
-            }
-            else return null;
+            return null;
         }
 
-        static InspectBuilder FindObservableInput(ExpressionBuilderGraph workflow, InspectBuilder target)
+        static IObservable<object> FindObservableInput(ExpressionBuilderGraph workflow, InspectBuilder target, Type targetType)
         {
             foreach (var node in workflow)
             {
@@ -42,7 +38,9 @@ namespace Bonsai.Vision.Design
                 {
                     var candidate = successor.Target.Value;
                     if (candidate == target)
-                        return inspectBuilder;
+                        return targetType.IsAssignableFrom(inspectBuilder.ObservableType)
+                            ? inspectBuilder.Output.Merge()
+                            : null;
                 }
 
                 if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
@@ -53,7 +51,7 @@ namespace Bonsai.Vision.Design
                      ExpressionBuilder.GetVisualizerMappings(inspectBuilder)
                                       .Any(mapping => mapping.Source == target)))
                 {
-                    return FindObservableInput(workflowBuilder.Workflow, target);
+                    return FindObservableInput(workflowBuilder.Workflow, target, targetType);
                 }
             }
 
