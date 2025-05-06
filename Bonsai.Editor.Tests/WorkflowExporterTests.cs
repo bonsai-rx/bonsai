@@ -28,6 +28,10 @@ namespace Bonsai.Editor.Tests
         [TestMethod]
         public void ExportImage_WorkflowContainsMissingSubjects_ExportSuccessful()
         {
+            // Skip test if running on Mono since there is no built-in ability to run headless GDI calls
+            if (EditorSettings.IsRunningOnMono)
+                Assert.Inconclusive();
+
             ExportImage("MissingSubject.bonsai");
         }
     }
