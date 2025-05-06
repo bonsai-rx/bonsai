@@ -301,6 +301,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The workflow contains unknown types. Please ensure any missing dependencies are installed before exporting the workflow..
+        /// </summary>
+        internal static string ExportWorkflowWithUnknownTypes_Error {
+            get {
+                return ResourceManager.GetString("ExportWorkflowWithUnknownTypes_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap FindNextMenuImage {
@@ -959,7 +968,9 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The visualizer layout may be corrupt. Do you want to delete the layout file?.
+        ///   Looks up a localized string similar to {0}
+        ///
+        ///The visualizer layout may be corrupt. Do you want to delete the layout file?.
         /// </summary>
         internal static string VisualizerLayoutCorrupt_Question {
             get {

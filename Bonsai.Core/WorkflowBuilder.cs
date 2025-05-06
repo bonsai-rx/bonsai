@@ -57,6 +57,19 @@ namespace Bonsai
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WorkflowBuilder"/> class from the
+        /// specified workflow metadata.
+        /// </summary>
+        /// <param name="metadata">
+        /// The <see cref="WorkflowMetadata"/> instance representing the retrieved metadata.
+        /// </param>
+        public WorkflowBuilder(WorkflowMetadata metadata)
+            : this()
+        {
+            DeserializeFromMetadata(metadata);
+        }
+
+        /// <summary>
         /// Gets or sets a description for the serializable workflow.
         /// </summary>
         public string Description { get; set; }
@@ -89,6 +102,7 @@ namespace Bonsai
         public static WorkflowMetadata ReadMetadata(string inputUri)
         {
             using var reader = XmlReader.Create(inputUri);
+            reader.MoveToContent();
             return ReadMetadata(reader);
         }
 
@@ -163,6 +177,15 @@ namespace Bonsai
             return metadata;
         }
 
+        void DeserializeFromMetadata(WorkflowMetadata metadata)
+        {
+            Description = metadata.Description;
+            var serializer = metadata.Legacy ? GetXmlSerializerLegacy(metadata.Types) : GetXmlSerializer(metadata.Types);
+            using var workflowReader = new StringReader(metadata.WorkflowMarkup);
+            var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
+            workflow.AddDescriptor(descriptor);
+        }
+
         #region IXmlSerializable Members
 
         XmlSchema IXmlSerializable.GetSchema()
@@ -173,13 +196,7 @@ namespace Bonsai
         void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var metadata = ReadMetadata(reader);
-            Description = metadata.Description;
-            var serializer = metadata.Legacy ? GetXmlSerializerLegacy(metadata.Types) : GetXmlSerializer(metadata.Types);
-            using (var workflowReader = new StringReader(metadata.WorkflowMarkup))
-            {
-                var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
-                workflow.AddDescriptor(descriptor);
-            }
+            DeserializeFromMetadata(metadata);
             reader.ReadEndElement();
         }
 
