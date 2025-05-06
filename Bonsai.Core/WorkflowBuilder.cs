@@ -89,6 +89,7 @@ namespace Bonsai
         public static WorkflowMetadata ReadMetadata(string inputUri)
         {
             using var reader = XmlReader.Create(inputUri);
+            reader.MoveToContent();
             return ReadMetadata(reader);
         }
 
