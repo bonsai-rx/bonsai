@@ -53,20 +53,8 @@ namespace Bonsai.Vision.Design
         /// <inheritdoc/>
         public override void Load(IServiceProvider provider)
         {
-            var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-            var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (workflow != null && context != null)
-            {
-                var predecessorNode = workflow.Where(node => node.Value == context.Source)
-                                              .Select(node => workflow.Predecessors(node).FirstOrDefault())
-                                              .FirstOrDefault();
-                if (predecessorNode != null)
-                {
-                    var inputInspector = (InspectBuilder)predecessorNode.Value;
-                    inputHandle = inputInspector.Output.Merge().Subscribe(value => connectedComponent = (ConnectedComponent)value);
-                }
-            }
-
+            var imageInput = VisualizerHelper.ObservableInput(provider, typeof(ConnectedComponent));
+            inputHandle = imageInput?.Subscribe(value => connectedComponent = (ConnectedComponent)value);
             base.Load(provider);
         }
 

@@ -1,5 +1,4 @@
-﻿using Bonsai.Dag;
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using Bonsai.Expressions;
 using OpenCV.Net;
 using System;
@@ -12,23 +11,51 @@ namespace Bonsai.Vision.Design
     {
         internal static IObservable<object> ImageInput(IServiceProvider provider)
         {
-            var inputInspector = default(InspectBuilder);
+            return ObservableInput(provider, typeof(IplImage));
+        }
+
+        internal static IObservable<object> ObservableInput(IServiceProvider provider, Type targetType)
+        {
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             if (workflow != null && context != null)
             {
-                inputInspector = workflow.Where(node => node.Value == context.Source)
-                                         .Select(node => workflow.Predecessors(node)
-                                                                 .Select(p => p.Value as InspectBuilder)
-                                                                 .FirstOrDefault())
-                                         .FirstOrDefault();
+                return FindObservableInput(workflow, context.Source, targetType)
+                    ?? FindObservableInput(workflow, ExpressionBuilder.GetVisualizerElement(context.Source), targetType);
             }
 
-            if (inputInspector != null && inputInspector.ObservableType == typeof(IplImage))
+            return null;
+        }
+
+        static IObservable<object> FindObservableInput(ExpressionBuilderGraph workflow, InspectBuilder target, Type targetType)
+        {
+            foreach (var node in workflow)
             {
-                return inputInspector.Output.Merge();
+                if (node.Value is not InspectBuilder inspectBuilder)
+                    continue;
+
+                foreach (var successor in node.Successors)
+                {
+                    var candidate = successor.Target.Value;
+                    if (candidate == target)
+                        return targetType.IsAssignableFrom(inspectBuilder.ObservableType)
+                            ? inspectBuilder.Output.Merge()
+                            : null;
+                }
+
+                if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
+                    workflowBuilder.Workflow is not null &&
+                    ExpressionBuilder.GetVisualizerElement(inspectBuilder) is InspectBuilder visualizerElement &&
+                    visualizerElement != inspectBuilder &&
+                    (visualizerElement == target ||
+                     ExpressionBuilder.GetVisualizerMappings(inspectBuilder)
+                                      .Any(mapping => mapping.Source == target)))
+                {
+                    return FindObservableInput(workflowBuilder.Workflow, target, targetType);
+                }
             }
-            else return null;
+
+            return null;
         }
     }
 }
