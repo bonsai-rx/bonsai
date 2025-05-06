@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Expressions;
 
@@ -8,6 +10,20 @@ namespace Bonsai.Editor.Tests
 {
     static class EditorHelper
     {
+        static Stream LoadEmbeddedResource(string name)
+        {
+            var qualifierType = typeof(WorkflowEditorTests);
+            var embeddedWorkflowStream = qualifierType.Namespace + "." + name;
+            return qualifierType.Assembly.GetManifestResourceStream(embeddedWorkflowStream);
+        }
+
+        internal static WorkflowBuilder LoadEmbeddedWorkflow(string name)
+        {
+            using var workflowStream = LoadEmbeddedResource(name);
+            using var reader = XmlReader.Create(workflowStream);
+            return ElementStore.LoadWorkflow(reader);
+        }
+
         static ExpressionBuilder CreateBuilder(string name)
         {
             var nestedGraph = new ExpressionBuilderGraph();
