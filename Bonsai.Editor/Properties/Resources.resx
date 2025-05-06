@@ -161,7 +161,7 @@
   <data name="StatusRunningImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vQAADr0BR/uQrQAAALpJREFUOE+9U8EJhDAQtBR7sBp/KcECLMAW0sO973UgCP4OfPuyAcHffCMD7pFs
+        vAAADrwBlbxySQAAALpJREFUOE+9U8EJhDAQtBR7sBp/KcECLMAW0sO973UgCP4OfPuyAcHffCMD7pFs
         Ipc7wYH57O4MuzopCgUABkAPwCmyZvT8BwBKANO4jK55Nq6yVUDW2OMMZ1PirX21kVCzGzqabIEJXdnQ
         w2c8TCYRG66mh+Z1dvWjjurC4xxDgz51s8C+bdQjqaGWBlHTNyDOtqE2y0Cgt7nP4NsJlz/itd8oQcpJ
         oTAIkh/lnDQmo+yZ/PeYfPz6nHdHCFr78ATOaQAAAABJRU5ErkJggg==
@@ -362,7 +362,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="BrowseDirectoryMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAMBJREFUOE9jYCAAvnz5YvDt27f33759+48No6tHATDNbW1t/52cnDAwigHoJsMw
+        vwAADr8BOAVTJAAAAMBJREFUOE9jYCAAvnz5YvDt27f33759+48No6tHATDNbW1t/52cnDAwigHoJsMw
         SHNzc8v/D+8/omCsBqDbAMLImmFieA1AtwkXpp4ByP4l2wB0f+PD2Aw4n5+fj6EQFz565CiqAV+/fm1Y
         vnw5hkJcuK+vH9UAUGK5cuUKhkJcODkpGdUAaAy8j4yMxFCMC9+6eRvVgK9fv87HlVyx4fXr1qMa8P37
         94R9+/ZhKCSE4Qa8f/9eADk9kILhKZFcAABlf1ByrNmc2AAAAABJRU5ErkJggg==
@@ -371,14 +371,14 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="CopyMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAFFJREFUOE9jYMACvn379p8YjK4PDkCSTk5OeDH9DPjw/iMKxmoAut9wYbwGoDsR
+        vwAADr8BOAVTJAAAAFFJREFUOE9jYMACvn379p8YjK4PDkCSTk5OeDH9DPjw/iMKxmoAut9wYbwGoDsR
         HdPPAHx+RucPQQNg7IEzAB1jNQAXRtGADqhiADEYXR8IAACeWC+3+cBtLwAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="CutMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAQhJREFUOE+VkrFtxDAMRW+EjJARbgb3BtJ6Cq+QDW4Y9+5dXQr3cXFJ40IJbNGl
+        vwAADr8BOAVTJAAAAQhJREFUOE+VkrFtxDAMRW+EjJARbgb3BtJ6Cq+QDW4Y9+5dXQr3cXFJ40IJbNGl
         Dk8ABUpnX5APEJb5P8lPQaeTwbquZxFxhHPuRfOcNY/G1mRA0LZt6LoueO/fNc+ZHByavMpAREJVVaFp
         mihksk4nB4emrEuwQnWh023jsi4Bcd/3mdg2HYYhW20Xy7J8squ60Onk4Er9A7z3b+M4Jhc6nRxcqd+F
         dfGv6YBbn+c5Fn7dvmP8eftARC6IiKMGJi4PxexY13WyfRRo0GZN6ApxvX6EH/cbv4hxom4shzZbSV8g
@@ -400,7 +400,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="DisableMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAEmSURBVDhPpVOx
+        vwAADr8BOAVTJAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAEmSURBVDhPpVOx
         bsJADPXAQBRdhoQP4KasHZgz5BPYGFgyZ2frZ/QLOrD1M+4TKnXvVikSAZMlHHqQOx1uoK1q6Uk5+/n5
         znbIWkv/wTfHxUk0JaIFEdUD8D2VvFGBNE2XcRzv8jw/VFXVA/iOomivlFpLvkx+0VofjTFWGnyIKaVe
         RwVQGYS2bWWuN8TASZJkdSOA9+HaY5WlgQMuEU1CgQXeKcn3DFwiegoFajRLEmF939uu6ywzexhjTmVZ
@@ -412,7 +412,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="DocsMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAANNJREFUOE+dk00KwjAQhXsPNx7KvbmAC9eewUN4DEEIgritV9CVP0jJ5oELiTwx
+        wAAADsABataJCQAAANNJREFUOE+dk00KwjAQhXsPNx7KvbmAC9eewUN4DEEIgritV9CVP0jJ5oELiTwx
         YTJJSu3AgzIz72t+Jk2jAoABYAF4JeaM7o8BYAqgtWfn57urn2wuiZhjjT3sLZm7xf6eGbVWxwchXQIh
         lYXQtDw8vXu9fQh+M6cgbTAbLk3+pRay57cdQ4DVew4x296+KgHooZeApFBSCUDR2wtYn1w0jwLIIEzX
         BwN0XgOyQxwieYjZNQb1rSBeYxik0hTWAMkgyVGW01hTcZQFZNxjkvHvc/4An1qz99vHnYMAAAAASUVO
@@ -422,7 +422,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="EditExtensionsMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAFpJREFUOE/NkTEKACAMA/u2/v8v6tJVcRA0RLF1sXAdAl4DipnVF6QvVQ3xmSCn
+        vwAADr8BOAVTJAAAAFpJREFUOE/NkTEKACAMA/u2/v8v6tJVcRA0RLF1sXAdAl4DipnVF6QvVQ3xmSCn
         4mIR3LIVsGoscwvG5WsBVg4JWJMnwUxI4G6AMNmcHX8BM4ZLIGzQeALf9mnz083fK2ThnAAAAABJRU5E
         rkJggg==
 </value>
@@ -430,7 +430,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="EnableMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAFYSURBVDhPpVOx
+        vwAADr8BOAVTJAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAFYSURBVDhPpVOx
         TsMwEL2BoVHkDMkP1FNWpHaOqsztwpaBJXN3Nub+QJGYWAAxIDH0D1jM0B/I0qEDA0JEImCyBKNXEis5
         Qhk46UmO/d47++5Cxhj6D35s7DaJBkQ0JqJ5DawHnNdr4Pv+keu6r2EYvqdpWgFYO47zJoQ45nwuPpNS
         fiilDA/s4UwIcdlrgMwgFEXBtTZwBo7neUnHAO/Dtfsy8wAHXCI6aBuM8U5O/i3AJaLDtsEcxeJERFVV
@@ -442,7 +442,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="FindNextMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAAKtJREFUOE+tkT0OwyAMhTlSz8DO1LXnYW0OUKk3YWdKb0IrAaurh7CUuiV1ojzp
+        vgAADr4B6kKxwAAAAKtJREFUOE+tkT0OwyAMhTlSz8DO1LXnYW0OUKk3YWdKb0IrAaurh7CUuiV1ojzp
         ycLy+/gzpquUcq+1kjT6PPNXDLlMgcz51qoaInfeDMEQAr+sghwCWLuC8FXmm0aPGEIg5xxZa1uNMX5D
         Rt8IIzTPD3qmV6tYo/8BGAmD2BlhNtYqQM75xIDNJ+jh5L1vAPbwDZaSYVTVL7CWgB5O6Mm5VTFkV5iF
         4O6wVm+094VDXxlEOgAAAABJRU5ErkJggg==
@@ -451,7 +451,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="FindPreviousMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAAKhJREFUOE+1kjEOwyAMRTlSz8DO1LXnYW0O0LOwM6U3oZWQV1cfxZXrRoS0ype+
+        vgAADr4B6kKxwAAAAKhJREFUOE+1kjEOwyAMRTlSz8DO1LXnYW0O0LOwM6U3oZWQV1cfxZXrRoS0ype+
         LBDvgwHnjGqtJyIqRMTKBfN27ZcEvkyJ3fnGqP/CH7bMWxZe87EBkA1Za8H4ajO6ISklDiGw977VnHM/
         xO4IaJ7v/CjPVjHebEuEhdgZsBjjoYDlRA3YfQJpJ8bYAsTdOxBZGHXzFbR0wAKPfWkt9SL7YRHAn+ER
         vQCw7IOtDEAH+wAAAABJRU5ErkJggg==
@@ -460,7 +460,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="ForumMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAKZJREFUOE/Nkr0NwyAQhW8Uz0LPAGyR0h6DCTyH3aSmsgv2cNJce9GLiBI4JGO7
+        wAAADsABataJCQAAAKZJREFUOE/Nkr0NwyAQhW8Uz0LPAGyR0h6DCTyH3aSmsgv2cNJce9GLiBI4JGO7
         yUmfhHg/SACJCF1BbRzluyAiZh6ZWXYY4VUFEGKMYq0VY0wVaPDAWyt4G5Zllcf2rAINHnirBTilDJXA
         88cFV+9AvQJCfT+0vUL5DxCYp1mcc23/4Hc+BTgxhIDQLTO0FnjvEb5nYprdgsTGzF0mplEFZ1EbR3kB
         /JDKQt8vvbQAAAAASUVORK5CYII=
@@ -469,7 +469,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="GalleryMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAA
-        JAAAACQBh7CwIgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEtSURBVDhPrVLL
+        IwAAACMB1fQWXQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEtSURBVDhPrVLL
         SsNAFM3KDxFBdNOtgrhQaatUEEShoAv/QqoiCIIg4kqpbnwsfSyk9VPS+hFNJ8VJZkLMHLmDCRkjiREP
         HOYyM+fcM5exLBP4A02DMvg3g++RCpkxSEP5AvKlA799rVfl+cZ5rkHY64MtVOGdnGK0vYPB+CSGs/MI
         bdsQpevEgDqT2L+8gpISiCK4G024jTWwxRqUEPkGFNeZrkA+PkMFQXIJSmHU3ILsdBNRDMOAOntn54gc
@@ -481,7 +481,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="GroupMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAALVJREFUOE/NktEN
+        vwAADr8BOAVTJAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAALVJREFUOE/NktEN
         AiEMQG8ERzLMwj8ruAIT+MkADOA3U8gG1ZDCJ4aLJQV6xj9t8pILpa+FY9v+ImqtIhQ55/oGEPEKACee
         XwolgVJqx1pbEfE2CFiHARK1b611l1BO7DBvaiDiJca45BbBA547tIlPwpt472tK6S4KjiZpBcaYYX0R
         EPMkXwmIIwFv4pxr69AF/LalI0iXWEo5iwKJVvzxN5JghiKE0IvFhzQXzgI+jfiUfxovrVrdxEt18xsA
@@ -491,7 +491,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="NewMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAMFJREFUOE/NkrENwjAQRTMCNROkZAZPxAKU8Ro0TIJEQeUhaKgwCJ9bo2/5rIu5
+        vwAADr8BOAVTJAAAAMFJREFUOE/NkrENwjAQRTMCNROkZAZPxAKU8Ro0TIJEQeUhaKgwCJ9bo2/5rIu5
         BEjFl76sc+6/nBN3nRARbb33qxhjYqPGvuxTRUT7EnJYj7s1Q3KN522mCm9A02no0+V8yEEGoMZ+geiT
         lLEdNz9v1xzAKqAOfW02S56ZwxP2IYRNm88AjCzOnYwxb7bW6hBtAgTu/jHyJKT9BnMACakA7S9oAAlC
         TwUUyOge/AwokHoTFwFY/wOY80fAN25zi/QC8wIwvVk/HesAAAAASUVORK5CYII=
@@ -500,7 +500,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="OpenMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAARlJREFUOE+VkjFqwzAUhn2D9CQlRyi+QhYbUujg3dATdPKYdA6BQBvw1AMkg3dP
+        vwAADr8BOAVTJAAAARlJREFUOE+VkjFqwzAUhn2D9CQlRyi+QhYbUujg3dATdPKYdA6BQBvw1AMkg3dP
         XQyl7WI6NEMCchLpaXzliUhYUpRQwQe29f+fZclRdBqc8yEAMADAHoye68zVQeHfTcduH98wGs1x/Fwp
         yRmxwZQBYKofbnYd9iV1XWMcxx5GQOXZqsHB/YsqudDc4XDEju0NrkCV6W0fP1tvBfzITYmwBFLKO3Ux
         ml8su1xcgd6LUNkS6HB/D+jeLbhYArrJsgyrqsK2bdWEu+P973cF73mee8EQ69XaFgghnsqy9IIhJpOp
@@ -520,7 +520,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="PasteMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAJZJREFUOE/dkkEKwyAQRXOEHim494beJZdpunFhAxldGr5gmIyjTaGrfngwTP7/
+        vwAADr8BOAVTJAAAAJZJREFUOE/dkkEKwyAQRXOEHim494beJZdpunFhAxldGr5gmIyjTaGrfngwTP7/
         KmSaBgohPIhoiTFmgBk76esKAedcNsYUMGMnfY1SSjNO9N6X4Pp8FTDX28jMqWoA9WRewEvUIh7kWGub
         3VcFGh8L3mFTaQr4mzi0U+FWgbweN90u0Ix/UlADkt8XaODbiOF/cDF1dAAVUVH4raIH0gAAAABJRU5E
         rkJggg==
@@ -540,7 +540,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="ReloadExtensionsMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAPZJREFUOE+tkzEOgzAMRTlCj9CzsCP1EOwcpWJH6iE4QGcmOrD3AAwupDZjqo9w
+        vwAADr8BOAVTJAAAAPZJREFUOE+tkzEOgzAMRTlCj9CzsCP1EOwcpWJH6iE4QGcmOrD3AAwupDZjqo9w
         lFBEqFRLFkrs/7CdJEk8Y+aLMeYpIjbmzHwnolMg7vveFkVh0zSNelVVM8QB8OejYnVUMotRChYaeNGw
         6X8BrGfhWvgF4ESwaZrOIkJrMnwcTBwgIm3XdTbLsqA3fDFpY95RgN0C1HU97wEyDuM+AMeHZBVpC/56
         F4AAkrUaBTRN40RRAJJVqBBADwG0fAX47aA97LXtw7UTAJj5hkH5EB1mnucW70OhS5XXALDcQirLMjhC
@@ -550,7 +550,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="ReportBugMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAGRJREFUOE/lzjEO
+        vwAADr8BOAVTJAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAGRJREFUOE/lzjEO
         gCAMhWGO5Ak69HC9pzHO6PLWmnYisREsbpL8TLwvFFUtAHSgCmApzbGtX/aAmR8TkRvyCoiQEDjqGRYh
         KaBFugAReRFkmz8A27p7aWD6B9NAVBcY7Xsgk20vD7XY540iwSkAAAAASUVORK5CYII=
 </value>
@@ -568,14 +568,14 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="SaveMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAEtJREFUOE9jYKAG+Pbt238S8PsvX74YYBjg5OQExx/ef4RjZDEQ3dbWhmkIKQYg
+        vwAADr8BOAVTJAAAAEtJREFUOE9jYKAG+Pbt238S8PsvX74YYBjg5OQExx/ef4RjZDEQ3dbWhmkIKQYg
         G0K2ASAM0kOUAdgMo70BxOBRAwalAeRguAGUAADtDPd9Y4OdkQAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="SelectAllMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAPhJREFUOE+NkT0OgzAMhXuEHqVHqNg5AFsHdq7QibUXQOoh2NmZurD3AAwZIGSk
+        vwAADr8BOAVTJAAAAPhJREFUOE+NkT0OgzAMhXuEHqVHqNg5AFsHdq7QibUXQOoh2NmZurD3AAwZIGSk
         +ixcBfcHnmQ5TvxeXpzDIYL3/k5M0zRr6F7c9xVKbNtWiEmSSNZ6U4QGmiE2TTMXRSGZmv1NAbUMqe97
         WZOp9cxyVlDb3Mw6z3MRoNbnWM4K1gEkRLqu2+fAzoBMpGmqIjfn3NHy3vj2C3HUdc3+Y1NEhawAUVXV
         PAzDcxzHk+Wu8EuAKMsSJy6EcLa8N1SA5izLZB1/p0YI4WK5Ag6Xm+TtCCBE/XcGiuUGsUlWF4h576+2
@@ -594,7 +594,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="StartWithoutDebuggingMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAAJ1JREFUOE9jYEAC3759O//lyxcDZDGSwLdv3/5/+/bt/ffv3xPQ5YgCIANi5kX8
+        vwAADr8BOAVTJAAAAJ1JREFUOE9jYEAC3759O//lyxcDZDGSwLdv3/5/+/bt/ffv3xPQ5YgCIANi5kX8
         v/fy3v+vX7/Of//+vQC6GrwAZIBFl8l/l4kO/3df2QlyDWleghkAw907O0nzEroBIEySl5ANOHfn3P/o
         ueGkeQnZgA/vP/5/+vLp/9oN1cR7iaoGUOwFGCY7EIlyMjqgSkIiycnogBqZiTQnAwEA9iM1vIvrIxkA
         AAAASUVORK5CYII=
@@ -610,7 +610,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="ThemeMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAEiSURBVDhPnVMx
+        vgAADr4B6kKxwAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAEiSURBVDhPnVMx
         boQwELyn5C0U1JQUFFaOV1BR0fMG+iBeQENDdQU0SBQUSVouQtii2mgsLbINuUtiaQqvd2bH6/Xl4iyl
         lFjXtZZSkgnEcObm70sp9SKlvLVtS0mSkOd5FhDDGXKQe0aesyw7EBlBEFAYhpTnOURmSwSqOHBJcRxr
         8L4oCrq+XlnkxtUFrLlkoO97GoZh36dpSvf5SzsBR/cEzTm7M4DEKIosBxAo30rdE3Bh/0A8A3qwbZsW
@@ -633,7 +633,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="UngroupMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAALNJREFUOE/NksEJ
+        vwAADr8BOAVTJAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAALNJREFUOE/NksEJ
         QyEMht8IHak4i3dX6ApO0KMDOEDPTtG3QVok8WhRCETNo7xTG/gOYvzyo27bX1StVUUWAFwQ8U5EQES1
         cUqAiA/vfTXGdAYBG2ekqK35sLV2FfCmnHAk2Pe9IuJtEbzg3WEBk3N+xhj1+LNASyKnO+e6UBUwWpKv
         AtmoCCCEMKQaBHxZcxJuLqVc5d5yiVKg0XqkoD1jkyyCGVnzR0opnROIrzwk+319AH5nvOXCzk1GAAAA
@@ -646,7 +646,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="WorkflowReadOnlyImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vwAADr8BOAVTJAAAAH1JREFUOE/VkNEJwCAMRB2ls7ih/+7gHG7hBrY/8dMS0ZAeUikUSg+O4JmXiMa8
+        vQAADr0BR/uQrQAAAH1JREFUOE/VkNEJwCAMRB2ls7ih/+7gHG7hBrY/8dMS0ZAeUikUSg+O4JmXiMa8
         qVLKRkSBiKpy4Bx7L+pgds5Va62Yz5zfDuANCMKAgIyInziavfc1xtjqyPgeGZGGU0qtmavOkBHBJ02N
         jEhvnvkRvOfjjzB6Ca+MzDc6AT0tKM8KuUQ8AAAAAElFTkSuQmCC
 </value>
@@ -654,7 +654,7 @@ Do you want to continue assigning any remaining properties and/or running the wo
   <data name="WorkflowEditableImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAAJFJREFUOE+9kLENgCAURB3FERzBMAtTMABz0lFQ2BAoMWe8hHzRfAu95BrIe5f8
+        vgAADr4B6kKxwAAAAJFJREFUOE+9kLENgCAURB3FERzBMAtTMABz0lFQ2BAoMWe8hHzRfAu95BrIe5f8
         afojOecFle+qACylbOhrCWHvfUNfSbrlAzbG6CVyOaXUrLU6SQ8DIEQJeisYwVISY3yGnXMXGH1cRniw
         kQDw7TLDa/cHU8MIBKODqWCEAq6GEPQwAoGoHmYA1FrXs7P8/yQ7mKAz9dbnzhUAAAAASUVORK5CYII=
 </value>
@@ -667,5 +667,8 @@ Do you want to continue assigning any remaining properties and/or running the wo
   </data>
   <data name="ToolTipAutoHide" xml:space="preserve">
     <value>Auto Hide</value>
+  </data>
+  <data name="ExportWorkflowWithUnknownTypes_Error" xml:space="preserve">
+    <value>The workflow contains unknown types. Please ensure any missing dependencies are installed before exporting the workflow.</value>
   </data>
 </root>

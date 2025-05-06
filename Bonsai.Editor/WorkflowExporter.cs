@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.GraphView;
+using Bonsai.Editor.Properties;
+using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
@@ -23,6 +26,13 @@ namespace Bonsai.Editor
             if (string.IsNullOrEmpty(imageFileName))
             {
                 throw new ArgumentException("No output image file is specified.", nameof(imageFileName));
+            }
+
+            var workflowMetadata = WorkflowBuilder.ReadMetadata(fileName);
+            var extensionTypes = workflowMetadata.GetExtensionTypes();
+            if (extensionTypes.Any(type => type.IsSubclassOf(typeof(UnknownTypeBuilder))))
+            {
+                throw new InvalidOperationException(Resources.ExportWorkflowWithUnknownTypes_Error);
             }
 
             var workflowBuilder = ElementStore.LoadWorkflow(fileName);
