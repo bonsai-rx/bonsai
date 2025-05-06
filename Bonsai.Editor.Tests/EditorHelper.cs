@@ -24,6 +24,13 @@ namespace Bonsai.Editor.Tests
             return ElementStore.LoadWorkflow(reader);
         }
 
+        internal static void SaveEmbeddedResource(string name, string fileName)
+        {
+            using var resourceStream = LoadEmbeddedResource(name);
+            using var fileStream = File.Create(fileName);
+            resourceStream.CopyTo(fileStream);
+        }
+
         static ExpressionBuilder CreateBuilder(string name)
         {
             var nestedGraph = new ExpressionBuilderGraph();
