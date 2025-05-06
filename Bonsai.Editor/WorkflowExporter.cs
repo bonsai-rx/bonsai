@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Bonsai.Editor.GraphModel;
 using Bonsai.Editor.GraphView;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
@@ -35,7 +34,7 @@ namespace Bonsai.Editor
                 throw new InvalidOperationException(Resources.ExportWorkflowWithUnknownTypes_Error);
             }
 
-            var workflowBuilder = ElementStore.LoadWorkflow(fileName);
+            var workflowBuilder = new WorkflowBuilder(workflowMetadata);
             var iconRenderer = new SvgRendererFactory();
             var extension = Path.GetExtension(imageFileName);
             if (extension == ".svg")
