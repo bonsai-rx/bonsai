@@ -1,11 +1,9 @@
-﻿using NuGet.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml;
-using System.Xml.Linq;
+using NuGet.Configuration;
 
 namespace Bonsai.Configuration
 {
@@ -73,17 +71,8 @@ namespace Bonsai.Configuration
             if (!File.Exists(ProjectFileName))
                 return default;
 
-            var readerSettings = new XmlReaderSettings()
-            {
-                IgnoreWhitespace = true,
-                IgnoreProcessingInstructions = true,
-                DtdProcessing = DtdProcessing.Prohibit
-            };
-
             using var stream = File.OpenRead(ProjectFileName);
-            using var reader = XmlReader.Create(stream, readerSettings);
-            var document = XDocument.Load(reader, LoadOptions.None);
-            return new ScriptExtensionsProjectMetadata(document);
+            return new ScriptExtensionsProjectMetadata(stream);
         }
 
         public void UpdateProjectMetadata(ScriptExtensionsProjectMetadata projectMetadata)

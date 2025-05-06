@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -24,19 +25,26 @@ namespace Bonsai.Configuration
         const string UseWindowsFormsElement = "UseWindowsForms";
         const string AllowUnsafeBlocksElement = "AllowUnsafeBlocks";
 
-        const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
+        private static XElement ProjectFileTemplate
+            => XElement.Parse
+            ("""
+            <Project Sdk="Microsoft.NET.Sdk">            
 
-  <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-  </PropertyGroup>
+              <PropertyGroup>
+                <TargetFramework>net472</TargetFramework>
+              </PropertyGroup>
 
-</Project>";
+            </Project>
+            """, LoadOptions.PreserveWhitespace);
 
         internal ScriptExtensionsProjectMetadata(XDocument projectDocument)
         {
             Debug.Assert(projectDocument is null || projectDocument.Root is not null);
             this.projectDocument = projectDocument;
         }
+
+        internal ScriptExtensionsProjectMetadata(Stream stream)
+            => projectDocument = XDocument.Load(stream, LoadOptions.PreserveWhitespace);
 
         private XElement GetProperty(string key)
             => projectDocument?.XPathSelectElement($"/Project/PropertyGroup/{key}");
@@ -76,8 +84,7 @@ namespace Bonsai.Configuration
 
         public ScriptExtensionsProjectMetadata AddPackageReferences(IEnumerable<PackageReference> packageReferences)
         {
-            var root = projectDocument?.Root;
-            root ??= XElement.Parse(ProjectFileTemplate, LoadOptions.PreserveWhitespace);
+            var root = new XElement(projectDocument?.Root ?? ProjectFileTemplate);
 
             var projectReferences = root.Descendants(PackageReferenceElement).ToArray();
             var lastReference = projectReferences.LastOrDefault();
@@ -104,15 +111,20 @@ namespace Bonsai.Configuration
                 var referenceElement = new XElement(PackageReferenceElement, includeAttribute, versionAttribute);
                 if (lastReference == null)
                 {
-                    var itemGroup = new XElement(ItemGroupElement);
+                    // Add the reference to any bare ItemGroup (IE: no Condition and such) or create a new one
+                    var itemGroup = root.XPathSelectElement("/ItemGroup[not(@*)]");
+                    if (itemGroup is null)
+                    {
+                        itemGroup = new XElement(ItemGroupElement);
+                        root.Add(OuterIndent);
+                        root.Add(itemGroup);
+                        root.Add(Environment.NewLine);
+                        root.Add(Environment.NewLine);
+                    }
+
                     itemGroup.Add(Environment.NewLine + InnerIndent);
                     itemGroup.Add(referenceElement);
                     itemGroup.Add(Environment.NewLine + OuterIndent);
-
-                    root.Add(OuterIndent);
-                    root.Add(itemGroup);
-                    root.Add(Environment.NewLine);
-                    root.Add(Environment.NewLine);
                 }
                 else
                 {
@@ -127,6 +139,6 @@ namespace Bonsai.Configuration
         }
 
         public string GetProjectXml()
-            => Exists ? projectDocument.Root.ToString(SaveOptions.DisableFormatting) : ProjectFileTemplate;
+            => (projectDocument?.Root ?? ProjectFileTemplate).ToString(SaveOptions.DisableFormatting);
     }
 }
