@@ -67,7 +67,9 @@ namespace Bonsai.Expressions
                 : Array.Empty<Expression>();
 
             var instance = ExpressionHelper.MemberAccess(expression, InstanceSelector);
-            var methods = GetInstanceMethods(instance.Type).Where(m => m.Name == methodName);
+            var methods = GetInstanceMethods(instance.Type)
+                .Where(m => string.Equals(m.Name, methodName, StringComparison.OrdinalIgnoreCase));
+
             return BuildCall(instance, methods, arguments);
         }
 
