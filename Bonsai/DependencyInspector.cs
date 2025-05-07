@@ -11,12 +11,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace Bonsai
 {
     sealed class DependencyInspector : MarshalByRefObject
     {
-        const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
@@ -24,14 +24,14 @@ namespace Bonsai
         const string TypeAttributeName = "type";
         const char AssemblySeparator = ':';
 
-        static IEnumerable<VisualizerDialogSettings> GetVisualizerSettings(VisualizerLayout root)
+        static IEnumerable<VisualizerWindowSettings> GetVisualizerSettings(VisualizerLayout root)
         {
             var stack = new Stack<VisualizerLayout>();
             stack.Push(root);
             while (stack.Count > 0)
             {
                 var layout = stack.Pop();
-                foreach (var settings in layout.DialogSettings)
+                foreach (var settings in layout.WindowSettings)
                 {
                     yield return settings;
                     if (settings.NestedLayout != null)
@@ -59,7 +59,7 @@ namespace Bonsai
                         while (workflowReader.ReadToFollowing(ExpressionElementName))
                         {
                             if (!workflowReader.HasAttributes) continue;
-                            if (workflowReader.GetAttribute(TypeAttributeName, XsiAttributeValue) == IncludeWorkflowTypeName)
+                            if (workflowReader.GetAttribute(TypeAttributeName, XmlSchema.InstanceNamespace) == IncludeWorkflowTypeName)
                             {
                                 var includePath = workflowReader.GetAttribute(PathAttributeName);
                                 var separatorIndex = includePath != null ? includePath.IndexOf(AssemblySeparator) : -1;
@@ -91,17 +91,14 @@ namespace Bonsai
                                             .ToDictionary(type => type.FullName)
                                             .Wait());
 
-                    using (var reader = XmlReader.Create(layoutPath))
+                    var layout = VisualizerLayout.Load(layoutPath);
+                    foreach (var settings in GetVisualizerSettings(layout))
                     {
-                        var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
-                        foreach (var settings in GetVisualizerSettings(layout))
+                        var typeName = settings.VisualizerTypeName;
+                        if (typeName == null) continue;
+                        if (visualizerMap.Value.TryGetValue(typeName, out Type type))
                         {
-                            var typeName = settings.VisualizerTypeName;
-                            if (typeName == null) continue;
-                            if (visualizerMap.Value.TryGetValue(typeName, out Type type))
-                            {
-                                assemblies.Add(type.Assembly);
-                            }
+                            assemblies.Add(type.Assembly);
                         }
                     }
                 }

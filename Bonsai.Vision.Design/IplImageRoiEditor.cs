@@ -63,7 +63,7 @@ namespace Bonsai.Vision.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                using (var visualizerDialog = new TypeVisualizerDialog())
+                using (var visualizerDialog = new TypeVisualizerWindow())
                 {
                     Point[][] regions = default;
                     var imageControl = new ImageRoiPicker();

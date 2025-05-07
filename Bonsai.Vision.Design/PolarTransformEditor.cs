@@ -22,7 +22,7 @@ namespace Bonsai.Vision.Design
                 if (workflow != null && editorState != null && editorState.WorkflowRunning)
                 {
                     var polarTransform = (PolarTransform)component;
-                    using (var editorForm = new TypeVisualizerDialog())
+                    using (var editorForm = new TypeVisualizerWindow())
                     {
                         var imageControl = new ImageCirclePicker();
                         imageControl.Dock = DockStyle.Fill;

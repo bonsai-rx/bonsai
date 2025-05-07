@@ -3,9 +3,9 @@
 namespace Bonsai.Design
 {
     [Obsolete]
-    public class WorkflowEditorSettings : VisualizerDialogSettings
+    public class WorkflowEditorSettings : VisualizerWindowSettings
     {
-        public VisualizerDialogSettings EditorDialogSettings { get; set; }
+        public VisualizerWindowSettings EditorDialogSettings { get; set; }
 
         public VisualizerLayout EditorVisualizerLayout { get; set; }
     }

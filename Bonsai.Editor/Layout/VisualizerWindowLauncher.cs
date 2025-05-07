@@ -9,12 +9,12 @@ using Bonsai.Editor;
 
 namespace Bonsai.Design
 {
-    class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
+    class VisualizerWindowLauncher : WindowLauncher, ITypeVisualizerContext
     {
         ServiceContainer visualizerContext;
         IDisposable visualizerObserver;
 
-        public VisualizerDialogLauncher(
+        public VisualizerWindowLauncher(
             Lazy<DialogTypeVisualizer> visualizer,
             VisualizerFactory visualizerFactory,
             ExpressionBuilderGraph workflow,
@@ -36,37 +36,37 @@ namespace Bonsai.Design
 
         public VisualizerFactory VisualizerFactory { get; }
 
-        static IDisposable SubscribeDialog<TSource>(IObservable<TSource> source, TypeVisualizerDialog visualizerDialog)
+        static IDisposable SubscribeWindow<TSource>(IObservable<TSource> source, TypeVisualizerWindow visualizerWindow)
         {
             return source.Subscribe(
                 xs => { },
-                ex => visualizerDialog.BeginInvoke((Action)(() =>
+                ex => visualizerWindow.BeginInvoke(() =>
                 {
-                    MessageBox.Show(visualizerDialog, ex.Message, visualizerDialog.Text);
-                    visualizerDialog.Close();
-                })));
+                    MessageBox.Show(visualizerWindow, ex.Message, visualizerWindow.Text);
+                    visualizerWindow.Close();
+                }));
         }
 
-        protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
+        protected override void InitializeComponents(TypeVisualizerWindow visualizerWindow, IServiceProvider provider)
         {
-            visualizerDialog.Text = Text;
+            visualizerWindow.Text = Text;
             visualizerContext = new ServiceContainer(provider);
             visualizerContext.AddService(typeof(ITypeVisualizerContext), this);
-            visualizerContext.AddService(typeof(TypeVisualizerDialog), visualizerDialog);
-            visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+            visualizerContext.AddService(typeof(TypeVisualizerWindow), visualizerWindow);
+            visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerWindow);
             visualizerContext.AddService(typeof(ExpressionBuilderGraph), Workflow);
             Visualizer.Value.Load(visualizerContext);
             var visualizerOutput = Visualizer.Value.Visualize(VisualizerFactory.Source.Output, visualizerContext);
 
-            visualizerDialog.AllowDrop = true;
-            visualizerDialog.KeyPreview = true;
-            visualizerDialog.KeyDown += new KeyEventHandler(visualizerDialog_KeyDown);
-            visualizerDialog.DragEnter += new DragEventHandler(visualizerDialog_DragEnter);
-            visualizerDialog.DragOver += new DragEventHandler(visualizerDialog_DragOver);
-            visualizerDialog.DragDrop += new DragEventHandler(visualizerDialog_DragDrop);
-            visualizerDialog.Load += (sender, e) => visualizerObserver = SubscribeDialog(visualizerOutput, visualizerDialog);
+            visualizerWindow.AllowDrop = true;
+            visualizerWindow.KeyPreview = true;
+            visualizerWindow.KeyDown += new KeyEventHandler(visualizerWindow_KeyDown);
+            visualizerWindow.DragEnter += new DragEventHandler(visualizerWindow_DragEnter);
+            visualizerWindow.DragOver += new DragEventHandler(visualizerWindow_DragOver);
+            visualizerWindow.DragDrop += new DragEventHandler(visualizerWindow_DragDrop);
+            visualizerWindow.Load += (sender, e) => visualizerObserver = SubscribeWindow(visualizerOutput, visualizerWindow);
 
-            visualizerDialog.HandleDestroyed += delegate
+            visualizerWindow.HandleDestroyed += delegate
             {
                 if (visualizerObserver != null)
                 {
@@ -75,19 +75,19 @@ namespace Bonsai.Design
                 }
             };
 
-            visualizerDialog.FormClosed += delegate
+            visualizerWindow.FormClosed += delegate
             {
                 Visualizer.Value.Unload();
                 visualizerContext.RemoveService(typeof(ExpressionBuilderGraph));
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
-                visualizerContext.RemoveService(typeof(TypeVisualizerDialog));
+                visualizerContext.RemoveService(typeof(TypeVisualizerWindow));
                 visualizerContext.RemoveService(typeof(ITypeVisualizerContext));
                 visualizerContext.Dispose();
                 visualizerContext = null;
             };
         }
 
-        void visualizerDialog_KeyDown(object sender, KeyEventArgs e)
+        void visualizerWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Back && e.Control)
             {
@@ -97,7 +97,7 @@ namespace Bonsai.Design
 
             if (e.KeyCode == Keys.Delete && e.Control)
             {
-                VisualizerDialog.BeginInvoke((Action)(() =>
+                VisualizerWindow.BeginInvoke((Action)(() =>
                 {
                     var mousePosition = Control.MousePosition;
                     var mashupContainer = GetMashupContainer(mousePosition.X, mousePosition.Y, allowEmpty: false);
@@ -113,20 +113,20 @@ namespace Bonsai.Design
 
         void ReloadMashups()
         {
-            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer dialogMashup)
+            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer windowMashup)
             {
-                dialogMashup.LoadMashups(visualizerContext);
-                var visualizerOutput = dialogMashup.Visualize(VisualizerFactory.Source.Output, visualizerContext);
-                visualizerObserver = SubscribeDialog(visualizerOutput, VisualizerDialog);
+                windowMashup.LoadMashups(visualizerContext);
+                var visualizerOutput = windowMashup.Visualize(VisualizerFactory.Source.Output, visualizerContext);
+                visualizerObserver = SubscribeWindow(visualizerOutput, VisualizerWindow);
             }
         }
 
         void UnloadMashups()
         {
-            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer dialogMashup)
+            if (visualizerObserver != null && Visualizer.Value is MashupVisualizer windowMashup)
             {
                 visualizerObserver.Dispose();
-                dialogMashup.UnloadMashups();
+                windowMashup.UnloadMashups();
             }
         }
 
@@ -147,13 +147,13 @@ namespace Bonsai.Design
             return visualizer;
         }
 
-        public void CreateMashup(MashupVisualizer dialogMashup, InspectBuilder source, Type visualizerType, TypeVisualizerMap typeVisualizerMap)
+        public void CreateMashup(MashupVisualizer windowMashup, InspectBuilder source, Type visualizerType, TypeVisualizerMap typeVisualizerMap)
         {
             if (visualizerType == null)
                 throw new ArgumentNullException(nameof(visualizerType));
 
-            var dialogMashupType = dialogMashup.GetType();
-            var mashupSourceType = LayoutHelper.GetMashupSourceType(dialogMashupType, visualizerType, typeVisualizerMap);
+            var windowMashupType = windowMashup.GetType();
+            var mashupSourceType = LayoutHelper.GetMashupSourceType(windowMashupType, visualizerType, typeVisualizerMap);
             if (mashupSourceType != null)
             {
                 UnloadMashups();
@@ -162,20 +162,20 @@ namespace Bonsai.Design
                     mashupSourceType = visualizerType;
                 }
                 var visualizerMashup = (DialogTypeVisualizer)Activator.CreateInstance(mashupSourceType);
-                dialogMashup.MashupSources.Add(source, visualizerMashup);
+                windowMashup.MashupSources.Add(source, visualizerMashup);
                 ReloadMashups();
             }
         }
 
-        void visualizerDialog_DragDrop(object sender, DragEventArgs e)
+        void visualizerWindow_DragDrop(object sender, DragEventArgs e)
         {
             if (visualizerContext != null && e.Data.GetDataPresent(typeof(GraphNode)))
             {
                 var graphNode = (GraphNode)e.Data.GetData(typeof(GraphNode));
                 var inspectBuilder = (InspectBuilder)graphNode.Value;
                 var typeVisualizerMap = (TypeVisualizerMap)visualizerContext.GetService(typeof(TypeVisualizerMap));
-                var visualizerDialogMap = (VisualizerDialogMap)visualizerContext.GetService(typeof(VisualizerDialogMap));
-                var visualizerType = GetVisualizerType(inspectBuilder, visualizerDialogMap, typeVisualizerMap);
+                var visualizerWindowMap = (VisualizerWindowMap)visualizerContext.GetService(typeof(VisualizerWindowMap));
+                var visualizerType = GetVisualizerType(inspectBuilder, visualizerWindowMap, typeVisualizerMap);
                 if (visualizerType != null)
                 {
                     var visualizer = GetMashupContainer(e.X, e.Y);
@@ -184,24 +184,24 @@ namespace Bonsai.Design
             }
         }
 
-        void visualizerDialog_DragOver(object sender, DragEventArgs e)
+        void visualizerWindow_DragOver(object sender, DragEventArgs e)
         {
         }
 
-        void visualizerDialog_DragEnter(object sender, DragEventArgs e)
+        void visualizerWindow_DragEnter(object sender, DragEventArgs e)
         {
             if (visualizerContext != null && e.Data.GetDataPresent(typeof(GraphNode)))
             {
                 var graphNode = (GraphNode)e.Data.GetData(typeof(GraphNode));
                 var typeVisualizerMap = (TypeVisualizerMap)visualizerContext.GetService(typeof(TypeVisualizerMap));
-                var visualizerDialogMap = (VisualizerDialogMap)visualizerContext.GetService(typeof(VisualizerDialogMap));
-                var visualizerType = GetVisualizerType((InspectBuilder)graphNode.Value, visualizerDialogMap, typeVisualizerMap);
+                var visualizerWindowMap = (VisualizerWindowMap)visualizerContext.GetService(typeof(VisualizerWindowMap));
+                var visualizerType = GetVisualizerType((InspectBuilder)graphNode.Value, visualizerWindowMap, typeVisualizerMap);
                 if (visualizerType != null)
                 {
-                    var dialogMashupType = VisualizerFactory.VisualizerType;
-                    if (dialogMashupType.IsSubclassOf(typeof(MashupVisualizer)))
+                    var windowMashupType = VisualizerFactory.VisualizerType;
+                    if (windowMashupType.IsSubclassOf(typeof(MashupVisualizer)))
                     {
-                        var mashupVisualizerType = LayoutHelper.GetMashupSourceType(dialogMashupType, visualizerType, typeVisualizerMap);
+                        var mashupVisualizerType = LayoutHelper.GetMashupSourceType(windowMashupType, visualizerType, typeVisualizerMap);
                         if (mashupVisualizerType != null)
                         {
                             e.Effect = DragDropEffects.Link;
@@ -211,13 +211,13 @@ namespace Bonsai.Design
             }
         }
 
-        Type GetVisualizerType(InspectBuilder source, VisualizerDialogMap visualizerDialogMap, TypeVisualizerMap typeVisualizerMap)
+        Type GetVisualizerType(InspectBuilder source, VisualizerWindowMap visualizerWindowMap, TypeVisualizerMap typeVisualizerMap)
         {
-            if (visualizerDialogMap.TryGetValue(source, out VisualizerDialogLauncher dialogLauncher))
+            if (visualizerWindowMap.TryGetValue(source, out VisualizerWindowLauncher windowLauncher))
             {
-                if (dialogLauncher == this)
+                if (windowLauncher == this)
                     return null;
-                else return dialogLauncher.VisualizerFactory.VisualizerType;
+                else return windowLauncher.VisualizerFactory.VisualizerType;
             }
             else return typeVisualizerMap.GetTypeVisualizers(source).FirstOrDefault();
         }

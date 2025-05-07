@@ -63,7 +63,7 @@ namespace Bonsai.Vision.Design
                 var rectangle = (Rect)value;
                 var propertyDescriptor = context.PropertyDescriptor;
 
-                using (var visualizerDialog = new TypeVisualizerDialog())
+                using (var visualizerDialog = new TypeVisualizerWindow())
                 {
                     var imageControl = new ImageRectanglePicker();
                     imageControl.Dock = DockStyle.Fill;

@@ -34,9 +34,9 @@ namespace Bonsai.Editor
             BuildAssignProperties(workflowBuilder, propertyAssignments);
 
             var visualizerSettings = VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
-            var visualizerDialogs = visualizerSettings.CreateVisualizerDialogs(workflowBuilder);
+            var visualizerWindows = visualizerSettings.CreateVisualizerWindows(workflowBuilder);
             LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: false);
-            LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerDialogs);
+            LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
 
             var services = new System.ComponentModel.Design.ServiceContainer();
             services.AddService(typeof(WorkflowBuilder), workflowBuilder);
@@ -44,7 +44,7 @@ namespace Bonsai.Editor
 
             var cts = new CancellationTokenSource();
             var contextMenu = new ContextMenuStrip();
-            foreach (var launcher in visualizerDialogs)
+            foreach (var launcher in visualizerWindows)
             {
                 var activeLauncher = launcher;
                 contextMenu.Items.Add(new ToolStripMenuItem(launcher.Text, null, (sender, e) =>
@@ -61,7 +61,7 @@ namespace Bonsai.Editor
             notifyIcon.ContextMenuStrip = contextMenu;
             notifyIcon.Visible = true;
 
-            visualizerDialogs.Show(visualizerSettings, services);
+            visualizerWindows.Show(visualizerSettings, services);
             using var synchronizationContext = new WindowsFormsSynchronizationContext();
             runtimeWorkflow.Finally(() =>
             {
@@ -127,12 +127,7 @@ namespace Bonsai.Editor
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
             if (visualizerProvider != null && File.Exists(layoutPath))
             {
-                VisualizerLayout layout = null;
-                using (var reader = XmlReader.Create(layoutPath))
-                {
-                    layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
-                }
-
+                var layout = VisualizerLayout.Load(layoutPath);
                 RunLayout(workflowBuilder, propertyAssignments, visualizerProvider, layout, fileName);
             }
             else RunHeadless(workflowBuilder, propertyAssignments);

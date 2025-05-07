@@ -76,7 +76,7 @@ namespace Bonsai.Editor
         AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
         WorkflowBuilder workflowBuilder;
-        VisualizerDialogMap visualizerDialogs;
+        VisualizerWindowMap visualizerWindows;
         WorkflowException workflowError;
         Task initialization;
         IDisposable building;
@@ -909,8 +909,7 @@ namespace Bonsai.Editor
             {
                 try
                 {
-                    using var reader = XmlReader.Create(layoutPath);
-                    var visualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
+                    var visualizerLayout = VisualizerLayout.Load(layoutPath);
                     await initialization;
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }
@@ -943,11 +942,11 @@ namespace Bonsai.Editor
             return true;
         }
 
-        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error)
+        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error, XmlSerializerNamespaces namespaces = null)
         {
             try
             {
-                ElementStore.SaveElement(serializer, fileName, o);
+                ElementStore.SaveElement(serializer, fileName, o, namespaces);
                 return true;
             }
             catch (IOException ex)
@@ -1010,7 +1009,7 @@ namespace Bonsai.Editor
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
         {
-            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
+            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error, ElementStore.EmptyNamespaces);
         }
 
         void SaveWorkflowExtension(WorkflowGraphView model, string fileName, GraphNode node)
@@ -1293,10 +1292,10 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
-                if (visualizerDialogs != null)
+                if (visualizerWindows != null)
                 {
-                    visualizerSettings.Update(visualizerDialogs);
-                    visualizerDialogs = null;
+                    visualizerSettings.Update(visualizerWindows);
+                    visualizerWindows = null;
                 }
                 UpdateTitle();
             });
@@ -1309,11 +1308,11 @@ namespace Bonsai.Editor
                 debugging = debug;
                 ClearWorkflowError();
                 building = ShutdownSequence();
-                visualizerDialogs = visualizerSettings.CreateVisualizerDialogs(workflowBuilder);
+                visualizerWindows = visualizerSettings.CreateVisualizerWindows(workflowBuilder);
                 LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, debug);
                 if (!debug)
                 {
-                    LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerDialogs);
+                    LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
                 }
 
                 running = Observable.Using(
@@ -1324,7 +1323,7 @@ namespace Bonsai.Editor
                         {
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
-                            visualizerDialogs.Show(visualizerSettings, editorSite, this);
+                            visualizerWindows.Show(visualizerSettings, editorSite, this);
                             editorSite.OnWorkflowStarted(EventArgs.Empty);
                             Activate();
                         });
@@ -2604,9 +2603,9 @@ namespace Bonsai.Editor
                     return siteForm.visualizerSettings;
                 }
 
-                if (serviceType == typeof(VisualizerDialogMap))
+                if (serviceType == typeof(VisualizerWindowMap))
                 {
-                    return siteForm.visualizerDialogs;
+                    return siteForm.visualizerWindows;
                 }
 
                 if (serviceType == typeof(ThemeRenderer))
@@ -2623,9 +2622,9 @@ namespace Bonsai.Editor
                 {
                     var selectedNode = siteForm.selectionModel.SelectedNodes.FirstOrDefault();
                     if (selectedNode != null && selectedNode.Value is InspectBuilder builder &&
-                        siteForm.visualizerDialogs.TryGetValue(builder, out VisualizerDialogLauncher visualizerDialog))
+                        siteForm.visualizerWindows.TryGetValue(builder, out VisualizerWindowLauncher visualizerWindow))
                     {
-                        var visualizer = visualizerDialog.Visualizer;
+                        var visualizer = visualizerWindow.Visualizer;
                         if (visualizer.IsValueCreated)
                         {
                             return visualizer.Value;

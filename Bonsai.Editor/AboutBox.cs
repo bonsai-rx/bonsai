@@ -41,7 +41,7 @@ namespace Bonsai.Editor
 
         #region Assembly Attribute Accessors
 
-        public string AssemblyTitle
+        public static string AssemblyTitle
         {
             get
             {
@@ -58,7 +58,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public string AssemblyVersion
+        public static string AssemblyVersion
         {
             get
             {
@@ -71,7 +71,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public string AssemblyDescription
+        public static string AssemblyDescription
         {
             get
             {
@@ -84,7 +84,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public string AssemblyProduct
+        public static string AssemblyProduct
         {
             get
             {
@@ -97,7 +97,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public string AssemblyCopyright
+        public static string AssemblyCopyright
         {
             get
             {
@@ -110,7 +110,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public string AssemblyCompany
+        public static string AssemblyCompany
         {
             get
             {

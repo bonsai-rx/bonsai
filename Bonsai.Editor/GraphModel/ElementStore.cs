@@ -10,11 +10,19 @@ namespace Bonsai.Editor.GraphModel
     static class ElementStore
     {
         const string VersionAttributeName = "Version";
+        internal static readonly XmlSerializerNamespaces EmptyNamespaces = GetEmptySerializerNamespaces();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
             NamespaceHandling = NamespaceHandling.OmitDuplicates,
             Indent = true
         };
+
+        static XmlSerializerNamespaces GetEmptySerializerNamespaces()
+        {
+            var serializerNamespaces = new XmlSerializerNamespaces();
+            serializerNamespaces.Add(string.Empty, string.Empty);
+            return serializerNamespaces;
+        }
 
         public static WorkflowBuilder LoadWorkflow(string fileName)
         {
@@ -93,17 +101,16 @@ namespace Bonsai.Editor.GraphModel
             return new ExpressionBuilderGraph();
         }
 
-        public static void SaveElement(XmlSerializer serializer, string fileName, object element)
+        public static void SaveElement(XmlSerializer serializer, string fileName, object element, XmlSerializerNamespaces namespaces = null)
         {
-            using (var memoryStream = new MemoryStream())
-            using (var writer = XmlnsIndentedWriter.Create(memoryStream, DefaultWriterSettings))
-            {
-                serializer.Serialize(writer, element);
-                using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                {
-                    memoryStream.WriteTo(fileStream);
-                }
-            }
+            using var memoryStream = new MemoryStream();
+            using var writer = namespaces is null
+                ? XmlnsIndentedWriter.Create(memoryStream, DefaultWriterSettings)
+                : XmlWriter.Create(memoryStream, DefaultWriterSettings);
+            serializer.Serialize(writer, element, namespaces);
+
+            using var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            memoryStream.WriteTo(fileStream);
         }
     }
 }
