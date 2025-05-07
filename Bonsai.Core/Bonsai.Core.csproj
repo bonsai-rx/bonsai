@@ -30,4 +30,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Bonsai.Design" />
+  </ItemGroup>
 </Project>

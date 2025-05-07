@@ -7,4 +7,3 @@ using System.Runtime.CompilerServices;
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Reactive", "rx")]
 [assembly: WorkflowNamespaceIcon("Bonsai.Reactive", "Bonsai:ElementIcon.Reactive")]
 [assembly: WorkflowNamespaceIcon("Bonsai.Expressions", "Bonsai:ElementIcon.Numerics")]
-[assembly: InternalsVisibleTo("Bonsai.Design")]
