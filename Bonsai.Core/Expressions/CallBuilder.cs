@@ -16,12 +16,12 @@ namespace Bonsai.Expressions
     [DefaultProperty(nameof(MethodName))]
     [XmlType("Call", Namespace = Constants.XmlNamespace)]
     [Description("Calls the specified instance method using the arguments selected from the elements of an observable sequence.")]
-    public class CallBuilder : SelectBuilder
+    public sealed class CallBuilder : SelectBuilder
     {
         /// <summary>
         /// Gets or sets the name of the method to call.
         /// </summary>
-        [TypeConverter(typeof(MethodNameConverter))]
+        [Editor("Bonsai.Design.CallBuilderMethodNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the method to call.")]
         public string MethodName { get; set; } = nameof(ToString);
 
@@ -76,46 +76,10 @@ namespace Bonsai.Expressions
             return result;
         }
 
-        static IEnumerable<MethodInfo> GetInstanceMethods(Type type)
+        internal static IEnumerable<MethodInfo> GetInstanceMethods(Type type)
         {
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             return type.GetMethods(bindingAttributes).Where(m => !m.IsSpecialName);
-        }
-
-        class MethodNameConverter : StringConverter
-        {
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return true;
-            }
-
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                if (context is not null && context.Instance is CallBuilder callBuilder)
-                {
-                    var workflow = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
-                    var source = (from node in workflow
-                                  from successor in node.Successors
-                                  where Unwrap(successor.Target.Value) == callBuilder
-                                  select node.Value).FirstOrDefault();
-                    if (source is not null)
-                    {
-                        var workflowBuilder = (WorkflowBuilder)context.GetService(typeof(WorkflowBuilder));
-                        var sourceExpression = workflowBuilder.Workflow.Build(source);
-                        var instanceType = sourceExpression.Type.GetGenericArguments()[0];
-                        var instanceExpression = ExpressionHelper.MemberAccess(
-                            Expression.Parameter(instanceType),
-                            callBuilder.InstanceSelector);
-                        var methodNames = GetInstanceMethods(instanceExpression.Type)
-                            .Select(method => method.Name)
-                            .Distinct()
-                            .ToList();
-                        return new StandardValuesCollection(methodNames);
-                    }
-                }
-
-                return base.GetStandardValues(context);
-            }
         }
     }
 }
