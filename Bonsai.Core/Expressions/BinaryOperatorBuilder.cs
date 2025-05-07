@@ -19,8 +19,7 @@ namespace Bonsai.Expressions
         static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
 
         /// <summary>
-        /// Gets or sets the value of the right hand operand which will be paired with elements
-        /// of the observable sequence in case the sequence itself is not composed of paired elements.
+        /// Gets or sets the value of the operand used to process the observable sequence.
         /// </summary>
         [Browsable(false)]
         public WorkflowProperty Operand { get; set; }
@@ -176,7 +175,7 @@ namespace Bonsai.Expressions
 
         static readonly Attribute[] ValueAttributes = new[]
         {
-            new DescriptionAttribute("The value of the right hand operand in the binary operator.")
+            new DescriptionAttribute("The value of the operand used to process the observable sequence.")
         };
 
         AttributeCollection ICustomTypeDescriptor.GetAttributes()
