@@ -70,7 +70,10 @@ namespace Bonsai.Expressions
             var methods = GetInstanceMethods(instance.Type)
                 .Where(m => string.Equals(m.Name, methodName, StringComparison.OrdinalIgnoreCase));
 
-            return BuildCall(instance, methods, arguments);
+            var result = BuildCall(instance, methods, arguments);
+            if (result.Type == typeof(void))
+                result = Expression.Block(result, Expression.Constant(Unit.Default));
+            return result;
         }
 
         static IEnumerable<MethodInfo> GetInstanceMethods(Type type)
