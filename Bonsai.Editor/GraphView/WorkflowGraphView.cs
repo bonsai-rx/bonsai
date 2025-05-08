@@ -254,6 +254,7 @@ namespace Bonsai.Editor.GraphView
             }
             EditorControl.UpdateWatchLayout(WorkflowPath);
             EditorControl.ShowWatchTool(selectedItems);
+            EditorControl.SelectDockContent(this);
         }
 
         void DeleteWatch(IEnumerable<GraphNode> nodes)
@@ -373,7 +374,7 @@ namespace Bonsai.Editor.GraphView
         internal void SelectGraphNode(GraphNode node)
         {
             GraphView.SelectedNode = node;
-            EditorControl.SelectTab(this);
+            EditorControl.SelectDockContent(this);
             GraphView.Select();
             UpdateSelection();
         }
@@ -642,7 +643,7 @@ namespace Bonsai.Editor.GraphView
             if (validateWorkflow)
             {
                 editorService.ValidateWorkflow();
-                EditorControl.SelectTab(this);
+                EditorControl.SelectDockContent(this);
                 if (EditorControl.AnnotationPanel.Tag is ExpressionBuilder builder)
                 {
                     var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
