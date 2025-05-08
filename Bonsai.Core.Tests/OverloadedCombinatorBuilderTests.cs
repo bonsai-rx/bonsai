@@ -142,6 +142,13 @@ namespace Bonsai.Core.Tests
                 => Observable.Return(default(T));
         }
 
+        [Combinator]
+        class SourceWithSingleNonGenericParamsOverloadMock
+        {
+            public IObservable<int> Process(params IObservable<int>[] sources)
+                => Observable.Return(default(int));
+        }
+
         private TResult RunOverload<TSource, TResult, TCombinator>(TSource value)
             where TCombinator : new()
         {
@@ -347,7 +354,7 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void ArgumentRange_SourceWithSingleGenericParamsOverload_LowerBoundIsEqualToOne()
+        public void ArgumentRange_SourceWithSingleGenericParamsOverload_LowerBoundIsOne()
         // Overload with a single unassigned generic params parameter should require at least one argument
         {
             // related to https://github.com/bonsai-rx/bonsai/issues/2280
@@ -357,6 +364,19 @@ namespace Bonsai.Core.Tests
             };
 
             Assert.AreEqual(expected: 1, combinatorBuilder.ArgumentRange.LowerBound);
+        }
+
+        [TestMethod]
+        public void ArgumentRange_SourceWithSingleNonGenericParamsOverload_LowerBoundIsZero()
+        // Overload with a single unassigned generic params parameter should require at least one argument
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/2280
+            var combinatorBuilder = new CombinatorBuilder
+            {
+                Combinator = new SourceWithSingleNonGenericParamsOverloadMock()
+            };
+
+            Assert.AreEqual(expected: 0, combinatorBuilder.ArgumentRange.LowerBound);
         }
     }
 }
