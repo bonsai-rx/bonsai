@@ -89,7 +89,7 @@ namespace Bonsai.Editor.GraphModel
         {
             get
             {
-                return (Flags & NodeFlags.Disabled | NodeFlags.RangeUndefined) != 0 || Value is null
+                return (Flags & (NodeFlags.Disabled | NodeFlags.RangeUndefined)) != 0 || Value is null
                     ? EmptyRange
                     : Value.ArgumentRange;
             }
