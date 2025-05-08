@@ -60,16 +60,16 @@ namespace Bonsai.Expressions
                 var combinatorType = combinator.GetType();
                 resetCombinator = GetResetCombinatorAction(combinatorType);
                 var processMethodParameters = GetProcessMethods(combinatorType).Select(m => m.GetParameters()).ToArray();
-                var paramArray = processMethodParameters.Any(p =>
-                    p.Length >= 1 &&
-                    Attribute.IsDefined(p[p.Length - 1], typeof(ParamArrayAttribute)));
-
-                if (paramArray) SetArgumentRange(1, maxArgumentCount = int.MaxValue);
-                else if (processMethodParameters.Length == 0) SetArgumentRange(0, maxArgumentCount = int.MaxValue);
+                if (processMethodParameters.Length == 0) SetArgumentRange(0, maxArgumentCount = int.MaxValue);
                 else
                 {
-                    var min = processMethodParameters.Min(p => p.Length);
-                    var max = processMethodParameters.Max(p => p.Length);
+                    var hasParamsOverload = false;
+                    var min = processMethodParameters.Min(p =>
+                        (hasParamsOverload |= p.Length >= 1 && Attribute.IsDefined(p[p.Length - 1], typeof(ParamArrayAttribute)))
+                            // if overload has a single unassigned generic parameter we require at least one argument for type inference 
+                            ? (p.Length > 1 || !((MethodInfo)p[0].Member).ContainsGenericParameters ? p.Length - 1 : 1)
+                            : p.Length);
+                    var max = hasParamsOverload ? int.MaxValue : processMethodParameters.Max(p => p.Length);
                     SetArgumentRange(min, maxArgumentCount = max);
                 }
             }
