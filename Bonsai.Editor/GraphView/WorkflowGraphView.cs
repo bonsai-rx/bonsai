@@ -226,7 +226,20 @@ namespace Bonsai.Editor.GraphView
             uiService.ShowError(errorMessage);
         }
 
-        public void AddWatch(IEnumerable<GraphNode> nodes)
+        public void ToggleWatch(IEnumerable<GraphNode> nodes)
+        {
+            if (!HasWatch(nodes))
+                AddWatch(nodes);
+            else
+                DeleteWatch(nodes);
+        }
+
+        bool HasWatch(IEnumerable<GraphNode> nodes)
+        {
+            return nodes.All(node => watchMap.Contains(node.Value));
+        }
+
+        void AddWatch(IEnumerable<GraphNode> nodes)
         {
             var selectedItems = nodes
                 .Where(node => !watchMap.Contains(node.Value))
@@ -243,7 +256,7 @@ namespace Bonsai.Editor.GraphView
             EditorControl.ShowWatchTool(selectedItems);
         }
 
-        public void DeleteWatch(IEnumerable<GraphNode> nodes)
+        void DeleteWatch(IEnumerable<GraphNode> nodes)
         {
             var selectedItems = nodes
                 .Where(node => watchMap.Contains(node.Value))
@@ -1111,14 +1124,9 @@ namespace Bonsai.Editor.GraphView
             LaunchDefaultEditor(graphView.SelectedNode);
         }
 
-        private void addWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toggleWatchToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.OnKeyDown(new KeyEventArgs(addWatchToolStripMenuItem.ShortcutKeys));
-        }
-
-        private void deleteWatchToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            editorService.OnKeyDown(new KeyEventArgs(deleteWatchToolStripMenuItem.ShortcutKeys));
+            editorService.OnKeyDown(new KeyEventArgs(toggleWatchToolStripMenuItem.ShortcutKeys));
         }
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1672,8 +1680,7 @@ namespace Bonsai.Editor.GraphView
             if (selectedNodes.Length > 0)
             {
                 copyToolStripMenuItem.Enabled = true;
-                addWatchToolStripMenuItem.Enabled = true;
-                deleteWatchToolStripMenuItem.Enabled = true;
+                toggleWatchToolStripMenuItem.Enabled = true;
                 saveAsWorkflowToolStripMenuItem.Enabled = true;
                 if (Array.Exists(selectedNodes, node => node.NestedCategory != null))
                 {

@@ -2291,21 +2291,12 @@ namespace Bonsai.Editor
             }
         }
 
-        private void addWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toggleWatchToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
             if (model?.GraphView.Focused is true)
             {
-                model.AddWatch(selectionModel.SelectedNodes);
-            }
-        }
-
-        private void deleteWatchToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var model = selectionModel.SelectedView;
-            if (model?.GraphView.Focused is true)
-            {
-                model.DeleteWatch(selectionModel.SelectedNodes);
+                model.ToggleWatch(selectionModel.SelectedNodes);
             }
         }
 
@@ -2737,8 +2728,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.findNextToolStripMenuItem, siteForm.findNextToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findPreviousToolStripMenuItem, siteForm.findPreviousToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findAllReferencesToolStripMenuItem, siteForm.findAllReferencesToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.addWatchToolStripMenuItem, siteForm.addWatchToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.deleteWatchToolStripMenuItem, siteForm.deleteWatchToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.toggleWatchToolStripMenuItem, siteForm.toggleWatchToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.docsToolStripMenuItem, siteForm.docsToolStripMenuItem_Click);
             }
 

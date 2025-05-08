@@ -39,8 +39,7 @@
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
-            this.addWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,8 +78,7 @@
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
             this.toolStripSeparator8,
-            this.addWatchToolStripMenuItem,
-            this.deleteWatchToolStripMenuItem,
+            this.toggleWatchToolStripMenuItem,
             this.toolStripSeparator4,
             this.docsToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem,
@@ -104,7 +102,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 624);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 602);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -168,25 +166,15 @@
             this.toolStripSeparator8.Name = "toolStripSeparator8";
             this.toolStripSeparator8.Size = new System.Drawing.Size(246, 6);
             // 
-            // addWatchToolStripMenuItem
+            // toggleWatchToolStripMenuItem
             // 
-            this.addWatchToolStripMenuItem.Enabled = false;
-            this.addWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
-            this.addWatchToolStripMenuItem.Name = "addWatchToolStripMenuItem";
-            this.addWatchToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F9;
-            this.addWatchToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.addWatchToolStripMenuItem.Text = "Add Watch";
-            this.addWatchToolStripMenuItem.Click += new System.EventHandler(this.addWatchToolStripMenuItem_Click);
-            // 
-            // deleteWatchToolStripMenuItem
-            // 
-            this.deleteWatchToolStripMenuItem.Enabled = false;
-            this.deleteWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DeleteWatchMenuImage;
-            this.deleteWatchToolStripMenuItem.Name = "deleteWatchToolStripMenuItem";
-            this.deleteWatchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F9)));
-            this.deleteWatchToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.deleteWatchToolStripMenuItem.Text = "Delete Watch";
-            this.deleteWatchToolStripMenuItem.Click += new System.EventHandler(this.deleteWatchToolStripMenuItem_Click);
+            this.toggleWatchToolStripMenuItem.Enabled = false;
+            this.toggleWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
+            this.toggleWatchToolStripMenuItem.Name = "toggleWatchToolStripMenuItem";
+            this.toggleWatchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F9)));
+            this.toggleWatchToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.toggleWatchToolStripMenuItem.Text = "Toggle Watch";
+            this.toggleWatchToolStripMenuItem.Click += new System.EventHandler(this.toggleWatchToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
@@ -453,8 +441,7 @@
         private System.Windows.Forms.ToolStripMenuItem openNewWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findAllReferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripMenuItem addWatchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toggleWatchToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
-        private System.Windows.Forms.ToolStripMenuItem deleteWatchToolStripMenuItem;
     }
 }
