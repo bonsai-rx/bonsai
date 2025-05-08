@@ -83,7 +83,6 @@
             // exportButton
             // 
             this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.exportButton.Location = new System.Drawing.Point(456, 406);
             this.exportButton.Margin = new System.Windows.Forms.Padding(6);
             this.exportButton.Name = "exportButton";
@@ -91,6 +90,7 @@
             this.exportButton.TabIndex = 0;
             this.exportButton.Text = "Export";
             this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Click += new System.EventHandler(this.ExportButton_Click);
             // 
             // cancelButton
             // 

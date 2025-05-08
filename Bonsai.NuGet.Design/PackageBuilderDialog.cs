@@ -145,6 +145,17 @@ namespace Bonsai.NuGet.Design
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (!EnsureMetadata())
+            {
+                DialogResult = DialogResult.None;
+                e.Cancel = true;
+            }
+
+            base.OnFormClosing(e);
+        }
+
+        private bool EnsureMetadata()
+        {
             if (MetadataSpecified && metadataVersion > metadataSaveVersion)
             {
                 var result = MessageBox.Show(
@@ -154,59 +165,54 @@ namespace Bonsai.NuGet.Design
                 if (result == DialogResult.Cancel ||
                     result == DialogResult.Yes && !SaveMetadata())
                 {
-                    DialogResult = DialogResult.None;
-                    e.Cancel = true;
+                    return false;
                 }
             }
 
-            if (DialogResult == DialogResult.OK)
+            return true;
+        }
+
+        private bool ExportPackage()
+        {
+            if (!EnsureMetadata())
+                return false;
+
+            var packageFileName =
+                packageBuilder.Id + "." +
+                packageBuilder.Version + NuGetConstants.PackageExtension;
+            saveFileDialog.FileName = packageFileName;
+            if (entryPoint != null)
             {
-                var packageFileName =
-                    packageBuilder.Id + "." +
-                    packageBuilder.Version + NuGetConstants.PackageExtension;
-                saveFileDialog.FileName = packageFileName;
-                if (entryPoint != null)
-                {
-                    RenamePackageFile(entryPoint, packageBuilder.Id);
-                    if (entryPointLayout != null) RenamePackageFile(entryPointLayout, packageBuilder.Id);
-                }
-
-                EnsureDirectory(saveFileDialog.InitialDirectory);
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    using (var dialog = new PackageOperationDialog())
-                    {
-                        var logger = new EventLogger();
-                        dialog.Text = Resources.ExportOperationLabel;
-                        dialog.RegisterEventLogger(logger);
-                        logger.Log(LogLevel.Information, $"Creating package '{packageBuilder.Id} {packageBuilder.Version}'.");
-                        var dialogClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
-                            handler => dialog.FormClosed += handler,
-                            handler => dialog.FormClosed -= handler);
-                        var operation = Observable.Using(
-                            () => Stream.Synchronized(File.Open(saveFileDialog.FileName, FileMode.Create)),
-                            stream => Observable.Start(() => packageBuilder.Save(stream)).TakeUntil(dialogClosed));
-                        using (var subscription = operation.ObserveOn(this).Subscribe(
-                            xs => dialog.Complete(),
-                            ex => logger.Log(LogLevel.Error, ex.Message)))
-                        {
-                            if (dialog.ShowDialog() != DialogResult.OK)
-                            {
-                                e.Cancel = true;
-                            }
-                            else
-                            {
-                                SystemSounds.Asterisk.Play();
-                                var message = string.Format(Resources.PackageExported, packageBuilder.Id, packageBuilder.Version);
-                                MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.None);
-                            }
-                        }
-                    }
-                }
-                else e.Cancel = true;
+                RenamePackageFile(entryPoint, packageBuilder.Id);
+                if (entryPointLayout != null) RenamePackageFile(entryPointLayout, packageBuilder.Id);
             }
 
-            base.OnFormClosing(e);
+            EnsureDirectory(saveFileDialog.InitialDirectory);
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                return false;
+
+            using var dialog = new PackageOperationDialog();
+            var logger = new EventLogger();
+            dialog.Text = Resources.ExportOperationLabel;
+            dialog.RegisterEventLogger(logger);
+            logger.Log(LogLevel.Information, $"Creating package '{packageBuilder.Id} {packageBuilder.Version}'.");
+            var dialogClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
+                handler => dialog.FormClosed += handler,
+                handler => dialog.FormClosed -= handler);
+            var operation = Observable.Using(
+                () => Stream.Synchronized(File.Open(saveFileDialog.FileName, FileMode.Create)),
+                stream => Observable.Start(() => packageBuilder.Save(stream)).TakeUntil(dialogClosed));
+
+            using var subscription = operation.ObserveOn(this).Subscribe(
+                xs => dialog.Complete(),
+                ex => logger.Log(LogLevel.Error, ex.Message));
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return false;
+
+            SystemSounds.Asterisk.Play();
+            var message = string.Format(Resources.PackageExported, packageBuilder.Id, packageBuilder.Version);
+            MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.None);
+            return true;
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -252,6 +258,11 @@ namespace Bonsai.NuGet.Design
         {
             if (!splitterMoving) Cursor = Cursors.Default;
             base.OnMouseLeave(e);
+        }
+
+        private void ExportButton_Click(object sender, EventArgs e)
+        {
+            ExportPackage();
         }
     }
 }
