@@ -4,6 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Reactive.Linq;
 using System.Collections.Generic;
 using System.Reactive;
+using Bonsai.Expressions;
+using System.Threading.Tasks;
 
 namespace Bonsai.Core.Tests
 {
@@ -123,6 +125,14 @@ namespace Bonsai.Core.Tests
             public IObservable<Array> Process(
                 IObservable<Array> source,
                 IObservable<string> _) => source;
+        }
+
+        [Combinator]
+        class SourceWithParamsOverloadMock
+        {
+            public IObservable<int> Process() => Observable.Return(0);
+            public IObservable<T> Process<T>(params IObservable<T>[] sources)
+                => Observable.Return(default(T));
         }
 
         private TResult RunOverload<TSource, TResult, TCombinator>(TSource value)
@@ -313,6 +323,20 @@ namespace Bonsai.Core.Tests
             var resultProvider = TestCombinatorBuilder<Array, MultiArgumentDerivedCovariantMock>(source1, source2);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value1, result);
+        }
+
+        [TestMethod]
+        public async Task Build_SourceWithParamsOverloadCalledWithNoArguments_PreferEmptyOverload()
+        // Empty overload is preferred since unassigned generic parameters of a params overload cannot be resolved
+        {
+            // related to https://github.com/bonsai-rx/bonsai/issues/2280
+            var workflow = new TestWorkflow()
+                .AppendCombinator(new SourceWithParamsOverloadMock())
+                .AppendOutput()
+                .Workflow;
+
+            var result = await workflow.BuildObservable<int>();
+            Assert.AreEqual(expected: 0, result);
         }
     }
 }
