@@ -56,33 +56,23 @@ namespace Bonsai.NuGet.Design
             }
 
             var metadataExists = metadataSaveVersion >= 0;
-            if (metadataExists ||
-                MessageBox.Show(this,
-                                Resources.CreatePackageMetadata, Text,
-                                MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Warning) == DialogResult.Yes)
+            var manifest = Manifest.Create(packageBuilder);
+            if (metadataExists)
             {
-                var manifest = Manifest.Create(packageBuilder);
-                if (metadataExists)
+                using var stream = File.OpenRead(metadataPath);
+                var existingManifest = Manifest.ReadFrom(stream, true);
+                if (existingManifest.Files != null)
                 {
-                    using (var stream = File.OpenRead(metadataPath))
-                    {
-                        var existingManifest = Manifest.ReadFrom(stream, true);
-                        if (existingManifest.Files != null)
-                        {
-                            manifest.Files.AddRange(existingManifest.Files);
-                        }
-                    }
-                }
-
-                using (var stream = File.Open(metadataPath, FileMode.Create))
-                {
-                    manifest.Save(stream);
-                    metadataSaveVersion = metadataVersion;
-                    return true;
+                    manifest.Files.AddRange(existingManifest.Files);
                 }
             }
-            else return false;
+
+            using (var stream = File.Open(metadataPath, FileMode.Create))
+            {
+                manifest.Save(stream);
+                metadataSaveVersion = metadataVersion;
+                return true;
+            }
         }
 
         static void EnsureDirectory(string path)
@@ -186,9 +176,9 @@ namespace Bonsai.NuGet.Design
                 {
                     using (var dialog = new PackageOperationDialog())
                     {
-                        ILogger logger = new EventLogger();
+                        var logger = new EventLogger();
                         dialog.Text = Resources.ExportOperationLabel;
-                        dialog.RegisterEventLogger((EventLogger)logger);
+                        dialog.RegisterEventLogger(logger);
                         logger.Log(LogLevel.Information, $"Creating package '{packageBuilder.Id} {packageBuilder.Version}'.");
                         var dialogClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                             handler => dialog.FormClosed += handler,
