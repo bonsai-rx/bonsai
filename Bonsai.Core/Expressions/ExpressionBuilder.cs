@@ -423,7 +423,7 @@ namespace Bonsai.Expressions
                 Attribute.IsDefined(parameters[offset], typeof(ParamArrayAttribute));
 
             return paramArray &&
-                (parameters.Length != arguments.Length ||
+                (parameters.Length < arguments.Length || parameters.Length == arguments.Length &&
                  !MatchParamArrayTypeReferences(parameters[offset].ParameterType, arguments[arguments.Length - 1]));
         }
 
