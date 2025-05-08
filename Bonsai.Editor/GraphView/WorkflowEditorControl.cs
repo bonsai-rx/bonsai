@@ -203,7 +203,7 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        public void SelectTab(WorkflowGraphView workflowGraphView)
+        public void SelectDockContent(WorkflowGraphView workflowGraphView)
         {
             foreach (var content in dockPanel.Contents)
             {
