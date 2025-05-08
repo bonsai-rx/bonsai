@@ -123,9 +123,6 @@
   <data name="BootstrapperMissingFromPackage" xml:space="preserve">
     <value>Fatal error: no bootstrapper file was found in editor package.</value>
   </data>
-  <data name="ExportPackageInvalidDirectory" xml:space="preserve">
-    <value>The parent directory has an invalid name. The exported workflow must be placed inside a folder with the name '{0}'. Please rename either the parent directory or the workflow. </value>
-  </data>
   <data name="ExportPackageManifestReadError" xml:space="preserve">
     <value>There was an error reading the existing package manifest file '{0}'. Please make sure that the file is accessible and that it has a correct format. Detailed error message:
 
