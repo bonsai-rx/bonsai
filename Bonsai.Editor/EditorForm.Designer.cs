@@ -53,8 +53,7 @@
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
-            this.addWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -118,8 +117,7 @@
             this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.reloadExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
-            this.addWatchToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.deleteWatchToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toggleWatchToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -331,8 +329,7 @@
             this.undoToolStripMenuItem,
             this.redoToolStripMenuItem,
             this.toolStripSeparator13,
-            this.addWatchToolStripMenuItem,
-            this.deleteWatchToolStripMenuItem,
+            this.toggleWatchToolStripMenuItem,
             this.toolStripSeparator3,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -376,23 +373,14 @@
             this.toolStripSeparator13.Name = "toolStripSeparator13";
             this.toolStripSeparator13.Size = new System.Drawing.Size(223, 6);
             // 
-            // addWatchToolStripMenuItem
+            // toggleWatchToolStripMenuItem
             // 
-            this.addWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
-            this.addWatchToolStripMenuItem.Name = "addWatchToolStripMenuItem";
-            this.addWatchToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F9;
-            this.addWatchToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
-            this.addWatchToolStripMenuItem.Text = "Add Watch";
-            this.addWatchToolStripMenuItem.Click += new System.EventHandler(this.addWatchToolStripMenuItem_Click);
-            // 
-            // deleteWatchToolStripMenuItem
-            // 
-            this.deleteWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.DeleteWatchMenuImage;
-            this.deleteWatchToolStripMenuItem.Name = "deleteWatchToolStripMenuItem";
-            this.deleteWatchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F9)));
-            this.deleteWatchToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
-            this.deleteWatchToolStripMenuItem.Text = "Delete Watch";
-            this.deleteWatchToolStripMenuItem.Click += new System.EventHandler(this.deleteWatchToolStripMenuItem_Click);
+            this.toggleWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
+            this.toggleWatchToolStripMenuItem.Name = "toggleWatchToolStripMenuItem";
+            this.toggleWatchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F9)));
+            this.toggleWatchToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.toggleWatchToolStripMenuItem.Text = "Toggle Watch";
+            this.toggleWatchToolStripMenuItem.Click += new System.EventHandler(this.toggleWatchToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -745,8 +733,7 @@
             this.editExtensionsToolStripButton,
             this.reloadExtensionsToolStripButton,
             this.toolStripSeparator12,
-            this.addWatchToolStripButton,
-            this.deleteWatchToolStripButton});
+            this.toggleWatchToolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(684, 25);
@@ -945,25 +932,15 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 25);
             // 
-            // addWatchToolStripButton
+            // toggleWatchToolStripButton
             // 
-            this.addWatchToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.addWatchToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
-            this.addWatchToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.addWatchToolStripButton.Name = "addWatchToolStripButton";
-            this.addWatchToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.addWatchToolStripButton.Text = "Add &Watch (F9)";
-            this.addWatchToolStripButton.Click += new System.EventHandler(this.addWatchToolStripMenuItem_Click);
-            // 
-            // deleteWatchToolStripButton
-            // 
-            this.deleteWatchToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.deleteWatchToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.DeleteWatchMenuImage;
-            this.deleteWatchToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.deleteWatchToolStripButton.Name = "deleteWatchToolStripButton";
-            this.deleteWatchToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.deleteWatchToolStripButton.Text = "Delete Watc&h (Shift+F9)";
-            this.deleteWatchToolStripButton.Click += new System.EventHandler(this.deleteWatchToolStripMenuItem_Click);
+            this.toggleWatchToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toggleWatchToolStripButton.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
+            this.toggleWatchToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toggleWatchToolStripButton.Name = "toggleWatchToolStripButton";
+            this.toggleWatchToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.toggleWatchToolStripButton.Text = "Toggle &Watch (Shift+F9)";
+            this.toggleWatchToolStripButton.Click += new System.EventHandler(this.toggleWatchToolStripMenuItem_Click);
             // 
             // statusStrip
             // 
@@ -1671,11 +1648,9 @@
         private Bonsai.Editor.Label explorerLabel;
         private Bonsai.Editor.ExplorerTreeView explorerTreeView;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
-        private System.Windows.Forms.ToolStripButton addWatchToolStripButton;
-        private System.Windows.Forms.ToolStripButton deleteWatchToolStripButton;
+        private System.Windows.Forms.ToolStripButton toggleWatchToolStripButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
-        private System.Windows.Forms.ToolStripMenuItem addWatchToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteWatchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toggleWatchToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
         private System.Windows.Forms.ToolStripMenuItem showFindResultsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showWatchToolStripMenuItem;
