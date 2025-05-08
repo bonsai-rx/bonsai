@@ -7,7 +7,7 @@
 
     <!-- Common NuGet Package Properties -->
     <Authors>Bonsai Foundation</Authors>
-    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2024</Copyright>
+    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2025</Copyright>
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
     <PackageType>Dependency;BonsaiLibrary</PackageType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
