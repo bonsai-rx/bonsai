@@ -41,13 +41,13 @@ namespace Bonsai.Editor.Diagnostics
                         watchMap.Contains(inspectBuilder))
                     {
                         yield return inspectBuilder;
+                    }
 
-                        if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
-                            workflowBuilder.Workflow is not null)
-                        {
-                            stack.Push(workflowBuilder.Workflow.GetEnumerator());
-                            break;
-                        }
+                    if (inspectBuilder.Builder is IWorkflowExpressionBuilder workflowBuilder &&
+                        workflowBuilder.Workflow is not null)
+                    {
+                        stack.Push(workflowBuilder.Workflow.GetEnumerator());
+                        break;
                     }
                 }
             }
