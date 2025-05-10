@@ -38,8 +38,12 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.toggleWatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToDefinitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findAllReferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openNewWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -58,7 +62,6 @@
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.findAllReferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -74,6 +77,9 @@
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
+            this.toolStripSeparator8,
+            this.toggleWatchToolStripMenuItem,
+            this.toolStripSeparator4,
             this.docsToolStripMenuItem,
             this.goToDefinitionToolStripMenuItem,
             this.findAllReferencesToolStripMenuItem,
@@ -96,7 +102,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(250, 568);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 602);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -155,6 +161,26 @@
             this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
             this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
             // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(246, 6);
+            // 
+            // toggleWatchToolStripMenuItem
+            // 
+            this.toggleWatchToolStripMenuItem.Enabled = false;
+            this.toggleWatchToolStripMenuItem.Image = global::Bonsai.Editor.Properties.Resources.WatchMenuImage;
+            this.toggleWatchToolStripMenuItem.Name = "toggleWatchToolStripMenuItem";
+            this.toggleWatchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F9)));
+            this.toggleWatchToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.toggleWatchToolStripMenuItem.Text = "Toggle Watch";
+            this.toggleWatchToolStripMenuItem.Click += new System.EventHandler(this.toggleWatchToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(246, 6);
+            // 
             // docsToolStripMenuItem
             // 
             this.docsToolStripMenuItem.Enabled = false;
@@ -173,6 +199,15 @@
             this.goToDefinitionToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.goToDefinitionToolStripMenuItem.Text = "Go To Definition";
             this.goToDefinitionToolStripMenuItem.Click += new System.EventHandler(this.goToDefinitionToolStripMenuItem_Click);
+            // 
+            // findAllReferencesToolStripMenuItem
+            // 
+            this.findAllReferencesToolStripMenuItem.Enabled = false;
+            this.findAllReferencesToolStripMenuItem.Name = "findAllReferencesToolStripMenuItem";
+            this.findAllReferencesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F12)));
+            this.findAllReferencesToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.findAllReferencesToolStripMenuItem.Text = "Find All References";
+            this.findAllReferencesToolStripMenuItem.Click += new System.EventHandler(this.findAllReferencesToolStripMenuItem_Click);
             // 
             // openNewTabToolStripMenuItem
             // 
@@ -333,15 +368,6 @@
             this.disableToolStripMenuItem.Text = "Disable";
             this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
             // 
-            // findAllReferencesToolStripMenuItem
-            // 
-            this.findAllReferencesToolStripMenuItem.Enabled = false;
-            this.findAllReferencesToolStripMenuItem.Name = "findAllReferencesToolStripMenuItem";
-            this.findAllReferencesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F12)));
-            this.findAllReferencesToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.findAllReferencesToolStripMenuItem.Text = "Find All References";
-            this.findAllReferencesToolStripMenuItem.Click += new System.EventHandler(this.findAllReferencesToolStripMenuItem_Click);
-            // 
             // graphView
             // 
             this.graphView.AllowDrop = true;
@@ -414,5 +440,8 @@
         private System.Windows.Forms.ToolStripMenuItem openNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openNewWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findAllReferencesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem toggleWatchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
     }
 }

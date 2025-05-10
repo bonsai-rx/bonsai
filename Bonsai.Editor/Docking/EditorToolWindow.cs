@@ -9,7 +9,7 @@ namespace Bonsai.Editor.Docking
         readonly IServiceProvider serviceProvider;
         readonly ThemeRenderer themeRenderer;
 
-        private EditorToolWindow()
+        protected EditorToolWindow()
         {
         }
 

@@ -91,9 +91,10 @@ namespace Bonsai.Editor.GraphModel
             this WorkflowBuilder source,
             Func<ExpressionBuilder, bool> predicate,
             ExpressionBuilder current,
-            bool findPrevious)
+            bool findPrevious,
+            bool unwrap = true)
         {
-            var matches = FindAll(source, predicate);
+            var matches = FindAll(source, predicate, unwrap);
             if (current != null)
             {
                 if (findPrevious)
@@ -106,9 +107,10 @@ namespace Bonsai.Editor.GraphModel
 
         public static IEnumerable<WorkflowQueryResult> FindAll(
             this WorkflowBuilder source,
-            Func<ExpressionBuilder, bool> predicate)
+            Func<ExpressionBuilder, bool> predicate,
+            bool unwrap = true)
         {
-            return Query(source.Workflow, predicate);
+            return Query(source.Workflow, predicate, unwrap);
         }
 
         public static WorkflowQueryResult FindReference(
@@ -164,6 +166,7 @@ namespace Bonsai.Editor.GraphModel
         static IEnumerable<WorkflowQueryResult> Query(
             ExpressionBuilderGraph workflow,
             Func<ExpressionBuilder, bool> predicate,
+            bool unwrap = true,
             WorkflowEditorPath parent = null)
         {
             for (int i = 0; i < workflow.Count; i++)
@@ -171,13 +174,13 @@ namespace Bonsai.Editor.GraphModel
                 var node = workflow[i];
                 WorkflowEditorPath path = null;
                 var builder = ExpressionBuilder.Unwrap(node.Value);
-                if (predicate(builder))
+                if (predicate(unwrap ? builder : node.Value))
                     yield return new WorkflowQueryResult(node.Value, path = new WorkflowEditorPath(i, parent));
 
                 if (builder is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow is not null)
                 {
                     path ??= new WorkflowEditorPath(i, parent);
-                    foreach (var result in Query(workflowBuilder.Workflow, predicate, path))
+                    foreach (var result in Query(workflowBuilder.Workflow, predicate, unwrap, path))
                     {
                         yield return result;
                     }
