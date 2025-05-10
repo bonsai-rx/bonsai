@@ -16,7 +16,8 @@ namespace Bonsai
     {
         static readonly string ExcludeFiles =
             $@"**\*{NuGetConstants.ManifestExtension};" +
-            $@"**\*{NuGetConstants.PackageExtension};";
+            $@"**\*{NuGetConstants.PackageExtension};" +
+            $@"**\{NuGet.Constants.BonsaiExtension}\**";
 
         public static Manifest CreatePackageManifest(string metadataPath)
         {
@@ -54,9 +55,9 @@ namespace Bonsai
             if (packageBuilder.LicenseMetadata is not null)
                 packageBuilder.LicenseUrl = null;
 
-            foreach (var file in manifest.Files)
-                packageBuilder.AddFiles(basePath, file.Source, file.Target, file.Exclude);
-            if (!manifest.HasFilesNode)
+            if (manifest.HasFilesNode)
+                packageBuilder.PopulateFiles(basePath, manifest.Files);
+            else
                 packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
 
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
