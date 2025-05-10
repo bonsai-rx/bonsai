@@ -425,7 +425,7 @@ namespace Bonsai.NuGet.Design
                 {
                     var selectedNode = evt.EventArgs.Node;
                     var selectedRepository = SelectedRepository;
-                    var selectedPackage = (IPackageSearchMetadata)selectedNode.Tag;
+                    var selectedPackage = (IPackageSearchMetadata)selectedNode?.Tag;
                     if (selectedPackage == null) return null;
 
                     var localPackageNode = selectedNode.Nodes.Count > 0 ? selectedNode.Nodes[Resources.UpdatesNodeName] : null;
