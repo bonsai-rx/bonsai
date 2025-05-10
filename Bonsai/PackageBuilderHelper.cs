@@ -14,35 +14,17 @@ namespace Bonsai
 {
     static class PackageBuilderHelper
     {
-        static string GetRelativePath(string path, string basePath)
-        {
-            var pathUri = new Uri(path);
-            var rootUri = new Uri(basePath);
-            var relativeUri = rootUri.MakeRelativeUri(pathUri);
-            return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-        }
-
-        static IEnumerable<ManifestFile> GetContentFiles(string basePath)
-        {
-            return from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
-                   let extension = Path.GetExtension(file)
-                   where extension != NuGetConstants.ManifestExtension &&
-                         extension != NuGetConstants.PackageExtension
-                   select new ManifestFile
-                   {
-                       Source = file,
-                       Target = Path.Combine("content", GetRelativePath(file, basePath))
-                   };
-        }
+        static readonly string ExcludeFiles =
+            $@"**\*{NuGetConstants.ManifestExtension};" +
+            $@"**\*{NuGetConstants.PackageExtension};" +
+            $@"**\{NuGet.Constants.BonsaiExtension}\**";
 
         public static Manifest CreatePackageManifest(string metadataPath)
         {
             if (File.Exists(metadataPath))
             {
-                using (var stream = File.OpenRead(metadataPath))
-                {
-                    return Manifest.ReadFrom(stream, true);
-                }
+                using var stream = File.OpenRead(metadataPath);
+                return Manifest.ReadFrom(stream, true);
             }
             else
             {
@@ -70,8 +52,14 @@ namespace Bonsai
             packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
-            var files = manifest.Files?.Count == 0 ? GetContentFiles(basePath) : manifest.Files;
-            packageBuilder.PopulateFiles(basePath, files);
+            if (packageBuilder.LicenseMetadata is not null)
+                packageBuilder.LicenseUrl = null;
+
+            if (manifest.HasFilesNode)
+                packageBuilder.PopulateFiles(basePath, manifest.Files);
+            else
+                packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
+
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
             foreach (var dependency in packageBuilder.DependencyGroups.Where(group => group.TargetFramework == NuGetFramework.AnyFramework)
                                                                       .SelectMany(group => group.Packages))
@@ -80,11 +68,7 @@ namespace Bonsai
             }
 
             updateDependencies = false;
-            var workflowFiles = packageBuilder.Files.Select(file => file as PhysicalPackageFile)
-                                                    .Where(file => file != null && Path.GetExtension(file.SourcePath) == NuGet.Constants.BonsaiExtension)
-                                                    .Select(file => file.SourcePath)
-                                                    .ToArray();
-            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(workflowFiles, configuration).ToArray().Wait();
+            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(packageBuilder.Files, configuration);
             foreach (var dependency in workflowDependencies)
             {
                 if (!manifestDependencies.TryGetValue(dependency.Id, out PackageDependency manifestDependency) ||
