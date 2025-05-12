@@ -30,6 +30,9 @@
 *.bonsai text
 *.wxs text
 
+# Prevent GitHub from hiding designer files from PRs
+*.Designer.cs text linguist-generated=false
+
 # Documents
 LICENSE text
 *.md text diff=markdown
