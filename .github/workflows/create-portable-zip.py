@@ -24,7 +24,6 @@ with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
         '<configuration>',
         '  <packageSources>',
         '    <add key="Gallery" value="Gallery" />',
-        '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />',
     ]
 
     nuget_api_url = os.getenv('NUGET_API_URL')

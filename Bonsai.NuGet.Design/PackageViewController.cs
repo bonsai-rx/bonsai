@@ -75,8 +75,7 @@ namespace Bonsai.NuGet.Design
             }
 
             activeRequests = new List<IDisposable>();
-            var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory, null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory);
             packageSourceProvider = new PackageSourceProvider(settings);
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
