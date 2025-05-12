@@ -39,7 +39,7 @@ namespace Bonsai
             }
         }
 
-        public static PackageBuilder CreatePackageBuilder(string path, Manifest manifest, PackageConfiguration configuration, out bool updateDependencies)
+        public static PackageBuilder CreatePackageBuilder(string path, Manifest manifest, PackageConfiguration configuration)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
@@ -67,14 +67,12 @@ namespace Bonsai
                 manifestDependencies.Add(dependency.Id, dependency);
             }
 
-            updateDependencies = false;
             var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(packageBuilder.Files, configuration);
             foreach (var dependency in workflowDependencies)
             {
                 if (!manifestDependencies.TryGetValue(dependency.Id, out PackageDependency manifestDependency) ||
                     !DependencyEqualityComparer.Default.Equals(dependency, manifestDependency))
                 {
-                    updateDependencies = true;
                     manifestDependencies[dependency.Id] = dependency;
                 }
             }

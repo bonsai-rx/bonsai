@@ -57,11 +57,13 @@ namespace Bonsai.NuGet.Design
 
             var metadataExists = metadataSaveVersion >= 0;
             var manifest = Manifest.Create(packageBuilder);
+            manifest.Metadata.DependencyGroups = null;
             if (metadataExists)
             {
                 using var stream = File.OpenRead(metadataPath);
                 var existingManifest = Manifest.ReadFrom(stream, true);
-                if (existingManifest.Files != null)
+                manifest.Metadata.DependencyGroups = existingManifest.Metadata.DependencyGroups;
+                if (existingManifest.Files is not null)
                 {
                     manifest.Files.AddRange(existingManifest.Files);
                 }

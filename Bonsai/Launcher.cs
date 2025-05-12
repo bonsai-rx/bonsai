@@ -199,6 +199,8 @@ namespace Bonsai
             Manifest manifest;
             EditorBootstrapper.EnableVisualStyles();
             var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
+            var metadataExists = File.Exists(metadataPath);
+
             try { manifest = GalleryPackage.CreateManifest(metadataPath); }
             catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
@@ -208,14 +210,14 @@ namespace Bonsai
                     ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             }
 
-            var builder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration, out bool updateDependencies);
+            var builder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration);
             using (var builderDialog = new GalleryPackageBuilderDialog())
             {
                 Environment.CurrentDirectory = Path.GetDirectoryName(fileName);
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
                 builderDialog.InitialDirectory = Environment.CurrentDirectory;
                 builderDialog.SetPackageBuilder(builder);
-                if (updateDependencies)
+                if (!metadataExists)
                 {
                     builderDialog.UpdateMetadataVersion();
                 }
