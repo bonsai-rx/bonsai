@@ -19,24 +19,22 @@ namespace Bonsai
             $@"**\*{NuGetConstants.PackageExtension};" +
             $@"**\{NuGet.Constants.BonsaiExtension}\**";
 
-        public static Manifest CreateManifest(string metadataPath)
+        public static Manifest OpenManifest(string metadataPath)
         {
-            if (File.Exists(metadataPath))
+            using var stream = File.OpenRead(metadataPath);
+            return Manifest.ReadFrom(stream, true);
+        }
+
+        public static Manifest CreateDefaultManifest(string metadataPath)
+        {
+            var metadata = new ManifestMetadata()
             {
-                using var stream = File.OpenRead(metadataPath);
-                return Manifest.ReadFrom(stream, true);
-            }
-            else
-            {
-                var metadata = new ManifestMetadata()
-                {
-                    Authors = new[] { Environment.UserName },
-                    Version = NuGetVersion.Parse("1.0.0"),
-                    Id = Path.GetFileNameWithoutExtension(metadataPath),
-                    Description = "My workflow description."
-                };
-                return new Manifest(metadata);
-            }
+                Authors = new[] { Environment.UserName },
+                Version = NuGetVersion.Parse("1.0.0"),
+                Id = Path.GetFileNameWithoutExtension(metadataPath),
+                Description = "My workflow description."
+            };
+            return new Manifest(metadata);
         }
 
         public static PackageBuilder CreatePackageBuilder(string path, Manifest manifest, PackageConfiguration configuration)

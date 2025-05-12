@@ -188,7 +188,24 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
-        internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName, string editorFolder)
+        internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
+                return Program.NormalExitCode;
+            }
+
+            var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
+            var manifest = GalleryPackage.OpenManifest(metadataPath);
+            var packageBuilder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration);
+            var packageFileName = packageBuilder.Id + "." + packageBuilder.Version + NuGetConstants.PackageExtension;
+            using var stream = File.Open(packageFileName, FileMode.Create);
+            packageBuilder.Save(stream);
+            return Program.NormalExitCode;
+        }
+
+        internal static int LaunchExportPackageDialog(PackageConfiguration packageConfiguration, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -200,8 +217,12 @@ namespace Bonsai
             EditorBootstrapper.EnableVisualStyles();
             var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
             var metadataExists = File.Exists(metadataPath);
-
-            try { manifest = GalleryPackage.CreateManifest(metadataPath); }
+            try
+            {
+                manifest = metadataExists
+                    ? GalleryPackage.OpenManifest(metadataPath)
+                    : GalleryPackage.CreateDefaultManifest(metadataPath);
+            }
             catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
             {
