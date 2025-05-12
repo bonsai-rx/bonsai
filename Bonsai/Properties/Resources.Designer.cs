@@ -90,6 +90,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No image file was specified..
+        /// </summary>
+        internal static string ImageFileNotSpecifiedWarning {
+            get {
+                return ResourceManager.GetString("ImageFileNotSpecifiedWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close..
         /// </summary>
         internal static string InstallEditorPackageError {
@@ -131,6 +140,15 @@ namespace Bonsai.Properties {
         internal static string UpdateEditorPackageError {
             get {
                 return ResourceManager.GetString("UpdateEditorPackageError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No workflow file was specified..
+        /// </summary>
+        internal static string WorkflowFileNotSpecifiedWarning {
+            get {
+                return ResourceManager.GetString("WorkflowFileNotSpecifiedWarning", resourceCulture);
             }
         }
     }

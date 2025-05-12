@@ -143,7 +143,7 @@ namespace Bonsai
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
@@ -163,13 +163,13 @@ namespace Bonsai
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
             if (string.IsNullOrEmpty(imageFileName))
             {
-                Console.WriteLine("No image file was specified.");
+                Console.WriteLine(Resources.ImageFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
@@ -192,7 +192,7 @@ namespace Bonsai
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 

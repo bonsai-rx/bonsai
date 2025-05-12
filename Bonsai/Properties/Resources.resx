@@ -128,6 +128,9 @@
 
 {1}</value>
   </data>
+  <data name="ImageFileNotSpecifiedWarning" xml:space="preserve">
+    <value>No image file was specified.</value>
+  </data>
   <data name="InstallEditorPackageError" xml:space="preserve">
     <value>Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
   </data>
@@ -142,5 +145,8 @@
   </data>
   <data name="UpdateEditorPackageError" xml:space="preserve">
     <value>Unable to update editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
+  </data>
+  <data name="WorkflowFileNotSpecifiedWarning" xml:space="preserve">
+    <value>No workflow file was specified.</value>
   </data>
 </root>
