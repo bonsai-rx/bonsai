@@ -29,43 +29,6 @@ namespace Bonsai.Configuration
 
         public bool DebugScripts { get; set; }
 
-        private void EnsureNuGetSettings()
-        {
-            var projectFolder = Path.GetDirectoryName(ProjectFileName);
-            var settingsFileName = Path.Combine(projectFolder, Settings.DefaultSettingsFileName);
-            if (!File.Exists(settingsFileName))
-            {
-                var machineWideSettings = new XPlatMachineWideSetting();
-                var settings = machineWideSettings.Settings;
-                if (settings != null)
-                {
-                    const string SectionPackageSources = "packageSources";
-                    var packageSourceSection = settings.GetSection(SectionPackageSources);
-                    if (packageSourceSection != null)
-                    {
-                        var packageSources = (from item in packageSourceSection.Items
-                                              let source = item as SourceItem
-                                              where source != null && Uri.IsWellFormedUriString(source.Value, UriKind.Absolute)
-                                              select source).ToList();
-                        if (packageSources.Count > 0)
-                        {
-                            var localSettings = new Settings(projectFolder);
-                            foreach (var item in localSettings.GetSection(SectionPackageSources).Items)
-                            {
-                                localSettings.Remove(SectionPackageSources, item);
-                            }
-
-                            foreach (var source in packageSources)
-                            {
-                                localSettings.AddOrUpdate(SectionPackageSources, source);
-                            }
-                            localSettings.SaveToDisk();
-                        }
-                    }
-                }
-            }
-        }
-
         public ScriptExtensionsProjectMetadata LoadProjectMetadata()
         {
             if (!File.Exists(ProjectFileName))
@@ -81,9 +44,6 @@ namespace Bonsai.Configuration
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             var projectMetadata = LoadProjectMetadata();
-            if (!projectMetadata.Exists)
-                EnsureNuGetSettings();
-
             var packageReferences = assemblyReferences
                 .Select(assemblyName => packageConfiguration.GetAssemblyPackageReference(assemblyName, packageMap))
                 .Where(package => package is not null);
