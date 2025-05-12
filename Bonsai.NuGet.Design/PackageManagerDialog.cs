@@ -15,7 +15,6 @@ namespace Bonsai.NuGet.Design
     public partial class PackageManagerDialog : Form
     {
         const string AggregateRepository = "All";
-        const string DefaultRepository = "Bonsai Packages";
         readonly PackageViewController packageViewController;
 
         public PackageManagerDialog(NuGetFramework projectFramework, string path)
@@ -59,7 +58,7 @@ namespace Bonsai.NuGet.Design
             foreach (var repository in packageViewController.PackageManager.SourceRepositoryProvider.GetRepositories())
             {
                 packageSourceComboBox.Items.Add(repository);
-                if (repository.PackageSource.Name == DefaultRepository)
+                if (repository.PackageSource.Name == Constants.DefaultPackageSource)
                 {
                     packageSourceComboBox.SelectedIndex = packageSourceComboBox.Items.Count - 1;
                 }
