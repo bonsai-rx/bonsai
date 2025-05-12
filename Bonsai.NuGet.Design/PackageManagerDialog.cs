@@ -213,12 +213,10 @@ namespace Bonsai.NuGet.Design
 
         private void settingsButton_Click(object sender, EventArgs e)
         {
-            Hide();
             if (packageViewController.ShowPackageSourceConfigurationDialog() == DialogResult.OK)
             {
                 InitializePackageSourceItems();
             }
-            Show();
         }
 
         private void closeButton_Click(object sender, EventArgs e)
