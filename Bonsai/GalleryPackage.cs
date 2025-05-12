@@ -12,14 +12,14 @@ using System.Reactive.Linq;
 
 namespace Bonsai
 {
-    static class PackageBuilderHelper
+    static class GalleryPackage
     {
         static readonly string ExcludeFiles =
             $@"**\*{NuGetConstants.ManifestExtension};" +
             $@"**\*{NuGetConstants.PackageExtension};" +
             $@"**\{NuGet.Constants.BonsaiExtension}\**";
 
-        public static Manifest CreatePackageManifest(string metadataPath)
+        public static Manifest CreateManifest(string metadataPath)
         {
             if (File.Exists(metadataPath))
             {
@@ -39,11 +39,11 @@ namespace Bonsai
             }
         }
 
-        public static PackageBuilder CreateExecutablePackage(string path, Manifest manifest, PackageConfiguration configuration, out bool updateDependencies)
+        public static PackageBuilder CreatePackageBuilder(string path, Manifest manifest, PackageConfiguration configuration, out bool updateDependencies)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
-                throw new ArgumentException("Invalid workflow file path.", "path");
+                throw new ArgumentException("Invalid workflow file path.", nameof(path));
             }
 
             var packageBuilder = new PackageBuilder();

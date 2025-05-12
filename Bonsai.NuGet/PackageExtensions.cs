@@ -17,7 +17,6 @@ namespace Bonsai.NuGet
 {
     public static class PackageExtensions
     {
-        const string PackageTagFilter = "Bonsai";
         public static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
 
         public static bool IsPackageType(this LocalPackageInfo packageInfo, string typeName)
@@ -49,13 +48,15 @@ namespace Bonsai.NuGet
         public static bool IsLibraryPackage(this PackageReaderBase packageReader)
         {
             return packageReader.IsPackageType(Constants.LibraryPackageType)
-                || packageReader.NuspecReader.GetTags()?.Contains(PackageTagFilter) is true;
+                || packageReader.NuspecReader.GetTags()?.Contains(Constants.BonsaiTag) is true;
         }
 
         public static bool IsGalleryPackage(this PackageReaderBase packageReader)
         {
             return packageReader.IsPackageType(Constants.GalleryPackageType)
-                || packageReader.NuspecReader.GetTags()?.Contains(PackageTagFilter) is true;
+                || packageReader.NuspecReader.GetTags() is string tagText
+                && tagText.Contains(Constants.BonsaiTag)
+                && tagText.Contains(Constants.GalleryTag);
         }
 
         public static bool IsExecutablePackage(this PackageReaderBase packageReader, PackageIdentity identity, NuGetFramework projectFramework)

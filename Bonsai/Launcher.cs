@@ -199,7 +199,7 @@ namespace Bonsai
             Manifest manifest;
             EditorBootstrapper.EnableVisualStyles();
             var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
-            try { manifest = PackageBuilderHelper.CreatePackageManifest(metadataPath); }
+            try { manifest = GalleryPackage.CreateManifest(metadataPath); }
             catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
             {
@@ -208,9 +208,8 @@ namespace Bonsai
                     ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             }
 
-            bool updateDependencies;
-            var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration, out updateDependencies);
-            using (var builderDialog = new PackageBuilderDialog())
+            var builder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration, out bool updateDependencies);
+            using (var builderDialog = new GalleryPackageBuilderDialog())
             {
                 Environment.CurrentDirectory = Path.GetDirectoryName(fileName);
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);

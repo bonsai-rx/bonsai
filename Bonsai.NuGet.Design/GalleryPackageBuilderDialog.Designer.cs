@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.NuGet.Design
 {
-    partial class PackageBuilderDialog
+    partial class GalleryPackageBuilderDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -108,7 +108,7 @@
             // 
             this.saveFileDialog.Filter = "NuGet package file (*.nupkg)|*.nupkg";
             // 
-            // PackageBuilderDialog
+            // GalleryPackageBuilderDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -121,7 +121,7 @@
             this.Controls.Add(this.contentView);
             this.Controls.Add(this.metadataProperties);
             this.MinimumSize = new System.Drawing.Size(500, 400);
-            this.Name = "PackageBuilderDialog";
+            this.Name = "GalleryPackageBuilderDialog";
             this.ShowIcon = false;
             this.Text = "Bonsai - Export Package";
             this.ResumeLayout(false);

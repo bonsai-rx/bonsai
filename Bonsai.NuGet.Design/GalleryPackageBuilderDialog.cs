@@ -14,7 +14,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.NuGet.Design
 {
-    public partial class PackageBuilderDialog : Form
+    public partial class GalleryPackageBuilderDialog : Form
     {
         bool splitterMoving;
         string metadataPath;
@@ -25,7 +25,7 @@ namespace Bonsai.NuGet.Design
         PhysicalPackageFile entryPointLayout;
         static readonly PackageBuilderTypeDescriptionProvider descriptionProvider = new PackageBuilderTypeDescriptionProvider();
 
-        public PackageBuilderDialog()
+        public GalleryPackageBuilderDialog()
         {
             InitializeComponent();
             metadataProperties.PropertyValueChanged += (sender, e) => UpdateMetadataVersion();
