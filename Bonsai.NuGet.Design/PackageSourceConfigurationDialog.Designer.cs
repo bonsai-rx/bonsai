@@ -274,9 +274,8 @@
             this.MinimizeBox = false;
             this.Name = "PackageSourceConfigurationDialog";
             this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Options";
+            this.Text = "Bonsai Package Source Options";
             this.ResumeLayout(false);
             this.PerformLayout();
 
