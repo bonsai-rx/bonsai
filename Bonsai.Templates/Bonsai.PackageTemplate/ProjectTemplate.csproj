@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Title>$projectname$</Title>
     <Description>A package for the Bonsai visual programming language.</Description>
     <Authors>$registeredorganization$</Authors>
     <Copyright>Copyright © $registeredorganization$ $year$</Copyright>
