@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Title>Bonsai - Player</Title>
     <ToolCommandName>bonsai</ToolCommandName>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <Description>A tool for running Bonsai workflows from the command-line.</Description>

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - System Design Library</Title>
-    <Description>Bonsai Design Library containing editor classes for IO and other system configurations.</Description>
+    <Description>This package provides editors for IO and other system configurations.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Resources Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

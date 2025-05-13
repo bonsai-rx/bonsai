@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Audio Library</Title>
-    <Description>Bonsai Audio Library containing modules for sound capture and playback.</Description>
+    <Description>This package provides reactive operators for sound capture and playback.</Description>
     <PackageTags>Bonsai Rx Audio</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

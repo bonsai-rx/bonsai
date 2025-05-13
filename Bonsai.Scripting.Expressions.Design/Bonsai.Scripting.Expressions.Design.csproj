@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Expression Scripting Design Library</Title>
-    <Description>Bonsai Design Library containing editor classes for expression scripting in Bonsai.</Description>
+    <Description>This package provides editors for expression scripting in the Bonsai programming language.</Description>
     <PackageTags>Bonsai Rx Scripting Expressions Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

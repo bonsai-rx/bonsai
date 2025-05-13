@@ -44,7 +44,7 @@
     <!-- Embed required package content -->
     <Content Include="$(MSBuildThisFileDirectory)..\LICENSE" PackagePath="/" />
     <Content Include="$(MSBuildThisFileDirectory)..\icon.png" PackagePath="/" />
-    <Content Include="$(MSBuildThisFileDirectory)..\README.md" PackagePath="/" />
+    <Content Include="README.md" PackagePath="/" />
   </ItemGroup>
   <Import Project="Versioning.props" />
   <Import Project="Common.Tests.csproj.props" Condition="$(MSBuildProjectName.EndsWith('.Tests'))" />

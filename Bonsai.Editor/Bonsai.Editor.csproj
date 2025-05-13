@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Editor</Title>
-    <Description>An integrated development environment for the Bonsai visual programming language.</Description>
+    <Description>This package provides an integrated development environment for the Bonsai programming language.</Description>
     <PackageTags>Bonsai Editor Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>

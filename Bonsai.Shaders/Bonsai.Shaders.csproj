@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Shaders Library</Title>
-    <Description>Bonsai Shaders Library containing modules for dynamic control of shader primitives.</Description>
+    <Description>This package provides operators for graphics rendering and dynamic control of OpenGL shader stages.</Description>
     <PackageTags>Bonsai Rx Shaders Graphics OpenGL</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

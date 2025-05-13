@@ -3,9 +3,7 @@
   <PropertyGroup>
     <PackageType>Template</PackageType>
     <PackageId>Bonsai.Templates</PackageId>
-    <Title>Bonsai Templates</Title>
-    <Authors>Bonsai</Authors>
-    <Description>Templates for creating a C# Bonsai package (.nupkg)</Description>
+    <Description>Templates for creating a Bonsai C# package or bootstrapping a Bonsai environment.</Description>
     <PackageTags>Bonsai Rx Package Environment Templates</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeContentInPack>true</IncludeContentInPack>

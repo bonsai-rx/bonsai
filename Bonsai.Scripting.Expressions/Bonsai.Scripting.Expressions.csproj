@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Expression Scripting Library</Title>
-    <Description>Bonsai Scripting Library containing expression scripting infrastructure for Bonsai.</Description>
+    <Description>This package provides operators implementing expression scripting infrastructure.</Description>
     <PackageTags>Bonsai Rx Scripting Expressions</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

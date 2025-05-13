@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Core Library</Title>
-    <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
+    <Description>This package provides common compiler and runtime infrastructure for the Bonsai programming language.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <TargetFrameworks>net472;netstandard2.0;net8.0</TargetFrameworks>
     <RootNamespace>Bonsai</RootNamespace>

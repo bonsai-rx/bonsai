@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Dsp Library</Title>
-    <Description>Bonsai Dsp Library containing reactive algorithms for digital signal processing.</Description>
+    <Description>This package provides operators for real-time digital signal processing.</Description>
     <PackageTags>Bonsai Rx Dsp Signal Processing</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net472</TargetFramework>

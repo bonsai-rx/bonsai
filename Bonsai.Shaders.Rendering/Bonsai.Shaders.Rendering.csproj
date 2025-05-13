@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Shaders Rendering Library</Title>
-    <Description>Bonsai Shaders Rendering Library containing modules for rendering complex 3D scenes.</Description>
+    <Description>This package provides operators for rendering complex 3D scenes.</Description>
     <PackageTags>Bonsai Rx Shaders Rendering Assets Graphics OpenGL</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
