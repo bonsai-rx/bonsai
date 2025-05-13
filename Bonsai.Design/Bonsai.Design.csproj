@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Design Library</Title>
-    <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
+    <Description>This package provides common visualizer and editor infrastructure for the Bonsai programming language.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>

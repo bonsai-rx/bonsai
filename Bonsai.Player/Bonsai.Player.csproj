@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Title>Bonsai - Player</Title>
     <ToolCommandName>bonsai</ToolCommandName>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <Description>A tool for running Bonsai workflows from the command-line.</Description>
@@ -19,9 +18,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\LICENSE" PackagePath="/" />
-    <Content Include="..\icon.png" PackagePath="/" />
   </ItemGroup>
 </Project>

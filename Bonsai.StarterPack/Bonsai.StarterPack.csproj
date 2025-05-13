@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Starter Pack</Title>
-    <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>
+    <Description>This package includes everything you need to get started building data processing workflows.</Description>
     <PackageTags>Bonsai Rx Starter Pack</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeBuildOutput>false</IncludeBuildOutput>

@@ -33,7 +33,7 @@ namespace Bonsai.NuGet.Design
                 searchComboBox,
                 prereleaseCheckBox,
                 value => { });
-            packageViewController.SearchPrefix = $"tags:{Constants.GalleryDirectory} ";
+            packageViewController.SearchPrefix = $"tags:{Constants.GalleryTag} ";
             packageViewController.PackageType = Constants.GalleryPackageType;
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
@@ -87,7 +87,7 @@ namespace Bonsai.NuGet.Design
             var package = e.Package;
             if (package != null)
             {
-                if (!package.Tags.Contains(Constants.GalleryDirectory))
+                if (!package.Tags.Contains(Constants.GalleryTag))
                 {
                     MessageBox.Show(this,
                         string.Format(Resources.InvalidGalleryPackage, package.Identity),

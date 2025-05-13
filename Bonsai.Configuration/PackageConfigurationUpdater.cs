@@ -30,7 +30,6 @@ namespace Bonsai.Configuration
         readonly NuGetVersion bootstrapperVersion;
         readonly NuGetFramework bootstrapperFramework;
         readonly IPackageManager packageManager;
-        readonly SourceRepository galleryRepository;
         readonly PackageConfiguration packageConfiguration;
         readonly PackageConfigurationPlugin configurationPlugin;
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
@@ -49,10 +48,6 @@ namespace Bonsai.Configuration
             bootstrapperVersion = bootstrapperName?.Version;
             configurationPlugin = new PackageConfigurationPlugin(this);
             packageManager.PackageManagerPlugins.Add(configurationPlugin);
-
-            var galleryPath = Path.Combine(bootstrapperDirectory, Constants.GalleryDirectory);
-            var galleryPackageSource = new PackageSource(galleryPath);
-            galleryRepository = new SourceRepository(galleryPackageSource, Repository.Provider.GetCoreV3());
             NormalizePathSeparators(packageConfiguration);
         }
 
@@ -401,17 +396,6 @@ namespace Bonsai.Configuration
             {
                 if (packageReader.IsExecutablePackage(package, projectFramework))
                 {
-                    var packageFolder = Path.GetDirectoryName(packageReader.GetNuspecFile());
-                    var resolver = new VersionFolderPathResolver(packageFolder, isLowercase: false);
-                    var nupkgFileName = resolver.GetPackageFileName(package.Id, package.Version);
-                    var nupkgFilePath = Path.Combine(packageFolder, nupkgFileName);
-                    var localPackage = Owner.galleryRepository.GetLocalPackage(package);
-                    if (localPackage == null)
-                    {
-                        var targetFilePath = Path.Combine(Owner.galleryRepository.PackageSource.Source, Path.GetFileName(nupkgFileName));
-                        PathUtility.EnsureParentDirectory(targetFilePath);
-                        File.Copy(nupkgFilePath, targetFilePath);
-                    }
                     return false;
                 }
                 else

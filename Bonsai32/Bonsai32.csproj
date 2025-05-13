@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai32</Title>
     <Description>The x86 bootstrapper for the Bonsai environment.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>

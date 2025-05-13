@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Vision Library</Title>
-    <Description>Bonsai Vision Library containing reactive algorithms for computer vision and image processing.</Description>
+    <Description>This package provides operators for real-time computer vision and image processing.</Description>
     <PackageTags>Bonsai Rx Image Processing Computer Vision</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

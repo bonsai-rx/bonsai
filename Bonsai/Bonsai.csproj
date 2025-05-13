@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai</Title>
-    <Description>A visual programming language for data stream processing built on top of Rx for .NET.</Description>
+    <Description>The compiler, package manager, and IDE for the Bonsai visual reactive programming language.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>

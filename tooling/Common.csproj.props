@@ -7,12 +7,13 @@
 
     <!-- Common NuGet Package Properties -->
     <Authors>Bonsai Foundation</Authors>
-    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2024</Copyright>
+    <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2025</Copyright>
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
-    <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
-    <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
     <PackageType>Dependency;BonsaiLibrary</PackageType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
 
     <!-- Always pack NuGet packages (except on CI where it'll be done separately) -->
     <GeneratePackageOnBuild Condition="'$(ContinuousIntegrationBuild)' != 'true'">true</GeneratePackageOnBuild>
@@ -21,9 +22,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSymbols Condition="'$(Configuration)' != 'Release'">false</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-    <!-- Ignore warnings about PackageLicenseUrl and PackageIconUrl, we still use them for MyGet support -->
-    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
 
     <!-- Error when restore graph contains mismatched target frameworks -->
     <WarningsAsErrors>$(WarningsAsErrors);NU1701</WarningsAsErrors>
@@ -42,6 +40,12 @@
       enumerated by the time it's evaluated and break NuGet packing -->
     <DebugType Condition="'$(IsReferenceDummyBuild)' == 'true'">none</DebugType>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Embed required package content -->
+    <Content Include="$(MSBuildThisFileDirectory)..\LICENSE" PackagePath="/" />
+    <Content Include="$(MSBuildThisFileDirectory)..\icon.png" PackagePath="/" />
+    <Content Include="README.md" PackagePath="/" />
+  </ItemGroup>
   <Import Project="Versioning.props" />
   <Import Project="Common.Tests.csproj.props" Condition="$(MSBuildProjectName.EndsWith('.Tests'))" />
 </Project>

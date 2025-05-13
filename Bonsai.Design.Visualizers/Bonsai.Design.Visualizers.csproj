@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Visualizers Library</Title>
-    <Description>Bonsai Visualizers Library containing base visualizer classes and editor infrastructure.</Description>
+    <Description>This package provides visualizers for time series and other common data streams.</Description>
     <PackageTags>Bonsai Rx Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

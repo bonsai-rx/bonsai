@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Vision Design Library</Title>
-    <Description>Bonsai Design Library containing visualizer and editor classes for image processing types.</Description>
+    <Description>This package provides type visualizers and editors for image processing operators.</Description>
     <PackageTags>Bonsai Rx Vision Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

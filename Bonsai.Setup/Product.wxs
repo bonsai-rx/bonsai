@@ -24,9 +24,7 @@
     <Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
-        <ComponentRef Id="Gallery"/>
         <ComponentRef Id="Extensions" />
-        <ComponentRef Id="NuGetMachineWideSettings" />
         <ComponentRef Id="ProgramMenuDir" />
       </Feature>
 
@@ -40,24 +38,12 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.ProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="$(var.ProductDisplayName)">
-          <Directory Id="GALLERYFOLDER" Name="Gallery">
-            <Component Id="Gallery" Guid="902807d6-61fe-402a-8245-7b0ca9db2d37" Win64="$(var.Win64)">
-              <CreateFolder />
-            </Component>
-          </Directory>
           <Directory Id="EXTENSIONSFOLDER" Name="Extensions">
             <Component Id="Extensions" Guid="6f263e27-790c-455f-b224-ac055a7dff11" Win64="$(var.Win64)">
               <CreateFolder />
             </Component>
           </Directory>
           <Directory Id="VSEXTENSIONSFOLDER" Name="VisualStudio" />
-          <Directory Id="NUGETFOLDER" Name="NuGet">
-            <Directory Id="NUGETCONFIGFOLDER" Name="Config">
-              <Component Id="NuGetMachineWideSettings" Guid="*" Win64="$(var.Win64)">
-                <File Id="BonsaiCONFIG" Name="Bonsai.config" Source="Bonsai.config" KeyPath="yes"/>
-              </Component>
-            </Directory>
-          </Directory>
         </Directory>
       </Directory>
 

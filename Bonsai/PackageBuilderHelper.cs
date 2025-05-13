@@ -67,8 +67,8 @@ namespace Bonsai
             var packageBuilder = new PackageBuilder();
             var basePath = Path.GetDirectoryName(path) + "\\";
             packageBuilder.Populate(manifest.Metadata);
-            packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
-            packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
+            packageBuilder.Tags.Add(NuGet.Constants.BonsaiTag);
+            packageBuilder.Tags.Add(NuGet.Constants.GalleryTag);
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
             var files = manifest.Files?.Count == 0 ? GetContentFiles(basePath) : manifest.Files;
             packageBuilder.PopulateFiles(basePath, files);

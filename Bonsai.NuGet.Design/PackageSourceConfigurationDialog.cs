@@ -8,7 +8,6 @@ namespace Bonsai.NuGet.Design
 {
     public partial class PackageSourceConfigurationDialog : Form
     {
-        const string NuGetSourceName = "nuget.org";
         const string DefaultPackageSourceName = "Package source";
         const string DefaultPackageSource = "http://packagesource";
         readonly IPackageSourceProvider provider;
@@ -98,7 +97,7 @@ namespace Bonsai.NuGet.Design
             var removed = item.ListView == null;
             var editActive = item.Selected && !removed;
             var isMachineWide = GetItemPackageSource(item).IsMachineWide;
-            if (item.Text == NuGetSourceName || isMachineWide)
+            if (item.Text == Constants.DefaultPackageSource || isMachineWide)
             {
                 editActive = !editActive;
             }

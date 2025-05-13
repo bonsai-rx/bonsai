@@ -625,7 +625,7 @@ namespace Bonsai.NuGet.Design
                         var set = value as IEnumerable<string>;
                         if (set != null)
                         {
-                            value = set.Where(tag => tag != Constants.BonsaiDirectory && tag != Constants.GalleryDirectory);
+                            value = set.Where(tag => tag != Constants.BonsaiTag && tag != Constants.GalleryTag);
                         }
 
                         return base.ConvertTo(context, culture, value, destinationType);
@@ -637,8 +637,8 @@ namespace Bonsai.NuGet.Design
                         var set = result as ISet<string>;
                         if (set != null)
                         {
-                            set.Add(Constants.BonsaiDirectory);
-                            set.Add(Constants.GalleryDirectory);
+                            set.Add(Constants.BonsaiTag);
+                            set.Add(Constants.GalleryTag);
                         }
 
                         return result;

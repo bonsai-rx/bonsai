@@ -36,7 +36,6 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Bonsai.config" />
     <Content Include="packages.config" />
     <Content Include="vsix.ico" />
   </ItemGroup>

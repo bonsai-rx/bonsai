@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Shaders Design Library</Title>
-    <Description>Bonsai Design Library containing editor classes for shader configuration.</Description>
+    <Description>This package provides editor classes for specification of OpenGL shader stages.</Description>
     <PackageTags>Bonsai Rx Shaders Design Graphics OpenGL</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

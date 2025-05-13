@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Title>Bonsai - Windows Input Library</Title>
-    <Description>Bonsai Windows Library containing reactive interfaces to the standard operating system input devices.</Description>
+    <Description>This package provides operators for interfacing with Windows operating system input devices.</Description>
     <PackageTags>Bonsai Rx Windows Input</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>

@@ -19,8 +19,7 @@ namespace Bonsai.Configuration
 
         public Bootstrapper(string path)
         {
-            var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory, null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory);
             var sourceProvider = new PackageSourceProvider(settings);
             packageManager = new RestorePackageManager(sourceProvider, path);
         }
