@@ -50,7 +50,6 @@ namespace Bonsai.NuGet.Packaging
                     "Readme",
                     "Icon",
 
-                    "ReleaseNotes",
                     "DependencySets",
                 };
 
@@ -67,7 +66,6 @@ namespace Bonsai.NuGet.Packaging
                     { "Copyright", "Copyright details for the package." },
                     { "Readme", "The path to the package README file, relative to the root of the project." },
                     { "Icon", "A path to an image file within the package to be used as the package icon." },
-                    { "ReleaseNotes", "A description of the changes made in this release of the package, often used in the Updates tab in place of the package description. " },
                     { "DependencyGroups", "The collection of dependencies for the package." }
                 };
 
@@ -84,7 +82,6 @@ namespace Bonsai.NuGet.Packaging
                     { "Copyright", AboutCategory },
                     { "Readme", AboutCategory },
                     { "Icon", AboutCategory },
-                    { "ReleaseNotes", default },
                     { "DependencyGroups", default }
                 };
 
@@ -140,7 +137,7 @@ namespace Bonsai.NuGet.Packaging
                     return new SetPropertyDescriptor(descriptor, attributes);
                 }
 
-                if (descriptor.Name == "Description" || descriptor.Name == "ReleaseNotes")
+                if (descriptor.Name == "Description")
                 {
                     var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor);
                     var attributes = new Attribute[] { descriptionAttribute, categoryAttribute, editorAttribute };
@@ -175,6 +172,7 @@ namespace Bonsai.NuGet.Packaging
                                        property.Name != nameof(PackageBuilder.IconUrl) &&
                                        property.Name != nameof(PackageBuilder.LicenseUrl) &&
                                        property.Name != nameof(PackageBuilder.Summary) &&
+                                       property.Name != nameof(PackageBuilder.ReleaseNotes) &&
                                        property.Name != nameof(PackageBuilder.Files) &&
                                        property.Name != nameof(PackageBuilder.Language) &&
                                        property.Name != nameof(PackageBuilder.MinClientVersion) &&
