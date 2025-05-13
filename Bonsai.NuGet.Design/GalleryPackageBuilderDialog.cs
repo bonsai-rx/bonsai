@@ -68,12 +68,13 @@ namespace Bonsai.NuGet.Design
                 }
             }
 
-            using (var stream = File.Open(metadataPath, FileMode.Create))
+            FileUtility.Replace(sourceFile =>
             {
+                using var stream = File.OpenWrite(sourceFile);
                 manifest.Save(stream);
-                metadataSaveVersion = metadataVersion;
-                return true;
-            }
+            }, metadataPath);
+            metadataSaveVersion = metadataVersion;
+            return true;
         }
 
         static void EnsureDirectory(string path)
@@ -194,9 +195,14 @@ namespace Bonsai.NuGet.Design
             var dialogClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                 handler => dialog.FormClosed += handler,
                 handler => dialog.FormClosed -= handler);
-            var operation = Observable.Using(
-                () => Stream.Synchronized(File.Open(saveFileDialog.FileName, FileMode.Create)),
-                stream => Observable.Start(() => packageBuilder.Save(stream)).TakeUntil(dialogClosed));
+            var operation = Observable.Start(() =>
+            {
+                FileUtility.Replace(sourceFile =>
+                {
+                    using var stream = File.OpenWrite(sourceFile);
+                    packageBuilder.Save(stream);
+                }, saveFileDialog.FileName);
+            }).TakeUntil(dialogClosed);
 
             using var subscription = operation.ObserveOn(this).Subscribe(
                 xs => dialog.Complete(),

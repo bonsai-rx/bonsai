@@ -3,6 +3,7 @@ using Bonsai.Editor;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
 using Bonsai.Properties;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -200,8 +201,11 @@ namespace Bonsai
             var manifest = GalleryPackage.OpenManifest(metadataPath);
             var packageBuilder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration);
             var packageFileName = packageBuilder.Id + "." + packageBuilder.Version + NuGetConstants.PackageExtension;
-            using var stream = File.Open(packageFileName, FileMode.Create);
-            packageBuilder.Save(stream);
+            FileUtility.Replace(sourceFile =>
+            {
+                using var stream = File.OpenWrite(sourceFile);
+                packageBuilder.Save(stream);
+            }, packageFileName);
             return Program.NormalExitCode;
         }
 
