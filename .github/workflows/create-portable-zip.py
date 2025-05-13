@@ -14,7 +14,6 @@ else:
 
 with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as output:
     output.mkdir('Extensions')
-    output.mkdir('Gallery')
 
     output.write(f'artifacts/bin/Bonsai/{configuration}-repacked/Bonsai.exe', 'Bonsai.exe')
     output.write(f'artifacts/bin/Bonsai/{configuration}/Bonsai32.exe', 'Bonsai32.exe')
@@ -23,7 +22,6 @@ with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
         '<?xml version="1.0" encoding="utf-8"?>',
         '<configuration>',
         '  <packageSources>',
-        '    <add key="Gallery" value="Gallery" />',
     ]
 
     nuget_api_url = os.getenv('NUGET_API_URL')
