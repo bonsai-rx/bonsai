@@ -22,7 +22,6 @@ namespace Bonsai.NuGet.Design
         int metadataSaveVersion;
         PackageBuilder packageBuilder;
         PhysicalPackageFile entryPoint;
-        PhysicalPackageFile entryPointLayout;
         static readonly PackageBuilderTypeDescriptionProvider descriptionProvider = new PackageBuilderTypeDescriptionProvider();
 
         public GalleryPackageBuilderDialog()
@@ -86,7 +85,6 @@ namespace Bonsai.NuGet.Design
         static void RenamePackageFile(PhysicalPackageFile file, string fileName)
         {
             var extension = Path.GetExtension(file.SourcePath);
-            if (extension == Constants.LayoutExtension) extension = Constants.BonsaiExtension + extension;
             var basePath = Path.GetDirectoryName(file.TargetPath);
             file.TargetPath = Path.Combine(basePath, fileName + extension);
         }
@@ -121,11 +119,9 @@ namespace Bonsai.NuGet.Design
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
             var entryPointPath = Path.GetFileNameWithoutExtension(metadataPath) + Constants.BonsaiExtension;
-            var entryPointLayoutPath = entryPointPath + Constants.LayoutExtension;
             foreach (var file in packageBuilder.Files)
             {
                 if (file.EffectivePath == entryPointPath) entryPoint = file as PhysicalPackageFile;
-                if (file.EffectivePath == entryPointLayoutPath) entryPointLayout = file as PhysicalPackageFile;
                 AddPackageFile(file);
             }
             contentView.ExpandAll();
@@ -183,11 +179,8 @@ namespace Bonsai.NuGet.Design
                 packageBuilder.Id + "." +
                 packageBuilder.Version + NuGetConstants.PackageExtension;
             saveFileDialog.FileName = packageFileName;
-            if (entryPoint != null)
-            {
+            if (entryPoint is not null)
                 RenamePackageFile(entryPoint, packageBuilder.Id);
-                if (entryPointLayout != null) RenamePackageFile(entryPointLayout, packageBuilder.Id);
-            }
 
             EnsureDirectory(saveFileDialog.InitialDirectory);
             if (saveFileDialog.ShowDialog() != DialogResult.OK)
