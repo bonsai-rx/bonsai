@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Media;
 using System.Reactive.Linq;
 using System.Windows.Forms;
@@ -96,14 +97,13 @@ namespace Bonsai.NuGet.Design
             file.TargetPath = Path.Combine(basePath, fileName + extension);
         }
 
-        void AddPackageFile(IPackageFile file)
+        void AddPackageFile(string[] pathElements)
         {
             var nodes = contentView.Nodes;
-            var pathElements = file.Path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             for (int i = 0; i < pathElements.Length; i++)
             {
                 var node = nodes[pathElements[i]];
-                if (node == null)
+                if (node is null)
                 {
                     node = nodes.Add(pathElements[i], pathElements[i]);
                 }
@@ -126,10 +126,13 @@ namespace Bonsai.NuGet.Design
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
             var entryPointPath = Path.GetFileNameWithoutExtension(metadataPath) + Constants.BonsaiExtension;
-            foreach (var file in packageBuilder.Files)
+            foreach (var item in from file in packageBuilder.Files
+                                 let pathElements = file.Path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                 orderby pathElements.Length, file.EffectivePath
+                                 select (file, pathElements))
             {
-                if (file.EffectivePath == entryPointPath) entryPoint = file as PhysicalPackageFile;
-                AddPackageFile(file);
+                if (item.file.EffectivePath == entryPointPath) entryPoint = item.file as PhysicalPackageFile;
+                AddPackageFile(item.pathElements);
             }
             contentView.ExpandAll();
             ResumeLayout();
