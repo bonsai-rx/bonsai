@@ -146,7 +146,7 @@ namespace Bonsai.Dsp
                 var bufferLength = BufferLength;
                 if (bufferLength == 0)
                 {
-                    bufferLength = (int)(reader.BaseStream.Length - offset) / depthSize;
+                    bufferLength = (int)(reader.BaseStream.Length - offset) / depthSize / channelCount;
                 }
 
                 byte[] buffer = null;
