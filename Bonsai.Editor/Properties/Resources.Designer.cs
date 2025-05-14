@@ -112,6 +112,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ClearAllMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("ClearAllMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
         internal static string ContextMenu_NoneMenuItemLabel {
@@ -220,6 +230,16 @@ namespace Bonsai.Editor.Properties {
         internal static System.Drawing.Bitmap DeleteMenuImage {
             get {
                 object obj = ResourceManager.GetObject("DeleteMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DeleteWatchMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("DeleteWatchMenuImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -984,6 +1004,16 @@ namespace Bonsai.Editor.Properties {
         internal static string VisualizerLayoutOnNullWorkflow_Error {
             get {
                 return ResourceManager.GetString("VisualizerLayoutOnNullWorkflow_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WatchMenuImage {
+            get {
+                object obj = ResourceManager.GetObject("WatchMenuImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

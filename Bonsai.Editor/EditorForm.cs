@@ -68,10 +68,12 @@ namespace Bonsai.Editor
         readonly FormScheduler formScheduler;
         readonly TypeVisualizerMap typeVisualizers;
         readonly VisualizerLayoutMap visualizerSettings;
+        readonly WorkflowWatchMap watchMap;
         readonly List<WorkflowElementDescriptor> workflowElements;
         readonly List<WorkflowElementDescriptor> workflowExtensions;
         readonly WorkflowRuntimeExceptionCache exceptionCache;
         readonly CancellationTokenSource formCancellation;
+        readonly WorkflowWatch workflowWatch;
         readonly string definitionsPath;
         AttributeCollection browsableAttributes;
         DirectoryInfo extensionsPath;
@@ -152,6 +154,7 @@ namespace Bonsai.Editor
             }
 
             serviceProvider = provider;
+            workflowWatch = new WorkflowWatch();
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
@@ -160,6 +163,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             visualizerSettings = new VisualizerLayoutMap(typeVisualizers);
+            watchMap = new WorkflowWatchMap();
             workflowElements = new List<WorkflowElementDescriptor>();
             workflowExtensions = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
@@ -897,6 +901,7 @@ namespace Bonsai.Editor
             ClearWorkflowError();
             FileName = fileName;
 
+            watchMap.Clear();
             editorControl.CloseAll();
             editorSite.ValidateWorkflow();
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
@@ -1292,6 +1297,7 @@ namespace Bonsai.Editor
                 }
 
                 running = null;
+                workflowWatch.Stop();
                 if (visualizerWindows != null)
                 {
                     visualizerSettings.Update(visualizerWindows);
@@ -1313,6 +1319,7 @@ namespace Bonsai.Editor
                 if (!debug)
                 {
                     LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
+                    watchMap.SetWatchNotifications(workflowBuilder);
                 }
 
                 running = Observable.Using(
@@ -1321,6 +1328,8 @@ namespace Bonsai.Editor
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         Invoke(() =>
                         {
+                            if (watchMap.Count > 0)
+                                workflowWatch.Start(workflowBuilder.Workflow, watchMap);
                             statusTextLabel.Text = Resources.RunningStatus;
                             statusImageLabel.Image = statusRunningImage;
                             visualizerWindows.Show(visualizerSettings, editorSite, this);
@@ -2280,6 +2289,25 @@ namespace Bonsai.Editor
             }
         }
 
+        private void toggleWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model?.GraphView.Focused is true)
+            {
+                model.ToggleWatch(selectionModel.SelectedNodes);
+            }
+        }
+
+        private void showFindResultsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorControl.ShowFindResults();
+        }
+
+        private void showWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorControl.ShowWatchTool();
+        }
+
         #endregion
 
         #region Undo/Redo
@@ -2618,6 +2646,16 @@ namespace Bonsai.Editor
                     return siteForm.iconRenderer;
                 }
 
+                if (serviceType == typeof(WorkflowWatchMap))
+                {
+                    return siteForm.watchMap;
+                }
+
+                if (serviceType == typeof(WorkflowWatch))
+                {
+                    return siteForm.workflowWatch;
+                }
+
                 if (serviceType == typeof(DialogTypeVisualizer))
                 {
                     var selectedNode = siteForm.selectionModel.SelectedNodes.FirstOrDefault();
@@ -2688,6 +2726,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.findNextToolStripMenuItem, siteForm.findNextToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findPreviousToolStripMenuItem, siteForm.findPreviousToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.findAllReferencesToolStripMenuItem, siteForm.findAllReferencesToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.toggleWatchToolStripMenuItem, siteForm.toggleWatchToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.docsToolStripMenuItem, siteForm.docsToolStripMenuItem_Click);
             }
 
