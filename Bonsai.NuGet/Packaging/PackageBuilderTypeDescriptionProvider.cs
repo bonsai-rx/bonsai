@@ -9,7 +9,6 @@ namespace Bonsai.NuGet.Packaging
     public class PackageBuilderTypeDescriptionProvider : TypeDescriptionProvider
     {
         const string RequiredCategory = "\t\t\tRequired";
-        const string LicenseCategory = "\t\tLicense";
         const string AboutCategory = "\tAbout";
         readonly PackageBuilderTypeDescriptor typeDescriptor = new();
 
@@ -42,13 +41,8 @@ namespace Bonsai.NuGet.Packaging
                     "Description",
                     "Tags",
 
-                    "License",
-                    "RequireLicenseAcceptance",
-
                     "ProjectUrl",
                     "Copyright",
-                    "Readme",
-                    "Icon",
 
                     "DependencySets",
                 };
@@ -60,12 +54,8 @@ namespace Bonsai.NuGet.Packaging
                     { "Authors", "A comma-separated list of package authors, matching the profile names on nuget.org." },
                     { "Description", "A long description of the package for UI display." },
                     { "Tags", "A space-delimited list of tags and keywords that describe the package and aid discoverability of packages through search and filtering mechanisms." },
-                    { "LicenseMetadata", "The SPDX license expression or path to a license file within the package, often shown in UI displays as well as nuget.org." },
-                    { "RequireLicenseAcceptance", "A value specifying whether the client must prompt the consumer to accept the package license before installing the package." },
                     { "ProjectUrl", "A URL for the package's home page, often shown in UI displays as well as nuget.org." },
                     { "Copyright", "Copyright details for the package." },
-                    { "Readme", "The path to the package README file, relative to the root of the project." },
-                    { "Icon", "A path to an image file within the package to be used as the package icon." },
                     { "DependencyGroups", "The collection of dependencies for the package." }
                 };
 
@@ -76,12 +66,8 @@ namespace Bonsai.NuGet.Packaging
                     { "Authors", RequiredCategory },
                     { "Description", RequiredCategory },
                     { "Tags", RequiredCategory },
-                    { "LicenseMetadata", LicenseCategory },
-                    { "RequireLicenseAcceptance", LicenseCategory },
                     { "ProjectUrl", AboutCategory },
                     { "Copyright", AboutCategory },
-                    { "Readme", AboutCategory },
-                    { "Icon", AboutCategory },
                     { "DependencyGroups", default }
                 };
 
@@ -169,8 +155,12 @@ namespace Bonsai.NuGet.Packaging
                 var properties = from property in base.GetProperties(attributes).Cast<PropertyDescriptor>()
                                  where property.Name != nameof(PackageBuilder.Title) &&
                                        property.Name != nameof(PackageBuilder.Owners) &&
+                                       property.Name != nameof(PackageBuilder.Icon) &&
                                        property.Name != nameof(PackageBuilder.IconUrl) &&
+                                       property.Name != nameof(PackageBuilder.RequireLicenseAcceptance) &&
+                                       property.Name != nameof(PackageBuilder.LicenseMetadata) &&
                                        property.Name != nameof(PackageBuilder.LicenseUrl) &&
+                                       property.Name != nameof(PackageBuilder.Readme) &&
                                        property.Name != nameof(PackageBuilder.Summary) &&
                                        property.Name != nameof(PackageBuilder.ReleaseNotes) &&
                                        property.Name != nameof(PackageBuilder.Files) &&

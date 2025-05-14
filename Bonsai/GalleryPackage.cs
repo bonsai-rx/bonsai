@@ -9,11 +9,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bonsai
 {
     static class GalleryPackage
     {
+        const RegexOptions DefaultRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+        static readonly Regex LicenseFiles = new("LICENSE(.md|.txt|.rst)?", DefaultRegexOptions);
+        static readonly Regex ReadmeFiles = new("README(.md)?", DefaultRegexOptions);
+        static readonly Regex IconFiles = new("icon(.png|.jpg)", DefaultRegexOptions);
         static readonly string ExcludeFiles =
             $@"**\*{NuGetConstants.ManifestExtension};" +
             $@"**\*{NuGetConstants.PackageExtension};" +
@@ -57,6 +62,38 @@ namespace Bonsai
                 packageBuilder.PopulateFiles(basePath, manifest.Files);
             else
                 packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
+
+            foreach (var file in packageBuilder.Files)
+            {
+                if (file is PhysicalPackageFile packageFile)
+                {
+                    var packageFileName = Path.GetFileName(packageFile.EffectivePath);
+                    if (packageBuilder.LicenseMetadata is null && packageBuilder.LicenseUrl is null &&
+                        LicenseFiles.IsMatch(packageFileName))
+                    {
+                        packageBuilder.LicenseMetadata = new LicenseMetadata(
+                            LicenseType.File,
+                            packageFileName,
+                            expression: default,
+                            null,
+                            LicenseMetadata.CurrentVersion);
+                        packageFile.TargetPath = packageFileName;
+                    }
+
+                    if (string.IsNullOrEmpty(packageBuilder.Readme) && ReadmeFiles.IsMatch(packageFileName))
+                    {
+                        packageBuilder.Readme = packageFileName;
+                        packageFile.TargetPath = packageFileName;
+                    }
+
+                    if (string.IsNullOrEmpty(packageBuilder.Icon) && packageBuilder.IconUrl is null &&
+                        IconFiles.IsMatch(packageFileName))
+                    {
+                        packageBuilder.Icon = packageFileName;
+                        packageFile.TargetPath = packageFileName;
+                    }
+                }
+            }
 
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
             foreach (var dependency in packageBuilder.DependencyGroups.Where(group => group.TargetFramework == NuGetFramework.AnyFramework)

@@ -56,11 +56,17 @@ namespace Bonsai.NuGet.Design
 
             var metadataExists = metadataSaveVersion >= 0;
             var manifest = Manifest.Create(packageBuilder);
+            manifest.Metadata.LicenseMetadata = null;
+            manifest.Metadata.Readme = default;
+            manifest.Metadata.Icon = default;
             manifest.Metadata.DependencyGroups = null;
             if (metadataExists)
             {
                 using var stream = File.OpenRead(metadataPath);
                 var existingManifest = Manifest.ReadFrom(stream, true);
+                manifest.Metadata.LicenseMetadata = existingManifest.Metadata.LicenseMetadata;
+                manifest.Metadata.Readme = existingManifest.Metadata.Readme;
+                manifest.Metadata.Icon = existingManifest.Metadata.Icon;
                 manifest.Metadata.DependencyGroups = existingManifest.Metadata.DependencyGroups;
                 if (existingManifest.Files is not null)
                 {
