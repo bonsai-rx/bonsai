@@ -23,11 +23,19 @@ namespace Bonsai.NuGet.Design
         int metadataSaveVersion;
         PackageBuilder packageBuilder;
         PhysicalPackageFile entryPoint;
-        static readonly PackageBuilderTypeDescriptionProvider descriptionProvider = new PackageBuilderTypeDescriptionProvider();
+        readonly ImageList imageList = new();
+        static readonly PackageBuilderTypeDescriptionProvider descriptionProvider = new();
 
         public GalleryPackageBuilderDialog()
         {
             InitializeComponent();
+            imageList.Images.Add(Resources.FolderImage);
+            imageList.Images.Add(Resources.FileImage);
+            imageList.Images.Add(Resources.LicenseImage);
+            imageList.Images.Add(Resources.ReadmeImage);
+            imageList.Images.Add(Resources.IconImage);
+            imageList.Images.Add(Resources.WorkflowImage);
+            contentView.ImageList = imageList;
             metadataProperties.PropertyValueChanged += (sender, e) => UpdateMetadataVersion();
         }
 
@@ -97,7 +105,7 @@ namespace Bonsai.NuGet.Design
             file.TargetPath = Path.Combine(basePath, fileName + extension);
         }
 
-        void AddPackageFile(string[] pathElements)
+        void AddPackageFile(string[] pathElements, FileType fileType)
         {
             var nodes = contentView.Nodes;
             for (int i = 0; i < pathElements.Length; i++)
@@ -109,6 +117,10 @@ namespace Bonsai.NuGet.Design
                 }
 
                 nodes = node.Nodes;
+                if (i < pathElements.Length - 1)
+                    node.ImageIndex = node.SelectedImageIndex = (int)FileType.Folder;
+                else
+                    node.ImageIndex = node.SelectedImageIndex = (int)fileType;
             }
         }
 
@@ -126,13 +138,25 @@ namespace Bonsai.NuGet.Design
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
             var entryPointPath = Path.GetFileNameWithoutExtension(metadataPath) + Constants.BonsaiExtension;
+
+            string licenseFilePath = default;
+            if (packageBuilder.LicenseMetadata is not null &&
+                packageBuilder.LicenseMetadata.Type == LicenseType.File)
+                licenseFilePath = packageBuilder.LicenseMetadata.License;
+
             foreach (var item in from file in packageBuilder.Files
                                  let pathElements = file.Path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
                                  orderby pathElements.Length, file.EffectivePath
                                  select (file, pathElements))
             {
+                var fileType = FileType.ContentFile;
                 if (item.file.EffectivePath == entryPointPath) entryPoint = item.file as PhysicalPackageFile;
-                AddPackageFile(item.pathElements);
+                if (item.file.EffectivePath == licenseFilePath) fileType = FileType.LicenseFile;
+                if (item.file.EffectivePath == packageBuilder.Readme) fileType = FileType.ReadmeFile;
+                if (item.file.EffectivePath == packageBuilder.Icon) fileType = FileType.IconFile;
+                if (Path.GetExtension(item.file.EffectivePath) == Constants.BonsaiExtension)
+                    fileType = FileType.WorkflowFile;
+                AddPackageFile(item.pathElements, fileType);
             }
             contentView.ExpandAll();
             ResumeLayout();
@@ -273,6 +297,16 @@ namespace Bonsai.NuGet.Design
         private void ExportButton_Click(object sender, EventArgs e)
         {
             ExportPackage();
+        }
+
+        enum FileType
+        {
+            Folder,
+            ContentFile,
+            LicenseFile,
+            ReadmeFile,
+            IconFile,
+            WorkflowFile
         }
     }
 }
