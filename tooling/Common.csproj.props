@@ -6,6 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- Common NuGet Package Properties -->
+    <Product>Bonsai</Product>
     <Authors>Bonsai Foundation</Authors>
     <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2011-2025</Copyright>
     <PackageProjectUrl>https://bonsai-rx.org</PackageProjectUrl>
