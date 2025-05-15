@@ -5,6 +5,8 @@ namespace Bonsai.NuGet.Packaging
 {
     public class RepositoryUtility
     {
+        public const string GitDirName = ".git";
+
         public static RepositoryMetadata GetRepositoryMetadata(string directory)
         {
             if (!GitRepository.TryFindRepository(directory, out GitRepositoryLocation location))

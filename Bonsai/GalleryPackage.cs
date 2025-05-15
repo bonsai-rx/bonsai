@@ -23,6 +23,7 @@ namespace Bonsai
         static readonly string ExcludeFiles =
             $@"**\*{NuGetConstants.ManifestExtension};" +
             $@"**\*{NuGetConstants.PackageExtension};" +
+            $@"**\{RepositoryUtility.GitDirName}\**;" +
             $@"**\{NuGet.Constants.BonsaiExtension}\**";
 
         public static Manifest OpenManifest(string metadataPath)
