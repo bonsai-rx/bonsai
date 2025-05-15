@@ -39,6 +39,7 @@ namespace Bonsai.NuGet.Design
         readonly CueBannerComboBox searchComboBox;
         readonly CheckBox prereleaseCheckBox;
         readonly Action<bool> setMultiOperationVisible;
+        readonly Func<SourceRepository, bool> repositoryPredicate;
 
         public PackageViewController(
             NuGetFramework projectFramework,
@@ -50,7 +51,8 @@ namespace Bonsai.NuGet.Design
             ImageList icons,
             CueBannerComboBox search,
             CheckBox prerelease,
-            Action<bool> multiOperationVisible)
+            Action<bool> onMultiOperationVisible = null,
+            Func<SourceRepository, bool> repositoryFilter = null)
         {
             ProjectFramework = projectFramework ?? throw new ArgumentNullException(nameof(projectFramework));
             control = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -60,7 +62,8 @@ namespace Bonsai.NuGet.Design
             packageIcons = icons ?? throw new ArgumentNullException(nameof(icons));
             searchComboBox = search ?? throw new ArgumentNullException(nameof(search));
             prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
-            setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
+            setMultiOperationVisible = onMultiOperationVisible;
+            repositoryPredicate = repositoryFilter;
             control.KeyDown += control_KeyDown;
             packageDetails.PackageLinkClicked += packageDetails_PackageLinkClicked;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
@@ -191,6 +194,8 @@ namespace Bonsai.NuGet.Design
             if (selectedRepository == null)
             {
                 var repositories = PackageManager.SourceRepositoryProvider.GetRepositories();
+                if (repositoryPredicate is not null)
+                    repositories = repositories.Where(repositoryPredicate);
                 var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, pageSize, allowPrereleaseVersions, updateQuery)).ToList();
                 if (packageQueries.Count == 1) return packageQueries[0];
                 else return AggregateQuery.Create(packageQueries, results => results.SelectMany(xs => xs));
@@ -220,7 +225,7 @@ namespace Bonsai.NuGet.Design
         public void SetPackageViewStatus(string text, Image image = null)
         {
             if (packageView.Nodes.ContainsKey(text)) return;
-            setMultiOperationVisible(false);
+            setMultiOperationVisible?.Invoke(false);
             packageView.SelectedNode = null;
             packageView.CanSelectNodes = false;
             packageView.BeginUpdate();
@@ -243,7 +248,7 @@ namespace Bonsai.NuGet.Design
             {
                 if (packages.Count > 1 && SelectedTab == PackageOperationType.Update)
                 {
-                    setMultiOperationVisible(true);
+                    setMultiOperationVisible?.Invoke(true);
                 }
 
                 packageView.BeginUpdate();

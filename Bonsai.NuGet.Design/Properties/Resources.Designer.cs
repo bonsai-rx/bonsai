@@ -126,6 +126,36 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FileImage {
+            get {
+                object obj = ResourceManager.GetObject("FileImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FolderImage {
+            get {
+                object obj = ResourceManager.GetObject("FolderImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap IconImage {
+            get {
+                object obj = ResourceManager.GetObject("IconImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Installed packages.
         /// </summary>
         internal static string InstalledPackagesNodeName {
@@ -471,6 +501,16 @@ namespace Bonsai.NuGet.Design.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ReadmeImage {
+            get {
+                object obj = ResourceManager.GetObject("ReadmeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap RefreshImage {
             get {
                 object obj = ResourceManager.GetObject("RefreshImage", resourceCulture);
@@ -614,6 +654,16 @@ namespace Bonsai.NuGet.Design.Properties {
         internal static System.Drawing.Bitmap WebImage {
             get {
                 object obj = ResourceManager.GetObject("WebImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WorkflowImage {
+            get {
+                object obj = ResourceManager.GetObject("WorkflowImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

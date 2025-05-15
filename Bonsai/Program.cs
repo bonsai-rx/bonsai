@@ -128,7 +128,8 @@ namespace Bonsai
                 if (launchResult == EditorResult.ExportPackage)
                 {
                     ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return Launcher.LaunchExportPackage(packageConfiguration, initialFileName, editorFolder);
+                    if (!launchEditor) return Launcher.LaunchExportPackage(packageConfiguration, initialFileName);
+                    else return Launcher.LaunchExportPackageDialog(packageConfiguration, initialFileName);
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
