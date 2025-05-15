@@ -7,6 +7,7 @@
         public const string ExtensionsDirectory = "Extensions";
         public const string BonsaiExtension = ".bonsai";
         public const string LayoutExtension = ".layout";
+        public const string BonsaiMetadataFile = "bonsai.json";
         public const string DefaultPackageSource = "nuget.org";
         public const string LibraryPackageType = "BonsaiLibrary";
         public const string GalleryPackageType = "BonsaiGallery";

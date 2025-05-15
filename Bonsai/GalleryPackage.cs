@@ -1,4 +1,5 @@
 ﻿using Bonsai.Configuration;
+using Bonsai.NuGet.Packaging;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -42,6 +43,13 @@ namespace Bonsai
             return new Manifest(metadata);
         }
 
+        static BonsaiMetadataPackageFile GetBonsaiMetadataFile(string path)
+        {
+            var bonsaiMetadata = new BonsaiMetadata();
+            bonsaiMetadata.Gallery[BonsaiMetadata.DefaultWorkflow] = new() { Path = path };
+            return new BonsaiMetadataPackageFile(bonsaiMetadata);
+        }
+
         public static PackageBuilder CreatePackageBuilder(string path, Manifest manifest, PackageConfiguration configuration)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
@@ -63,6 +71,7 @@ namespace Bonsai
             else
                 packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
 
+            PhysicalPackageFile entryPointFile = default;
             foreach (var file in packageBuilder.Files)
             {
                 if (file is PhysicalPackageFile packageFile)
@@ -92,7 +101,16 @@ namespace Bonsai
                         packageBuilder.Icon = packageFileName;
                         packageFile.TargetPath = packageFileName;
                     }
+
+                    if (packageFile.SourcePath == path)
+                        entryPointFile = packageFile;
                 }
+            }
+
+            if (entryPointFile is not null)
+            {
+                var bonsaiMetadata = GetBonsaiMetadataFile(entryPointFile.EffectivePath);
+                packageBuilder.Files.Add(bonsaiMetadata);
             }
 
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);

@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bonsai.NuGet.Packaging;
 using Bonsai.NuGet.Properties;
+using Newtonsoft.Json;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
@@ -67,6 +69,17 @@ namespace Bonsai.NuGet
             return IsGalleryPackage(packageReader) && executablePackage.GetValueOrDefault();
         }
 
+        static BonsaiMetadata GetBonsaiMetadata(this PackageReaderBase packageReader)
+        {
+            var bonsaiMetadataFile = packageReader.GetFiles().SingleOrDefault(path => path == Constants.BonsaiMetadataFile);
+            if (bonsaiMetadataFile is null)
+                return null;
+
+            using var stream = packageReader.GetStream(bonsaiMetadataFile);
+            using var reader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<BonsaiMetadata>(reader.ReadToEnd());
+        }
+
         public static string InstallExecutablePackage(this PackageReaderBase packageReader, PackageIdentity package, NuGetFramework projectFramework, string targetPath)
         {
             var targetId = Path.GetFileName(targetPath);
@@ -74,6 +87,14 @@ namespace Bonsai.NuGet
             var targetEntryPointLayout = targetEntryPoint + Constants.LayoutExtension;
             var packageEntryPoint = package.Id + Constants.BonsaiExtension;
             var packageEntryPointLayout = packageEntryPoint + Constants.LayoutExtension;
+
+            var bonsaiMetadata = GetBonsaiMetadata(packageReader);
+            if (bonsaiMetadata is not null &&
+                bonsaiMetadata.Gallery.TryGetValue(BonsaiMetadata.DefaultWorkflow, out var workflowMetadata))
+            {
+                packageEntryPoint = workflowMetadata.Path;
+                packageEntryPointLayout = null;
+            }
 
             var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
             if (nearestFrameworkGroup != null)
@@ -86,11 +107,9 @@ namespace Bonsai.NuGet
                     effectivePath = Path.Combine(targetPath, effectivePath);
                     PathUtility.EnsureParentDirectory(effectivePath);
 
-                    using (var stream = packageReader.GetStream(file))
-                    using (var targetStream = File.Create(effectivePath))
-                    {
-                        stream.CopyTo(targetStream);
-                    }
+                    using var stream = packageReader.GetStream(file);
+                    using var targetStream = File.Create(effectivePath);
+                    stream.CopyTo(targetStream);
                 }
             }
 
