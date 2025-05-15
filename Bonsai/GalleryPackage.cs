@@ -63,6 +63,7 @@ namespace Bonsai
             packageBuilder.Tags.Add(NuGet.Constants.BonsaiTag);
             packageBuilder.Tags.Add(NuGet.Constants.GalleryTag);
             packageBuilder.PackageTypes = new[] { new PackageType(NuGet.Constants.GalleryPackageType, PackageType.EmptyVersion) };
+            packageBuilder.Repository = RepositoryUtility.GetRepositoryMetadata(basePath);
             if (packageBuilder.LicenseMetadata is not null)
                 packageBuilder.LicenseUrl = null;
 

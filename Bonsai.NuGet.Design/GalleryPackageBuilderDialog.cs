@@ -68,6 +68,7 @@ namespace Bonsai.NuGet.Design
             manifest.Metadata.LicenseMetadata = null;
             manifest.Metadata.Readme = default;
             manifest.Metadata.Icon = default;
+            manifest.Metadata.Repository = null;
             manifest.Metadata.DependencyGroups = null;
             if (metadataExists)
             {
