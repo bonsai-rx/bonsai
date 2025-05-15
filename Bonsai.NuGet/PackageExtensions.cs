@@ -8,7 +8,6 @@ using Bonsai.NuGet.Packaging;
 using Bonsai.NuGet.Properties;
 using Newtonsoft.Json;
 using NuGet.Common;
-using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
@@ -118,15 +117,6 @@ namespace Bonsai.NuGet
             {
                 var message = string.Format(Resources.MissingWorkflowEntryPoint, targetEntryPoint);
                 throw new InvalidOperationException(message);
-            }
-
-            var manifestFile = packageReader.GetNuspecFile();
-            var metadataPath = Path.Combine(targetPath, targetId + NuGetConstants.ManifestExtension);
-            using (var manifestStream = packageReader.GetStream(manifestFile))
-            using (var manifestTargetStream = File.Create(metadataPath))
-            {
-                var manifest = Manifest.ReadFrom(manifestStream, validateSchema: true);
-                manifest.Save(manifestTargetStream);
             }
 
             return effectiveEntryPoint;
