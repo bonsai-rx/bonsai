@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
   <TemplateData>
-    <Name>Bonsai Package</Name>
-    <Description>A project for creating a C# Bonsai package (.dll)</Description>
+    <Name>Bonsai Library</Name>
+    <Description>A project for creating a C# Bonsai library (.dll)</Description>
     <ProjectType>CSharp</ProjectType>
     <SortOrder>1000</SortOrder>
     <CreateNewFolder>true</CreateNewFolder>
-    <DefaultName>BonsaiPackage</DefaultName>
+    <DefaultName>BonsaiLibrary</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
     <LocationField>Enabled</LocationField>
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>

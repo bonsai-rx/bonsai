@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Templates", "Bonsai.Templates\Bonsai.Templates.csproj", "{731B2111-D4F3-436C-B015-B324DC32DC10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.PackageTemplate", "Bonsai.PackageTemplate\Bonsai.PackageTemplate.csproj", "{9BC48895-1D5E-49FF-97A6-8443962AE517}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.LibraryTemplate", "Bonsai.LibraryTemplate\Bonsai.LibraryTemplate.csproj", "{9BC48895-1D5E-49FF-97A6-8443962AE517}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.SourceTemplate", "Bonsai.SourceTemplate\Bonsai.SourceTemplate.csproj", "{0A58BE56-B471-4783-8E0E-7D47DB576EFD}"
 EndProject

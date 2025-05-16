@@ -14,8 +14,8 @@
     <ProjectGuid>{9BC48895-1D5E-49FF-97A6-8443962AE517}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai.PackageTemplate</RootNamespace>
-    <AssemblyName>Bonsai.PackageTemplate</AssemblyName>
+    <RootNamespace>Bonsai.LibraryTemplate</RootNamespace>
+    <AssemblyName>Bonsai.LibraryTemplate</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
@@ -61,7 +61,7 @@
     <None Include="ProjectTemplate.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="Bonsai.PackageTemplate.vstemplate">
+    <VSTemplate Include="Bonsai.LibraryTemplate.vstemplate">
       <SubType>Designer</SubType>
       <OutputSubPath>Bonsai</OutputSubPath>
     </VSTemplate>

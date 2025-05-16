@@ -60,9 +60,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.PackageTemplate\Bonsai.PackageTemplate.csproj">
+    <ProjectReference Include="..\Bonsai.LibraryTemplate\Bonsai.LibraryTemplate.csproj">
       <Project>{9BC48895-1D5E-49FF-97A6-8443962AE517}</Project>
-      <Name>Bonsai.PackageTemplate</Name>
+      <Name>Bonsai.LibraryTemplate</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>

@@ -1,10 +1,10 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Bonsai",
-    "classifications": [ "Bonsai", "Package" ],
-    "description": "A project for creating a C# Bonsai package (.dll)",
-    "identity": "Bonsai.PackageTemplate",
-    "name": "Bonsai Package",
+    "classifications": [ "Bonsai", "Library" ],
+    "description": "A project for creating a Bonsai library",
+    "identity": "Bonsai.LibraryTemplate",
+    "name": "Bonsai Library",
     "tags": {
         "language": "C#",
         "type": "project"
@@ -19,7 +19,7 @@
                         "**/[Pp]roperties/**",
                         "**/*.ico",
                         "**/*.vstemplate",
-                        "Bonsai.PackageTemplate.csproj"
+                        "Bonsai.LibraryTemplate.csproj"
                     ],
                     "rename": {
                         "launchSettings.json": "Properties/launchSettings.json"
@@ -58,6 +58,6 @@
         }
     },
     "sourceName": "$projectname$",
-    "shortName": "bonsaipackage",
+    "shortName": "bonsailib",
     "preferNameDirectory": true
 }
