@@ -29,12 +29,12 @@
 
   <ItemGroup>
     <Content Include="Bonsai.EnvironmentTemplate\**\*" />
-    <Content Include="Bonsai.LibraryTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.LibraryTemplate.csproj" />
-    <Content Include="Bonsai.SinkTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.SourceTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.TransformTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.VisualizerTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.WorkflowTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.LibraryTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.LibraryTemplate.csproj" />
+    <Content Include="Bonsai.SinkTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.SourceTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.TransformTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.VisualizerTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.WorkflowTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
     <Compile Remove="**\*" />
   </ItemGroup>
 
