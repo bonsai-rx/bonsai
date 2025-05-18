@@ -13,15 +13,8 @@
         {
             "modifiers": [
                 {
-                    "exclude": [
-                        "**/[Bb]in/**",
-                        "**/[Oo]bj/**",
-                        "**/[Pp]roperties/**",
-                        "**/*.ico",
-                        "**/*.vstemplate",
-                        "Bonsai.LibraryTemplate.csproj"
-                    ],
                     "rename": {
+                        "AssemblyInfo.cs": "Properties/AssemblyInfo.cs",
                         "launchSettings.json": "Properties/launchSettings.json"
                     }
                 }

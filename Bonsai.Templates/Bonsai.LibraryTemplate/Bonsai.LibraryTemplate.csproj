@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="AssemblyInfo.cs" />
     <None Include="Source1.cs" />
     <None Include="launchSettings.json" />
   </ItemGroup>

@@ -2,7 +2,7 @@
   "profiles": {
     "Bonsai": {
       "commandName": "Executable",
-      "executablePath": "$(registry:HKEY_CURRENT_USER\\Software\\Bonsai Foundation\\Bonsai@InstallDir)Bonsai.exe",
+      "executablePath": "$(BonsaiExecutablePath)",
       "commandLineArgs": "--lib:\"$(TargetDir).\"",
       "nativeDebugging": true
     }
