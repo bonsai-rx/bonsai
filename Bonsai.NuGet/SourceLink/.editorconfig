@@ -1,3 +1,0 @@
-[*.{cs}]
-# Disable nullable warnings for imported source code
-dotnet_diagnostic.CS8632.severity = none

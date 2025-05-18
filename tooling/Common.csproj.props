@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- Common C# Properties -->
+    <Nullable>annotations</Nullable>
     <LangVersion>12.0</LangVersion>
     <Features>strict</Features>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
