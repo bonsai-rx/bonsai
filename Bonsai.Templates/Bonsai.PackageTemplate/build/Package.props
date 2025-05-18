@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <Authors>$registeredorganization$</Authors>
+    <Copyright>Copyright © $registeredorganization$</Copyright>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageType>Dependency;BonsaiLibrary</PackageType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+</Project>

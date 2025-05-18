@@ -28,6 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Bonsai.PackageTemplate\**\*" />
     <Content Include="Bonsai.EnvironmentTemplate\**\*" />
     <Content Include="Bonsai.LibraryTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.LibraryTemplate.csproj" />
     <Content Include="Bonsai.SinkTemplate\**\*" Exclude="**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />

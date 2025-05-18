@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Package" ],
+    "description": "A template for creating a new Bonsai package",
+    "identity": "Bonsai.PackageTemplate",
+    "name": "Bonsai Package",
+    "tags": {
+        "type": "solution"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "rename": {
+                        "template.Directory.Build.props": "Directory.Build.props",
+                        "template.Directory.Build.targets": "Directory.Build.targets",
+                        "template.editorconfig": ".editorconfig",
+                        "template.gitattributes": ".gitattributes",
+                        "template.gitignore": ".gitignore",
+                        "template.README.md": "README.md"
+                    }
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "projectName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replace",
+            "replaces": "$projectname$",
+            "fileRename": "PackageTemplate"
+        },
+        "projectTitle": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replaceDotsWithSpaces",
+            "replaces": "$title$"
+        },
+        "authors": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$registeredorganization$"
+        },
+        "year": {
+            "type": "generated",
+            "generator": "now",
+            "parameters": {
+                "format": "yyyy"
+            },
+            "replaces": "$year$"
+        },
+        "swguid1": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "$swguid1$",
+            "parameters": {
+                "defaultFormat": "B"
+            }
+        },
+        "swguid2": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "$swguid2$",
+            "parameters": {
+                "defaultFormat": "B"
+            }
+        },
+        "swguid3": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "$swguid3$",
+            "parameters": {
+                "defaultFormat": "B"
+            }
+        }
+    },
+    "forms": {
+        "replace": {
+            "identifier": "replace",
+            "pattern": "",
+            "replacement": ""
+        },
+        "replaceDotsWithSpaces": {
+            "identifier": "replace",
+            "pattern": "\\.",
+            "replacement": " "
+        }
+    },
+    "sourceName": "$projectname$",
+    "shortName": "bonsaipackage",
+    "preferNameDirectory": true
+}

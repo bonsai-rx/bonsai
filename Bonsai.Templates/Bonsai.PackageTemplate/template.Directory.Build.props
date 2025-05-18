@@ -1,0 +1,4 @@
+<Project>
+  <Import Project="build/Common$(MSBuildProjectExtension).props"
+          Condition="Exists('build/Common$(MSBuildProjectExtension).props')"/>
+</Project>

@@ -1,0 +1,6 @@
+<Project>
+  <!-- For configuring launchSettings.json we need to resolve the bootstrapper output path here -->
+  <PropertyGroup>
+    <BonsaiExecutablePath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../.bonsai/Bonsai.exe'))</BonsaiExecutablePath>
+  </PropertyGroup>
+</Project>

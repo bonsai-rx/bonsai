@@ -1,0 +1,33 @@
+<Project>
+  <PropertyGroup>
+    <TargetFrameworks>net472</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IncludeSymbols>true</IncludeSymbols>
+    <LangVersion>latest</LangVersion>
+    <Features>strict</Features>
+
+    <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+    <!-- Enable windows targeting (required when building from non-Windows platforms) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <!-- Common properties for design projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Design'))">
+    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFrameworks>net472</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Common properties for test projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <Import Project="Bonsai.props" />
+  <Import Project="Package.props" />
+  <Import Project="Version.props" />
+</Project>

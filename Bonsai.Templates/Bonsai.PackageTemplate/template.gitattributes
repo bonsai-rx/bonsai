@@ -1,0 +1,47 @@
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Scripts
+*.cmd text eol=crlf
+*.ps1 text
+
+# Config
+*.gitignore text
+*.gitattributes text
+*.editorconfig text
+*.git-blame-ignore-revs text
+*.sln text
+*.proj text
+*.props text
+*.targets text
+*.csproj text
+*.vcxproj text
+*.wixproj text
+*.config text
+*.json text
+*.xml text
+*.yaml text
+*.yml text
+
+# Code
+*.manifest text
+*.vsixmanifest text
+*.vstemplate text
+*.resx text
+*.cs text
+*.bonsai text
+*.wxs text
+
+# Designer files
+*.Designer.cs text linguist-generated=false
+
+# Documents
+LICENSE text
+*.md text diff=markdown
+*.rtf diff=astextplain
+
+# Graphics
+*.png binary
+*.ico binary
+*.gif binary
+*.svg text

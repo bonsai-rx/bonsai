@@ -1,0 +1,4 @@
+<Project>
+  <Import Project="build/Common$(MSBuildProjectExtension).targets"
+          Condition="Exists('build/Common$(MSBuildProjectExtension).targets')"/>
+</Project>
