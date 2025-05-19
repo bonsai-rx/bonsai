@@ -1,5 +1,6 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.NuGet.Packaging;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -50,8 +51,10 @@ namespace Bonsai
         {
             foreach (var file in files)
             {
-                file.Target ??= PackagingConstants.Folders.Content;
                 file.Exclude ??= ExcludeFiles;
+                file.Target ??= !PathResolver.IsWildcardSearch(file.Source)
+                    ? Path.Combine(PackagingConstants.Folders.Content, file.Source)
+                    : PackagingConstants.Folders.Content;
             }
         }
 
