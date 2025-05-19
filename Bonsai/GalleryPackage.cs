@@ -46,6 +46,15 @@ namespace Bonsai
             return new Manifest(metadata);
         }
 
+        static void NormalizeManifestFiles(ICollection<ManifestFile> files)
+        {
+            foreach (var file in files)
+            {
+                file.Target ??= PackagingConstants.Folders.Content;
+                file.Exclude ??= ExcludeFiles;
+            }
+        }
+
         static BonsaiMetadataPackageFile GetBonsaiMetadataFile(string path)
         {
             var bonsaiMetadata = new BonsaiMetadata();
@@ -77,7 +86,10 @@ namespace Bonsai
                 packageBuilder.LicenseUrl = null;
 
             if (manifest.HasFilesNode)
+            {
+                NormalizeManifestFiles(manifest.Files);
                 packageBuilder.PopulateFiles(basePath, manifest.Files);
+            }
             else
                 packageBuilder.AddFiles(basePath, "**", PackagingConstants.Folders.Content, ExcludeFiles);
 
