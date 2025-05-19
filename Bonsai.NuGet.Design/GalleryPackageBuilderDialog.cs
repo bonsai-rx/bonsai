@@ -67,6 +67,9 @@ namespace Bonsai.NuGet.Design
 
             var metadataExists = metadataSaveVersion >= 0;
             var manifest = Manifest.Create(packageBuilder);
+            manifest.Metadata.EmitRequireLicenseAcceptance =
+                manifest.Metadata.LicenseMetadata is not null ||
+                manifest.Metadata.LicenseUrl is not null;
             manifest.Metadata.LicenseMetadata = null;
             manifest.Metadata.Readme = default;
             manifest.Metadata.Icon = default;
