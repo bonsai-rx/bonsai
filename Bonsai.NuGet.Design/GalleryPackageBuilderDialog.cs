@@ -57,7 +57,7 @@ namespace Bonsai.NuGet.Design
             get { return !string.IsNullOrEmpty(metadataPath); }
         }
 
-        bool SaveMetadata()
+        void SaveMetadata()
         {
             if (!MetadataSpecified)
             {
@@ -91,7 +91,6 @@ namespace Bonsai.NuGet.Design
                 manifest.Save(stream);
             }, metadataPath);
             metadataSaveVersion = metadataVersion;
-            return true;
         }
 
         static void EnsureDirectory(string path)
@@ -201,13 +200,27 @@ namespace Bonsai.NuGet.Design
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Cancel ||
-                    result == DialogResult.Yes && !SaveMetadata())
+                    result == DialogResult.Yes && !TrySaveMetadata())
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        bool TrySaveMetadata()
+        {
+            try
+            {
+                SaveMetadata();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         private bool ExportPackage()
