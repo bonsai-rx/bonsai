@@ -7,9 +7,11 @@ using NuGet.Packaging.Core;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Bonsai
@@ -47,6 +49,12 @@ namespace Bonsai
         static BonsaiMetadataPackageFile GetBonsaiMetadataFile(string path)
         {
             var bonsaiMetadata = new BonsaiMetadata();
+            var productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+#if BUILD_KIND_OFFICIAL_RELEASE
+            bonsaiMetadata.Version = SemanticVersion.Parse(productVersion).ToString();
+#else
+            bonsaiMetadata.Version = productVersion;
+#endif
             bonsaiMetadata.Gallery[BonsaiMetadata.DefaultWorkflow] = new() { Path = path };
             return new BonsaiMetadataPackageFile(bonsaiMetadata);
         }

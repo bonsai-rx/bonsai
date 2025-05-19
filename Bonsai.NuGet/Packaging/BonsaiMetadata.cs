@@ -6,6 +6,8 @@ namespace Bonsai.NuGet.Packaging
     {
         public const string DefaultWorkflow = "$main";
 
+        public string Version { get; set; }
+
         public Dictionary<string, WorkflowMetadata> Gallery { get; } = new();
     }
 
