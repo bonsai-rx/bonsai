@@ -4,6 +4,7 @@ using Bonsai.NuGet.Packaging;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -71,6 +72,7 @@ namespace Bonsai.NuGet.Design
             manifest.Metadata.Icon = default;
             manifest.Metadata.Repository = null;
             manifest.Metadata.DependencyGroups = null;
+            manifest.Metadata.PackageTypes = Enumerable.Empty<PackageType>();
             if (metadataExists)
             {
                 using var stream = File.OpenRead(metadataPath);
