@@ -17,9 +17,9 @@ namespace Bonsai
     static class GalleryPackage
     {
         const RegexOptions DefaultRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
-        static readonly Regex LicenseFiles = new("LICENSE(.md|.txt|.rst)?", DefaultRegexOptions);
-        static readonly Regex ReadmeFiles = new("README(.md)?", DefaultRegexOptions);
-        static readonly Regex IconFiles = new("icon(.png|.jpg)", DefaultRegexOptions);
+        static readonly Regex LicenseFiles = new("^LICENSE(.md|.txt|.rst)?$", DefaultRegexOptions);
+        static readonly Regex ReadmeFiles = new("^README(.md)?$", DefaultRegexOptions);
+        static readonly Regex IconFiles = new("^icon(.png|.jpg)$", DefaultRegexOptions);
         static readonly string ExcludeFiles =
             $@"**\*{NuGetConstants.ManifestExtension};" +
             $@"**\*{NuGetConstants.PackageExtension};" +
