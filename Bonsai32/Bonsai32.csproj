@@ -28,6 +28,6 @@
       If you get MSB3277 warnings referencing this or other packages, add explicit references here for the newest
       version referenced by the warning.
     -->
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
   </ItemGroup>
 </Project>
