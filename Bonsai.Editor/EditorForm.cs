@@ -897,7 +897,13 @@ namespace Bonsai.Editor
             editorSite.ValidateWorkflow();
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
-            editorControl.InitializeEditorLayout(editorPath);
+
+            try { editorControl.InitializeEditorLayout(editorPath); }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                // Attempt to initialize default editor layout when failing to load settings
+                editorControl.InitializeEditorLayout();
+            }
 
             visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
