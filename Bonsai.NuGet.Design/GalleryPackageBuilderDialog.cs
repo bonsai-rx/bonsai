@@ -35,6 +35,7 @@ namespace Bonsai.NuGet.Design
             imageList.Images.Add(Resources.ReadmeImage);
             imageList.Images.Add(Resources.IconImage);
             imageList.Images.Add(Resources.WorkflowImage);
+            imageList.Images.Add(Resources.GalleryWorkflowImage);
             contentView.ImageList = imageList;
             metadataProperties.PropertyValueChanged += (sender, e) => UpdateMetadataVersion();
         }
@@ -151,11 +152,15 @@ namespace Bonsai.NuGet.Design
                                  select (file, pathElements))
             {
                 var fileType = FileType.ContentFile;
-                if (item.file.EffectivePath == entryPointPath) entryPoint = item.file as PhysicalPackageFile;
-                if (item.file.EffectivePath == licenseFilePath) fileType = FileType.LicenseFile;
-                if (item.file.EffectivePath == packageBuilder.Readme) fileType = FileType.ReadmeFile;
-                if (item.file.EffectivePath == packageBuilder.Icon) fileType = FileType.IconFile;
-                if (Path.GetExtension(item.file.EffectivePath) == Constants.BonsaiExtension)
+                if (item.file.EffectivePath == entryPointPath)
+                {
+                    entryPoint = item.file as PhysicalPackageFile;
+                    fileType = FileType.GalleryWorkflowFile;
+                }
+                else if (item.file.EffectivePath == licenseFilePath) fileType = FileType.LicenseFile;
+                else if (item.file.EffectivePath == packageBuilder.Readme) fileType = FileType.ReadmeFile;
+                else if (item.file.EffectivePath == packageBuilder.Icon) fileType = FileType.IconFile;
+                else if (Path.GetExtension(item.file.EffectivePath) == Constants.BonsaiExtension)
                     fileType = FileType.WorkflowFile;
                 AddPackageFile(item.pathElements, fileType);
             }
@@ -307,7 +312,8 @@ namespace Bonsai.NuGet.Design
             LicenseFile,
             ReadmeFile,
             IconFile,
-            WorkflowFile
+            WorkflowFile,
+            GalleryWorkflowFile
         }
     }
 }
