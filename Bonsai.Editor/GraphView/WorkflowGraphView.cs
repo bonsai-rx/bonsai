@@ -15,6 +15,7 @@ using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
 using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
+using Bonsai.Editor.Diagnostics;
 using System.Xml;
 
 namespace Bonsai.Editor.GraphView
@@ -46,9 +47,11 @@ namespace Bonsai.Editor.GraphView
         readonly IWorkflowEditorService editorService;
         readonly TypeVisualizerMap typeVisualizerMap;
         readonly VisualizerLayoutMap visualizerSettings;
+        readonly WorkflowWatchMap watchMap;
         readonly IServiceProvider serviceProvider;
         readonly IUIService uiService;
         readonly ThemeRenderer themeRenderer;
+        readonly WorkflowWatch workflowWatch;
         readonly IDefinitionProvider definitionProvider;
 
         public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner, WorkflowEditor editor)
@@ -67,12 +70,55 @@ namespace Bonsai.Editor.GraphView
             typeVisualizerMap = (TypeVisualizerMap)provider.GetService(typeof(TypeVisualizerMap));
             visualizerSettings = (VisualizerLayoutMap)provider.GetService(typeof(VisualizerLayoutMap));
             editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
+            watchMap = (WorkflowWatchMap)provider.GetService(typeof(WorkflowWatchMap));
+            workflowWatch = (WorkflowWatch)provider.GetService(typeof(WorkflowWatch));
 
+            workflowWatch.Update += WorkflowWatch_Tick;
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
             InitializeTheme();
             viewBindings = InitializeViewBindings();
             Editor.ResetNavigation(null);
+        }
+
+        private void WorkflowWatch_Tick(object sender, EventArgs e)
+        {
+            var hasActiveCounter = false;
+            var layers = graphView.Nodes;
+            if (layers != null)
+            {
+                for (int i = 0; i < layers.Count; i++)
+                {
+                    foreach (var node in layers[i])
+                    {
+                        if (node.Value is null)
+                            continue;
+
+                        if (workflowWatch.Counters?.TryGetValue(node.Value, out var counter) is true)
+                        {
+                            hasActiveCounter = true;
+                            node.Status = counter.GetStatus();
+                            if (node.Status == WorkflowElementStatus.Notifying)
+                            {
+                                node.NotifyingCounter++;
+                            }
+                            else if (node.Status != WorkflowElementStatus.Active)
+                            {
+                                node.NotifyingCounter = -1;
+                            }
+                        }
+                        else
+                        {
+                            hasActiveCounter |= node.Status is not null;
+                            node.Status = null;
+                            node.NotifyingCounter = -1;
+                        }
+                    }
+                }
+            }
+
+            if (hasActiveCounter)
+                graphView.Invalidate();
         }
 
         internal WorkflowEditor Editor { get; }
@@ -180,6 +226,54 @@ namespace Bonsai.Editor.GraphView
             uiService.ShowError(errorMessage);
         }
 
+        public void ToggleWatch(IEnumerable<GraphNode> nodes)
+        {
+            if (!HasWatch(nodes))
+                AddWatch(nodes);
+            else
+                DeleteWatch(nodes);
+        }
+
+        bool HasWatch(IEnumerable<GraphNode> nodes)
+        {
+            return nodes.All(node => watchMap.Contains(node.Value));
+        }
+
+        void AddWatch(IEnumerable<GraphNode> nodes)
+        {
+            var selectedItems = nodes
+                .Where(node => !watchMap.Contains(node.Value))
+                .Select(node => (InspectBuilder)node.Value)
+                .ToHashSet();
+            if (selectedItems.Count > 0)
+            {
+                foreach (var watch in selectedItems)
+                {
+                    watchMap.Add(watch);
+                }
+            }
+            EditorControl.UpdateWatchLayout(WorkflowPath);
+            EditorControl.ShowWatchTool(selectedItems);
+            EditorControl.SelectDockContent(this);
+        }
+
+        void DeleteWatch(IEnumerable<GraphNode> nodes)
+        {
+            var selectedItems = nodes
+                .Where(node => watchMap.Contains(node.Value))
+                .Select(node => (InspectBuilder)node.Value)
+                .ToHashSet();
+            if (selectedItems.Count > 0)
+            {
+                foreach (var watch in selectedItems)
+                {
+                    watchMap.Remove(watch);
+                }
+            }
+            EditorControl.UpdateWatchLayout(WorkflowPath);
+            EditorControl.UpdateWatchTool();
+        }
+
         public void CutToClipboard()
         {
             try
@@ -280,7 +374,7 @@ namespace Bonsai.Editor.GraphView
         internal void SelectGraphNode(GraphNode node)
         {
             GraphView.SelectedNode = node;
-            EditorControl.SelectTab(this);
+            EditorControl.SelectDockContent(this);
             GraphView.Select();
             UpdateSelection();
         }
@@ -544,11 +638,12 @@ namespace Bonsai.Editor.GraphView
         internal void UpdateGraphLayout(bool validateWorkflow, bool updateSelection)
         {
             graphView.Nodes = Workflow.ConnectedComponentLayering();
+            watchMap.InitializeWatchState(Editor);
             graphView.Invalidate();
             if (validateWorkflow)
             {
                 editorService.ValidateWorkflow();
-                EditorControl.SelectTab(this);
+                EditorControl.SelectDockContent(this);
                 if (EditorControl.AnnotationPanel.Tag is ExpressionBuilder builder)
                 {
                     var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
@@ -564,6 +659,12 @@ namespace Bonsai.Editor.GraphView
                 UpdateSelection();
                 editorService.RefreshEditor();
             }
+        }
+
+        internal void UpdateWatchLayout()
+        {
+            watchMap.InitializeWatchState(Editor);
+            graphView.Invalidate();
         }
 
         internal void InvalidateGraphLayout(bool validateWorkflow)
@@ -974,6 +1075,7 @@ namespace Bonsai.Editor.GraphView
         private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
             themeRenderer.ThemeChanged -= themeRenderer_ThemeChanged;
+            workflowWatch.Update -= WorkflowWatch_Tick;
             viewBindings.Dispose();
         }
 
@@ -1021,6 +1123,11 @@ namespace Bonsai.Editor.GraphView
         private void defaultEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchDefaultEditor(graphView.SelectedNode);
+        }
+
+        private void toggleWatchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorService.OnKeyDown(new KeyEventArgs(toggleWatchToolStripMenuItem.ShortcutKeys));
         }
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1574,6 +1681,7 @@ namespace Bonsai.Editor.GraphView
             if (selectedNodes.Length > 0)
             {
                 copyToolStripMenuItem.Enabled = true;
+                toggleWatchToolStripMenuItem.Enabled = true;
                 saveAsWorkflowToolStripMenuItem.Enabled = true;
                 if (Array.Exists(selectedNodes, node => node.NestedCategory != null))
                 {

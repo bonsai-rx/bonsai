@@ -8,9 +8,8 @@ using Bonsai.Expressions;
 
 namespace Bonsai.Editor.Docking
 {
-    partial class WorkflowFindToolWindow : EditorToolWindow
+    partial class WorkflowFindToolWindow : NavigateToolWindow
     {
-        static readonly object EventNavigate = new();
         IEnumerable<WorkflowQueryResult> query;
 
         public WorkflowFindToolWindow(IServiceProvider provider)
@@ -20,25 +19,11 @@ namespace Bonsai.Editor.Docking
             findListView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
-        public event WorkflowNavigateEventHandler Navigate
-        {
-            add { Events.AddHandler(EventNavigate, value); }
-            remove { Events.RemoveHandler(EventNavigate, value); }
-        }
-
         protected override void InitializeTheme(ThemeRenderer themeRenderer)
         {
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             findListView.BackColor = colorTable.WindowBackColor;
             findListView.ForeColor = colorTable.ControlForeColor;
-        }
-
-        protected virtual void OnNavigate(WorkflowNavigateEventArgs e)
-        {
-            if (Events[EventNavigate] is WorkflowNavigateEventHandler handler)
-            {
-                handler(this, e);
-            }
         }
 
         public IEnumerable<WorkflowQueryResult> Query
@@ -63,16 +48,7 @@ namespace Bonsai.Editor.Docking
                 foreach (var result in query)
                 {
                     var inspectBuilder = (InspectBuilder)result.Builder;
-                    var name = ExpressionBuilder.GetElementDisplayName(inspectBuilder);
-                    var elementType = ExpressionBuilder.GetWorkflowElement(inspectBuilder).GetType();
-                    var containerPath = GetElementDisplayPath(workflowBuilder, result.Path.Parent);
-                    var item = new ListViewItem(name);
-                    item.Tag = result.Path;
-                    item.SubItems.Add(containerPath);
-                    item.SubItems.Add(TypeHelper.GetTypeName(elementType));
-                    item.SubItems.Add(inspectBuilder.ObservableType is not null
-                        ? TypeHelper.GetTypeName(inspectBuilder.ObservableType)
-                        : string.Empty);
+                    var item = CreateNavigationViewItem(inspectBuilder, result.Path, workflowBuilder);
                     findListView.Items.Add(item);
                 }
 
@@ -83,19 +59,6 @@ namespace Bonsai.Editor.Docking
                 }
             }
             findListView.EndUpdate();
-        }
-
-        static string GetElementDisplayPath(WorkflowBuilder workflowBuilder, WorkflowEditorPath path)
-        {
-            var sb = new StringBuilder();
-            foreach (var pathElement in WorkflowEditorPath.GetPathDisplayElements(path, workflowBuilder))
-            {
-                if (sb.Length > 0)
-                    sb.Append(" > ");
-                sb.Append(pathElement.Key);
-            }
-
-            return sb.ToString();
         }
 
         private void NavigateToSelectedItem(NavigationPreference navigationPreference)

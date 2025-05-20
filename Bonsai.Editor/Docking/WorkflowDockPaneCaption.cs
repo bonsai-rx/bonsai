@@ -282,7 +282,7 @@ namespace Bonsai.Editor.Docking
             // set the size and location for close and auto-hide buttons
             Rectangle rectCaption = ClientRectangle;
             Size buttonSize = GetButtonSize(rectCaption);
-            int x = rectCaption.X + rectCaption.Width - ButtonGapRight - m_buttonClose.Width;
+            int x = rectCaption.X + rectCaption.Width - ButtonGapRight - ButtonClose.Width;
             int y = rectCaption.Y + ButtonGapTop;
             Point point = new Point(x, y);
             ButtonClose.Bounds = DrawHelper.RtlTransform(this, new Rectangle(point, buttonSize));
