@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bonsai.NuGet.Packaging;
 using Bonsai.NuGet.Properties;
+using Newtonsoft.Json;
 using NuGet.Common;
-using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
@@ -17,7 +18,6 @@ namespace Bonsai.NuGet
 {
     public static class PackageExtensions
     {
-        const string PackageTagFilter = "Bonsai";
         public static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
 
         public static bool IsPackageType(this LocalPackageInfo packageInfo, string typeName)
@@ -49,13 +49,15 @@ namespace Bonsai.NuGet
         public static bool IsLibraryPackage(this PackageReaderBase packageReader)
         {
             return packageReader.IsPackageType(Constants.LibraryPackageType)
-                || packageReader.NuspecReader.GetTags()?.Contains(PackageTagFilter) is true;
+                || packageReader.NuspecReader.GetTags()?.Contains(Constants.BonsaiTag) is true;
         }
 
         public static bool IsGalleryPackage(this PackageReaderBase packageReader)
         {
             return packageReader.IsPackageType(Constants.GalleryPackageType)
-                || packageReader.NuspecReader.GetTags()?.Contains(PackageTagFilter) is true;
+                || packageReader.NuspecReader.GetTags() is string tagText
+                && tagText.Contains(Constants.BonsaiTag)
+                && tagText.Contains(Constants.GalleryTag);
         }
 
         public static bool IsExecutablePackage(this PackageReaderBase packageReader, PackageIdentity identity, NuGetFramework projectFramework)
@@ -66,6 +68,17 @@ namespace Bonsai.NuGet
             return IsGalleryPackage(packageReader) && executablePackage.GetValueOrDefault();
         }
 
+        static BonsaiMetadata GetBonsaiMetadata(this PackageReaderBase packageReader)
+        {
+            var bonsaiMetadataFile = packageReader.GetFiles().SingleOrDefault(path => path == Constants.BonsaiMetadataFile);
+            if (bonsaiMetadataFile is null)
+                return null;
+
+            using var stream = packageReader.GetStream(bonsaiMetadataFile);
+            using var reader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<BonsaiMetadata>(reader.ReadToEnd());
+        }
+
         public static string InstallExecutablePackage(this PackageReaderBase packageReader, PackageIdentity package, NuGetFramework projectFramework, string targetPath)
         {
             var targetId = Path.GetFileName(targetPath);
@@ -73,6 +86,14 @@ namespace Bonsai.NuGet
             var targetEntryPointLayout = targetEntryPoint + Constants.LayoutExtension;
             var packageEntryPoint = package.Id + Constants.BonsaiExtension;
             var packageEntryPointLayout = packageEntryPoint + Constants.LayoutExtension;
+
+            var bonsaiMetadata = GetBonsaiMetadata(packageReader);
+            if (bonsaiMetadata is not null &&
+                bonsaiMetadata.Gallery.TryGetValue(BonsaiMetadata.DefaultWorkflow, out var workflowMetadata))
+            {
+                packageEntryPoint = workflowMetadata.Path;
+                packageEntryPointLayout = null;
+            }
 
             var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
             if (nearestFrameworkGroup != null)
@@ -85,11 +106,9 @@ namespace Bonsai.NuGet
                     effectivePath = Path.Combine(targetPath, effectivePath);
                     PathUtility.EnsureParentDirectory(effectivePath);
 
-                    using (var stream = packageReader.GetStream(file))
-                    using (var targetStream = File.Create(effectivePath))
-                    {
-                        stream.CopyTo(targetStream);
-                    }
+                    using var stream = packageReader.GetStream(file);
+                    using var targetStream = File.Create(effectivePath);
+                    stream.CopyTo(targetStream);
                 }
             }
 
@@ -98,15 +117,6 @@ namespace Bonsai.NuGet
             {
                 var message = string.Format(Resources.MissingWorkflowEntryPoint, targetEntryPoint);
                 throw new InvalidOperationException(message);
-            }
-
-            var manifestFile = packageReader.GetNuspecFile();
-            var metadataPath = Path.Combine(targetPath, targetId + NuGetConstants.ManifestExtension);
-            using (var manifestStream = packageReader.GetStream(manifestFile))
-            using (var manifestTargetStream = File.Create(metadataPath))
-            {
-                var manifest = Manifest.ReadFrom(manifestStream, validateSchema: true);
-                manifest.Save(manifestTargetStream);
             }
 
             return effectiveEntryPoint;

@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.NuGet.Design
 {
-    partial class PackageBuilderDialog
+    partial class GalleryPackageBuilderDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -39,20 +39,20 @@
             // 
             // metadataProperties
             // 
-            this.metadataProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.metadataProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.metadataProperties.DisabledItemForeColor = System.Drawing.SystemColors.ControlText;
             this.metadataProperties.Location = new System.Drawing.Point(12, 25);
             this.metadataProperties.Name = "metadataProperties";
-            this.metadataProperties.PropertySort = System.Windows.Forms.PropertySort.NoSort;
+            this.metadataProperties.PropertySort = System.Windows.Forms.PropertySort.Categorized;
             this.metadataProperties.Size = new System.Drawing.Size(283, 375);
             this.metadataProperties.TabIndex = 2;
             // 
             // contentView
             // 
-            this.contentView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right))));
+            this.contentView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.contentView.Location = new System.Drawing.Point(301, 51);
             this.contentView.Name = "contentView";
             this.contentView.Size = new System.Drawing.Size(311, 349);
@@ -70,18 +70,19 @@
             // 
             // contentLabel
             // 
+            this.contentLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.contentLabel.AutoSize = true;
             this.contentLabel.Location = new System.Drawing.Point(301, 9);
             this.contentLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.contentLabel.Name = "contentLabel";
             this.contentLabel.Size = new System.Drawing.Size(97, 13);
             this.contentLabel.TabIndex = 3;
-            this.contentLabel.Text = "Package contents:";
+            this.contentLabel.Text = "Package files:";
             // 
             // exportButton
             // 
             this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.exportButton.Location = new System.Drawing.Point(456, 406);
             this.exportButton.Margin = new System.Windows.Forms.Padding(6);
             this.exportButton.Name = "exportButton";
@@ -89,6 +90,7 @@
             this.exportButton.TabIndex = 0;
             this.exportButton.Text = "Export";
             this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Click += new System.EventHandler(this.ExportButton_Click);
             // 
             // cancelButton
             // 
@@ -106,10 +108,11 @@
             // 
             this.saveFileDialog.Filter = "NuGet package file (*.nupkg)|*.nupkg";
             // 
-            // PackageBuilderDialog
+            // GalleryPackageBuilderDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(624, 441);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.exportButton);
@@ -118,7 +121,7 @@
             this.Controls.Add(this.contentView);
             this.Controls.Add(this.metadataProperties);
             this.MinimumSize = new System.Drawing.Size(500, 400);
-            this.Name = "PackageBuilderDialog";
+            this.Name = "GalleryPackageBuilderDialog";
             this.ShowIcon = false;
             this.Text = "Bonsai - Export Package";
             this.ResumeLayout(false);

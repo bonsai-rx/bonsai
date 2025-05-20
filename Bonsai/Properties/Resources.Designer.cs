@@ -79,15 +79,6 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The parent directory has an invalid name. The exported workflow must be placed inside a folder with the name &apos;{0}&apos;. Please rename either the parent directory or the workflow. .
-        /// </summary>
-        internal static string ExportPackageInvalidDirectory {
-            get {
-                return ResourceManager.GetString("ExportPackageInvalidDirectory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to There was an error reading the existing package manifest file &apos;{0}&apos;. Please make sure that the file is accessible and that it has a correct format. Detailed error message:
         ///
         ///{1}.
@@ -95,6 +86,15 @@ namespace Bonsai.Properties {
         internal static string ExportPackageManifestReadError {
             get {
                 return ResourceManager.GetString("ExportPackageManifestReadError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No image file was specified..
+        /// </summary>
+        internal static string ImageFileNotSpecifiedWarning {
+            get {
+                return ResourceManager.GetString("ImageFileNotSpecifiedWarning", resourceCulture);
             }
         }
         
@@ -140,6 +140,15 @@ namespace Bonsai.Properties {
         internal static string UpdateEditorPackageError {
             get {
                 return ResourceManager.GetString("UpdateEditorPackageError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No workflow file was specified..
+        /// </summary>
+        internal static string WorkflowFileNotSpecifiedWarning {
+            get {
+                return ResourceManager.GetString("WorkflowFileNotSpecifiedWarning", resourceCulture);
             }
         }
     }

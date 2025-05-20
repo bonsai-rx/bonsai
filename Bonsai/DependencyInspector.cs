@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -23,6 +24,16 @@ namespace Bonsai
         const string PathAttributeName = "Path";
         const string TypeAttributeName = "type";
         const char AssemblySeparator = ':';
+
+        static async Task<IDictionary<string, Type>> GetVisualizerMap(PackageConfiguration configuration)
+        {
+            return await TypeVisualizerLoader
+                .GetVisualizerTypes(configuration)
+                .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
+                .Select(typeName => Type.GetType(typeName, false))
+                .Where(type => type is not null)
+                .ToDictionary(type => type.FullName);
+        }
 
         static IEnumerable<VisualizerWindowSettings> GetVisualizerSettings(VisualizerLayout root)
         {
@@ -42,65 +53,73 @@ namespace Bonsai
             }
         }
 
-        static Configuration.PackageReference[] GetPackageDependencies(string[] fileNames, PackageConfiguration configuration)
+        static IEnumerable<Assembly> GetWorkflowDependencies(string path, MetadataLoadContext context)
         {
-            using var context = LoaderResource.CreateMetadataLoadContext(configuration);
-            var scriptEnvironment = new ScriptExtensions(configuration, null);
-            var assemblies = new HashSet<Assembly>();
-            foreach (var path in fileNames)
+            var metadata = WorkflowBuilder.ReadMetadata(path);
+            using (var markupReader = new StringReader(metadata.WorkflowMarkup))
+            using (var reader = XmlReader.Create(markupReader))
             {
-                var metadata = WorkflowBuilder.ReadMetadata(path);
-                using (var markupReader = new StringReader(metadata.WorkflowMarkup))
-                using (var reader = XmlReader.Create(markupReader))
+                reader.ReadToFollowing(WorkflowElementName);
+                using var workflowReader = reader.ReadSubtree();
+                while (workflowReader.ReadToFollowing(ExpressionElementName))
                 {
-                    reader.ReadToFollowing(WorkflowElementName);
-                    using (var workflowReader = reader.ReadSubtree())
+                    if (!workflowReader.HasAttributes) continue;
+                    if (workflowReader.GetAttribute(TypeAttributeName, XmlSchema.InstanceNamespace) == IncludeWorkflowTypeName)
                     {
-                        while (workflowReader.ReadToFollowing(ExpressionElementName))
+                        var includePath = workflowReader.GetAttribute(PathAttributeName);
+                        var separatorIndex = includePath != null ? includePath.IndexOf(AssemblySeparator) : -1;
+                        if (separatorIndex >= 0 && !Path.IsPathRooted(includePath))
                         {
-                            if (!workflowReader.HasAttributes) continue;
-                            if (workflowReader.GetAttribute(TypeAttributeName, XmlSchema.InstanceNamespace) == IncludeWorkflowTypeName)
+                            var assemblyName = includePath.Split(new[] { AssemblySeparator }, 2)[0];
+                            if (!string.IsNullOrEmpty(assemblyName))
                             {
-                                var includePath = workflowReader.GetAttribute(PathAttributeName);
-                                var separatorIndex = includePath != null ? includePath.IndexOf(AssemblySeparator) : -1;
-                                if (separatorIndex >= 0 && !Path.IsPathRooted(includePath))
-                                {
-                                    var assemblyName = includePath.Split(new[] { AssemblySeparator }, 2)[0];
-                                    if (!string.IsNullOrEmpty(assemblyName))
-                                    {
-                                        var assembly = context.LoadFromAssemblyName(assemblyName);
-                                        assemblies.Add(assembly);
-                                    }
-                                }
+                                var assembly = context.LoadFromAssemblyName(assemblyName);
+                                yield return assembly;
                             }
                         }
                     }
                 }
+            }
 
-                assemblies.Add(typeof(WorkflowBuilder).Assembly);
-                assemblies.AddRange(metadata.GetExtensionTypes().Select(type => type.Assembly));
+            foreach (var assembly in metadata.GetExtensionTypes().Select(type => type.Assembly))
+                yield return assembly;
+        }
 
-                var layoutPath = Path.ChangeExtension(path, Path.GetExtension(path) + Constants.LayoutExtension);
-                if (File.Exists(layoutPath))
+        static IEnumerable<Assembly> GetLayoutDependencies(string path, IDictionary<string, Type> visualizerMap)
+        {
+            var layout = VisualizerLayout.Load(path);
+            foreach (var settings in GetVisualizerSettings(layout))
+            {
+                var typeName = settings.VisualizerTypeName;
+                if (typeName == null) continue;
+                if (visualizerMap.TryGetValue(typeName, out Type type))
                 {
-                    var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
-                        TypeVisualizerLoader.GetVisualizerTypes(configuration)
-                                            .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
-                                            .Select(typeName => Type.GetType(typeName, false))
-                                            .Where(type => type != null)
-                                            .ToDictionary(type => type.FullName)
-                                            .Wait());
+                    yield return type.Assembly;
+                }
+            }
+        }
 
-                    var layout = VisualizerLayout.Load(layoutPath);
-                    foreach (var settings in GetVisualizerSettings(layout))
-                    {
-                        var typeName = settings.VisualizerTypeName;
-                        if (typeName == null) continue;
-                        if (visualizerMap.Value.TryGetValue(typeName, out Type type))
-                        {
-                            assemblies.Add(type.Assembly);
-                        }
-                    }
+        static Configuration.PackageReference[] GetPackageDependencies(IEnumerable<IPackageFile> files, PackageConfiguration configuration)
+        {
+            using var context = LoaderResource.CreateMetadataLoadContext(configuration);
+            var scriptEnvironment = new ScriptExtensions(configuration, null);
+            var assemblies = new HashSet<Assembly> { typeof(WorkflowBuilder).Assembly };
+            var visualizerMap = new Lazy<IDictionary<string, Type>>(() => GetVisualizerMap(configuration).Result);
+
+            foreach (var file in files)
+            {
+                if (file is not PhysicalPackageFile packageFile)
+                    continue;
+
+                var path = packageFile.SourcePath;
+                switch (Path.GetExtension(path))
+                {
+                    case Constants.BonsaiExtension:
+                        assemblies.AddRange(GetWorkflowDependencies(path, context));
+                        break;
+                    case Constants.LayoutExtension:
+                        assemblies.AddRange(GetLayoutDependencies(path, visualizerMap.Value));
+                        break;
                 }
             }
 
@@ -121,14 +140,16 @@ namespace Bonsai
             return dependencies.ToArray();
         }
 
-        public static IObservable<PackageDependency> GetWorkflowPackageDependencies(string[] fileNames, PackageConfiguration configuration)
+        public static IEnumerable<PackageDependency> GetWorkflowPackageDependencies(
+            IEnumerable<IPackageFile> files,
+            PackageConfiguration configuration)
         {
             if (configuration == null)
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            return from dependency in GetPackageDependencies(fileNames, configuration).ToObservable()
+            return from dependency in GetPackageDependencies(files, configuration)
                    let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)
                    select new PackageDependency(dependency.Id, versionRange);
         }

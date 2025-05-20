@@ -13,7 +13,6 @@ namespace Bonsai.NuGet.Design
     public partial class GalleryDialog : Form
     {
         const string AggregateRepository = "All";
-        const string DefaultRepository = "Community Packages";
         readonly PackageViewController packageViewController;
 
         string targetPath;
@@ -32,8 +31,7 @@ namespace Bonsai.NuGet.Design
                 packageIcons,
                 searchComboBox,
                 prereleaseCheckBox,
-                value => { });
-            packageViewController.SearchPrefix = $"tags:{Constants.GalleryTag} ";
+                repositoryFilter: IsValidRepository);
             packageViewController.PackageType = Constants.GalleryPackageType;
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
@@ -130,6 +128,11 @@ namespace Bonsai.NuGet.Design
             }
         }
 
+        private bool IsValidRepository(SourceRepository repository)
+        {
+            return repository.PackageSource.IsLocal || repository.PackageSource.Name == Constants.DefaultPackageSource;
+        }
+
         private void InitializePackageSourceItems()
         {
             packageSourceComboBox.Items.Clear();
@@ -138,8 +141,11 @@ namespace Bonsai.NuGet.Design
 
             foreach (var repository in PackageManager.SourceRepositoryProvider.GetRepositories())
             {
+                if (!IsValidRepository(repository))
+                    continue;
+
                 packageSourceComboBox.Items.Add(repository);
-                if (repository.PackageSource.Name == DefaultRepository)
+                if (repository.PackageSource.Name == Constants.DefaultPackageSource)
                 {
                     packageSourceComboBox.SelectedIndex = packageSourceComboBox.Items.Count - 1;
                 }

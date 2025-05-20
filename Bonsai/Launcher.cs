@@ -3,6 +3,7 @@ using Bonsai.Editor;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
 using Bonsai.Properties;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -143,7 +144,7 @@ namespace Bonsai
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
@@ -163,13 +164,13 @@ namespace Bonsai
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
             if (string.IsNullOrEmpty(imageFileName))
             {
-                Console.WriteLine("No image file was specified.");
+                Console.WriteLine(Resources.ImageFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
@@ -188,30 +189,44 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
-        internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName, string editorFolder)
+        internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("No workflow file was specified.");
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
-            EditorBootstrapper.EnableVisualStyles();
-            var directoryName = Path.GetDirectoryName(fileName);
-            if (Path.GetFileName(directoryName) != Path.GetFileNameWithoutExtension(fileName))
+            var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
+            var manifest = GalleryPackage.OpenManifest(metadataPath);
+            var packageBuilder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration);
+            var packageFileName = packageBuilder.Id + "." + packageBuilder.Version + NuGetConstants.PackageExtension;
+            FileUtility.Replace(sourceFile =>
             {
-                MessageBox.Show(
-                    string.Format(Resources.ExportPackageInvalidDirectory,
-                    Path.GetFileNameWithoutExtension(fileName)),
-                    typeof(Launcher).Namespace,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                using var stream = File.OpenWrite(sourceFile);
+                packageBuilder.Save(stream);
+            }, packageFileName);
+            return Program.NormalExitCode;
+        }
+
+        internal static int LaunchExportPackageDialog(PackageConfiguration packageConfiguration, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
                 return Program.NormalExitCode;
             }
 
             Manifest manifest;
+            EditorBootstrapper.EnableVisualStyles();
             var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
-            try { manifest = PackageBuilderHelper.CreatePackageManifest(metadataPath); }
+            var metadataExists = File.Exists(metadataPath);
+            try
+            {
+                manifest = metadataExists
+                    ? GalleryPackage.OpenManifest(metadataPath)
+                    : GalleryPackage.CreateDefaultManifest(metadataPath);
+            }
             catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
             {
@@ -220,14 +235,14 @@ namespace Bonsai
                     ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             }
 
-            bool updateDependencies;
-            var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration, out updateDependencies);
-            using (var builderDialog = new PackageBuilderDialog())
+            var builder = GalleryPackage.CreatePackageBuilder(fileName, manifest, packageConfiguration);
+            using (var builderDialog = new GalleryPackageBuilderDialog())
             {
+                Environment.CurrentDirectory = Path.GetDirectoryName(fileName);
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
-                builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryTag);
+                builderDialog.InitialDirectory = Environment.CurrentDirectory;
                 builderDialog.SetPackageBuilder(builder);
-                if (updateDependencies)
+                if (!metadataExists)
                 {
                     builderDialog.UpdateMetadataVersion();
                 }

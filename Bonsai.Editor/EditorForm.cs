@@ -764,9 +764,9 @@ namespace Bonsai.Editor
             UpdatePropertyGrid();
         }
 
-        bool EnsureWorkflowFile(bool force = false)
+        bool EnsureWorkflowFile()
         {
-            if (string.IsNullOrEmpty(FileName) || force)
+            if (string.IsNullOrEmpty(FileName))
             {
                 var result = MessageBox.Show(
                     this,
@@ -776,12 +776,8 @@ namespace Bonsai.Editor
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
                 if (result != DialogResult.Yes) return false;
-                if (string.IsNullOrEmpty(FileName))
-                {
-                    saveAsToolStripMenuItem_Click(this, EventArgs.Empty);
-                    if (string.IsNullOrEmpty(FileName)) return false;
-                }
-                else return SaveWorkflow(FileName);
+                saveAsToolStripMenuItem_Click(this, EventArgs.Empty);
+                return !string.IsNullOrEmpty(FileName);
             }
 
             return true;
@@ -901,7 +897,13 @@ namespace Bonsai.Editor
             editorSite.ValidateWorkflow();
             var settingsDirectory = Project.GetWorkflowSettingsDirectory(fileName);
             var editorPath = Project.GetEditorSettingsPath(settingsDirectory, fileName);
-            editorControl.InitializeEditorLayout(editorPath);
+
+            try { editorControl.InitializeEditorLayout(editorPath); }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                // Attempt to initialize default editor layout when failing to load settings
+                editorControl.InitializeEditorLayout();
+            }
 
             visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
@@ -1232,7 +1234,7 @@ namespace Bonsai.Editor
 
         private void exportPackageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (EnsureWorkflowFile(force: true))
+            if (EnsureWorkflowFile())
             {
                 EditorResult = EditorResult.ExportPackage;
                 Close();
