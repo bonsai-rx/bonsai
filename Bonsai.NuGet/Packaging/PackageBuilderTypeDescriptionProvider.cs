@@ -8,8 +8,8 @@ namespace Bonsai.NuGet.Packaging
 {
     public class PackageBuilderTypeDescriptionProvider : TypeDescriptionProvider
     {
-        const string RequiredCategory = "\t\t\tRequired";
-        const string AboutCategory = "\tAbout";
+        const string RequiredCategory = "\u200bRequired";
+        const string AboutCategory = "About";
         readonly PackageBuilderTypeDescriptor typeDescriptor = new();
 
         public override ICustomTypeDescriptor GetTypeDescriptor(Type objectType, object instance)
