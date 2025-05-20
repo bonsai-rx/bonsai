@@ -78,7 +78,7 @@
             this.contentLabel.Name = "contentLabel";
             this.contentLabel.Size = new System.Drawing.Size(97, 13);
             this.contentLabel.TabIndex = 3;
-            this.contentLabel.Text = "Package contents:";
+            this.contentLabel.Text = "Package files:";
             // 
             // exportButton
             // 
