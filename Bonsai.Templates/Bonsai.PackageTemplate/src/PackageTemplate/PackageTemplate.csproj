@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Description>$title$ Bonsai library.</Description>
     <PackageTags>Bonsai Rx $title$</PackageTags>
+    <TargetFrameworks>net472</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

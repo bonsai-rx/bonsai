@@ -1,24 +1,38 @@
+<!--
+  Solution-specific configuration/targets should generally not be placed in this file.
+  For solution-wide NuGet properties, update Package.props
+  For everything else, update or create Project.csproj.props
+-->
 <Project>
+  <!-- Common C# properties -->
   <PropertyGroup>
-    <TargetFrameworks>net472</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>latest</LangVersion>
     <Features>strict</Features>
+  </PropertyGroup>
 
+  <!-- Universal NuGet package and Source Link properties -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageType>Dependency;BonsaiLibrary</PackageType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols Condition="'$(Configuration)' != 'Release'">false</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <EmbedUntrackedSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 
     <!-- Enable windows targeting (required when building from non-Windows platforms) -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
 
-  <!-- Common properties for design projects -->
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Design'))">
-    <UseWindowsForms>true</UseWindowsForms>
-    <TargetFrameworks>net472</TargetFrameworks>
+    <!-- Handle mismatched target frameworks and malformed version strings as errors. -->
+    <WarningsAsErrors>$(WarningsAsErrors);NU1701;CS7035</WarningsAsErrors>
   </PropertyGroup>
 
   <!-- Common properties for test projects -->
@@ -30,4 +44,14 @@
   <Import Project="Bonsai.props" />
   <Import Project="Package.props" />
   <Import Project="Version.props" />
+  <Import Project="Project.csproj.props" Condition="Exists('Project.csproj.props')" />
+
+  <!-- Resolve embedded manifest asset paths -->
+  <PropertyGroup>
+    <PackageIconSourcePath>$(MSBuildThisFileDirectory)$(PackageIcon)</PackageIconSourcePath>
+    <PackageLicenseSourcePath>$(MSBuildThisFileDirectory)../$(PackageLicenseFile)</PackageLicenseSourcePath>
+    <PackageReadmeSourcePath>$(MSBuildThisFileDirectory)../$(PackageReadmeFile)</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)')">$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(MSBuildProjectDirectory)$(PackageReadmeFile)')">$(MSBuildProjectDirectory)$(PackageReadmeFile)</PackageReadmeSourcePath>
+  </PropertyGroup>
 </Project>

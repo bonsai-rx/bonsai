@@ -3,17 +3,8 @@
     <Authors>$registeredorganization$</Authors>
     <Copyright>Copyright © $registeredorganization$</Copyright>
     <PackageProjectUrl></PackageProjectUrl>
-    <PackageType>Dependency;BonsaiLibrary</PackageType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageIcon></PackageIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\$(PackageLicenseFile)" Pack="true" PackagePath="/" Visible="false" Condition="$(PackageLicenseFile) != ''" />
-    <None Include="$(MSBuildThisFileDirectory)$(PackageIcon)" Pack="true" PackagePath="/" Visible="false" Condition="$(PackageIcon) != ''" />
-    <None Include="$(MSBuildThisFileDirectory)..\$(PackageReadmeFile)" Pack="true" PackagePath="/" Visible="false" Condition="$(PackageReadmeFile) != ''" />
-  </ItemGroup>
 </Project>
