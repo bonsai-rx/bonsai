@@ -237,6 +237,9 @@
   <data name="SavePackageMetadata" xml:space="preserve">
     <value>Package metadata has unsaved changes. Save metadata file?</value>
   </data>
+  <data name="SavePackageMetadataCaption" xml:space="preserve">
+    <value>Package Metadata</value>
+  </data>
   <data name="InstallPackageLatestVersion" xml:space="preserve">
     <value>Installing '{0}'.</value>
   </data>

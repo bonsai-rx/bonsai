@@ -201,7 +201,8 @@ namespace Bonsai.NuGet.Design
             if (MetadataSpecified && metadataVersion > metadataSaveVersion)
             {
                 var result = MessageBox.Show(
-                    this, Resources.SavePackageMetadata, Text,
+                    this, Resources.SavePackageMetadata,
+                    Resources.SavePackageMetadataCaption,
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Cancel ||
@@ -223,7 +224,11 @@ namespace Bonsai.NuGet.Design
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    this, ex.Message,
+                    Resources.SavePackageMetadataCaption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
                 return false;
             }
         }

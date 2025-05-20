@@ -574,6 +574,15 @@ namespace Bonsai.NuGet.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Package Metadata.
+        /// </summary>
+        internal static string SavePackageMetadataCaption {
+            get {
+                return ResourceManager.GetString("SavePackageMetadataCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Search (Ctrl+L).
         /// </summary>
         internal static string SearchCueBanner {
