@@ -16,7 +16,7 @@ namespace Bonsai.Vision
         /// <summary>
         /// Gets or sets the name of the file on which to write the camera extrinsics.
         /// </summary>
-        [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
+        [FileNameFilter("YAML Files (*.yml;*.yaml)|*.yml;*.yaml|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the file on which to write the camera extrinsics.")]
         public string FileName { get; set; }
