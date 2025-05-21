@@ -11,6 +11,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Features>strict</Features>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!-- Universal NuGet package and Source Link properties -->
@@ -44,7 +45,6 @@
   <Import Project="Bonsai.props" />
   <Import Project="Package.props" />
   <Import Project="Version.props" />
-  <Import Project="Project.csproj.props" Condition="Exists('Project.csproj.props')" />
 
   <!-- Resolve embedded manifest asset paths -->
   <PropertyGroup>
@@ -54,4 +54,6 @@
     <PackageReadmeSourcePath Condition="Exists('$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)')">$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)</PackageReadmeSourcePath>
     <PackageReadmeSourcePath Condition="Exists('$(MSBuildProjectDirectory)$(PackageReadmeFile)')">$(MSBuildProjectDirectory)$(PackageReadmeFile)</PackageReadmeSourcePath>
   </PropertyGroup>
+
+  <Import Project="Project.csproj.props" Condition="Exists('Project.csproj.props')" />
 </Project>
