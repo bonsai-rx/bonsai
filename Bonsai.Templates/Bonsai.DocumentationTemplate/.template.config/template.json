@@ -20,12 +20,6 @@
         }
     ],
     "symbols": {
-        "projectName": {
-            "type": "derived",
-            "valueSource": "name",
-            "valueTransform": "replace",
-            "replaces": "$projectname$"
-        },
         "projectTitle": {
             "type": "derived",
             "valueSource": "name",
@@ -76,17 +70,13 @@
         }
     },
     "forms": {
-        "replace": {
-            "identifier": "replace",
-            "pattern": "",
-            "replacement": ""
-        },
         "replaceDotsWithSpaces": {
             "identifier": "replace",
             "pattern": "\\.",
             "replacement": " "
         }
     },
+    "sourceName": "$projectname$",
     "shortName": "bonsaidocs",
     "preferNameDirectory": false
 }
