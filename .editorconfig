@@ -11,7 +11,7 @@ indent_style = space
 indent_size = 2
 
 # Config files
-[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vstemplate,vsct,json}]
+[*.{props,targets,ruleset,config,nuspec,resx,vsct,json}]
 indent_size = 2
 
 # HTML / CSS files

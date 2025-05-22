@@ -13,7 +13,7 @@ indent_style = space
 indent_size = 2
 
 # XML files
-[*.{xml,bonsai,config,nuspec,resx,vsixmanifest,vsct,vstemplate,wxs}]
+[*.{xml,bonsai,config,nuspec,resx,vsct,wxs}]
 indent_size = 2
 
 # JSON/YAML files
