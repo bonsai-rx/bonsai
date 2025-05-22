@@ -46,7 +46,8 @@
         "authors": {
             "type": "parameter",
             "defaultValue": "",
-            "replaces": "$authors$"
+            "replaces": "$authors$",
+            "description": "The comma-separated list of package authors."
         },
         "swguid1": {
             "type": "generated",

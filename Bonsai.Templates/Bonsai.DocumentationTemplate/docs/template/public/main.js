@@ -2,10 +2,10 @@ import WorkflowContainer from "./workflow.js"
 
 export default {
     defaultTheme: 'light',
-//#if (HasGitHubSlug)
+//#if (HasGitHubRepo)
     iconLinks: [{
         icon: 'github',
-        href: 'https://github.com/$ghslug$',
+        href: '$repourl$',
         title: 'GitHub'
     }],
 //#endif

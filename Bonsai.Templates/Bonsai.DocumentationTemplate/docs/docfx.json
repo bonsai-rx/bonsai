@@ -55,9 +55,9 @@
       "bonsai-docfx/template",
       "template"
     ],
-//#if (ShowSitemap)
+//#if (HasBaseUrl)
     "sitemap": {
-      "baseUrl": "$sitemap$"
+      "baseUrl": "$baseurl$"
     },
 //#endif
     "globalMetadata": {

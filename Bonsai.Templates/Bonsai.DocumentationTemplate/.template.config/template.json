@@ -29,21 +29,25 @@
         "folder-name": {
             "type": "parameter",
             "defaultValue": "docs",
-            "fileRename": "docs"
+            "fileRename": "docs",
+            "description": "The name of the generated docs folder."
         },
-        "sitemap": {
+        "base-url": {
             "type": "parameter",
             "defaultValue": "",
-            "replaces": "$sitemap$"
+            "replaces": "$baseurl$",
+            "description": "The base URL of the documentation website."
         },
-        "github-slug": {
+        "repo-url": {
             "type": "parameter",
             "defaultValue": "",
-            "replaces": "$ghslug$"
+            "replaces": "$repourl$",
+            "description": "The URL of the project repository."
         },
         "copyright": {
             "type": "parameter",
-            "defaultValue": ""
+            "defaultValue": "",
+            "description": "Copyright details for the documentation website."
         },
         "xmlCopyright": {
             "type": "derived",
@@ -77,12 +81,18 @@
                 ]
             }
         },
-        "HasSitemap": {
+        "HasBaseUrl": {
             "type": "computed",
-            "value": "(sitemap != \"\")"
+            "value": "(base-url != \"\")"
         },
-        "HasGitHubSlug": {
-            "type": "computed",
+        "HasGitHubRepo": {
+            "type": "generated",
+            "generator": "regexMatch",
+            "datatype": "bool",
+            "parameters": {
+                "source": "repo-url",
+                "pattern": "^https://github.com/.+"
+            },
             "value": "(github-slug != \"\")"
         }
     },
