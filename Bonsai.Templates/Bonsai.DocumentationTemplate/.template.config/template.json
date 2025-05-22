@@ -32,6 +32,11 @@
             "valueTransform": "replaceDotsWithSpaces",
             "replaces": "$title$"
         },
+        "folder-name": {
+            "type": "parameter",
+            "defaultValue": "docs",
+            "fileRename": "docs"
+        },
         "authors": {
             "type": "parameter",
             "defaultValue": "",
@@ -82,5 +87,6 @@
             "replacement": " "
         }
     },
-    "shortName": "bonsaidocs"
+    "shortName": "bonsaidocs",
+    "preferNameDirectory": false
 }
