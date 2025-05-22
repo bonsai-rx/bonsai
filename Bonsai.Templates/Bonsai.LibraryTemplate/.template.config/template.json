@@ -25,29 +25,27 @@
         "projectName": {
             "type": "derived",
             "valueSource": "name",
-            "valueTransform": "replace",
-            "replaces": "$safeprojectname$",
+            "valueTransform": "identity",
             "fileRename": "ProjectTemplate"
         },
-        "authors": {
-            "type": "parameter",
-            "defaultValue": "",
-            "replaces": "$registeredorganization$"
+        "projectNamespace": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_namespace",
+            "replaces": "$safeprojectname$"
         },
-        "year": {
-            "type": "generated",
-            "generator": "now",
-            "parameters": {
-                "format": "yyyy"
-            },
-            "replaces": "$year$"
+        "projectTags": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replaceDotsWithSpaces",
+            "replaces": "$tags$"
         }
     },
     "forms": {
-        "replace": {
+        "replaceDotsWithSpaces": {
             "identifier": "replace",
-            "pattern": "",
-            "replacement": ""
+            "pattern": "\\.",
+            "replacement": " "
         }
     },
     "sourceName": "$projectname$",
