@@ -31,11 +31,6 @@
             "defaultValue": "docs",
             "fileRename": "docs"
         },
-        "authors": {
-            "type": "parameter",
-            "defaultValue": "",
-            "replaces": "$author$"
-        },
         "sitemap": {
             "type": "parameter",
             "defaultValue": "",
@@ -47,15 +42,37 @@
             "replaces": "$ghslug$"
         },
         "copyright": {
+            "type": "parameter",
+            "defaultValue": ""
+        },
+        "xmlCopyright": {
+            "type": "derived",
+            "valueSource": "copyright",
+            "valueTransform": "xmlEncode"
+        },
+        "msbuildCopyright": {
+            "type": "bind",
+            "binding": "msbuild:Copyright",
+            "defaultValue": ""
+        },
+        "activeCopyright": {
+            "type": "generated",
+            "generator": "coalesce",
+            "parameters": {
+                "sourceVariableName": "xmlCopyright",
+                "fallbackVariableName": "msbuildCopyright"
+            }
+        },
+        "copyrightStatement": {
             "type": "generated",
             "generator": "regex",
             "replaces": "$copyright$",
             "parameters": {
-                "source": "authors",
+                "source": "activeCopyright",
                 "steps": [
                     {
                         "regex": "(.+)",
-                        "replacement": "&copy; $1. "
+                        "replacement": "$1. "
                     }
                 ]
             }
