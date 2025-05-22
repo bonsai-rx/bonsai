@@ -46,7 +46,7 @@
         "authors": {
             "type": "parameter",
             "defaultValue": "",
-            "replaces": "$registeredorganization$"
+            "replaces": "$authors$"
         },
         "swguid1": {
             "type": "generated",

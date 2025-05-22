@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <Authors>$registeredorganization$</Authors>
-    <Copyright>Copyright © $registeredorganization$</Copyright>
+    <Authors>$authors$</Authors>
+    <Copyright>Copyright © $authors$</Copyright>
     <PackageProjectUrl></PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile></PackageLicenseFile>
