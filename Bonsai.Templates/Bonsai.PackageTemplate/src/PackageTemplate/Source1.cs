@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 
-namespace $projectname$
+namespace $safeprojectname$
 {
     /// <summary>
     /// Represents an operator that produces a sequence of values.

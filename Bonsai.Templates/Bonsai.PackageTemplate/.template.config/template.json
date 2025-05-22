@@ -28,9 +28,14 @@
         "projectName": {
             "type": "derived",
             "valueSource": "name",
-            "valueTransform": "replace",
-            "replaces": "$projectname$",
+            "valueTransform": "identity",
             "fileRename": "PackageTemplate"
+        },
+        "projectNamespace": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_namespace",
+            "replaces": "$safeprojectname$"
         },
         "projectTitle": {
             "type": "derived",
@@ -42,14 +47,6 @@
             "type": "parameter",
             "defaultValue": "",
             "replaces": "$registeredorganization$"
-        },
-        "year": {
-            "type": "generated",
-            "generator": "now",
-            "parameters": {
-                "format": "yyyy"
-            },
-            "replaces": "$year$"
         },
         "swguid1": {
             "type": "generated",
@@ -77,11 +74,6 @@
         }
     },
     "forms": {
-        "replace": {
-            "identifier": "replace",
-            "pattern": "",
-            "replacement": ""
-        },
         "replaceDotsWithSpaces": {
             "identifier": "replace",
             "pattern": "\\.",
