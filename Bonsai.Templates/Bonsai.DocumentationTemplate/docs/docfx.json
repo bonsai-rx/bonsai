@@ -1,0 +1,86 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src/",
+          "files": "**/*.csproj",
+          "exclude": "**/*.Tests.csproj"
+        }
+      ],
+      "output": "../artifacts/docs/api/",
+      "enumSortOrder": "declaringOrder",
+      "memberLayout": "separatePages",
+      "filter": "filter.yml"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "*.md",
+          "toc.yml",
+          "{articles,tutorials,examples}/**/*.md",
+          "{articles,tutorials,examples}/**/toc.yml"
+        ],
+        "exclude": "README.md"
+      },
+      {
+        "src": "../artifacts/docs/api/",
+        "dest": "api",
+        "files": "**/*.yml"
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**",
+          "workflows/**/*.{bonsai,svg}",
+          "{articles,tutorials,examples}/**/*.{bonsai,svg}"
+        ]
+      },
+      {
+        "src": "../build/",
+        "files": "icon.png"
+      }
+    ],
+    "overwrite": [
+      "apidoc/**/*.md"
+    ],
+    "output": "../artifacts/docs/site/",
+    "template": [
+      "default",
+      "modern",
+      "bonsai-docfx/template",
+      "template"
+    ],
+//#if (ShowSitemap)
+    "sitemap": {
+      "baseUrl": "$sitemap$"
+    },
+//#endif
+    "globalMetadata": {
+      "_appName": "$projectname$",
+      "_appTitle": "$projectname$",
+      "_appFooter": "$copyright$Made with <a href=\"https://dotnet.github.io/docfx\">docfx</a>",
+      "_appLogoPath": "logo.svg",
+      "_appFaviconPath": "icon.png",
+      "_enableNewTab": true,
+      "_enableSearch": true,
+      "_gitContribute": {
+        "apiSpecFolder": "docs/apidoc"
+      }
+    },
+    "markdownEngineProperties": {
+      "markdigExtensions": [
+        "attributes",
+        "customcontainers"
+      ]
+    },
+    "xref": [
+      "https://bonsai-rx.org/docs/xrefmap.yml",
+      "https://horizongir.github.io/reactive/xrefmap.yml"
+    ]
+  }
+}

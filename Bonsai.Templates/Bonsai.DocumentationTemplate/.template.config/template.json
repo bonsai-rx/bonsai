@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Documentation" ],
+    "description": "A project for Bonsai documentation using DocFX",
+    "identity": "Bonsai.DocumentationTemplate",
+    "name": "Bonsai Documentation",
+    "tags": {
+        "type": "project"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "rename": {
+                        "template.gitignore": ".gitignore"
+                    }
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "projectName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replace",
+            "replaces": "$projectname$"
+        },
+        "projectTitle": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replaceDotsWithSpaces",
+            "replaces": "$title$"
+        },
+        "authors": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$author$"
+        },
+        "sitemap": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$sitemap$"
+        },
+        "github-slug": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$ghslug$"
+        },
+        "copyright": {
+            "type": "generated",
+            "generator": "regex",
+            "replaces": "$copyright$",
+            "parameters": {
+                "source": "authors",
+                "steps": [
+                    {
+                        "regex": "(.+)",
+                        "replacement": "&copy; $1. "
+                    }
+                ]
+            }
+        },
+        "HasSitemap": {
+            "type": "computed",
+            "value": "(sitemap != \"\")"
+        },
+        "HasGitHubSlug": {
+            "type": "computed",
+            "value": "(github-slug != \"\")"
+        }
+    },
+    "forms": {
+        "replace": {
+            "identifier": "replace",
+            "pattern": "",
+            "replacement": ""
+        },
+        "replaceDotsWithSpaces": {
+            "identifier": "replace",
+            "pattern": "\\.",
+            "replacement": " "
+        }
+    },
+    "shortName": "bonsaidocs"
+}
