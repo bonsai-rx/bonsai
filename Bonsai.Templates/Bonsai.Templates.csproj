@@ -21,10 +21,10 @@
     <NoWarn>$(NoWarn);NU5110;NU5111</NoWarn>
 
     <!--
-      This warning basically happens because this package has no assemblies
+      Suppressing package dependencies to avoid triggering NU5128
       https://github.com/NuGet/Home/issues/8583
     -->
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
