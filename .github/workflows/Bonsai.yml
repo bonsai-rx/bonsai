@@ -142,11 +142,6 @@ jobs:
           # This should be kept in sync with publish-packages-nuget-org
           IS_FULL_RELEASE: ${{github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')}}
 
-      # ----------------------------------------------------------------------- Build Visual Studio templates
-      - name: Build Visual Studio templates
-        if: matrix.create-installer
-        run: msbuild /nologo /maxCpuCount Bonsai.Templates/Bonsai.Templates.sln /p:Configuration=${{matrix.configuration}} /p:DeployExtension=false
-
       # ----------------------------------------------------------------------- Build setup
       - name: Restore setup
         if: matrix.create-installer
