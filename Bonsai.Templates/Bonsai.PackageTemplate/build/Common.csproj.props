@@ -52,7 +52,7 @@
     <PackageLicenseSourcePath>$(MSBuildThisFileDirectory)../$(PackageLicenseFile)</PackageLicenseSourcePath>
     <PackageReadmeSourcePath>$(MSBuildThisFileDirectory)../$(PackageReadmeFile)</PackageReadmeSourcePath>
     <PackageReadmeSourcePath Condition="Exists('$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)')">$(MSBuildThisFileDirectory)../docs/$(PackageReadmeFile)</PackageReadmeSourcePath>
-    <PackageReadmeSourcePath Condition="Exists('$(MSBuildProjectDirectory)$(PackageReadmeFile)')">$(MSBuildProjectDirectory)$(PackageReadmeFile)</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(ProjectDir)$(PackageReadmeFile)')">$(ProjectDir)$(PackageReadmeFile)</PackageReadmeSourcePath>
   </PropertyGroup>
 
   <Import Project="Project.csproj.props" Condition="Exists('Project.csproj.props')" />
