@@ -1,0 +1,26 @@
+<!--
+  Solution-specific configuration/targets should generally not be placed in this file.
+  Instead create or update Project.csproj.targets
+-->
+<Project>
+  <ItemGroup>
+    <None Include="$(PackageIconSourcePath)" Condition="'$(PackageIcon)' != ''" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
+    <None Include="$(PackageLicenseSourcePath)" Condition="'$(PackageLicenseFile)' != ''" Pack="true" PackagePath="$(PackageLicenseFile)" Visible="false" />
+    <None Include="$(PackageReadmeSourcePath)" Condition="'$(PackageReadmeFile)' != ''" Pack="true" PackagePath="$(PackageReadmeFile)" Visible="false" />
+  </ItemGroup>
+
+  <Import Project="Project.csproj.targets" Condition="Exists('Project.csproj.targets')" />
+
+  <PropertyGroup>
+    <!-- If you need multiple versions when making local builds, temporarily override DevVersion here or on the command line. -->
+    <DevVersion Condition="'$(DevVersion)' == ''">0</DevVersion>
+    <Version>$(VersionPrefix)-dev$(DevVersion)</Version>
+
+    <Version Condition="'$(ContinuousIntegrationBuild)' == 'true'">$(CiBuildVersion)</Version>
+  </PropertyGroup>
+
+  <Target Name="VersionSanityChecks" BeforeTargets="Build">
+    <Error Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(CiBuildVersion)' == ''" Text="CI version info not configured." />
+    <Error Condition="'$(PackageVersion)' != '' and '$(PackageVersion)' != '$(Version)'" Text="Do not manually specify PackageVersion." />
+  </Target>
+</Project>

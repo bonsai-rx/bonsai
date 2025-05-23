@@ -21,8 +21,6 @@
         },
         "applyFileRenamesToArgs": [ "args" ]
     }],
-    "sourceName": ".bonsai",
-    "defaultName": ".bonsai",
     "shortName": "bonsaienv",
-    "preferDefaultName": true
+    "preferNameDirectory": false
 }

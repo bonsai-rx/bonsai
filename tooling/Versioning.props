@@ -29,8 +29,8 @@
   </PropertyGroup>
 
   <!--
-    This explicit FileVersion mainly exists for the installer and the VSIX template extension, neither of which can take a prerelease suffix or build metadata
-    They also can't utilize GetAssemblyVersion to strip off the prerelease suffix becuase it only exists in the modern SDK so we have to do it manually
+    This explicit FileVersion mainly exists for the installer, which can't take a prerelease suffix or build metadata and also can't
+    utilize GetAssemblyVersion to strip off the prerelease suffix because it only exists in the modern SDK so we have to do it manually
   -->
   <PropertyGroup>
     <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).$(_FileVersionRevision)</FileVersion>

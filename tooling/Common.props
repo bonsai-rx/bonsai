@@ -20,10 +20,6 @@
   <!-- Manually apply basic artifacts path for non-C# projects and legacy C# projects  -->
   <PropertyGroup Condition="'$(MSBuildProjectExtension)' != '.csproj' or '$(UsingMicrosoftNETSdk)' != 'true'">
     <_ThisProjectOutputSubdirectory>$(MSBuildProjectName)</_ThisProjectOutputSubdirectory>
-
-    <!-- This project exists both as a legacy VSIX project and a modern .NET SDK Template package so disambiguation is necessary -->
-    <_ThisProjectOutputSubdirectory Condition="'$(_ThisProjectOutputSubdirectory)' == 'Bonsai.Templates'">$(MSBuildProjectName)-vsix</_ThisProjectOutputSubdirectory>
-
     <BaseOutputPath>$(ArtifactsPath)/bin/</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)$(_ThisProjectOutputSubdirectory)/$(Configuration.ToLowerInvariant())-$(Platform.ToLowerInvariant())/</OutputPath>
     <OutputDir>$(OutputPath)</OutputDir>

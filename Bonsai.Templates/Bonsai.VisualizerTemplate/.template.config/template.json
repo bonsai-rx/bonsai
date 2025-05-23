@@ -9,22 +9,6 @@
         "language": "C#",
         "type": "item"
     },
-    "sources": [
-        {
-            "modifiers": [
-                {
-                    "exclude": [
-                        "**/[Bb]in/**",
-                        "**/[Oo]bj/**",
-                        "**/[Pp]roperties/**",
-                        "**/*.ico",
-                        "**/*.vstemplate",
-                        "Bonsai.VisualizerTemplate.csproj"
-                    ]
-                }
-            ]
-        }
-    ],
     "symbols": {
         "itemName": {
             "type": "derived",

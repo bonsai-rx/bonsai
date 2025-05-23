@@ -17,7 +17,6 @@
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">Debug</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Development.wxs" />
     <Compile Include="Product.wxs" />
     <Compile Include="Runtime.wxs" />
   </ItemGroup>
@@ -37,7 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <Content Include="vsix.ico" />
+    <Content Include="BonsaiWorkflow.ico" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
