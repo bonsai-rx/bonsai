@@ -34,6 +34,9 @@
 
     <!-- Handle mismatched target frameworks and malformed version strings as errors. -->
     <WarningsAsErrors>$(WarningsAsErrors);NU1701;CS7035</WarningsAsErrors>
+
+    <!-- Provide Bonsai executable path for use with launchSettings.json -->
+    <BonsaiExecutablePath>$(MSBuildThisFileDirectory)../.bonsai/Bonsai.exe</BonsaiExecutablePath>
   </PropertyGroup>
 
   <!-- Common properties for test projects -->
@@ -42,7 +45,6 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <Import Project="Bonsai.props" />
   <Import Project="Package.props" />
   <Import Project="Version.props" />
 
