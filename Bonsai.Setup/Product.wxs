@@ -2,7 +2,6 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?define Win64="no"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
-  <?define WorkflowTemplatePath="..\Bonsai.Templates\Bonsai.WorkflowTemplate"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
   <?define ProgramFilesFolder="ProgramFilesFolder"?>
