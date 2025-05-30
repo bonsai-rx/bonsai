@@ -6,6 +6,7 @@
     "identity": "Bonsai.PackageTemplate",
     "name": "Bonsai Package",
     "tags": {
+        "language": "C#",
         "type": "solution"
     },
     "sources": [
