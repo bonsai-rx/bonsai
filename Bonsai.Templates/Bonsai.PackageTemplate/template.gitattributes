@@ -15,10 +15,12 @@
 *.props text
 *.targets text
 *.csproj text
+*.vcxproj text
 *.wixproj text
 *.config text
 *.json text
 *.xml text
+*.yaml text
 *.yml text
 
 # Code
@@ -28,7 +30,7 @@
 *.bonsai text
 *.wxs text
 
-# Prevent GitHub from hiding designer files from PRs
+# Designer files
 *.Designer.cs text linguist-generated=false
 
 # Documents
@@ -39,4 +41,5 @@ LICENSE text
 # Graphics
 *.png binary
 *.ico binary
+*.gif binary
 *.svg text

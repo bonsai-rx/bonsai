@@ -2,27 +2,24 @@
     "$schema": "http://json.schemastore.org/template",
     "author": "Bonsai",
     "classifications": [ "Bonsai", "Package" ],
-    "description": "A project for creating a C# Bonsai package (.dll)",
+    "description": "A template for creating a new Bonsai package",
     "identity": "Bonsai.PackageTemplate",
     "name": "Bonsai Package",
     "tags": {
         "language": "C#",
-        "type": "project"
+        "type": "solution"
     },
     "sources": [
         {
             "modifiers": [
                 {
-                    "exclude": [
-                        "**/[Bb]in/**",
-                        "**/[Oo]bj/**",
-                        "**/[Pp]roperties/**",
-                        "**/*.ico",
-                        "**/*.vstemplate",
-                        "Bonsai.PackageTemplate.csproj"
-                    ],
                     "rename": {
-                        "launchSettings.json": "Properties/launchSettings.json"
+                        "template.Directory.Build.props": "Directory.Build.props",
+                        "template.Directory.Build.targets": "Directory.Build.targets",
+                        "template.editorconfig": ".editorconfig",
+                        "template.gitattributes": ".gitattributes",
+                        "template.gitignore": ".gitignore",
+                        "template.README.md": "README.md"
                     }
                 }
             ]
@@ -32,29 +29,57 @@
         "projectName": {
             "type": "derived",
             "valueSource": "name",
-            "valueTransform": "replace",
-            "replaces": "$safeprojectname$",
-            "fileRename": "ProjectTemplate"
+            "valueTransform": "identity",
+            "fileRename": "PackageTemplate"
+        },
+        "projectNamespace": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "safe_namespace",
+            "replaces": "$safeprojectname$"
+        },
+        "projectTitle": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replaceDotsWithSpaces",
+            "replaces": "$title$"
         },
         "authors": {
             "type": "parameter",
             "defaultValue": "",
-            "replaces": "$registeredorganization$"
+            "replaces": "$authors$",
+            "description": "The comma-separated list of package authors."
         },
-        "year": {
+        "swguid1": {
             "type": "generated",
-            "generator": "now",
+            "generator": "guid",
+            "replaces": "$swguid1$",
             "parameters": {
-                "format": "yyyy"
-            },
-            "replaces": "$year$"
+                "defaultFormat": "B"
+            }
+        },
+        "swguid2": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "$swguid2$",
+            "parameters": {
+                "defaultFormat": "B"
+            }
+        },
+        "swguid3": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "$swguid3$",
+            "parameters": {
+                "defaultFormat": "B"
+            }
         }
     },
     "forms": {
-        "replace": {
+        "replaceDotsWithSpaces": {
             "identifier": "replace",
-            "pattern": "",
-            "replacement": ""
+            "pattern": "\\.",
+            "replacement": " "
         }
     },
     "sourceName": "$projectname$",

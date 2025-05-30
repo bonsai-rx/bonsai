@@ -21,20 +21,22 @@
     <NoWarn>$(NoWarn);NU5110;NU5111</NoWarn>
 
     <!--
-      This warning basically happens because this package has no assemblies
+      Suppressing package dependencies to avoid triggering NU5128
       https://github.com/NuGet/Home/issues/8583
     -->
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Bonsai.PackageTemplate\**\*" />
     <Content Include="Bonsai.EnvironmentTemplate\**\*" />
-    <Content Include="Bonsai.PackageTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\Bonsai.PackageTemplate.csproj" />
-    <Content Include="Bonsai.SinkTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.SourceTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.TransformTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.VisualizerTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
-    <Content Include="Bonsai.WorkflowTemplate\**\*" Exclude="**\**\bin\**;**\**\obj\**;**\**\Properties\**;**\*.ico;**\*.user;**\*.vstemplate;**\*.csproj" />
+    <Content Include="Bonsai.DocumentationTemplate\**\*" />
+    <Content Include="Bonsai.LibraryTemplate\**\*" />
+    <Content Include="Bonsai.SinkTemplate\**\*" />
+    <Content Include="Bonsai.SourceTemplate\**\*" />
+    <Content Include="Bonsai.TransformTemplate\**\*" />
+    <Content Include="Bonsai.VisualizerTemplate\**\*" />
+    <Content Include="Bonsai.WorkflowTemplate\**\*" />
     <Compile Remove="**\*" />
   </ItemGroup>
 

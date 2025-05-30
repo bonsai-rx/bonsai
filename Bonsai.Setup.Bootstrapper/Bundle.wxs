@@ -33,7 +33,6 @@
       <ExePackage Id="VCRT64" SourceFile="vc_redist.x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
-        <MsiProperty Name="INSTALLVSIX" Value="[InstallVsixCheckbox]"/>
         <MsiProperty Name="INSTALL64" Value="VersionNT64"/>
       </MsiPackage>
     </Chain>

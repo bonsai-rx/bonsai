@@ -2,7 +2,6 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?define Win64="no"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
-  <?define WorkflowTemplatePath="..\Bonsai.Templates\Bonsai.WorkflowTemplate"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
   <?define ProgramFilesFolder="ProgramFilesFolder"?>
@@ -17,8 +16,7 @@
     <Property Id="WixAppFolder" Value="WixPerUserFolder" />
 
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
-    <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.WorkflowTemplatePath)\__TemplateIcon.ico" />
-    <Icon Id="vsix.ico" SourceFile="vsix.ico"/>
+    <Icon Id="BonsaiWorkflow.ico" SourceFile="BonsaiWorkflow.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
 
     <Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
@@ -26,10 +24,6 @@
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id="Extensions" />
         <ComponentRef Id="ProgramMenuDir" />
-      </Feature>
-
-      <Feature Id="DevelopmentFeature" Title="Development" Level="1">
-        <ComponentGroupRef Id="BonsaiVsExtensions" />
       </Feature>
     </Feature>
   </Product>

@@ -1,0 +1,109 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "Documentation", "DocFX" ],
+    "description": "A project for Bonsai documentation using DocFX",
+    "identity": "Bonsai.DocumentationTemplate",
+    "name": "Bonsai Documentation",
+    "tags": {
+        "type": "project"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "rename": {
+                        "template.gitignore": ".gitignore"
+                    }
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "projectTitle": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "replaceDotsWithSpaces",
+            "replaces": "$title$"
+        },
+        "folder-name": {
+            "type": "parameter",
+            "defaultValue": "docs",
+            "fileRename": "docs",
+            "description": "The name of the generated docs folder."
+        },
+        "base-url": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$baseurl$",
+            "description": "The base URL of the documentation website."
+        },
+        "repo-url": {
+            "type": "parameter",
+            "defaultValue": "",
+            "replaces": "$repourl$",
+            "description": "The URL of the project repository."
+        },
+        "copyright": {
+            "type": "parameter",
+            "defaultValue": "",
+            "description": "Copyright details for the documentation website."
+        },
+        "xmlCopyright": {
+            "type": "derived",
+            "valueSource": "copyright",
+            "valueTransform": "xmlEncode"
+        },
+        "msbuildCopyright": {
+            "type": "bind",
+            "binding": "msbuild:Copyright",
+            "defaultValue": ""
+        },
+        "activeCopyright": {
+            "type": "generated",
+            "generator": "coalesce",
+            "parameters": {
+                "sourceVariableName": "xmlCopyright",
+                "fallbackVariableName": "msbuildCopyright"
+            }
+        },
+        "copyrightStatement": {
+            "type": "generated",
+            "generator": "regex",
+            "replaces": "$copyright$",
+            "parameters": {
+                "source": "activeCopyright",
+                "steps": [
+                    {
+                        "regex": "(.+)",
+                        "replacement": "$1. "
+                    }
+                ]
+            }
+        },
+        "HasBaseUrl": {
+            "type": "computed",
+            "value": "(base-url != \"\")"
+        },
+        "HasGitHubRepo": {
+            "type": "generated",
+            "generator": "regexMatch",
+            "datatype": "bool",
+            "parameters": {
+                "source": "repo-url",
+                "pattern": "^https://github.com/.+"
+            },
+            "value": "(github-slug != \"\")"
+        }
+    },
+    "forms": {
+        "replaceDotsWithSpaces": {
+            "identifier": "replace",
+            "pattern": "\\.",
+            "replacement": " "
+        }
+    },
+    "sourceName": "$projectname$",
+    "shortName": "bonsaidocs",
+    "preferNameDirectory": false
+}
