@@ -1,7 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Bonsai",
-    "classifications": [ "Bonsai", "Documentation" ],
+    "classifications": [ "Bonsai", "Documentation", "DocFX" ],
     "description": "A project for Bonsai documentation using DocFX",
     "identity": "Bonsai.DocumentationTemplate",
     "name": "Bonsai Documentation",
