@@ -40,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.NuGet.Design", "Bons
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Configuration", "Bonsai.Configuration\Bonsai.Configuration.csproj", "{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai32", "Bonsai32\Bonsai32.csproj", "{8794CB93-EB69-4B98-84F9-F50ABB350E14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BonsaiLauncher", "BonsaiLauncher\BonsaiLauncher.csproj", "{8794CB93-EB69-4B98-84F9-F50ABB350E14}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Windows.Input", "Bonsai.Windows.Input\Bonsai.Windows.Input.csproj", "{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}"
 EndProject

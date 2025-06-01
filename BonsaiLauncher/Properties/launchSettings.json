@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Bonsai32": {
+    "BonsaiLauncher": {
       "commandName": "Project",
       "nativeDebugging": true
     }
