@@ -195,7 +195,7 @@ namespace Bonsai
             else if (createEnvironment)
             {
                 string bootstrapperPath;
-                try { bootstrapperPath = EnvironmentSelector.TryInitializeLocalBootstrapper(); }
+                try { bootstrapperPath = EnvironmentSelector.CreateLocalBootstrapper(); }
                 catch (Exception ex)
                 {
                     Console.Error.WriteLine(ex.Message);

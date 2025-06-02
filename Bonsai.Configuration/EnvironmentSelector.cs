@@ -75,24 +75,14 @@ public static class EnvironmentSelector
         return bootstrapper;
     }
 
-    public static string TryInitializeLocalBootstrapper()
+    public static string CreateLocalBootstrapper()
     {
-        var bootstrapperDirectory = Directory.CreateDirectory(Constants.BonsaiExtension);
-        return TryInitializeLocalBootstrapper(bootstrapperDirectory.FullName);
-    }
+        var environmentConfigPath = Path.GetFullPath(Path.Combine(Constants.BonsaiExtension, BonsaiConfig));
+        if (File.Exists(environmentConfigPath))
+            throw new InvalidOperationException($"The file '{environmentConfigPath}' already exists.");
 
-    static string TryInitializeLocalBootstrapper(string bootstrapperDirectory)
-    {
-        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.GetFileName(defaultBootstrapper.Path));
-        File.Copy(defaultBootstrapper.Path, bootstrapperPath);
-        try
-        {
-            var sourceNuGetConfigPath = Path.Combine(Path.GetDirectoryName(defaultBootstrapper.Path), NuGetConfig);
-            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory, NuGetConfig);
-            File.Copy(sourceNuGetConfigPath, bootstrapperNuGetConfigPath);
-        }
-        catch { } // best effort, ignore if source config does not exist or target already exists
-        return bootstrapperPath;
+        var bootstrapperDirectory = Directory.CreateDirectory(Path.GetDirectoryName(environmentConfigPath));
+        return TryInitializeLocalBootstrapper(bootstrapperDirectory.FullName);
     }
 
     public static bool TryGetLocalBootstrapper(string path, out BootstrapperInfo bootstrapper)
@@ -134,6 +124,20 @@ public static class EnvironmentSelector
 
         bootstrapper = defaultBootstrapper;
         return false;
+    }
+
+    static string TryInitializeLocalBootstrapper(string bootstrapperDirectory)
+    {
+        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.GetFileName(defaultBootstrapper.Path));
+        File.Copy(defaultBootstrapper.Path, bootstrapperPath);
+        try
+        {
+            var sourceNuGetConfigPath = Path.Combine(Path.GetDirectoryName(defaultBootstrapper.Path), NuGetConfig);
+            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory, NuGetConfig);
+            File.Copy(sourceNuGetConfigPath, bootstrapperNuGetConfigPath);
+        }
+        catch { } // best effort, ignore if source config does not exist or target already exists
+        return bootstrapperPath;
     }
 
     public static string TryInitializeLocalBootstrapper(BootstrapperInfo bootstrapper)
