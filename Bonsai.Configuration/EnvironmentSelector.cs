@@ -64,7 +64,6 @@ public static class EnvironmentSelector
 #else
         var launcherPath = Environment.ProcessPath;
 #endif
-        var launcherFolder = Path.GetDirectoryName(launcherPath);
         bootstrapper.Path = launcherPath;
         bootstrapper.Checksum = GetFileChecksum(bootstrapper.Path);
         bootstrapper.Version = Assembly
@@ -89,30 +88,20 @@ public static class EnvironmentSelector
         return bootstrapperPath;
     }
 
-    public static bool TryGetLocalBootstrapper(string fileName, out BootstrapperInfo bootstrapper)
+    public static bool TryGetLocalBootstrapper(string path, out BootstrapperInfo bootstrapper)
     {
-        if (string.IsNullOrEmpty(fileName))
+        if (string.IsNullOrEmpty(path))
+            path = Environment.CurrentDirectory;
+
+        var currentPath = Path.GetFullPath(path);
+        var startFolder = Path.GetDirectoryName(defaultBootstrapper.Path);
+        while (!string.IsNullOrEmpty(currentPath) && currentPath != startFolder)
         {
-            bootstrapper = defaultBootstrapper;
-            return false;
-        }
+            var environmentConfigPath = Path.Combine(currentPath, Constants.BonsaiExtension, BonsaiConfig);
+            var bootstrapperPath = Path.ChangeExtension(environmentConfigPath, ".exe");
+            if (bootstrapperPath == defaultBootstrapper.Path)
+                break;
 
-        var fullPath = Path.GetFullPath(fileName);
-        var pathRoot = Path.GetPathRoot(fullPath);
-        var stringBuilder = new StringBuilder();
-        for (int i = fullPath.Length - 1; i >= 0; i--)
-        {
-            if (fullPath[i] != Path.DirectorySeparatorChar)
-                continue;
-
-            stringBuilder.Clear();
-            stringBuilder.Append(fullPath, 0, i);
-            stringBuilder.Append(Path.DirectorySeparatorChar);
-            stringBuilder.Append(Constants.BonsaiExtension);
-            stringBuilder.Append(Path.DirectorySeparatorChar);
-            stringBuilder.Append(BonsaiConfig);
-
-            var environmentConfigPath = stringBuilder.ToString();
             try
             {
                 var document = XDocument.Load(environmentConfigPath);
@@ -125,12 +114,13 @@ public static class EnvironmentSelector
                     bootstrapperElement.Attribute("version")?.Value is string version)
                 {
                     bootstrapper.Version = version;
-                    bootstrapper.Path = Path.ChangeExtension(environmentConfigPath, ".exe");
+                    bootstrapper.Path = bootstrapperPath;
                     knownChecksums.TryGetValue(version, out bootstrapper.Checksum);
                     return true;
                 }
             }
             catch { } // ignore if config not found or inaccessible
+            currentPath = Path.GetDirectoryName(currentPath);
         }
 
         bootstrapper = defaultBootstrapper;
