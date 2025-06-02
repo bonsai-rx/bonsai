@@ -136,11 +136,7 @@ public static class EnvironmentSelector
         return false;
     }
 
-    public static async Task EnsureBootstrapperExecutableAsync(
-        BootstrapperInfo bootstrapper,
-        ILogger logger = default,
-        Func<IProgressBar> progressBarFactory = default,
-        CancellationToken cancellationToken = default)
+    public static string TryInitializeLocalBootstrapper(BootstrapperInfo bootstrapper)
     {
         try
         {
@@ -159,19 +155,29 @@ public static class EnvironmentSelector
                 );
 
             // Do nothing if bootstrapper already exists and is valid
-            return;
+            return bootstrapper.Path;
         }
         catch (FileNotFoundException) { } // Download only if file not found
 
         // If version matches default bootstrapper, simply initialize a local environment
-        var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
         if (bootstrapper.Version == defaultBootstrapper.Version)
         {
-            TryInitializeLocalBootstrapper(bootstrapperDirectory);
-            return;
+            var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
+            return TryInitializeLocalBootstrapper(bootstrapperDirectory);
         }
 
+        return null;
+    }
+
+    public static async Task DownloadBootstrapperExecutableAsync(
+        BootstrapperInfo bootstrapper,
+        ILogger logger = default,
+        Func<IProgressBar> progressBarFactory = default,
+        CancellationToken cancellationToken = default)
+    {
         var bootstrapperUri = GetPortableDownloadUri(bootstrapper.Version);
+        var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
+
         var tempDirectoryPath = Path.Combine(Path.GetTempPath(), BonsaiName, Guid.NewGuid().ToString());
         using var tempDirectory = new TempDirectory(tempDirectoryPath);
         logger?.LogInformation($"Downloading {BonsaiName} {bootstrapper.Version}...");

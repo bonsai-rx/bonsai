@@ -198,8 +198,11 @@ namespace Bonsai
                     EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo) &&
                     bootstrapperInfo.Path != editorPath)
             {
-                var bootstrapper = launchEditor ? new EditorEnvironmentBootstrapper() : new EnvironmentBootstrapper();
-                if (!bootstrapper.RunAsync(bootstrapperInfo).Result)
+                IEnvironmentBootstrapper bootstrapper = launchEditor
+                    ? new EditorEnvironmentBootstrapper()
+                    : new ConsoleEnvironmentBootstrapper();
+
+                if (!bootstrapper.EnsureBoostrapperExecutableAsync(bootstrapperInfo).Result)
                     return ErrorExitCode;
 
                 var bootstrapperArgs = new List<string>(args);
