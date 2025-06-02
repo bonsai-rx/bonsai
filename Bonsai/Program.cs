@@ -185,8 +185,8 @@ namespace Bonsai
                     return ErrorExitCode;
 
                 var bootstrapperArgs = new List<string>(args);
-                // Do not try to suppress environment select in versions without the feature
-                if (NuGetVersion.Parse(bootstrapperInfo.Version) <= SemanticVersion.Parse("2.8.5"))
+                // Suppress environment select only in versions with the feature
+                if (NuGetVersion.Parse(bootstrapperInfo.Version) > SemanticVersion.Parse("2.8.5"))
                     bootstrapperArgs.Add(SuppressEnvironmentSelectCommand);
 
                 return EnvironmentSelector.RunProcess(bootstrapperInfo.Path, bootstrapperArgs);
