@@ -195,9 +195,7 @@ namespace Bonsai
                 return EnvironmentSelector.RunProcess(bootstrapperPath, bootstrapperArgs);
             }
             else if (selectEnvironment &&
-                    EnvironmentSelector.TryGetLocalBootstrapper(
-                        Path.GetDirectoryName(initialFileName),
-                        out BootstrapperInfo bootstrapperInfo) &&
+                    EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo) &&
                     bootstrapperInfo.Path != editorPath)
             {
                 var bootstrapper = launchEditor ? new EditorEnvironmentBootstrapper() : new EnvironmentBootstrapper();

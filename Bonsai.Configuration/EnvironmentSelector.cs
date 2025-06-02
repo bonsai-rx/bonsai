@@ -94,6 +94,8 @@ public static class EnvironmentSelector
     {
         if (string.IsNullOrEmpty(path))
             path = Environment.CurrentDirectory;
+        else if (!Directory.Exists(path))
+            path = Path.GetDirectoryName(path);
 
         var currentPath = Path.GetFullPath(path);
         var startFolder = Path.GetDirectoryName(defaultBootstrapper.Path);
