@@ -267,6 +267,8 @@ public static class EnvironmentSelector
         startInfo.WorkingDirectory = Environment.CurrentDirectory;
         startInfo.UseShellExecute = false;
 
+        const int MaxConsoleTitleLength = 24500;
+        Console.Title = fileName.Substring(0, Math.Min(fileName.Length, MaxConsoleTitleLength));
         using var process = Process.Start(startInfo);
         process.WaitForExit();
         return process.ExitCode;
