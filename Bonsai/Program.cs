@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Reflection;
 
 namespace Bonsai
@@ -23,6 +24,7 @@ namespace Bonsai
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
         const string SuppressEnvironmentSelectCommand = "--no-env-select";
+        const string InitializeEnvironmentCommand = "--init";
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
@@ -49,6 +51,7 @@ namespace Bonsai
             var debugging = false;
             var launchEditor = true;
             var selectEnvironment = true;
+            var createEnvironment = false;
             var debugScripts = false;
             var editorScale = 1.0f;
             var exportImage = false;
@@ -69,6 +72,7 @@ namespace Bonsai
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(SuppressEnvironmentSelectCommand, () => selectEnvironment = false);
+            parser.RegisterCommand(InitializeEnvironmentCommand, () => createEnvironment = true);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
@@ -174,6 +178,21 @@ namespace Bonsai
                         debugging,
                         propertyAssignments);
                 }
+            }
+            else if (createEnvironment)
+            {
+                string bootstrapperPath;
+                try { bootstrapperPath = EnvironmentSelector.TryInitializeLocalBootstrapper(); }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.Message);
+                    return ErrorExitCode;
+                }
+
+                var bootstrapperArgs = args
+                    .Where(arg => arg != InitializeEnvironmentCommand)
+                    .Append(SuppressEnvironmentSelectCommand);
+                return EnvironmentSelector.RunProcess(bootstrapperPath, bootstrapperArgs);
             }
             else if (selectEnvironment &&
                     !string.IsNullOrEmpty(initialFileName) &&

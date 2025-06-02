@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Bonsai.Configuration.Properties;
+using Bonsai.NuGet;
 using NuGet.Common;
 
 namespace Bonsai.Configuration;
@@ -20,7 +21,6 @@ namespace Bonsai.Configuration;
 public static class EnvironmentSelector
 {
     internal const string BonsaiName = "Bonsai";
-    internal const string BonsaiExtension = ".bonsai";
     internal const string BonsaiConfig = "Bonsai.config";
     internal const string NuGetConfig = "NuGet.config";
     const string BonsaiPortableUrl = "https://github.com/bonsai-rx/bonsai/releases/download/{0}/Bonsai.zip";
@@ -74,6 +74,14 @@ public static class EnvironmentSelector
         return bootstrapper;
     }
 
+    public static string TryInitializeLocalBootstrapper()
+    {
+        var bootstrapperDirectory = Directory.CreateDirectory(Constants.BonsaiExtension);
+        var bootstrapperPath = Path.Combine(bootstrapperDirectory.FullName, Path.GetFileName(defaultBootstrapper.Path));
+        File.Copy(defaultBootstrapper.Path, bootstrapperPath);
+        return bootstrapperPath;
+    }
+
     public static bool TryGetLocalBootstrapper(string fileName, out BootstrapperInfo bootstrapper)
     {
         if (string.IsNullOrEmpty(fileName))
@@ -93,7 +101,7 @@ public static class EnvironmentSelector
             stringBuilder.Clear();
             stringBuilder.Append(fullPath, 0, i);
             stringBuilder.Append(Path.DirectorySeparatorChar);
-            stringBuilder.Append(BonsaiExtension);
+            stringBuilder.Append(Constants.BonsaiExtension);
             stringBuilder.Append(Path.DirectorySeparatorChar);
             stringBuilder.Append(BonsaiConfig);
 
