@@ -4,7 +4,6 @@
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define BonsaiBuildPath="..\artifacts\bin\Bonsai\release-repacked"?>
-  <?define BonsaiLauncherBuildPath="..\artifacts\bin\Bonsai\release"?>
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
@@ -12,10 +11,6 @@
         <File Id="BonsaiEXE" Name="Bonsai.exe" Source="$(var.BonsaiBuildPath)\Bonsai.exe" KeyPath="yes">
           <Shortcut Id="startmenuBonsai" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
-      </Component>
-
-      <Component Id="BonsaiLauncher" Guid="*" Win64="$(var.Win64)">
-        <File Id="BonsaiLauncherEXE" Name="BonsaiLauncher.exe" Source="$(var.BonsaiLauncherBuildPath)\BonsaiLauncher.exe" KeyPath="yes" />
         <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
           <Extension Id='bonsai' ContentType='application/xml'>
             <Verb Id='open' Command='Open' Argument='"%1"' />

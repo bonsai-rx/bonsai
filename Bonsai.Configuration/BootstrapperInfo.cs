@@ -1,6 +1,6 @@
-﻿namespace BonsaiLauncher
+﻿namespace Bonsai.Configuration
 {
-    internal struct BootstrapperInfo
+    public struct BootstrapperInfo
     {
         public string Path;
         public string Version;

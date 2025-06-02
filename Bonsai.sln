@@ -40,8 +40,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.NuGet.Design", "Bons
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Configuration", "Bonsai.Configuration\Bonsai.Configuration.csproj", "{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BonsaiLauncher", "BonsaiLauncher\BonsaiLauncher.csproj", "{8794CB93-EB69-4B98-84F9-F50ABB350E14}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Windows.Input", "Bonsai.Windows.Input\Bonsai.Windows.Input.csproj", "{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Osc", "Bonsai.Osc\Bonsai.Osc.csproj", "{BAA06D47-70E5-43BB-ABB9-A72F14196E92}"
@@ -162,10 +160,6 @@ Global
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Release|Any CPU.Build.0 = Release|Any CPU
 		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|Any CPU.ActiveCfg = Release|Any CPU

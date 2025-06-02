@@ -12,12 +12,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Bonsai.Configuration;
-using BonsaiLauncher.Properties;
+using Bonsai.Configuration.Properties;
+using NuGet.Common;
 
-namespace BonsaiLauncher;
+namespace Bonsai.Configuration;
 
-internal static class EnvironmentSelector
+public static class EnvironmentSelector
 {
     internal const string BonsaiName = "Bonsai";
     internal const string BonsaiExtension = ".bonsai";
@@ -59,11 +59,18 @@ internal static class EnvironmentSelector
     static BootstrapperInfo GetDefaultBootstrapper()
     {
         BootstrapperInfo bootstrapper;
-        var launcherAssembly = typeof(Program).Assembly;
-        var launcherFolder = Path.GetDirectoryName(launcherAssembly.Location);
-        bootstrapper.Version = launcherAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-        bootstrapper.Path = Path.Combine(launcherFolder, $"{BonsaiName}.exe");
+#if NETFRAMEWORK
+        var launcherPath = Assembly.GetEntryAssembly().Location;
+#else
+        var launcherPath = Environment.ProcessPath;
+#endif
+        var launcherFolder = Path.GetDirectoryName(launcherPath);
+        bootstrapper.Path = launcherPath;
         bootstrapper.Checksum = GetFileChecksum(bootstrapper.Path);
+        bootstrapper.Version = Assembly
+            .GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            .InformationalVersion;
         return bootstrapper;
     }
 
@@ -102,24 +109,13 @@ internal static class EnvironmentSelector
                 if (bootstrapperElement is not null &&
                     bootstrapperElement.Attribute("version")?.Value is string version)
                 {
-                    if (!knownChecksums.TryGetValue(version, out bootstrapper.Checksum))
-                    {
-                        throw new ApplicationException(string.Format(
-                            Resources.Error_UnsupportedBootstrapperVersion,
-                            environmentConfigPath,
-                            version,
-                            defaultBootstrapper.Version));
-                    }
-
                     bootstrapper.Version = version;
                     bootstrapper.Path = Path.ChangeExtension(environmentConfigPath, ".exe");
+                    knownChecksums.TryGetValue(version, out bootstrapper.Checksum);
                     return true;
                 }
             }
-            catch (Exception ex) when (ex is not ApplicationException)
-            {
-                continue;
-            }
+            catch { } // ignore if config not found or inaccessible
         }
 
         bootstrapper = defaultBootstrapper;
@@ -128,10 +124,21 @@ internal static class EnvironmentSelector
 
     public static async Task EnsureBootstrapperExecutable(
         BootstrapperInfo bootstrapper,
+        ILogger logger = default,
+        Func<IProgressBar> progressBarFactory = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
+            if (string.IsNullOrEmpty(bootstrapper.Checksum))
+            {
+                throw new ApplicationException(string.Format(
+                    Resources.Error_UnsupportedBootstrapperVersion,
+                    Path.ChangeExtension(bootstrapper.Path, ".config"),
+                    bootstrapper.Version,
+                    defaultBootstrapper.Version));
+            }
+
             if (bootstrapper.Checksum != GetFileChecksum(bootstrapper.Path))
                 throw new InvalidDataException(
                     string.Format(Resources.Error_InvalidBootstrapperChecksum, bootstrapper.Path)
@@ -147,11 +154,11 @@ internal static class EnvironmentSelector
 
         var tempDirectoryPath = Path.Combine(Path.GetTempPath(), BonsaiName, Guid.NewGuid().ToString());
         using var tempDirectory = new TempDirectory(tempDirectoryPath);
-        Console.WriteLine($"Downloading {BonsaiName} {bootstrapper.Version}...");
+        logger?.LogInformation($"Downloading {BonsaiName} {bootstrapper.Version}...");
         var downloadPath = Path.Combine(
             tempDirectory.Path,
             Path.GetFileNameWithoutExtension(bootstrapper.Path) + ".zip");
-        await DownloadFile(bootstrapperUri, downloadPath, cancellationToken);
+        await DownloadFile(bootstrapperUri, downloadPath, progressBarFactory, cancellationToken);
 
         ZipFile.ExtractToDirectory(downloadPath, tempDirectory.Path);
         var tempBootstrapper = Path.ChangeExtension(downloadPath, ".exe");
@@ -187,7 +194,7 @@ internal static class EnvironmentSelector
         return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
     }
 
-    static async Task DownloadFile(string uri, string path, CancellationToken cancellationToken = default)
+    static async Task DownloadFile(string uri, string path, Func<IProgressBar> progressBarFactory = default, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -195,15 +202,15 @@ internal static class EnvironmentSelector
         var contentLength = response.Content.Headers.ContentLength;
         using var contentStream = await response.Content.ReadAsStreamAsync();
 
-        using var progressBar = new ProgressBar();
+        using var progressBar = progressBarFactory?.Invoke();
         var progress = contentLength is not null ? new Progress<long>(
             currentBytesRead =>
             {
                 var percent = (int)(100 * (currentBytesRead / (double)contentLength));
-                progressBar.Update(percent);
+                progressBar.Report(percent);
             }) : default;
         await WriteAllBytesAsync(contentStream, path, progress, cancellationToken);
-        progressBar.Update(100);
+        progressBar.Report(100);
     }
 
     static async Task WriteAllBytesAsync(
@@ -226,29 +233,16 @@ internal static class EnvironmentSelector
         }
     }
 
-    public static Task<int> RunProcessAsync(string fileName, string arguments, CancellationToken cancellationToken = default)
+    public static int RunProcess(string fileName, IEnumerable<string> arguments)
     {
-        return Task.Factory.StartNew(() =>
-        {
-            using var exitSignal = new ManualResetEvent(false);
-            using var process = new Process();
-            process.StartInfo.FileName = fileName;
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.ErrorDataReceived += (sender, e) => Console.Error.WriteLine(e.Data);
-            process.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
-            process.Exited += (sender, e) => exitSignal.Set();
-            process.EnableRaisingEvents = true;
-            process.Start();
-            process.BeginErrorReadLine();
-            process.BeginOutputReadLine();
+        var startInfo = new ProcessStartInfo();
+        startInfo.FileName = fileName;
+        startInfo.Arguments = string.Join(" ", arguments.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        startInfo.WorkingDirectory = Environment.CurrentDirectory;
+        startInfo.UseShellExecute = false;
 
-            using var cancellation = cancellationToken.Register(() => exitSignal.Set());
-            exitSignal.WaitOne();
-            if (!process.HasExited) return -1;
-            return process.ExitCode;
-        });
+        using var process = Process.Start(startInfo);
+        process.WaitForExit();
+        return process.ExitCode;
     }
 }

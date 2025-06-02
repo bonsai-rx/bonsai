@@ -22,6 +22,7 @@ namespace Bonsai
         const string StartWithoutDebugging = "--start-no-debug";
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
+        const string SuppressEnvironmentSelectCommand = "--no-env-select";
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
@@ -47,6 +48,7 @@ namespace Bonsai
             var bootstrap = true;
             var debugging = false;
             var launchEditor = true;
+            var selectEnvironment = true;
             var debugScripts = false;
             var editorScale = 1.0f;
             var exportImage = false;
@@ -66,6 +68,7 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
+            parser.RegisterCommand(SuppressEnvironmentSelectCommand, () => selectEnvironment = false);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
@@ -172,6 +175,18 @@ namespace Bonsai
                         propertyAssignments);
                 }
             }
+            else if (selectEnvironment &&
+                    !string.IsNullOrEmpty(initialFileName) &&
+                    EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo) &&
+                    bootstrapperInfo.Path != editorPath)
+            {
+                var bootstrapper = launchEditor ? new EditorEnvironmentBootstrapper() : new EnvironmentBootstrapper();
+                if (!bootstrapper.RunAsync(bootstrapperInfo).Result)
+                    return ErrorExitCode;
+
+                var bootstrapperArgs = new List<string>(args) { SuppressEnvironmentSelectCommand };
+                return EnvironmentSelector.RunProcess(bootstrapperInfo.Path, bootstrapperArgs);
+            }
             else
             {
                 var bootstrapper = launchEditor ? (Bootstrapper)new EditorBootstrapper(editorRepositoryPath) : new ConsoleBootstrapper(editorRepositoryPath);
@@ -232,7 +247,7 @@ namespace Bonsai
                     setupInfo.Arguments = string.Join(" ", editorArgs);
                     setupInfo.WorkingDirectory = workingDirectory;
                     setupInfo.UseShellExecute = false;
-                    var process = Process.Start(setupInfo);
+                    using var process = Process.Start(setupInfo);
                     pipeServer.WaitForConnection();
                     using var pipeReader = AppResult.OpenRead(pipeServer);
                     process.WaitForExit();
