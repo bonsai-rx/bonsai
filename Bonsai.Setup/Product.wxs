@@ -37,7 +37,6 @@
               <CreateFolder />
             </Component>
           </Directory>
-          <Directory Id="VSEXTENSIONSFOLDER" Name="VisualStudio" />
         </Directory>
       </Directory>
 
