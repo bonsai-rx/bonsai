@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Bonsai
 {
@@ -25,6 +26,7 @@ namespace Bonsai
         const string SuppressEditorCommand = "--no-editor";
         const string SuppressEnvironmentCommand = "--no-env";
         const string InitializeEnvironmentCommand = "--init";
+        const string DisplayEnvironmentInfo = "--info";
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
@@ -52,6 +54,7 @@ namespace Bonsai
             var launchEditor = true;
             var selectEnvironment = true;
             var createEnvironment = false;
+            var displayEnvironmentInfo = false;
             var debugScripts = false;
             var editorScale = 1.0f;
             var exportImage = false;
@@ -73,6 +76,7 @@ namespace Bonsai
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(SuppressEnvironmentCommand, () => selectEnvironment = false);
             parser.RegisterCommand(InitializeEnvironmentCommand, () => createEnvironment = true);
+            parser.RegisterCommand(DisplayEnvironmentInfo, () => displayEnvironmentInfo = true);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
@@ -178,6 +182,15 @@ namespace Bonsai
                         debugging,
                         propertyAssignments);
                 }
+            }
+            else if (displayEnvironmentInfo)
+            {
+                EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo);
+                Console.WriteLine(new StringBuilder()
+                    .AppendLine($"Path: {bootstrapperInfo.Path}")
+                    .AppendLine($"Version: {bootstrapperInfo.Version}")
+                    .AppendLine($"Checksum: {bootstrapperInfo.Checksum}"));
+                return NormalExitCode;
             }
             else if (createEnvironment)
             {
