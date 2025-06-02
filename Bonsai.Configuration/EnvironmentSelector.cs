@@ -79,6 +79,13 @@ public static class EnvironmentSelector
         var bootstrapperDirectory = Directory.CreateDirectory(Constants.BonsaiExtension);
         var bootstrapperPath = Path.Combine(bootstrapperDirectory.FullName, Path.GetFileName(defaultBootstrapper.Path));
         File.Copy(defaultBootstrapper.Path, bootstrapperPath);
+        try
+        {
+            var sourceNuGetConfigPath = Path.Combine(Path.GetDirectoryName(defaultBootstrapper.Path), NuGetConfig);
+            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory.FullName, NuGetConfig);
+            File.Copy(sourceNuGetConfigPath, bootstrapperNuGetConfigPath);
+        }
+        catch { } // best effort, ignore if source config does not exist or target already exists
         return bootstrapperPath;
     }
 
