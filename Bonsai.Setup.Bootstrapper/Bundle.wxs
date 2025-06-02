@@ -30,7 +30,7 @@
 
     <Chain>
       <PackageGroupRef Id="NetFx48Web"/>
-      <ExePackage Id="VCRT" SourceFile="vc_redist.x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT" SourceFile="vc_redist.x86.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="NOT VersionNT64" DetectCondition="VCRTInstalled"/>
       <ExePackage Id="VCRT64" SourceFile="vc_redist.x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
