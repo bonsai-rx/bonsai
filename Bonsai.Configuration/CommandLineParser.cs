@@ -53,7 +53,8 @@ namespace Bonsai.Configuration
             }
 
             var shorthand = new string(Array.ConvertAll(words, word => word[0]));
-            commands.Add(shorthand, handler);
+            if (!commands.ContainsKey(shorthand))
+                commands.Add(shorthand, handler);
         }
 
         public void Parse(string[] args)

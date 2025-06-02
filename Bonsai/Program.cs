@@ -23,7 +23,7 @@ namespace Bonsai
         const string StartWithoutDebugging = "--start-no-debug";
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
-        const string SuppressEnvironmentSelectCommand = "--no-env-select";
+        const string SuppressEnvironmentCommand = "--no-env";
         const string InitializeEnvironmentCommand = "--init";
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
@@ -71,7 +71,7 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
-            parser.RegisterCommand(SuppressEnvironmentSelectCommand, () => selectEnvironment = false);
+            parser.RegisterCommand(SuppressEnvironmentCommand, () => selectEnvironment = false);
             parser.RegisterCommand(InitializeEnvironmentCommand, () => createEnvironment = true);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
@@ -191,7 +191,7 @@ namespace Bonsai
 
                 var bootstrapperArgs = args
                     .Where(arg => arg != InitializeEnvironmentCommand)
-                    .Append(SuppressEnvironmentSelectCommand);
+                    .Append(SuppressEnvironmentCommand);
                 return EnvironmentSelector.RunProcess(bootstrapperPath, bootstrapperArgs);
             }
             else if (selectEnvironment &&
@@ -208,7 +208,7 @@ namespace Bonsai
                 var bootstrapperArgs = new List<string>(args);
                 // Suppress environment select only in versions with the feature
                 if (NuGetVersion.Parse(bootstrapperInfo.Version) > SemanticVersion.Parse("2.8.5"))
-                    bootstrapperArgs.Add(SuppressEnvironmentSelectCommand);
+                    bootstrapperArgs.Add(SuppressEnvironmentCommand);
 
                 return EnvironmentSelector.RunProcess(bootstrapperInfo.Path, bootstrapperArgs);
             }
