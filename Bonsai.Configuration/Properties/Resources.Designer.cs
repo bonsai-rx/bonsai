@@ -19,7 +19,7 @@ namespace Bonsai.Configuration.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -75,6 +75,42 @@ namespace Bonsai.Configuration.Properties {
         internal static string BootstrapperMissingFromPackage {
             get {
                 return ResourceManager.GetString("BootstrapperMissingFromPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The local environment bootstrapper at &apos;{0}&apos; is invalid. SHA256 checksum does not match..
+        /// </summary>
+        internal static string Error_InvalidBootstrapperChecksum {
+            get {
+                return ResourceManager.GetString("Error_InvalidBootstrapperChecksum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bootstrapper launcher does not currently support custom command-line arguments..
+        /// </summary>
+        internal static string Error_InvalidCommandLineArguments {
+            get {
+                return ResourceManager.GetString("Error_InvalidCommandLineArguments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The SHA256 checksum for downloaded {0} is invalid..
+        /// </summary>
+        internal static string Error_InvalidDownloadChecksum {
+            get {
+                return ResourceManager.GetString("Error_InvalidDownloadChecksum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The local environment configuration found at &apos;{0}&apos; specifies a bootstrapper version {1}, which is unsupported by this launcher version {2}..
+        /// </summary>
+        internal static string Error_UnsupportedBootstrapperVersion {
+            get {
+                return ResourceManager.GetString("Error_UnsupportedBootstrapperVersion", resourceCulture);
             }
         }
         

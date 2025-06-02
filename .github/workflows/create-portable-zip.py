@@ -16,7 +16,6 @@ with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
     output.mkdir('Extensions')
 
     output.write(f'artifacts/bin/Bonsai/{configuration}-repacked/Bonsai.exe', 'Bonsai.exe')
-    output.write(f'artifacts/bin/Bonsai/{configuration}/Bonsai32.exe', 'Bonsai32.exe')
 
     nuget_config = [
         '<?xml version="1.0" encoding="utf-8"?>',

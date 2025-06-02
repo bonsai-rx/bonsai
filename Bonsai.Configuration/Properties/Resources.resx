@@ -123,6 +123,18 @@
   <data name="BootstrapperMissingFromPackage" xml:space="preserve">
     <value>Fatal error: no bootstrapper file was found in editor package.</value>
   </data>
+  <data name="Error_InvalidBootstrapperChecksum" xml:space="preserve">
+    <value>The local environment bootstrapper at '{0}' is invalid. SHA256 checksum does not match.</value>
+  </data>
+  <data name="Error_InvalidCommandLineArguments" xml:space="preserve">
+    <value>The bootstrapper launcher does not currently support custom command-line arguments.</value>
+  </data>
+  <data name="Error_InvalidDownloadChecksum" xml:space="preserve">
+    <value>The SHA256 checksum for downloaded {0} is invalid.</value>
+  </data>
+  <data name="Error_UnsupportedBootstrapperVersion" xml:space="preserve">
+    <value>The local environment configuration found at '{0}' specifies a bootstrapper version {1}, which is unsupported by this launcher version {2}.</value>
+  </data>
   <data name="InstallBootstrapperPackageError" xml:space="preserve">
     <value>Unable to install bootstrapper package. Please confirm there is an active network or local connection to the package repository.</value>
   </data>
