@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using Bonsai.Configuration.Properties;
 using Bonsai.NuGet;
 using NuGet.Common;
+using NuGet.Versioning;
 
 namespace Bonsai.Configuration;
 
@@ -66,10 +67,11 @@ public static class EnvironmentSelector
 #endif
         bootstrapper.Path = launcherPath;
         bootstrapper.Checksum = GetFileChecksum(bootstrapper.Path);
-        bootstrapper.Version = Assembly
+        bootstrapper.Version = NuGetVersion.Parse(Assembly
             .GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
+            .InformationalVersion)
+            .ToString();
         return bootstrapper;
     }
 
