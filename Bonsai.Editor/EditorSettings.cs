@@ -21,7 +21,6 @@ namespace Bonsai.Editor
         internal EditorSettings(string path)
         {
             AnnotationPanelSize = 400;
-            ExplorerSplitterDistance = 300;
             settingsPath = path;
         }
 
