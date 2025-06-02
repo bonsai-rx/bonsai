@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Configuration
 {
-    public struct BootstrapperInfo
+    public record struct BootstrapperInfo
     {
         public string Path;
         public string Version;

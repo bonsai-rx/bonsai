@@ -78,12 +78,17 @@ public static class EnvironmentSelector
     public static string TryInitializeLocalBootstrapper()
     {
         var bootstrapperDirectory = Directory.CreateDirectory(Constants.BonsaiExtension);
-        var bootstrapperPath = Path.Combine(bootstrapperDirectory.FullName, Path.GetFileName(defaultBootstrapper.Path));
+        return TryInitializeLocalBootstrapper(bootstrapperDirectory.FullName);
+    }
+
+    static string TryInitializeLocalBootstrapper(string bootstrapperDirectory)
+    {
+        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.GetFileName(defaultBootstrapper.Path));
         File.Copy(defaultBootstrapper.Path, bootstrapperPath);
         try
         {
             var sourceNuGetConfigPath = Path.Combine(Path.GetDirectoryName(defaultBootstrapper.Path), NuGetConfig);
-            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory.FullName, NuGetConfig);
+            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory, NuGetConfig);
             File.Copy(sourceNuGetConfigPath, bootstrapperNuGetConfigPath);
         }
         catch { } // best effort, ignore if source config does not exist or target already exists
@@ -131,7 +136,7 @@ public static class EnvironmentSelector
         return false;
     }
 
-    public static async Task EnsureBootstrapperExecutable(
+    public static async Task EnsureBootstrapperExecutableAsync(
         BootstrapperInfo bootstrapper,
         ILogger logger = default,
         Func<IProgressBar> progressBarFactory = default,
@@ -158,16 +163,22 @@ public static class EnvironmentSelector
         }
         catch (FileNotFoundException) { } // Download only if file not found
 
-        var bootstrapperUri = GetPortableDownloadUri(bootstrapper.Version);
+        // If version matches default bootstrapper, simply initialize a local environment
         var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
+        if (bootstrapper.Version == defaultBootstrapper.Version)
+        {
+            TryInitializeLocalBootstrapper(bootstrapperDirectory);
+            return;
+        }
 
+        var bootstrapperUri = GetPortableDownloadUri(bootstrapper.Version);
         var tempDirectoryPath = Path.Combine(Path.GetTempPath(), BonsaiName, Guid.NewGuid().ToString());
         using var tempDirectory = new TempDirectory(tempDirectoryPath);
         logger?.LogInformation($"Downloading {BonsaiName} {bootstrapper.Version}...");
         var downloadPath = Path.Combine(
             tempDirectory.Path,
             Path.GetFileNameWithoutExtension(bootstrapper.Path) + ".zip");
-        await DownloadFile(bootstrapperUri, downloadPath, progressBarFactory, cancellationToken);
+        await DownloadFileAsync(bootstrapperUri, downloadPath, progressBarFactory, cancellationToken);
 
         ZipFile.ExtractToDirectory(downloadPath, tempDirectory.Path);
         var tempBootstrapper = Path.ChangeExtension(downloadPath, ".exe");
@@ -203,7 +214,7 @@ public static class EnvironmentSelector
         return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
     }
 
-    static async Task DownloadFile(string uri, string path, Func<IProgressBar> progressBarFactory = default, CancellationToken cancellationToken = default)
+    static async Task DownloadFileAsync(string uri, string path, Func<IProgressBar> progressBarFactory = default, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();

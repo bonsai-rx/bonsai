@@ -14,7 +14,7 @@ namespace Bonsai.Configuration
 
         protected virtual Task RunBootstrapperOperationAsync(BootstrapperInfo bootstrapper, CancellationToken cancellationToken)
         {
-            return EnvironmentSelector.EnsureBootstrapperExecutable(
+            return EnvironmentSelector.EnsureBootstrapperExecutableAsync(
                 bootstrapper,
                 Logger,
                 GetProgressBar,
