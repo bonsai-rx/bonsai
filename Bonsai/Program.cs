@@ -202,6 +202,20 @@ namespace Bonsai
                     return ErrorExitCode;
                 }
 
+                if (!string.IsNullOrEmpty(initialFileName))
+                {
+                    var searchPath = File.Exists(initialFileName)
+                        ? Path.GetDirectoryName(initialFileName)
+                        : initialFileName;
+                    var workflowFiles = Directory.GetFiles(searchPath, $"*{NuGet.Constants.BonsaiExtension}", SearchOption.AllDirectories);
+                    var packageDependencies = DependencyInspector.GetPackageDependencies(workflowFiles, packageConfiguration);
+                    var environmentConfigFile = Path.ChangeExtension(bootstrapperPath, ".config");
+                    var environmentConfiguration = new PackageConfiguration();
+                    foreach (var dependency in packageDependencies)
+                        environmentConfiguration.Packages.Add(dependency);
+                    environmentConfiguration.Save(environmentConfigFile);
+                }
+
                 var bootstrapperArgs = args
                     .Where(arg => arg != InitializeEnvironmentCommand)
                     .Append(SuppressEnvironmentCommand);
