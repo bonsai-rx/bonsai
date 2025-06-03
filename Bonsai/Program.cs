@@ -61,6 +61,7 @@ namespace Bonsai
             var updatePackages = false;
             var launchResult = default(EditorResult);
             var initialFileName = default(string);
+            var fileNameIndex = -1;
             var imageFileName = default(string);
             var pipeHandle = default(string);
             var layoutPath = default(string);
@@ -89,11 +90,15 @@ namespace Bonsai
                 updatePackages = option == PackageManagerUpdates;
                 bootstrap = false;
             });
-            parser.RegisterCommand(command => initialFileName = Path.GetFullPath(command));
             parser.RegisterCommand(PropertyCommand, property =>
             {
                 var assignment = PropertyAssignment.Parse(property);
                 propertyAssignments.Add(assignment.Name, assignment.Value);
+            });
+            parser.RegisterCommand((command, i) =>
+            {
+                initialFileName = Path.GetFullPath(command);
+                fileNameIndex = i;
             });
             parser.Parse(args);
 
@@ -219,7 +224,7 @@ namespace Bonsai
                 }
 
                 var bootstrapperArgs = args
-                    .Where(arg => arg != InitializeEnvironmentCommand)
+                    .Where((arg, i) => arg != InitializeEnvironmentCommand && i != fileNameIndex)
                     .Append(SuppressEnvironmentCommand);
                 return EnvironmentSelector.RunProcess(bootstrapperPath, bootstrapperArgs);
             }
