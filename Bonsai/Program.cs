@@ -208,6 +208,8 @@ namespace Bonsai
                         ? Path.GetDirectoryName(initialFileName)
                         : initialFileName;
                     var workflowFiles = Directory.GetFiles(searchPath, $"*{NuGet.Constants.BonsaiExtension}", SearchOption.AllDirectories);
+                    
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     var packageDependencies = DependencyInspector.GetPackageDependencies(workflowFiles, packageConfiguration);
                     var environmentConfigFile = Path.ChangeExtension(bootstrapperPath, ".config");
                     var environmentConfiguration = new PackageConfiguration();
