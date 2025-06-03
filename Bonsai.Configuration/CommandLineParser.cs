@@ -9,9 +9,9 @@ namespace Bonsai.Configuration
         const char OptionSeparator = ':';
         const string CommandPrefix = "--";
         readonly Dictionary<string, Delegate> commands = new Dictionary<string, Delegate>();
-        Action<string> defaultHandler;
+        Action<string, int> defaultHandler;
 
-        public void RegisterCommand(Action<string> handler)
+        public void RegisterCommand(Action<string, int> handler)
         {
             defaultHandler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
@@ -53,7 +53,8 @@ namespace Bonsai.Configuration
             }
 
             var shorthand = new string(Array.ConvertAll(words, word => word[0]));
-            commands.Add(shorthand, handler);
+            if (!commands.ContainsKey(shorthand))
+                commands.Add(shorthand, handler);
         }
 
         public void Parse(string[] args)
@@ -77,7 +78,7 @@ namespace Bonsai.Configuration
                 }
                 else
                 {
-                    defaultHandler?.Invoke(args[i]);
+                    defaultHandler?.Invoke(args[i], i);
                 }
             }
         }

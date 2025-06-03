@@ -99,19 +99,15 @@ namespace Bonsai
             }
         }
 
-        static Configuration.PackageReference[] GetPackageDependencies(IEnumerable<IPackageFile> files, PackageConfiguration configuration)
+        public static Configuration.PackageReference[] GetPackageDependencies(IEnumerable<string> files, PackageConfiguration configuration)
         {
             using var context = LoaderResource.CreateMetadataLoadContext(configuration);
             var scriptEnvironment = new ScriptExtensions(configuration, null);
             var assemblies = new HashSet<Assembly> { typeof(WorkflowBuilder).Assembly };
             var visualizerMap = new Lazy<IDictionary<string, Type>>(() => GetVisualizerMap(configuration).Result);
 
-            foreach (var file in files)
+            foreach (var path in files)
             {
-                if (file is not PhysicalPackageFile packageFile)
-                    continue;
-
-                var path = packageFile.SourcePath;
                 switch (Path.GetExtension(path))
                 {
                     case Constants.BonsaiExtension:
@@ -140,14 +136,21 @@ namespace Bonsai
             return dependencies.ToArray();
         }
 
+        static Configuration.PackageReference[] GetPackageDependencies(IEnumerable<IPackageFile> files, PackageConfiguration configuration)
+        {
+            return GetPackageDependencies(from file in files
+                                          let packageFile = file as PhysicalPackageFile
+                                          where packageFile is not null
+                                          select packageFile.SourcePath,
+                                          configuration);
+        }
+
         public static IEnumerable<PackageDependency> GetWorkflowPackageDependencies(
             IEnumerable<IPackageFile> files,
             PackageConfiguration configuration)
         {
-            if (configuration == null)
-            {
+            if (configuration is null)
                 throw new ArgumentNullException(nameof(configuration));
-            }
 
             return from dependency in GetPackageDependencies(files, configuration)
                    let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)

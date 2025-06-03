@@ -35,6 +35,7 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="NuGet.config" />
     <Content Include="packages.config" />
     <Content Include="BonsaiWorkflow.ico" />
   </ItemGroup>

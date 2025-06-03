@@ -13,14 +13,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Bonsai.Configuration.Properties;
+using Bonsai.NuGet;
 using NuGet.Common;
+using NuGet.Versioning;
 
 namespace Bonsai.Configuration;
 
 public static class EnvironmentSelector
 {
     internal const string BonsaiName = "Bonsai";
-    internal const string BonsaiExtension = ".bonsai";
     internal const string BonsaiConfig = "Bonsai.config";
     internal const string NuGetConfig = "NuGet.config";
     const string BonsaiPortableUrl = "https://github.com/bonsai-rx/bonsai/releases/download/{0}/Bonsai.zip";
@@ -64,40 +65,42 @@ public static class EnvironmentSelector
 #else
         var launcherPath = Environment.ProcessPath;
 #endif
-        var launcherFolder = Path.GetDirectoryName(launcherPath);
         bootstrapper.Path = launcherPath;
         bootstrapper.Checksum = GetFileChecksum(bootstrapper.Path);
-        bootstrapper.Version = Assembly
+        bootstrapper.Version = NuGetVersion.Parse(Assembly
             .GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
+            .InformationalVersion)
+            .ToString();
         return bootstrapper;
     }
 
-    public static bool TryGetLocalBootstrapper(string fileName, out BootstrapperInfo bootstrapper)
+    public static string CreateLocalBootstrapper()
     {
-        if (string.IsNullOrEmpty(fileName))
+        var environmentConfigPath = Path.GetFullPath(Path.Combine(Constants.BonsaiExtension, BonsaiConfig));
+        if (File.Exists(environmentConfigPath))
+            throw new InvalidOperationException($"The file '{environmentConfigPath}' already exists.");
+
+        var bootstrapperDirectory = Directory.CreateDirectory(Path.GetDirectoryName(environmentConfigPath));
+        return TryInitializeLocalBootstrapper(bootstrapperDirectory.FullName);
+    }
+
+    public static bool TryGetLocalBootstrapper(string path, out BootstrapperInfo bootstrapper)
+    {
+        if (string.IsNullOrEmpty(path))
+            path = Environment.CurrentDirectory;
+        else if (!Directory.Exists(path))
+            path = Path.GetDirectoryName(path);
+
+        var currentPath = Path.GetFullPath(path);
+        var startFolder = Path.GetDirectoryName(defaultBootstrapper.Path);
+        while (!string.IsNullOrEmpty(currentPath) && currentPath != startFolder)
         {
-            bootstrapper = defaultBootstrapper;
-            return false;
-        }
+            var environmentConfigPath = Path.Combine(currentPath, Constants.BonsaiExtension, BonsaiConfig);
+            var bootstrapperPath = Path.ChangeExtension(environmentConfigPath, ".exe");
+            if (bootstrapperPath == defaultBootstrapper.Path)
+                break;
 
-        var fullPath = Path.GetFullPath(fileName);
-        var pathRoot = Path.GetPathRoot(fullPath);
-        var stringBuilder = new StringBuilder();
-        for (int i = fullPath.Length - 1; i >= 0; i--)
-        {
-            if (fullPath[i] != Path.DirectorySeparatorChar)
-                continue;
-
-            stringBuilder.Clear();
-            stringBuilder.Append(fullPath, 0, i);
-            stringBuilder.Append(Path.DirectorySeparatorChar);
-            stringBuilder.Append(BonsaiExtension);
-            stringBuilder.Append(Path.DirectorySeparatorChar);
-            stringBuilder.Append(BonsaiConfig);
-
-            var environmentConfigPath = stringBuilder.ToString();
             try
             {
                 var document = XDocument.Load(environmentConfigPath);
@@ -110,23 +113,34 @@ public static class EnvironmentSelector
                     bootstrapperElement.Attribute("version")?.Value is string version)
                 {
                     bootstrapper.Version = version;
-                    bootstrapper.Path = Path.ChangeExtension(environmentConfigPath, ".exe");
+                    bootstrapper.Path = bootstrapperPath;
                     knownChecksums.TryGetValue(version, out bootstrapper.Checksum);
                     return true;
                 }
             }
             catch { } // ignore if config not found or inaccessible
+            currentPath = Path.GetDirectoryName(currentPath);
         }
 
         bootstrapper = defaultBootstrapper;
         return false;
     }
 
-    public static async Task EnsureBootstrapperExecutable(
-        BootstrapperInfo bootstrapper,
-        ILogger logger = default,
-        Func<IProgressBar> progressBarFactory = default,
-        CancellationToken cancellationToken = default)
+    static string TryInitializeLocalBootstrapper(string bootstrapperDirectory)
+    {
+        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.GetFileName(defaultBootstrapper.Path));
+        File.Copy(defaultBootstrapper.Path, bootstrapperPath);
+        try
+        {
+            var sourceNuGetConfigPath = Path.Combine(Path.GetDirectoryName(defaultBootstrapper.Path), NuGetConfig);
+            var bootstrapperNuGetConfigPath = Path.Combine(bootstrapperDirectory, NuGetConfig);
+            File.Copy(sourceNuGetConfigPath, bootstrapperNuGetConfigPath);
+        }
+        catch { } // best effort, ignore if source config does not exist or target already exists
+        return bootstrapperPath;
+    }
+
+    public static string TryInitializeLocalBootstrapper(BootstrapperInfo bootstrapper)
     {
         try
         {
@@ -145,10 +159,26 @@ public static class EnvironmentSelector
                 );
 
             // Do nothing if bootstrapper already exists and is valid
-            return;
+            return bootstrapper.Path;
         }
         catch (FileNotFoundException) { } // Download only if file not found
 
+        // If version matches default bootstrapper, simply initialize a local environment
+        if (bootstrapper.Version == defaultBootstrapper.Version)
+        {
+            var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
+            return TryInitializeLocalBootstrapper(bootstrapperDirectory);
+        }
+
+        return null;
+    }
+
+    public static async Task DownloadBootstrapperExecutableAsync(
+        BootstrapperInfo bootstrapper,
+        ILogger logger = default,
+        Func<IProgressBar> progressBarFactory = default,
+        CancellationToken cancellationToken = default)
+    {
         var bootstrapperUri = GetPortableDownloadUri(bootstrapper.Version);
         var bootstrapperDirectory = Path.GetDirectoryName(bootstrapper.Path);
 
@@ -158,7 +188,7 @@ public static class EnvironmentSelector
         var downloadPath = Path.Combine(
             tempDirectory.Path,
             Path.GetFileNameWithoutExtension(bootstrapper.Path) + ".zip");
-        await DownloadFile(bootstrapperUri, downloadPath, progressBarFactory, cancellationToken);
+        await DownloadFileAsync(bootstrapperUri, downloadPath, progressBarFactory, cancellationToken);
 
         ZipFile.ExtractToDirectory(downloadPath, tempDirectory.Path);
         var tempBootstrapper = Path.ChangeExtension(downloadPath, ".exe");
@@ -194,7 +224,7 @@ public static class EnvironmentSelector
         return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
     }
 
-    static async Task DownloadFile(string uri, string path, Func<IProgressBar> progressBarFactory = default, CancellationToken cancellationToken = default)
+    static async Task DownloadFileAsync(string uri, string path, Func<IProgressBar> progressBarFactory = default, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -241,6 +271,8 @@ public static class EnvironmentSelector
         startInfo.WorkingDirectory = Environment.CurrentDirectory;
         startInfo.UseShellExecute = false;
 
+        const int MaxConsoleTitleLength = 24500;
+        Console.Title = fileName.Substring(0, Math.Min(fileName.Length, MaxConsoleTitleLength));
         using var process = Process.Start(startInfo);
         process.WaitForExit();
         return process.ExitCode;

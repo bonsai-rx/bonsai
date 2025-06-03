@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Bonsai
 {
@@ -22,7 +24,9 @@ namespace Bonsai
         const string StartWithoutDebugging = "--start-no-debug";
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
-        const string SuppressEnvironmentSelectCommand = "--no-env-select";
+        const string SuppressEnvironmentCommand = "--no-env";
+        const string InitializeEnvironmentCommand = "--init";
+        const string DisplayEnvironmentInfo = "--info";
         const string PackageManagerCommand = "--package-manager";
         const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
@@ -49,12 +53,15 @@ namespace Bonsai
             var debugging = false;
             var launchEditor = true;
             var selectEnvironment = true;
+            var createEnvironment = false;
+            var displayEnvironmentInfo = false;
             var debugScripts = false;
             var editorScale = 1.0f;
             var exportImage = false;
             var updatePackages = false;
             var launchResult = default(EditorResult);
             var initialFileName = default(string);
+            var fileNameIndex = -1;
             var imageFileName = default(string);
             var pipeHandle = default(string);
             var layoutPath = default(string);
@@ -68,7 +75,9 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
-            parser.RegisterCommand(SuppressEnvironmentSelectCommand, () => selectEnvironment = false);
+            parser.RegisterCommand(SuppressEnvironmentCommand, () => selectEnvironment = false);
+            parser.RegisterCommand(InitializeEnvironmentCommand, () => createEnvironment = true);
+            parser.RegisterCommand(DisplayEnvironmentInfo, () => displayEnvironmentInfo = true);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
             parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
@@ -81,11 +90,15 @@ namespace Bonsai
                 updatePackages = option == PackageManagerUpdates;
                 bootstrap = false;
             });
-            parser.RegisterCommand(command => initialFileName = Path.GetFullPath(command));
             parser.RegisterCommand(PropertyCommand, property =>
             {
                 var assignment = PropertyAssignment.Parse(property);
                 propertyAssignments.Add(assignment.Name, assignment.Value);
+            });
+            parser.RegisterCommand((command, i) =>
+            {
+                initialFileName = Path.GetFullPath(command);
+                fileNameIndex = i;
             });
             parser.Parse(args);
 
@@ -175,19 +188,61 @@ namespace Bonsai
                         propertyAssignments);
                 }
             }
+            else if (displayEnvironmentInfo)
+            {
+                EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo);
+                Console.WriteLine(new StringBuilder()
+                    .AppendLine($"Path: {bootstrapperInfo.Path}")
+                    .AppendLine($"Version: {bootstrapperInfo.Version}")
+                    .AppendLine($"Checksum: {bootstrapperInfo.Checksum}"));
+                return NormalExitCode;
+            }
+            else if (createEnvironment)
+            {
+                string bootstrapperPath;
+                try { bootstrapperPath = EnvironmentSelector.CreateLocalBootstrapper(); }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.Message);
+                    return ErrorExitCode;
+                }
+
+                if (!string.IsNullOrEmpty(initialFileName))
+                {
+                    var searchPath = File.Exists(initialFileName)
+                        ? Path.GetDirectoryName(initialFileName)
+                        : initialFileName;
+                    var workflowFiles = Directory.GetFiles(searchPath, $"*{NuGet.Constants.BonsaiExtension}", SearchOption.AllDirectories);
+                    
+                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    var packageDependencies = DependencyInspector.GetPackageDependencies(workflowFiles, packageConfiguration);
+                    var environmentConfigFile = Path.ChangeExtension(bootstrapperPath, ".config");
+                    var environmentConfiguration = new PackageConfiguration();
+                    foreach (var dependency in packageDependencies)
+                        environmentConfiguration.Packages.Add(dependency);
+                    environmentConfiguration.Save(environmentConfigFile);
+                }
+
+                var bootstrapperArgs = args
+                    .Where((arg, i) => arg != InitializeEnvironmentCommand && i != fileNameIndex)
+                    .Append(SuppressEnvironmentCommand);
+                return EnvironmentSelector.RunProcess(bootstrapperPath, bootstrapperArgs);
+            }
             else if (selectEnvironment &&
-                    !string.IsNullOrEmpty(initialFileName) &&
                     EnvironmentSelector.TryGetLocalBootstrapper(initialFileName, out BootstrapperInfo bootstrapperInfo) &&
                     bootstrapperInfo.Path != editorPath)
             {
-                var bootstrapper = launchEditor ? new EditorEnvironmentBootstrapper() : new EnvironmentBootstrapper();
-                if (!bootstrapper.RunAsync(bootstrapperInfo).Result)
+                IEnvironmentBootstrapper bootstrapper = launchEditor
+                    ? new EditorEnvironmentBootstrapper()
+                    : new ConsoleEnvironmentBootstrapper();
+
+                if (!bootstrapper.EnsureBoostrapperExecutableAsync(bootstrapperInfo).Result)
                     return ErrorExitCode;
 
                 var bootstrapperArgs = new List<string>(args);
-                // Do not try to suppress environment select in versions without the feature
-                if (NuGetVersion.Parse(bootstrapperInfo.Version) <= SemanticVersion.Parse("2.8.5"))
-                    bootstrapperArgs.Add(SuppressEnvironmentSelectCommand);
+                // Suppress environment select only in versions with the feature
+                if (NuGetVersion.Parse(bootstrapperInfo.Version) > SemanticVersion.Parse("2.8.5"))
+                    bootstrapperArgs.Add(SuppressEnvironmentCommand);
 
                 return EnvironmentSelector.RunProcess(bootstrapperInfo.Path, bootstrapperArgs);
             }

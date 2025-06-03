@@ -258,6 +258,8 @@ namespace Bonsai.Editor
 
         void RestoreEditorSettings()
         {
+            var explorerSplitterDistance = (int)Math.Round(EditorSettings.Instance.ExplorerSplitterDistance * scaleFactor.Width);
+            var annotationPanelSize = (int)Math.Round(EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
             var desktopBounds = ScaleBounds(EditorSettings.Instance.DesktopBounds, scaleFactor);
             if (desktopBounds.Width > 0 &&
                 Array.Exists(Screen.AllScreens, screen => screen.WorkingArea.IntersectsWith(desktopBounds)))
@@ -267,10 +269,10 @@ namespace Bonsai.Editor
 
             WindowState = EditorSettings.Instance.WindowState;
             themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
-            editorControl.AnnotationPanelSize = (int)Math.Round(
-                EditorSettings.Instance.AnnotationPanelSize * scaleFactor.Width);
-            explorerSplitContainer.SplitterDistance = (int)Math.Round(
-                EditorSettings.Instance.ExplorerSplitterDistance * scaleFactor.Width);
+            editorControl.AnnotationPanelSize = annotationPanelSize;
+            explorerSplitContainer.SplitterDistance = explorerSplitterDistance > 0
+                ? explorerSplitterDistance
+                : explorerSplitContainer.Height * 2 / 3;
             var toolboxBottomMargin = toolboxSplitContainer.Margin.Bottom;
             toolboxSplitContainer.SplitterDistance = toolboxSplitContainer.Height - propertiesSplitContainer.SplitterDistance - toolboxBottomMargin;
         }

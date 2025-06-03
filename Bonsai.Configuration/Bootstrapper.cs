@@ -63,8 +63,9 @@ namespace Bonsai.Configuration
                 catch { } // best effort
             }
 
+            var restore = packageConfiguration.AssemblyReferences.Count > 0;
             var missingPackages = GetMissingPackages(packageConfiguration, packageManager.LocalRepository).ToList();
-            if (missingPackages.Count > 0)
+            if (missingPackages.Count > 0 && restore)
             {
                 async Task RestoreMissingPackages(CancellationToken cancellationToken)
                 {
@@ -109,6 +110,29 @@ namespace Bonsai.Configuration
                 };
 
                 await RunPackageOperationAsync(RestoreEditorPackage, cancellationToken);
+            }
+
+            if (missingPackages.Count > 0 && !restore)
+            {
+                async Task InstallMissingPackages(CancellationToken cancellationToken)
+                {
+                    using var monitor = new PackageConfigurationUpdater(
+                        projectFramework,
+                        packageConfiguration,
+                        packageManager,
+                        bootstrapperPath,
+                        bootstrapperPackage);
+                    foreach (var package in missingPackages)
+                    {
+                        await packageManager.InstallPackageAsync(
+                            package.Id,
+                            ParseVersion(package.Version),
+                            projectFramework,
+                            cancellationToken);
+                    }
+                };
+
+                await RunPackageOperationAsync(InstallMissingPackages, cancellationToken);
             }
         }
 
