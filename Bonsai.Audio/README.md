@@ -12,4 +12,4 @@ For additional documentation and examples, refer to the [official Bonsai documen
 
 ## Feedback & Contributing
 
-`Bonsai.Audio` is released as open-source under the [MIT license](https://licenses.nuget.org/MIT). Bug reports and contributions are welcome at [the GitHub repository](https://github.com/bonsai-rx/bonsai).
+`Bonsai.Audio` is released as open source under the [MIT license](https://licenses.nuget.org/MIT). Bug reports and contributions are welcome at [the GitHub repository](https://github.com/bonsai-rx/bonsai).
