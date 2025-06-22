@@ -10,6 +10,7 @@ namespace Bonsai.Vision.Drawing
     /// Represents an operator that crops the active drawing subregion of each
     /// canvas in the sequence.
     /// </summary>
+    [DefaultProperty(nameof(RegionOfInterest))]
     [Description("Crops the active drawing subregion of each canvas in the sequence.")]
     public class CropCanvas : Transform<Canvas, Canvas>
     {

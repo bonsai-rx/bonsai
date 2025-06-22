@@ -10,6 +10,7 @@ namespace Bonsai.Vision
     /// Represents an operator that finds strong corner features for each image
     /// in the sequence.
     /// </summary>
+    [DefaultProperty(nameof(RegionOfInterest))]
     [Description("Finds strong corner features for each image in the sequence.")]
     public class GoodFeaturesToTrack : Transform<IplImage, KeyPointCollection>
     {
