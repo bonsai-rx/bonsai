@@ -13,6 +13,7 @@ namespace Bonsai.Shaders
     /// for planar projection mapping.
     /// </summary>
     [Combinator]
+    [DefaultProperty(nameof(Destination))]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Creates a warp perspective transform matrix for planar projection mapping.")]
     public class WarpPerspective

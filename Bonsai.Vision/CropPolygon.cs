@@ -11,6 +11,7 @@ namespace Bonsai.Vision
     /// Represents an operator that crops a polygonal region of interest for each
     /// image in the sequence.
     /// </summary>
+    [DefaultProperty(nameof(Regions))]
     [Description("Crops a polygonal region of interest for each image in the sequence.")]
     public class CropPolygon : Transform<IplImage, IplImage>
     {
