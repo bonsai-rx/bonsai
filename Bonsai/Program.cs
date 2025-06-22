@@ -70,8 +70,8 @@ namespace Bonsai
             var parser = new CommandLineParser();
             parser.RegisterCommand(StartCommand, () => start = debugging = true);
             parser.RegisterCommand(StartWithoutDebugging, () => start = true);
-            parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
-            parser.RegisterCommand(LayoutCommand, path => layoutPath = path);
+            parser.RegisterCommand(LibraryCommand, path => libFolders.Add(Path.GetFullPath(path)));
+            parser.RegisterCommand(LayoutCommand, path => layoutPath = Path.GetFullPath(path));
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
@@ -79,7 +79,7 @@ namespace Bonsai
             parser.RegisterCommand(InitializeEnvironmentCommand, () => createEnvironment = true);
             parser.RegisterCommand(DisplayEnvironmentInfo, () => displayEnvironmentInfo = true);
             parser.RegisterCommand(PipeCommand, pipeName => pipeHandle = pipeName);
-            parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = fileName; exportImage = true; });
+            parser.RegisterCommand(ExportImageCommand, fileName => { imageFileName = Path.GetFullPath(fileName); exportImage = true; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
             parser.RegisterCommand(ReloadEditorCommand, () => { launchResult = EditorResult.ReloadEditor; bootstrap = false; });
             parser.RegisterCommand(GalleryCommand, () => { launchResult = EditorResult.OpenGallery; bootstrap = false; });
