@@ -1188,7 +1188,7 @@ namespace Bonsai.Editor
             }
         }
 
-        private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveAsExtensionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorSite.EnsureExtensionsDirectory();
             if (!extensionsPath.Exists) return;
@@ -1683,7 +1683,7 @@ namespace Bonsai.Editor
             var canEdit = selectedView != null && selectedView.CanEdit;
             var hasSelectableObjects = selectedView?.Workflow.Count > 0;
             var hasSelectedObjects = selectedObjects.Length > 0;
-            saveAsWorkflowToolStripMenuItem.Enabled = hasSelectedObjects;
+            saveAsExtensionToolStripMenuItem.Enabled = hasSelectedObjects;
             pasteToolStripMenuItem.Enabled = canEdit;
             copyToolStripMenuItem.Enabled = hasSelectedObjects;
             copyAsImageToolStripMenuItem.Enabled = hasSelectableObjects;
@@ -2719,7 +2719,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.undoToolStripMenuItem, siteForm.undoToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.redoToolStripMenuItem, siteForm.redoToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.saveAsWorkflowToolStripMenuItem, siteForm.saveAsWorkflowToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.saveAsExtensionToolStripMenuItem, siteForm.saveAsExtensionToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.copyAsImageToolStripMenuItem, siteForm.copyAsImageToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.startWithoutDebuggingToolStripMenuItem, siteForm.startWithoutDebuggingToolStripMenuItem_Click);

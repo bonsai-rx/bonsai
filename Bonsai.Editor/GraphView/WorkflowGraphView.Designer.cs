@@ -58,7 +58,7 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsWorkflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsExtensionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -97,7 +97,7 @@
             this.toolStripSeparator5,
             this.groupToolStripMenuItem,
             this.ungroupToolStripMenuItem,
-            this.saveAsWorkflowToolStripMenuItem,
+            this.saveAsExtensionToolStripMenuItem,
             this.toolStripSeparator6,
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
@@ -332,15 +332,15 @@
             this.ungroupToolStripMenuItem.Text = "Ungroup";
             this.ungroupToolStripMenuItem.Click += new System.EventHandler(this.ungroupToolStripMenuItem_Click);
             // 
-            // saveAsWorkflowToolStripMenuItem
+            // saveAsExtensionToolStripMenuItem
             // 
-            this.saveAsWorkflowToolStripMenuItem.Enabled = false;
-            this.saveAsWorkflowToolStripMenuItem.Name = "saveAsWorkflowToolStripMenuItem";
-            this.saveAsWorkflowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            this.saveAsExtensionToolStripMenuItem.Enabled = false;
+            this.saveAsExtensionToolStripMenuItem.Name = "saveAsExtensionToolStripMenuItem";
+            this.saveAsExtensionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
-            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.saveAsWorkflowToolStripMenuItem.Text = "Save As Workflow...";
-            this.saveAsWorkflowToolStripMenuItem.Click += new System.EventHandler(this.saveAsWorkflowToolStripMenuItem_Click);
+            this.saveAsExtensionToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.saveAsExtensionToolStripMenuItem.Text = "Save As Extension...";
+            this.saveAsExtensionToolStripMenuItem.Click += new System.EventHandler(this.saveAsExtensionToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
             // 
@@ -427,7 +427,7 @@
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsWorkflowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsExtensionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem subjectTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
