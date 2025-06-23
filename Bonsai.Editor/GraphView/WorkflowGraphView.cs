@@ -1155,9 +1155,9 @@ namespace Bonsai.Editor.GraphView
             LaunchWorkflowView(graphView.SelectedNodes, NavigationPreference.NewWindow);
         }
 
-        private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveAsExtensionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editorService.OnKeyDown(new KeyEventArgs(saveAsWorkflowToolStripMenuItem.ShortcutKeys));
+            editorService.OnKeyDown(new KeyEventArgs(saveAsExtensionToolStripMenuItem.ShortcutKeys));
         }
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1682,7 +1682,7 @@ namespace Bonsai.Editor.GraphView
             {
                 copyToolStripMenuItem.Enabled = true;
                 toggleWatchToolStripMenuItem.Enabled = true;
-                saveAsWorkflowToolStripMenuItem.Enabled = true;
+                saveAsExtensionToolStripMenuItem.Enabled = true;
                 if (Array.Exists(selectedNodes, node => node.NestedCategory != null))
                 {
                     openNewTabToolStripMenuItem.Visible = true;
