@@ -42,9 +42,10 @@ namespace Bonsai.NuGet
         {
             try
             {
-                var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, PackageType);
+                var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, default);
                 var localPackages = await LocalRepository.SearchAsync(SearchTerm, localSearchFilter, token: token);
-                return QueryResult.Create(await RemoteRepository.GetUpdatesAsync(localPackages, IncludePrerelease, UpdateRange, token));
+                var updateSearchFilter = QueryHelper.CreateSearchFilter(IncludePrerelease, PackageType);
+                return QueryResult.Create(await RemoteRepository.GetUpdatesAsync(localPackages, updateSearchFilter, UpdateRange, token));
             }
             catch (NuGetProtocolException ex)
             {
