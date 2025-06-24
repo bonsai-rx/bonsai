@@ -74,18 +74,19 @@ namespace Bonsai
             {
                 try
                 {
-                    var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, Constants.LibraryPackageType);
+                    var localSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: true, default);
                     var localPackages = await packageManager.LocalRepository.SearchAsync(
                         string.Empty,
                         localSearchFilter,
                         token: cancellation.Token);
 
+                    var updateSearchFilter = QueryHelper.CreateSearchFilter(includePrerelease: false, Constants.LibraryPackageType);
                     foreach (var repository in packageManager.SourceRepositoryProvider.GetRepositories())
                     {
                         try
                         {
                             if (cancellation.IsCancellationRequested) break;
-                            var updates = await repository.GetUpdatesAsync(localPackages, includePrerelease: false, token: cancellation.Token);
+                            var updates = await repository.GetUpdatesAsync(localPackages, updateSearchFilter, token: cancellation.Token);
                             if (updates.Any()) return true;
                         }
                         catch { continue; }

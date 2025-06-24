@@ -67,63 +67,46 @@ namespace Bonsai.NuGet
         public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
             this SourceRepository repository,
             IEnumerable<IPackageSearchMetadata> localPackages,
-            bool includePrerelease,
+            SearchFilter filters,
             VersionRange version = default,
             CancellationToken token = default)
         {
-            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, version, token);
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), filters, version, token);
         }
 
         public static Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
             this SourceRepository repository,
             IEnumerable<LocalPackageInfo> localPackages,
-            bool includePrerelease,
+            SearchFilter filters,
             VersionRange version = default,
             CancellationToken token = default)
         {
-            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), includePrerelease, version, token);
+            return GetUpdatesAsync(repository, localPackages.Select(package => package.Identity), filters, version, token);
         }
 
         public static async Task<IEnumerable<IPackageSearchMetadata>> GetUpdatesAsync(
             this SourceRepository repository,
             IEnumerable<PackageIdentity> packages,
-            bool includePrerelease,
+            SearchFilter filters,
             VersionRange version = default,
             CancellationToken token = default)
         {
             using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
+            var searchPackageResource = await repository.GetResourceAsync<PackageSearchResource>(token);
             var tasks = packages.Select(package =>
             {
                 var updateRange = version ?? new VersionRange(package.Version, includeMinVersion: false);
-                return GetLatestMetadataAsync(repository, package.Id, updateRange, includePrerelease, cacheContext, token);
+                return searchPackageResource.SearchAsync($"packageid:{package.Id}", filters, 0, 1, NullLogger.Instance, token);
             }).ToArray();
 
             var packageUpdates = await Task.WhenAll(tasks);
-            return packageUpdates.Where(package => package != null).ToList();
+            return packageUpdates.SelectMany(package => package).ToList();
         }
 
         public static async Task<IPackageSearchMetadata> GetMetadataAsync(this SourceRepository repository, PackageIdentity identity, SourceCacheContext cacheContext, CancellationToken token = default)
         {
             var packageMetadataResource = await repository.GetResourceAsync<PackageMetadataResource>(token);
             return await packageMetadataResource.GetMetadataAsync(identity, cacheContext, NullLogger.Instance, token);
-        }
-
-        public static async Task<IPackageSearchMetadata> GetLatestMetadataAsync(this SourceRepository repository, string id, VersionRange version, bool includePrerelease, SourceCacheContext cacheContext, CancellationToken token = default)
-        {
-            var packageMetadataResource = await repository.GetResourceAsync<PackageMetadataResource>(token);
-            var packageMetadata = await packageMetadataResource.GetMetadataAsync(id, includePrerelease, includeUnlisted: false, cacheContext, NullLogger.Instance, token);
-            var packageVersions = packageMetadata
-                .OrderByDescending(package => package.Identity.Version, VersionComparer.VersionRelease)
-                .ToArray();
-            return packageVersions.Any(package => version.Satisfies(package.Identity.Version))
-                ? PackageSearchMetadataBuilder
-                    .FromMetadata(packageVersions[0])
-                    .WithVersions(AsyncLazy.New(packageVersions
-                    .Select(metadata => new VersionInfo(metadata.Identity.Version, metadata.DownloadCount)
-                    {
-                        PackageSearchMetadata = metadata
-                    }))).Build()
-                : null;
         }
     }
 }
