@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Propose a language idea or ask a question
+    url: https://github.com/orgs/bonsai-rx/discussions
+    about: Starting with discussion is the way to create a new proposal.
