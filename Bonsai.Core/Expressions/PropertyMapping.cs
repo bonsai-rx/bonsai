@@ -38,7 +38,9 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the property that will be assigned by this mapping.
         /// </summary>
         [XmlAttribute]
-        [TypeConverter(typeof(PropertyMappingNameConverter))]
+        //[TypeConverter(typeof(PropertyMappingNameConverter))]
+        [DefaultValue("")]
+        [Editor("Bonsai.Design.TypeMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the property that will be assigned by this mapping.")]
         public string Name { get; set; }
 
