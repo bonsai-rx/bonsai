@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType("TryGetValue", Namespace = Constants.XmlNamespace)]
     [Description("Applies an operator to an observable sequence, that determines the existence of a specific key, and returns its value, if it exists.")]
-    public class TryGetValue : BinaryOperatorBuilder
+    public class TryGetValueBuilder : BinaryOperatorBuilder
     {
         /// <summary>
         /// Returns the expression that maps the specified input parameter to the selector result.
