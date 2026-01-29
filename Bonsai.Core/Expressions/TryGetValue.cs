@@ -8,11 +8,11 @@ using Bonsai.Properties;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder for an operator that determines the existance of a specific key,
+    /// Represents an expression builder for an operator that determines the existence of a specific key,
     /// and returns its value, if it exists.
     /// </summary>
     [XmlType("Value", Namespace = Constants.XmlNamespace)]
-    [Description("Applies an operator to an observable sequence, that determines the existance of a specific key, and returns its value, if it exists.")]
+    [Description("Applies an operator to an observable sequence, that determines the existence of a specific key, and returns its value, if it exists.")]
     public class TryGetValue : BinaryOperatorBuilder
     {
         /// <summary>
