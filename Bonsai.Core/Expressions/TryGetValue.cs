@@ -11,7 +11,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder for an operator that determines the existence of a specific key,
     /// and returns its value, if it exists.
     /// </summary>
-    [XmlType("Value", Namespace = Constants.XmlNamespace)]
+    [XmlType("TryGetValue", Namespace = Constants.XmlNamespace)]
     [Description("Applies an operator to an observable sequence, that determines the existence of a specific key, and returns its value, if it exists.")]
     public class TryGetValue : BinaryOperatorBuilder
     {
@@ -68,43 +68,49 @@ namespace Bonsai.Expressions
         /// <param name="left">The left input parameter.</param>
         /// <param name="right">The right input parameter.</param>
         /// <returns>
-        /// The <see cref="Expression"/> that applies an index operator to
+        /// The <see cref="Expression"/> that applies a TryGetValue operation to
         /// the left and right parameters.
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            MethodInfo containsKeyMethod =
-                left.Type.GetMethod("ContainsKey", new[] { right.Type });
+            // We could grab the TryGetValue method directly, but we need the indexer type anyway
+            PropertyInfo indexer = left.Type.GetProperty("Item", new[] { right.Type });
 
-            PropertyInfo indexer =
-                left.Type.GetProperty("Item", new[] { right.Type });
-
-            if (containsKeyMethod == null || indexer == null)
+            if (indexer == null)
             {
                 throw new Exception(
-                    $"Type {left.Type.Name} does not support ContainsKey({right.Type.Name}) with an indexer"
+                    $"Type {left.Type.Name} does not support indexing with {right.Type.Name}"
                 );
             }
 
             var valueType = indexer.PropertyType;
 
+            MethodInfo tryGetValueMethod = left.Type.GetMethod(
+                "TryGetValue",
+                new[] { right.Type, valueType.MakeByRefType() }
+            );
+
+            if (tryGetValueMethod == null)
+            {
+                throw new Exception(
+                    $"Type {left.Type.Name} does not support TryGetValue({right.Type.Name}, out {valueType.Name})"
+                );
+            }
+
             var outputTupleType = typeof(Tuple<,>).MakeGenericType(typeof(bool), valueType);
             var outputConstructor = outputTupleType.GetConstructor(new[] { typeof(bool), valueType });
 
+            var valueVariable = Expression.Variable(valueType, "value");
 
-            return Expression.Condition(
-                Expression.Call(left, containsKeyMethod, right),
-                MakeTuple(outputConstructor, Expression.Constant(true), Expression.Property(left, indexer, right)),
-                MakeTuple(outputConstructor, Expression.Constant(false), Expression.Default(valueType))
+            return Expression.Block(
+                outputTupleType,
+                new[] { valueVariable },
+                Expression.New(
+                    outputConstructor,
+                    Expression.Call(left, tryGetValueMethod, right, valueVariable),
+                    valueVariable
+                )
             );
-        }
-
-        private static Expression MakeTuple(
-            ConstructorInfo constructor,
-            Expression resultFlag,
-            Expression outputValue)
-        {
-            return Expression.New(constructor, resultFlag, outputValue);
         }
     }
 }
