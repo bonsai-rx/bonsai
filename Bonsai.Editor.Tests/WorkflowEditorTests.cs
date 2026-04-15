@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using Bonsai.Core.Tests;
 using Bonsai.Dag;
 using Bonsai.Editor.GraphModel;
@@ -87,7 +85,7 @@ namespace Bonsai.Editor.Tests
         [TestMethod]
         public void ReorderGraphNode_DanglingBranchWithPredecessors_KeepPredecessorEdges()
         {
-            var workflowBuilder = EditorHelper.LoadEmbeddedWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
+            var workflowBuilder = ElementStore.LoadWorkflow("ReorderDanglingBranchWithPredecessors.bonsai");
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             var branchLead = editor.Workflow[2];
@@ -107,7 +105,7 @@ namespace Bonsai.Editor.Tests
         [TestMethod]
         public void ReorderGraphNode_ComponentWithHigherIndexIntoLowerIndex_ReorderComponentNodes()
         {
-            var workflowBuilder = EditorHelper.LoadEmbeddedWorkflow("ReorderComponentWithHigherIndexIntoLowerIndex.bonsai");
+            var workflowBuilder = ElementStore.LoadWorkflow("ReorderComponentWithHigherIndexIntoLowerIndex.bonsai");
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             // reorder D onto C
@@ -124,7 +122,7 @@ namespace Bonsai.Editor.Tests
         [TestMethod]
         public void ConnectGraphNode_ComponentWithHigherIndexIntoLowerIndex_ReorderComponentNodes()
         {
-            var workflowBuilder = EditorHelper.LoadEmbeddedWorkflow("ConnectComponentWithHigherIndexIntoLowerIndex.bonsai");
+            var workflowBuilder = ElementStore.LoadWorkflow("ConnectComponentWithHigherIndexIntoLowerIndex.bonsai");
             var (editor, assertIsReversible) = CreateMockEditor(workflowBuilder.Workflow);
 
             // connect D onto C

@@ -10,7 +10,6 @@ namespace Bonsai.Editor.Tests
     {
         static void ExportImage(string fileName)
         {
-            EditorHelper.SaveEmbeddedResource(fileName, fileName);
             try
             {
                 WorkflowExporter.ExportImage(fileName, Path.ChangeExtension(fileName, ".svg"));

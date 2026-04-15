@@ -9,7 +9,7 @@ namespace Bonsai.Editor.Tests
         [TestMethod]
         public void GetSubjectDefinition_NestedSubscribeSubject_ReturnsClosestDefinition()
         {
-            var workflowBuilder = EditorHelper.LoadEmbeddedWorkflow("NestedSubscribeSubjectWithClosestRedefinition.bonsai");
+            var workflowBuilder = ElementStore.LoadWorkflow("NestedSubscribeSubjectWithClosestRedefinition.bonsai");
             var deferBuilder = workflowBuilder.Workflow.FindExpressionBuilder<Defer>();
             Assert.IsNotNull(deferBuilder);
             var selectManyBuilder = deferBuilder.Workflow.FindExpressionBuilder<SelectMany>();
