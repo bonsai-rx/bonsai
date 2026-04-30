@@ -186,11 +186,11 @@ namespace Bonsai.Editor
             string path,
             WorkflowException ex,
             WorkflowBuilder workflowBuilder,
-            StringBuilder builder)
+            StringBuilder stringBuilder)
         {
             using var stream = UpgradeHelper.GetWorkflowStream(path);
             using var reader = XmlReader.Create(stream, new XmlReaderSettings { CloseInput = true });
-            WriteWorkflowExceptionStackTrace(path, reader, ex, workflowBuilder, builder);
+            WriteWorkflowExceptionStackTrace(path, reader, ex, workflowBuilder, stringBuilder);
         }
 
         static void WriteWorkflowExceptionStackTrace(
@@ -198,7 +198,7 @@ namespace Bonsai.Editor
             XmlReader reader,
             WorkflowException ex,
             WorkflowBuilder workflowBuilder,
-            StringBuilder builder)
+            StringBuilder stringBuilder)
         {
             if (reader is IXmlLineInfo lineInfo)
             {
@@ -212,18 +212,25 @@ namespace Bonsai.Editor
                             return;
                     }
 
-                    var name = ExpressionBuilder.GetElementDisplayName(ex.Builder);
+                    var builder = ExpressionBuilder.Unwrap(ex.Builder);
+                    var element = ExpressionBuilder.GetWorkflowElement(builder);
+                    var typeName = element.GetType().FullName;
+                    var elementName = (element as INamedElement)?.Name;
                     var lineNumber = lineInfo.LineNumber;
 
                     if (ex.InnerException is WorkflowException innerException)
                     {
-                        if (ExpressionBuilder.Unwrap(ex.Builder) is IncludeWorkflowBuilder includeBuilder)
-                            WriteWorkflowExceptionStackTrace(includeBuilder.Path, innerException, workflowBuilder, builder);
+                        if (builder is IncludeWorkflowBuilder includeBuilder)
+                            WriteWorkflowExceptionStackTrace(includeBuilder.Path, innerException, workflowBuilder, stringBuilder);
                         else
-                            WriteWorkflowExceptionStackTrace(path, reader, innerException, workflowBuilder, builder);
+                            WriteWorkflowExceptionStackTrace(path, reader, innerException, workflowBuilder, stringBuilder);
                     }
 
-                    builder.AppendLine($"   at {name} in {path}:line {lineNumber}");
+                    var location = $"in {path}:line {lineNumber}";
+                    if (string.IsNullOrEmpty(elementName))
+                        stringBuilder.AppendLine($"   at {typeName} {location}");
+                    else
+                        stringBuilder.AppendLine($"   at {typeName} named {elementName} {location}");
                 }
             }
         }
