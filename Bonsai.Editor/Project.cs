@@ -42,7 +42,7 @@ namespace Bonsai.Editor
 
         public static string GetWorkflowBaseDirectory(string fileName)
         {
-            return Path.GetFullPath(Path.GetDirectoryName(fileName));
+            return Path.GetDirectoryName(Path.GetFullPath(fileName));
         }
 
         private static string GetParentRelativePath(DirectoryInfo appDirectory, string path)
