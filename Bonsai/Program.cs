@@ -33,6 +33,7 @@ namespace Bonsai
         const string ExportImageCommand = "--export-image";
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
+        const string DebugCommand = "--debug";
         const string PipeCommand = "--@pipe";
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
@@ -68,6 +69,7 @@ namespace Bonsai
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
             var parser = new CommandLineParser();
+            parser.RegisterCommand(DebugCommand, () => debugging = true);
             parser.RegisterCommand(StartCommand, () => start = debugging = true);
             parser.RegisterCommand(StartWithoutDebugging, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(Path.GetFullPath(path)));
@@ -176,7 +178,7 @@ namespace Bonsai
                     using var scriptExtensions = ScriptExtensionsProvider.CompileAssembly(Launcher.ProjectFramework, packageConfiguration, editorRepositoryPath, debugScripts);
                     ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     if (exportImage) return Launcher.LaunchExportImage(initialFileName, imageFileName, packageConfiguration);
-                    if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, layoutPath, packageConfiguration, propertyAssignments);
+                    if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, layoutPath, packageConfiguration, propertyAssignments, debugging);
                     else return Launcher.LaunchWorkflowEditor(
                         packageConfiguration,
                         scriptExtensions,

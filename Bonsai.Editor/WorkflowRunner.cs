@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
@@ -16,10 +17,12 @@ namespace Bonsai.Editor
     {
         static void RunLayout(
             WorkflowBuilder workflowBuilder,
+            WorkflowRuntimeExceptionCache exceptionCache,
             Dictionary<string, string> propertyAssignments,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             VisualizerLayout layout,
-            string fileName)
+            string fileName,
+            bool debugger)
         {
             var typeVisualizers = new TypeVisualizerMap();
             var loadVisualizers = (from typeVisualizer in visualizerProvider
@@ -29,18 +32,17 @@ namespace Bonsai.Editor
                                    select (targetType, visualizerType))
                                    .Do(entry => typeVisualizers.Add(entry.targetType, entry.visualizerType))
                                    .ToEnumerable().ToList();
-
-            workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
             BuildAssignProperties(workflowBuilder, propertyAssignments);
 
             var visualizerSettings = VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
             var visualizerWindows = visualizerSettings.CreateVisualizerWindows(workflowBuilder);
-            LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: false);
+            LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: debugger);
             LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
 
             var services = new System.ComponentModel.Design.ServiceContainer();
             services.AddService(typeof(WorkflowBuilder), workflowBuilder);
             var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
+            using var exceptionSubscription = SubscribeRuntimeExceptionCache(workflowBuilder, exceptionCache);
 
             var cts = new CancellationTokenSource();
             var contextMenu = new ContextMenuStrip();
@@ -74,22 +76,44 @@ namespace Bonsai.Editor
                 synchronizationContext.Post(_ => Application.Exit(), null);
             }).Subscribe(
                 unit => { },
-                ex => { Console.Error.WriteLine(ex); },
+                ex => LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex),
                 () => { },
                 cts.Token);
 
             Application.Run();
         }
 
-        static void RunHeadless(WorkflowBuilder workflowBuilder, Dictionary<string, string> propertyAssignments)
+        static void RunHeadless(
+            WorkflowBuilder workflowBuilder,
+            WorkflowRuntimeExceptionCache exceptionCache,
+            Dictionary<string, string> propertyAssignments,
+            string fileName)
         {
             BuildAssignProperties(workflowBuilder, propertyAssignments);
+            var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
+            using var exceptionSubscription = SubscribeRuntimeExceptionCache(workflowBuilder, exceptionCache);
+
             var workflowCompleted = new ManualResetEvent(false);
-            workflowBuilder.Workflow.BuildObservable().Subscribe(
+            runtimeWorkflow.Subscribe(
                 unit => { },
-                ex => { Console.Error.WriteLine(ex); workflowCompleted.Set(); },
+                ex =>
+                {
+                    LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
+                    workflowCompleted.Set();
+                },
                 () => workflowCompleted.Set());
             workflowCompleted.WaitOne();
+        }
+
+        static IDisposable SubscribeRuntimeExceptionCache(WorkflowBuilder workflowBuilder, WorkflowRuntimeExceptionCache exceptionCache)
+        {
+            return workflowBuilder.Workflow.InspectErrorsEx().Synchronize().Subscribe(ex =>
+            {
+                if (ex is WorkflowRuntimeException workflowException)
+                {
+                    exceptionCache.TryAdd(workflowException);
+                }
+            });
         }
 
         static void BuildAssignProperties(WorkflowBuilder workflowBuilder, Dictionary<string, string> propertyAssignments)
@@ -103,7 +127,7 @@ namespace Bonsai.Editor
 
         public static void Run(string fileName, Dictionary<string, string> propertyAssignments, IObservable<TypeVisualizerDescriptor> visualizerProvider = null)
         {
-            Run(fileName, propertyAssignments, visualizerProvider);
+            Run(fileName, propertyAssignments, visualizerProvider, layoutPath: null);
         }
 
         public static void Run(
@@ -111,6 +135,16 @@ namespace Bonsai.Editor
             Dictionary<string, string> propertyAssignments,
             IObservable<TypeVisualizerDescriptor> visualizerProvider = null,
             string layoutPath = null)
+        {
+            Run(fileName, propertyAssignments, visualizerProvider, layoutPath, debugger: true);
+        }
+
+        public static void Run(
+            string fileName,
+            Dictionary<string, string> propertyAssignments,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            string layoutPath,
+            bool debugger)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -123,14 +157,96 @@ namespace Bonsai.Editor
             }
 
             var workflowBuilder = ElementStore.LoadWorkflow(fileName);
+            var runLayout = visualizerProvider != null && File.Exists(layoutPath);
+            if (debugger || runLayout)
+                workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+
             var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
-            if (visualizerProvider != null && File.Exists(layoutPath))
+            var exceptionCache = new WorkflowRuntimeExceptionCache();
+            try
             {
-                var layout = VisualizerLayout.Load(layoutPath);
-                RunLayout(workflowBuilder, propertyAssignments, visualizerProvider, layout, fileName);
+                if (runLayout)
+                {
+                    var layout = VisualizerLayout.Load(layoutPath);
+                    RunLayout(workflowBuilder, exceptionCache, propertyAssignments, visualizerProvider, layout, fileName, debugger);
+                }
+                else RunHeadless(workflowBuilder, exceptionCache, propertyAssignments, fileName);
             }
-            else RunHeadless(workflowBuilder, propertyAssignments);
+            catch (WorkflowException ex)
+            {
+                LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
+            }
+        }
+
+        static void LogWorkflowExceptionStackTrace(
+            string fileName,
+            WorkflowBuilder workflowBuilder,
+            WorkflowRuntimeExceptionCache exceptionCache,
+            Exception ex)
+        {
+            if (exceptionCache.TryGetWorkflowException(ex, out var workflowException))
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine(ex.Message);
+                WriteWorkflowExceptionStackTrace(fileName, workflowException, workflowBuilder, sb);
+                Console.Error.WriteLine(sb);
+                Console.Error.WriteLine("   --- Runtime exception stack trace ---");
+            }
+            Console.Error.WriteLine(ex);
+        }
+
+        static void WriteWorkflowExceptionStackTrace(
+            string path,
+            WorkflowException ex,
+            WorkflowBuilder workflowBuilder,
+            StringBuilder stringBuilder)
+        {
+            using var stream = UpgradeHelper.GetWorkflowStream(path);
+            using var reader = XmlReader.Create(stream, new XmlReaderSettings { CloseInput = true });
+            WriteWorkflowExceptionStackTrace(path, reader, ex, workflowBuilder, stringBuilder);
+        }
+
+        static void WriteWorkflowExceptionStackTrace(
+            string path,
+            XmlReader reader,
+            WorkflowException ex,
+            WorkflowBuilder workflowBuilder,
+            StringBuilder stringBuilder)
+        {
+            if (reader is IXmlLineInfo lineInfo)
+            {
+                var workflowPath = WorkflowEditorPath.GetBuilderPath(workflowBuilder, ex.Builder);
+                if (reader.ReadToDescendant(nameof(ExpressionBuilderGraphDescriptor.Nodes)))
+                {
+                    reader.ReadStartElement();
+                    for (var i = 0; i <= workflowPath.Index; i++)
+                    {
+                        if (!reader.ReadToNextSibling("Expression"))
+                            return;
+                    }
+
+                    var builder = ExpressionBuilder.Unwrap(ex.Builder);
+                    var element = ExpressionBuilder.GetWorkflowElement(builder);
+                    var typeName = element.GetType().FullName;
+                    var elementName = (element as INamedElement)?.Name;
+                    var lineNumber = lineInfo.LineNumber;
+
+                    if (ex.InnerException is WorkflowException innerException)
+                    {
+                        if (builder is IncludeWorkflowBuilder includeBuilder)
+                            WriteWorkflowExceptionStackTrace(includeBuilder.Path, innerException, workflowBuilder, stringBuilder);
+                        else
+                            WriteWorkflowExceptionStackTrace(path, reader, innerException, workflowBuilder, stringBuilder);
+                    }
+
+                    var location = $"in {path}:line {lineNumber}";
+                    if (string.IsNullOrEmpty(elementName))
+                        stringBuilder.AppendLine($"   at {typeName} {location}");
+                    else
+                        stringBuilder.AppendLine($"   at {typeName} named {elementName} {location}");
+                }
+            }
         }
     }
 }

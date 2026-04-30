@@ -57,7 +57,7 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
-        static Stream GetWorkflowStream(string path)
+        internal static Stream GetWorkflowStream(string path)
         {
             //TODO: Consider refactoring into core API
             const char AssemblySeparator = ':';

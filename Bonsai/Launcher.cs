@@ -141,7 +141,8 @@ namespace Bonsai
             string fileName,
             string layoutPath,
             PackageConfiguration packageConfiguration,
-            Dictionary<string, string> propertyAssignments)
+            Dictionary<string, string> propertyAssignments,
+            bool debugger)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -154,7 +155,7 @@ namespace Bonsai
                 EditorBootstrapper.EnableVisualStyles();
                 return TypeVisualizerLoader.GetVisualizerTypes(packageConfiguration);
             });
-            WorkflowRunner.Run(fileName, propertyAssignments, visualizerProvider, layoutPath);
+            WorkflowRunner.Run(fileName, propertyAssignments, visualizerProvider, layoutPath, debugger);
             return Program.NormalExitCode;
         }
 

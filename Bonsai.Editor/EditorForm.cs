@@ -1472,8 +1472,7 @@ namespace Bonsai.Editor
             else
             {
                 using var shutdown = Interlocked.Exchange(ref building, null);
-                if (e is WorkflowException workflowException && workflowException.Builder != null ||
-                    exceptionCache.TryGetValue(e, out workflowException))
+                if (exceptionCache.TryGetWorkflowException(e, out var workflowException))
                 {
                     workflowError = workflowException;
                     HighlightExceptionBuilderNode(workflowException, showMessageBox: shutdown != null);
