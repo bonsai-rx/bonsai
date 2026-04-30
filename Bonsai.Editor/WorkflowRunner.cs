@@ -213,7 +213,7 @@ namespace Bonsai.Editor
                     }
 
                     var name = ExpressionBuilder.GetElementDisplayName(ex.Builder);
-                    builder.AppendLine($"   at {name} in {path}:line {lineInfo.LineNumber}");
+                    var lineNumber = lineInfo.LineNumber;
 
                     if (ex.InnerException is WorkflowException innerException)
                     {
@@ -222,6 +222,8 @@ namespace Bonsai.Editor
                         else
                             WriteWorkflowExceptionStackTrace(path, reader, innerException, workflowBuilder, builder);
                     }
+
+                    builder.AppendLine($"   at {name} in {path}:line {lineNumber}");
                 }
             }
         }

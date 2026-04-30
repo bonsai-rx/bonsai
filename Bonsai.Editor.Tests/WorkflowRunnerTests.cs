@@ -17,8 +17,8 @@ namespace Bonsai.Editor.Tests
         public void Run_NestedWorkflowException_ErrorMessageIncludesLineNumbers(string fileName, string nestedPath)
         {
             var output = RunAndCaptureError(fileName);
-            StringAssert.Matches(output, new Regex($@"at .+ in {Regex.Escape(fileName)}:line \d+"));
             StringAssert.Matches(output, new Regex($@"at .+ in {Regex.Escape(nestedPath)}:line \d+"));
+            StringAssert.Matches(output, new Regex($@"at .+ in {Regex.Escape(fileName)}:line \d+"));
         }
 
         static string RunAndCaptureError(string fileName)
