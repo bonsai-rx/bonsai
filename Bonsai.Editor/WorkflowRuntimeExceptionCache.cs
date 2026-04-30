@@ -57,22 +57,28 @@ namespace Bonsai.Editor
             return null;
         }
 
-        public bool TryGetValue(Exception key, out WorkflowException value)
+        public bool TryGetWorkflowException(Exception exception, out WorkflowException value)
         {
-            if (key == null)
+            if (exception == null)
             {
-                throw new ArgumentNullException(nameof(key));
+                throw new ArgumentNullException(nameof(exception));
+            }
+
+            if (exception is WorkflowException workflowException && workflowException.Builder != null)
+            {
+                value = workflowException;
+                return true;
             }
 
             value = null;
-            var weakKey = new WeakKey<Exception>(key);
+            var weakKey = new WeakKey<Exception>(exception);
             var result = exceptions.TryGetValue(weakKey, out Queue<ExpressionBuilder> callStack);
             if (result)
             {
                 while (callStack.Count > 0)
                 {
                     var builder = callStack.Dequeue();
-                    value = new WorkflowRuntimeException(key.Message, builder, value ?? key);
+                    value = new WorkflowRuntimeException(exception.Message, builder, value ?? exception);
                 }
             }
 
