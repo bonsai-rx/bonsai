@@ -3,9 +3,9 @@
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="**\*.bonsai">
+    <EmbeddedResource Include="**\*.bonsai">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
