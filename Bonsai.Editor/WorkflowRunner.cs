@@ -21,7 +21,8 @@ namespace Bonsai.Editor
             Dictionary<string, string> propertyAssignments,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             VisualizerLayout layout,
-            string fileName)
+            string fileName,
+            bool debugger)
         {
             var typeVisualizers = new TypeVisualizerMap();
             var loadVisualizers = (from typeVisualizer in visualizerProvider
@@ -35,7 +36,7 @@ namespace Bonsai.Editor
 
             var visualizerSettings = VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
             var visualizerWindows = visualizerSettings.CreateVisualizerWindows(workflowBuilder);
-            LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: true);
+            LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: debugger);
             LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
 
             var services = new System.ComponentModel.Design.ServiceContainer();
@@ -135,6 +136,16 @@ namespace Bonsai.Editor
             IObservable<TypeVisualizerDescriptor> visualizerProvider = null,
             string layoutPath = null)
         {
+            Run(fileName, propertyAssignments, visualizerProvider, layoutPath, debugger: true);
+        }
+
+        public static void Run(
+            string fileName,
+            Dictionary<string, string> propertyAssignments,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            string layoutPath,
+            bool debugger)
+        {
             if (string.IsNullOrEmpty(fileName))
             {
                 throw new ArgumentNullException(nameof(fileName));
@@ -146,16 +157,19 @@ namespace Bonsai.Editor
             }
 
             var workflowBuilder = ElementStore.LoadWorkflow(fileName);
-            workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+            var runLayout = visualizerProvider != null && File.Exists(layoutPath);
+            if (debugger || runLayout)
+                workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+
             var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
             var exceptionCache = new WorkflowRuntimeExceptionCache();
             try
             {
-                if (visualizerProvider != null && File.Exists(layoutPath))
+                if (runLayout)
                 {
                     var layout = VisualizerLayout.Load(layoutPath);
-                    RunLayout(workflowBuilder, exceptionCache, propertyAssignments, visualizerProvider, layout, fileName);
+                    RunLayout(workflowBuilder, exceptionCache, propertyAssignments, visualizerProvider, layout, fileName, debugger);
                 }
                 else RunHeadless(workflowBuilder, exceptionCache, propertyAssignments, fileName);
             }
