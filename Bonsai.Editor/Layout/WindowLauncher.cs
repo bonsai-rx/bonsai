@@ -32,15 +32,13 @@ namespace Bonsai.Design
             if (VisualizerWindow == null)
             {
                 VisualizerWindow = CreateVisualizerWindow(provider);
-                VisualizerWindow.Load += delegate
+
+                var bounds = Bounds;
+                if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.IntersectsWith(bounds) || WindowState != FormWindowState.Normal))
                 {
-                    var bounds = Bounds;
-                    if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.IntersectsWith(bounds) || WindowState != FormWindowState.Normal))
-                    {
-                        VisualizerWindow.LayoutBounds = bounds;
-                        VisualizerWindow.WindowState = WindowState;
-                    }
-                };
+                    VisualizerWindow.LayoutBounds = bounds;
+                    VisualizerWindow.WindowState = WindowState;
+                }
 
                 VisualizerWindow.FormClosed += delegate
                 {
@@ -82,6 +80,7 @@ namespace Bonsai.Design
 
         protected class LauncherWindow : TypeVisualizerWindow
         {
+            bool hasRestoredBounds;
             SizeF inverseScaleFactor;
             SizeF scaleFactor;
 
@@ -98,8 +97,18 @@ namespace Bonsai.Design
                     if (layoutBounds.Width > 0)
                     {
                         Bounds = layoutBounds;
+                        hasRestoredBounds = true;
                     }
                 }
+            }
+
+            public override void AddControl(Control control)
+            {
+                // Prefer restored bounds over base auto-size
+                var restoredBounds = Bounds;
+                base.AddControl(control);
+                if (hasRestoredBounds)
+                    Bounds = restoredBounds;
             }
 
             protected override void ScaleControl(SizeF factor, BoundsSpecified specified)

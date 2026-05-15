@@ -18,7 +18,7 @@ namespace Bonsai.Design
         }
 
         /// <inheritdoc/>
-        public void AddControl(Control control)
+        public virtual void AddControl(Control control)
         {
             ClientSize = control.Size;
             if (control.MinimumSize != Size.Empty)
