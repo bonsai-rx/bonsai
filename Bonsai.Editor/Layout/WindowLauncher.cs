@@ -35,11 +35,11 @@ namespace Bonsai.Design
                 VisualizerWindow.Load += delegate
                 {
                     var bounds = Bounds;
-                    if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.IntersectsWith(bounds) || WindowState != FormWindowState.Normal))
+                    if (!bounds.IsEmpty && SystemInformation.VirtualScreen.IntersectsWith(bounds))
                     {
                         VisualizerWindow.LayoutBounds = bounds;
-                        VisualizerWindow.WindowState = WindowState;
                     }
+                    VisualizerWindow.WindowState = WindowState;
                 };
 
                 VisualizerWindow.FormClosed += delegate
