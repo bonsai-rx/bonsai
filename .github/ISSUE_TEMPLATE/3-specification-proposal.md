@@ -1,6 +1,6 @@
 ---
-name: Create a language specification
-about: For proposals that have been invited by a team member
+name: Specification proposal
+about: For detailed, design-stage language specifications
 title: 'Feature name'
 labels: proposal
 assignees: ''
@@ -8,9 +8,9 @@ assignees: ''
 ---
 
 <!--
-Hello, and thanks for your interest in contributing to the Bonsai visual reactive programming language! If you haven't been invited by a team member to open an issue, please instead open a discussion marked [proposal] at https://github.com/bonsai-rx/bonsai/discussions and we'll try to give you feedback on how to get to an issue-ready proposal.
+Thanks for your interest in helping develop the Bonsai visual reactive programming language. This template is for detailed specifications of language features that have been brought to design. For an early-stage idea or an informal proposal, please use the Feature request or informal proposal template instead; a specification can grow out of that discussion later.
 
-New language proposals should aim to fully fill out this template, at least up to and including detailed design. The sections on drawbacks, alternatives and unresolved questions may be omitted from the initial proposal.
+A specification should aim to fully fill out this template, at least up to and including detailed design. The sections on drawbacks, alternatives and unresolved questions may be omitted from the initial proposal.
 -->
 
 * [x] Proposed

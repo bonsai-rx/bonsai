@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and announcements
+    url: https://github.com/bonsai-rx/bonsai/discussions
+    about: For questions, help, and community announcements. For bug reports and feature ideas, please use the templates above.

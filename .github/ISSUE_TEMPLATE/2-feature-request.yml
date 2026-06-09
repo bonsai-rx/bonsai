@@ -1,0 +1,36 @@
+name: Feature request or informal proposal
+description: Suggest an idea, an improvement, or an early-stage language proposal
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for feature requests and early-stage ideas, including informal language proposals. There is no need for a fully worked out design; a rough idea is fine. Detailed, design-stage language specifications have their own template.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What would you like to see?
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this useful? What problem does it solve, or what does it make possible?
+    validations:
+      required: false
+  - type: textarea
+    id: solution
+    attributes:
+      label: Possible solution
+      description: If you have an idea of how this could work, describe it here.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Any other approaches you have considered, or current workarounds.
+    validations:
+      required: false

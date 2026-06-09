@@ -1,0 +1,36 @@
+name: Bug report
+description: Report something that is not working as expected
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Bug reports are always welcome as issues here. Fill in what you can; only a description is required.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the problem? A small workflow that reproduces it is ideal.
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Bonsai version
+      description: Which version of Bonsai are you running?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help, such as error messages, screenshots, or your operating system.
+    validations:
+      required: false
