@@ -132,7 +132,7 @@
             this.browseButton.TabIndex = 0;
             this.browseButton.Text = "Browse";
             this.browseButton.UseVisualStyleBackColor = true;
-            this.browseButton.CheckedChanged += new System.EventHandler(this.refreshButton_Click);
+            this.browseButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
             // installedButton
             // 
@@ -147,7 +147,7 @@
             this.installedButton.TabIndex = 1;
             this.installedButton.Text = "Installed";
             this.installedButton.UseVisualStyleBackColor = true;
-            this.installedButton.CheckedChanged += new System.EventHandler(this.refreshButton_Click);
+            this.installedButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
             // updatesButton
             // 
@@ -162,7 +162,7 @@
             this.updatesButton.TabIndex = 2;
             this.updatesButton.Text = "Updates";
             this.updatesButton.UseVisualStyleBackColor = true;
-            this.updatesButton.CheckedChanged += new System.EventHandler(this.refreshButton_Click);
+            this.updatesButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
             // packageViewLayoutPanel
             // 

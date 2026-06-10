@@ -182,6 +182,11 @@ namespace Bonsai.NuGet.Design
             packagePageSelector.SelectedPage = 0;
         }
 
+        public void ClearSearch()
+        {
+            searchComboBox.Text = string.Empty;
+        }
+
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, int pageSize, bool updateQuery)
         {
             if (PackageManager == null)
