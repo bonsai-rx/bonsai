@@ -187,6 +187,11 @@ namespace Bonsai.NuGet.Design
             searchComboBox.Text = string.Empty;
         }
 
+        public void FocusSearch()
+        {
+            searchComboBox.Select();
+        }
+
         QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm, int pageSize, bool updateQuery)
         {
             if (PackageManager == null)

@@ -130,7 +130,7 @@
             this.browseButton.Name = "browseButton";
             this.browseButton.Size = new System.Drawing.Size(52, 23);
             this.browseButton.TabIndex = 0;
-            this.browseButton.Text = "Browse";
+            this.browseButton.Text = "&Browse";
             this.browseButton.UseVisualStyleBackColor = true;
             this.browseButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
@@ -145,7 +145,7 @@
             this.installedButton.Name = "installedButton";
             this.installedButton.Size = new System.Drawing.Size(56, 23);
             this.installedButton.TabIndex = 1;
-            this.installedButton.Text = "Installed";
+            this.installedButton.Text = "&Installed";
             this.installedButton.UseVisualStyleBackColor = true;
             this.installedButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
@@ -160,7 +160,7 @@
             this.updatesButton.Name = "updatesButton";
             this.updatesButton.Size = new System.Drawing.Size(57, 23);
             this.updatesButton.TabIndex = 2;
-            this.updatesButton.Text = "Updates";
+            this.updatesButton.Text = "&Updates";
             this.updatesButton.UseVisualStyleBackColor = true;
             this.updatesButton.CheckedChanged += new System.EventHandler(this.tabButton_CheckedChanged);
             // 
@@ -215,6 +215,7 @@
             this.refreshButton.Name = "refreshButton";
             this.refreshButton.Size = new System.Drawing.Size(18, 19);
             this.refreshButton.TabIndex = 1;
+            this.refreshButton.TabStop = false;
             this.refreshButton.UseVisualStyleBackColor = true;
             this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
             // 
@@ -226,7 +227,8 @@
             this.prereleaseCheckBox.Name = "prereleaseCheckBox";
             this.prereleaseCheckBox.Size = new System.Drawing.Size(113, 17);
             this.prereleaseCheckBox.TabIndex = 2;
-            this.prereleaseCheckBox.Text = "Include prerelease";
+            this.prereleaseCheckBox.TabStop = false;
+            this.prereleaseCheckBox.Text = "Include &prerelease";
             this.prereleaseCheckBox.UseVisualStyleBackColor = true;
             // 
             // dependencyCheckBox
@@ -237,7 +239,8 @@
             this.dependencyCheckBox.Name = "dependencyCheckBox";
             this.dependencyCheckBox.Size = new System.Drawing.Size(123, 17);
             this.dependencyCheckBox.TabIndex = 3;
-            this.dependencyCheckBox.Text = "Show advanced";
+            this.dependencyCheckBox.TabStop = false;
+            this.dependencyCheckBox.Text = "Show &advanced";
             this.dependencyCheckBox.UseVisualStyleBackColor = true;
             this.dependencyCheckBox.CheckedChanged += new System.EventHandler(this.dependencyCheckBox_CheckedChanged);
             // 

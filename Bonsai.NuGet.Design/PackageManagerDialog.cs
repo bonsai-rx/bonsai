@@ -98,7 +98,18 @@ namespace Bonsai.NuGet.Design
                 case PackageManagerTab.Updates: updatesButton.PerformClick(); break;
                 default: browseButton.PerformClick(); break;
             }
+            packageViewController.FocusSearch();
             base.OnLoad(e);
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.F5)
+            {
+                UpdateSelectedRepository();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
