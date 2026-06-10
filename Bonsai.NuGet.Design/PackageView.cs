@@ -163,21 +163,56 @@ namespace Bonsai.NuGet.Design
             if (e.Button == MouseButtons.Left &&
                 (result = OperationHitTest(e.Location, out TreeViewHitTestInfo hitTestInfo)) > 0)
             {
-                var packageInfo = new TreeNodePackageInfo(hitTestInfo.Node);
-                if (result == OperationHitTestLocation.Primary && packageInfo.HasLocalPackage)
-                {
-                    var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(packageInfo.LocalPackage.Identity);
-                    OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
-                }
-                else
-                {
-                    var operation = result == OperationHitTestLocation.Secondary
-                        ? PackageOperationType.Update
-                        : PackageOperationType.Install;
-                    OnOperationClick(new((IPackageSearchMetadata)hitTestInfo.Node.Tag, operation));
-                }
+                PerformOperation(hitTestInfo.Node, result);
             }
             base.OnMouseClick(e);
+        }
+
+        protected override bool IsInputKey(Keys keyData)
+        {
+            if ((keyData & Keys.KeyCode) == Keys.Enter)
+                return true;
+            return base.IsInputKey(keyData);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && SelectedNode?.Tag != null)
+            {
+                var packageInfo = new TreeNodePackageInfo(SelectedNode);
+                var location = packageInfo.HasPackageUpdates ? OperationHitTestLocation.Secondary
+                    : !packageInfo.HasLocalPackage ? OperationHitTestLocation.Primary
+                    : OperationHitTestLocation.None;
+                if (location != OperationHitTestLocation.None)
+                {
+                    PerformOperation(SelectedNode, location);
+                    e.Handled = e.SuppressKeyPress = true;
+                }
+            }
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
+        {
+            e.Cancel = true;
+            base.OnBeforeExpand(e);
+        }
+
+        private void PerformOperation(TreeNode node, OperationHitTestLocation location)
+        {
+            var packageInfo = new TreeNodePackageInfo(node);
+            if (location == OperationHitTestLocation.Primary && packageInfo.HasLocalPackage)
+            {
+                var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(packageInfo.LocalPackage.Identity);
+                OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
+            }
+            else
+            {
+                var operation = location == OperationHitTestLocation.Secondary
+                    ? PackageOperationType.Update
+                    : PackageOperationType.Install;
+                OnOperationClick(new((IPackageSearchMetadata)node.Tag, operation));
+            }
         }
 
         private OperationHitTestLocation OperationHitTest(Point pt, out TreeViewHitTestInfo hitTestInfo)

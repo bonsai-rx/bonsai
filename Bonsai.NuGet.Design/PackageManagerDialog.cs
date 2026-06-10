@@ -205,6 +205,14 @@ namespace Bonsai.NuGet.Design
             }
         }
 
+        private void tabButton_CheckedChanged(object sender, EventArgs e)
+        {
+            var tabButton = (RadioButton)sender;
+            if (!tabButton.Checked) return;
+            packageViewController.ClearSearch();
+            UpdateSelectedRepository();
+        }
+
         private void refreshButton_Click(object sender, EventArgs e)
         {
             UpdateSelectedRepository();
