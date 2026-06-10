@@ -53,6 +53,19 @@ namespace Bonsai
             }
         }
 
+        static IEnumerable<Assembly> GetTypeDependencies(Type type)
+        {
+            yield return type.Assembly;
+            if (type.IsGenericType)
+            {
+                foreach (var typeArgument in type.GetGenericArguments())
+                {
+                    foreach (var assembly in GetTypeDependencies(typeArgument))
+                        yield return assembly;
+                }
+            }
+        }
+
         static IEnumerable<Assembly> GetWorkflowDependencies(string path, MetadataLoadContext context)
         {
             var metadata = WorkflowBuilder.ReadMetadata(path);
@@ -81,7 +94,7 @@ namespace Bonsai
                 }
             }
 
-            foreach (var assembly in metadata.GetExtensionTypes().Select(type => type.Assembly))
+            foreach (var assembly in metadata.GetExtensionTypes().SelectMany(GetTypeDependencies))
                 yield return assembly;
         }
 
@@ -94,7 +107,8 @@ namespace Bonsai
                 if (typeName == null) continue;
                 if (visualizerMap.TryGetValue(typeName, out Type type))
                 {
-                    yield return type.Assembly;
+                    foreach (var assembly in GetTypeDependencies(type))
+                        yield return assembly;
                 }
             }
         }
@@ -133,7 +147,10 @@ namespace Bonsai
                     select configuration.Packages[id]);
             }
 
-            return dependencies.ToArray();
+            return dependencies
+                .GroupBy(package => package.Id, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToArray();
         }
 
         static Configuration.PackageReference[] GetPackageDependencies(IEnumerable<IPackageFile> files, PackageConfiguration configuration)
