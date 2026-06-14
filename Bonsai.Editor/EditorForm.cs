@@ -914,23 +914,23 @@ namespace Bonsai.Editor
 
             visualizerSettings.Clear();
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
-            if (File.Exists(layoutPath))
+            try
             {
-                try
+                await initialization;
+                if (File.Exists(layoutPath))
                 {
                     var visualizerLayout = VisualizerLayout.Load(layoutPath);
-                    await initialization;
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }
-                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                var icon = MessageBoxIcon.Error;
+                var caption = Resources.VisualizerLayout_Caption;
+                var message = string.Format(Resources.VisualizerLayoutCorrupt_Question, ex.Message);
+                if (MessageBox.Show(this, message, caption, MessageBoxButtons.YesNo, icon) == DialogResult.Yes)
                 {
-                    var icon = MessageBoxIcon.Error;
-                    var caption = Resources.VisualizerLayout_Caption;
-                    var message = string.Format(Resources.VisualizerLayoutCorrupt_Question, ex.Message);
-                    if (MessageBox.Show(this, message, caption, MessageBoxButtons.YesNo, icon) == DialogResult.Yes)
-                    {
-                        File.Delete(layoutPath);
-                    }
+                    File.Delete(layoutPath);
                 }
             }
 
