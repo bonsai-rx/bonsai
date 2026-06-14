@@ -157,18 +157,23 @@ namespace Bonsai.Editor
             }
 
             var workflowBuilder = ElementStore.LoadWorkflow(fileName);
-            var runLayout = visualizerProvider != null && File.Exists(layoutPath);
+            var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
+            layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
+
+            // Run the visualizer layout if there is a layout file to restore, or if the workflow
+            // contains any VisualizerWindow operator forcing a window to be displayed on start.
+            var hasLayout = File.Exists(layoutPath);
+            var hasVisualizerWindow = workflowBuilder.Workflow.Descendants().OfType<VisualizerWindow>().Any();
+            var runLayout = visualizerProvider != null && (hasLayout || hasVisualizerWindow);
             if (debugger || runLayout)
                 workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
 
-            var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
-            layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
             var exceptionCache = new WorkflowRuntimeExceptionCache();
             try
             {
                 if (runLayout)
                 {
-                    var layout = VisualizerLayout.Load(layoutPath);
+                    var layout = hasLayout ? VisualizerLayout.Load(layoutPath) : new VisualizerLayout();
                     RunLayout(workflowBuilder, exceptionCache, propertyAssignments, visualizerProvider, layout, fileName, debugger);
                 }
                 else RunHeadless(workflowBuilder, exceptionCache, propertyAssignments, fileName);
