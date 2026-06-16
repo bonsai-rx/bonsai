@@ -160,8 +160,6 @@ namespace Bonsai.Editor
             var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
 
-            // Run the visualizer layout if there is a layout file to restore, or if the workflow
-            // contains any VisualizerWindow operator forcing a window to be displayed on start.
             var hasLayout = File.Exists(layoutPath);
             var hasVisualizerWindow = workflowBuilder.Workflow.Descendants().OfType<VisualizerWindow>().Any();
             var runLayout = visualizerProvider != null && (hasLayout || hasVisualizerWindow);
