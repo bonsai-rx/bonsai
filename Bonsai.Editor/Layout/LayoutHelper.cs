@@ -48,7 +48,8 @@ namespace Bonsai.Design
                 var inspectBuilder = (InspectBuilder)node.Value;
                 if (lookup.TryGetValue(inspectBuilder, out VisualizerWindowLauncher _))
                 {
-                    SetVisualizerNotifications(inspectBuilder);
+                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+                    SetVisualizerNotifications(visualizerElement);
                 }
             }
         }
