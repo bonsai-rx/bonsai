@@ -913,13 +913,14 @@ namespace Bonsai.Editor
             }
 
             visualizerSettings.Clear();
+            await initialization;
+
             var layoutPath = LayoutHelper.GetCompatibleLayoutPath(settingsDirectory, fileName);
             if (File.Exists(layoutPath))
             {
                 try
                 {
                     var visualizerLayout = VisualizerLayout.Load(layoutPath);
-                    await initialization;
                     visualizerSettings.SetVisualizerLayout(workflowBuilder, visualizerLayout);
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
