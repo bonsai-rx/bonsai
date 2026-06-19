@@ -34,7 +34,7 @@ namespace Bonsai.Editor
                                    .ToEnumerable().ToList();
             BuildAssignProperties(workflowBuilder, propertyAssignments);
 
-            var visualizerSettings = VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
+            var visualizerSettings = CreateVisualizerSettings(workflowBuilder, layout, typeVisualizers);
             var visualizerWindows = visualizerSettings.CreateVisualizerWindows(workflowBuilder);
             LayoutHelper.SetWorkflowNotifications(workflowBuilder.Workflow, publishNotifications: debugger);
             LayoutHelper.SetLayoutNotifications(workflowBuilder.Workflow, visualizerWindows);
@@ -81,6 +81,22 @@ namespace Bonsai.Editor
                 cts.Token);
 
             Application.Run();
+        }
+
+        internal static VisualizerLayoutMap CreateVisualizerSettings(
+            WorkflowBuilder workflowBuilder,
+            VisualizerLayout layout,
+            TypeVisualizerMap typeVisualizers)
+        {
+            try
+            {
+                return VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, layout, typeVisualizers);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                Console.Error.WriteLine($"The visualizer layout could not be applied and was skipped. {ex.Message}");
+                return VisualizerLayoutMap.FromVisualizerLayout(workflowBuilder, new VisualizerLayout(), typeVisualizers);
+            }
         }
 
         static void RunHeadless(
