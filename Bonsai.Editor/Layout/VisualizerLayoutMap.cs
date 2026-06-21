@@ -122,6 +122,9 @@ namespace Bonsai.Design
             for (int i = 0; i < workflow.Count; i++)
             {
                 var builder = (InspectBuilder)workflow[i].Value;
+                if (ExpressionBuilder.Unwrap(builder) is DisableBuilder)
+                    continue;
+
                 var layoutSettings = new VisualizerWindowSettings { Index = i };
 
                 if (lookup.TryGetValue(builder, out VisualizerWindowSettings windowSettings))
@@ -177,6 +180,9 @@ namespace Bonsai.Design
                 else
                 {
                     var builder = (InspectBuilder)workflow[index].Value;
+                    if (ExpressionBuilder.Unwrap(builder) is DisableBuilder)
+                        continue;
+
                     var windowSettings = new VisualizerWindowSettings();
                     windowSettings.Tag = builder;
                     windowSettings.Bounds = layoutSettings.Bounds;
