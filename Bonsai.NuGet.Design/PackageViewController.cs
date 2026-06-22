@@ -127,14 +127,9 @@ namespace Bonsai.NuGet.Design
             else
             {
                 if (operationDialog == null) return;
-                operationDialog.Hide();
                 using (var licenseDialog = new LicenseAcceptanceDialog(e.LicensePackages))
                 {
-                    e.LicenseAccepted = licenseDialog.ShowDialog(control) == DialogResult.Yes;
-                    if (e.LicenseAccepted)
-                    {
-                        operationDialog.Show();
-                    }
+                    e.LicenseAccepted = licenseDialog.ShowDialog(operationDialog) == DialogResult.Yes;
                 }
             }
         }
