@@ -927,7 +927,7 @@ namespace Bonsai.Editor
                 {
                     var icon = MessageBoxIcon.Error;
                     var caption = Resources.VisualizerLayout_Caption;
-                    var message = string.Format(Resources.VisualizerLayoutCorrupt_Question, ex.Message);
+                    var message = string.Format(Resources.VisualizerLayout_Question, ex.Message);
                     if (MessageBox.Show(this, message, caption, MessageBoxButtons.YesNo, icon) == DialogResult.Yes)
                     {
                         File.Delete(layoutPath);

@@ -122,6 +122,9 @@ namespace Bonsai.Design
             for (int i = 0; i < workflow.Count; i++)
             {
                 var builder = (InspectBuilder)workflow[i].Value;
+                if (ExpressionBuilder.Unwrap(builder) is DisableBuilder)
+                    continue;
+
                 var layoutSettings = new VisualizerWindowSettings { Index = i };
 
                 if (lookup.TryGetValue(builder, out VisualizerWindowSettings windowSettings))
@@ -173,10 +176,15 @@ namespace Bonsai.Design
                 var layoutSettings = layout.WindowSettings[i];
                 var index = layoutSettings.Index.GetValueOrDefault(i);
                 if (index < 0 || index >= workflow.Count)
-                    throw new InvalidOperationException($"Element #{index} does not exist in the workflow.");
+                    throw new InvalidOperationException(
+                        "The layout refers to an element that no longer exists in the workflow.");
                 else
                 {
                     var builder = (InspectBuilder)workflow[index].Value;
+                    var unwrapBuilder = ExpressionBuilder.Unwrap(builder);
+                    if (unwrapBuilder is DisableBuilder)
+                        continue;
+
                     var windowSettings = new VisualizerWindowSettings();
                     windowSettings.Tag = builder;
                     windowSettings.Bounds = layoutSettings.Bounds;
@@ -187,45 +195,40 @@ namespace Bonsai.Design
                     {
                         if (typeVisualizerMap.GetVisualizerType(layoutSettings.VisualizerTypeName) is null)
                             throw new InvalidOperationException(
-                                $"Visualizer cannot be applied to element #{index}: " +
-                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}. The visualizer type " +
+                                $"{ExpressionBuilder.GetElementDisplayName(builder)}: The visualizer type " +
                                 $"'{layoutSettings.VisualizerTypeName}' is not available.");
 
                         var visualizerElement = ExpressionBuilder.GetVisualizerElement(builder);
                         var visualizerTypes = typeVisualizerMap.GetTypeVisualizers(visualizerElement);
                         if (!visualizerTypes.Any(type => type.FullName == layoutSettings.VisualizerTypeName))
                             throw new InvalidOperationException(
-                                $"Visualizer type '{layoutSettings.VisualizerTypeName}' cannot be applied " +
-                                $"to element #{index}: {ExpressionBuilder.GetWorkflowElement(builder).GetType()}.");
+                                $"{ExpressionBuilder.GetElementDisplayName(builder)}: The visualizer type " +
+                                $"'{layoutSettings.VisualizerTypeName}' is not compatible.");
                         windowSettings.VisualizerTypeName = layoutSettings.VisualizerTypeName;
                         Add(windowSettings);
                     }
 
                     if (layoutSettings.NestedLayout != null &&
-                        ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder workflowBuilder)
+                        unwrapBuilder is IWorkflowExpressionBuilder workflowBuilder)
                     {
                         try { SetVisualizerLayout(workflowBuilder.Workflow, layoutSettings.NestedLayout); }
                         catch (InvalidOperationException innerException)
                         {
-                            throw new InvalidOperationException(
-                                $"Visualizer cannot be applied to an inner element of nested layout #{index}: " +
-                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}.",
-                                innerException);
+                            var location = $"{ExpressionBuilder.GetElementDisplayName(builder)} > ";
+                            throw new InvalidOperationException(location + innerException.Message, innerException);
                         }
                     }
 
 #pragma warning disable CS0612 // Type or member is obsolete
                     if (layoutSettings is WorkflowEditorSettings editorSettings &&
                         editorSettings.EditorVisualizerLayout is not null &&
-                        ExpressionBuilder.Unwrap(builder) is IWorkflowExpressionBuilder editorWorkflowBuilder)
+                        unwrapBuilder is IWorkflowExpressionBuilder editorWorkflowBuilder)
                     {
                         try { SetVisualizerLayout(editorWorkflowBuilder.Workflow, editorSettings.EditorVisualizerLayout); }
                         catch (InvalidOperationException innerException)
                         {
-                            throw new InvalidOperationException(
-                                $"Visualizer cannot be applied to an inner element of nested layout #{index}: " +
-                                $"{ExpressionBuilder.GetWorkflowElement(builder).GetType()}.",
-                                innerException);
+                            var location = $"{ExpressionBuilder.GetElementDisplayName(builder)} > ";
+                            throw new InvalidOperationException(location + innerException.Message, innerException);
                         }
                     }
 #pragma warning restore CS0612 // Type or member is obsolete
