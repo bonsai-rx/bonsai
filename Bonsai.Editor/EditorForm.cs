@@ -2741,9 +2741,22 @@ namespace Bonsai.Editor
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
-                        siteForm.searchTextBox.Focus();
-                        siteForm.searchTextBox.Clear();
-                        siteForm.searchTextBox.AppendText(e.KeyChar.ToString());
+                        var keyChar = e.KeyChar.ToString();
+                        var searchTextBox = siteForm.searchTextBox;
+                        if (searchTextBox.Focus())
+                        {
+                            searchTextBox.Clear();
+                            searchTextBox.AppendText(keyChar);
+                        }
+                        else
+                        {
+                            siteForm.BeginInvoke((Action)(() =>
+                            {
+                                searchTextBox.Focus();
+                                searchTextBox.Clear();
+                                searchTextBox.AppendText(keyChar);
+                            }));
+                        }
                         e.Handled = true;
                     }
                 }
