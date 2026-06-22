@@ -41,8 +41,8 @@ namespace Bonsai.Editor
         {
             if (CueBannerVisible)
             {
-                CueBannerVisible = false;
                 Text = string.Empty;
+                CueBannerVisible = false;
                 ForeColor = activeForeColor;
             }
         }
@@ -70,6 +70,7 @@ namespace Bonsai.Editor
             if (!CueBannerVisible)
             {
                 base.OnTextChanged(e);
+                if (!Focused) ShowCueBanner();
             }
         }
     }
