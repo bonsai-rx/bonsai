@@ -12,6 +12,18 @@ namespace Bonsai.Editor
 
         public bool CueBannerVisible { get; private set; }
 
+        public override string Text
+        {
+            get => base.Text;
+            set
+            {
+                if (!CueBannerVisible || !string.IsNullOrEmpty(value))
+                {
+                    base.Text = value;
+                }
+            }
+        }
+
         protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             if (e.Control)
@@ -41,8 +53,8 @@ namespace Bonsai.Editor
         {
             if (CueBannerVisible)
             {
-                Text = string.Empty;
                 CueBannerVisible = false;
+                Text = string.Empty;
                 ForeColor = activeForeColor;
             }
         }
