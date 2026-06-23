@@ -2156,6 +2156,7 @@ namespace Bonsai.Editor
                     selectedBuilder is MulticastSubject)
                 {
                     var subjectName = ((INamedElement)selectedBuilder).Name;
+                    searchTextBox.Clear();
                     SelectTreeViewSubjectNode(subjectName);
                 }
             }
