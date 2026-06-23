@@ -666,16 +666,22 @@ namespace Bonsai.Editor.GraphView
 
             if (!rendererCache.TryGetValue(icon.Name, out renderer))
             {
-                using (var iconStream = icon.GetStream())
+                using var iconStream = icon.GetStream();
+                if (iconStream == null) return false;
+                try
                 {
-                    if (iconStream == null) return false;
                     var svgDocument = new XmlDocument();
                     svgDocument.XmlResolver = null;
                     svgDocument.Load(iconStream);
                     var element = SvgFactory.LoadFromXML(svgDocument, null);
                     renderer = CreateRenderer(element);
-                    rendererCache.Add(icon.Name, renderer);
                 }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("Unable to create icon renderer '{0}'. {1}", icon.Name, ex);
+                    return false;
+                }
+                rendererCache.Add(icon.Name, renderer);
             }
 
             return true;
