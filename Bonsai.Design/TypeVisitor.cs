@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -19,6 +20,12 @@ namespace Bonsai.Design
             return properties;
         }
 
+        static bool IsBrowsableMember(MemberInfo member)
+        {
+            return !member.IsDefined(typeof(ObsoleteAttribute)) &&
+                   !member.GetCustomAttributes<BrowsableAttribute>().Contains(BrowsableAttribute.No);
+        }
+
         internal static void VisitMember(this Type type, Action<MemberInfo, Type> visitor)
         {
             if (type == null)
@@ -27,12 +34,14 @@ namespace Bonsai.Design
             }
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                                               .Where(IsBrowsableMember)
                                                .OrderBy(member => member.MetadataToken))
             {
                 visitor(field, field.FieldType);
             }
 
             foreach (var property in GetProperties(type, BindingFlags.Instance | BindingFlags.Public)
+                                                  .Where(IsBrowsableMember)
                                                   .OrderBy(member => member.MetadataToken))
             {
                 visitor(property, property.PropertyType);
