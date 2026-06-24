@@ -59,6 +59,7 @@ namespace Bonsai.Configuration
 
         public void Parse(string[] args)
         {
+            var hasDefaultArgument = false;
             for (int i = 0; i < args.Length; i++)
             {
                 var options = args[i].Split(new[] { OptionSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
@@ -76,8 +77,13 @@ namespace Bonsai.Configuration
                         command(argument);
                     }
                 }
+                else if (hasDefaultArgument)
+                {
+                    throw new ArgumentException("Unrecognized command or argument '" + args[i] + "'.");
+                }
                 else
                 {
+                    hasDefaultArgument = true;
                     defaultHandler?.Invoke(args[i], i);
                 }
             }

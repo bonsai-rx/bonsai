@@ -261,7 +261,7 @@ namespace Bonsai
 
                 var startScreen = launchEditor;
                 var pipeName = Guid.NewGuid().ToString();
-                args = Array.FindAll(args, arg => arg != DebugScriptCommand);
+                args = args.Where((arg, i) => arg != DebugScriptCommand && i != fileNameIndex).ToArray();
                 do
                 {
                     var editorArgs = new List<string>(args);
