@@ -985,6 +985,7 @@ namespace Bonsai.Editor
 
             SaveWorkflowSettings(fileName);
             UpdateWorkflowDirectory(fileName);
+            editorControl.RefreshNavigation();
             UpdateTitle();
             return true;
         }

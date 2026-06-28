@@ -129,7 +129,8 @@ namespace Bonsai.Editor.GraphView
         private WorkflowDockContent CreateWorkflowDockContent(WorkflowEditorPath workflowPath, WorkflowEditor editor)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, editor);
-            var dockContent = new WorkflowDockContent(workflowGraphView, serviceProvider);
+            var navigationControl = new WorkflowPathNavigationControl(serviceProvider);
+            var dockContent = new WorkflowDockContent(workflowGraphView, navigationControl, serviceProvider);
             dockContent.DockAreas = DockAreas.Float | DockAreas.Document;
             dockContent.SuspendLayout();
 
@@ -142,30 +143,25 @@ namespace Bonsai.Editor.GraphView
             workflowGraphView.Font = Font;
             workflowGraphView.Tag = dockContent;
 
-            var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
-            breadcrumbs.Margin = new Padding(0);
-            breadcrumbs.WorkflowPath = null;
-            breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
-            workflowGraphView.WorkflowPathChanged += (sender, e) =>
-            {
-                breadcrumbs.WorkflowPath = workflowGraphView.WorkflowPath;
-                dockContent.UpdateText();
-            };
+            navigationControl.Margin = new Padding(0);
+            navigationControl.WorkflowPath = null;
+            navigationControl.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
+            workflowGraphView.WorkflowPathChanged += (sender, e) => UpdateNavigation(dockContent);
 
             var navigationPanel = new TableLayoutPanel();
             navigationPanel.Dock = DockStyle.Fill;
             navigationPanel.ColumnCount = 1;
             navigationPanel.RowCount = 2;
-            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, breadcrumbs.Height));
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, navigationControl.Height));
             navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            navigationPanel.Controls.Add(breadcrumbs);
+            navigationPanel.Controls.Add(navigationControl);
             navigationPanel.Controls.Add(workflowGraphView);
             workflowGraphView.TabIndex = 0;
-            breadcrumbs.TabIndex = 1;
+            navigationControl.TabIndex = 1;
 
             // TODO: This should be handled by docking, but some strange interaction prevents shrinking to min size
-            navigationPanel.Layout += (sender, e) => breadcrumbs.Width = navigationPanel.Width;
-            breadcrumbs.Width = navigationPanel.Width;
+            navigationPanel.Layout += (sender, e) => navigationControl.Width = navigationPanel.Width;
+            navigationControl.Width = navigationPanel.Width;
             workflowGraphView.Editor.ResetNavigation(workflowPath);
 
             dockContent.Controls.Add(navigationPanel);
@@ -417,6 +413,24 @@ namespace Bonsai.Editor.GraphView
                     !workflowContent.WorkflowGraphView.IsDisposed)
                 {
                     workflowContent.UpdateText();
+                }
+            }
+        }
+
+        void UpdateNavigation(WorkflowDockContent dockContent)
+        {
+            dockContent.NavigationControl.WorkflowPath = dockContent.WorkflowGraphView.WorkflowPath;
+            dockContent.UpdateText();
+        }
+
+        internal void RefreshNavigation()
+        {
+            for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
+            {
+                if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
+                    !workflowContent.WorkflowGraphView.IsDisposed)
+                {
+                    UpdateNavigation(workflowContent);
                 }
             }
         }

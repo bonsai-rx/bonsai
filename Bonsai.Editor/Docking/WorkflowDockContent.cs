@@ -14,7 +14,7 @@ namespace Bonsai.Editor.Docking
         readonly WorkflowSelectionModel selectionModel;
         readonly CommandExecutor commandExecutor;
 
-        public WorkflowDockContent(WorkflowGraphView graphView, IServiceProvider provider)
+        public WorkflowDockContent(WorkflowGraphView graphView, WorkflowPathNavigationControl navigationControl, IServiceProvider provider)
         {
             if (provider == null)
             {
@@ -23,12 +23,15 @@ namespace Bonsai.Editor.Docking
 
             InitializeComponent();
             WorkflowGraphView = graphView ?? throw new ArgumentNullException(nameof(graphView));
+            NavigationControl = navigationControl ?? throw new ArgumentNullException(nameof(navigationControl));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
         }
 
         public WorkflowGraphView WorkflowGraphView { get; }
+
+        public WorkflowPathNavigationControl NavigationControl { get; }
 
         protected override string GetPersistString()
         {
