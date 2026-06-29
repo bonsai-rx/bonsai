@@ -13,8 +13,9 @@ namespace Bonsai.Editor.Docking
         readonly IWorkflowEditorService editorService;
         readonly WorkflowSelectionModel selectionModel;
         readonly CommandExecutor commandExecutor;
+        readonly WorkflowPathNavigationControl navigationControl;
 
-        public WorkflowDockContent(WorkflowGraphView graphView, WorkflowPathNavigationControl navigationControl, IServiceProvider provider)
+        public WorkflowDockContent(WorkflowGraphView graphView, IServiceProvider provider)
         {
             if (provider == null)
             {
@@ -23,15 +24,44 @@ namespace Bonsai.Editor.Docking
 
             InitializeComponent();
             WorkflowGraphView = graphView ?? throw new ArgumentNullException(nameof(graphView));
-            NavigationControl = navigationControl ?? throw new ArgumentNullException(nameof(navigationControl));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+
+            SuspendLayout();
+            graphView.BackColorChanged += (sender, e) => BackColor = graphView.BackColor;
+            graphView.Margin = new Padding(0);
+            graphView.Dock = DockStyle.Fill;
+            graphView.Tag = this;
+
+            navigationControl = new WorkflowPathNavigationControl(provider);
+            navigationControl.Margin = new Padding(0);
+            navigationControl.WorkflowPath = null;
+            navigationControl.WorkflowPathMouseClick += (sender, e) => graphView.WorkflowPath = e.Path;
+            graphView.WorkflowPathChanged += (sender, e) => UpdateNavigation();
+
+            var navigationPanel = new TableLayoutPanel();
+            navigationPanel.Dock = DockStyle.Fill;
+            navigationPanel.ColumnCount = 1;
+            navigationPanel.RowCount = 2;
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, navigationControl.Height));
+            navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            navigationPanel.Controls.Add(navigationControl);
+            navigationPanel.Controls.Add(graphView);
+            graphView.TabIndex = 0;
+            navigationControl.TabIndex = 1;
+
+            // TODO: This should be handled by docking, but some strange interaction prevents shrinking to min size
+            navigationPanel.Layout += (sender, e) => navigationControl.Width = navigationPanel.Width;
+            navigationControl.Width = navigationPanel.Width;
+
+            Controls.Add(navigationPanel);
+            BackColor = graphView.BackColor;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         public WorkflowGraphView WorkflowGraphView { get; }
-
-        public WorkflowPathNavigationControl NavigationControl { get; }
 
         protected override string GetPersistString()
         {
@@ -140,8 +170,9 @@ namespace Bonsai.Editor.Docking
             return false;
         }
 
-        public void UpdateText()
+        public void UpdateNavigation()
         {
+            navigationControl.WorkflowPath = WorkflowGraphView.WorkflowPath;
             Text = (WorkflowGraphView.IsReadOnly ? ReadOnlyPrefix : string.Empty) + WorkflowGraphView.DisplayName;
         }
 
