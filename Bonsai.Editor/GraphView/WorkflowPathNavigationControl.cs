@@ -22,6 +22,13 @@ namespace Bonsai.Editor.GraphView
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             themeRenderer.ThemeChanged += ThemeRenderer_ThemeChanged;
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            flowLayoutPanel.HandleCreated += (sender, e) =>
+            {
+                // ensure child handles are created in collection order so changes in visibility never
+                // force an out-of-order CreateWindowEx, which would reorder the control collection
+                foreach (Control control in flowLayoutPanel.Controls)
+                    _ = control.Handle;
+            };
         }
 
         public string DisplayName
