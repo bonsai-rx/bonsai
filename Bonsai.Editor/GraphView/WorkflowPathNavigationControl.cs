@@ -46,11 +46,35 @@ namespace Bonsai.Editor.GraphView
             get { return workflowPath; }
             set
             {
-                workflowPath = value;
                 var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
-                var pathElements = WorkflowEditorPath.GetPathDisplayElements(workflowPath, workflowBuilder);
-                SetPath(pathElements);
+                var pathElements = WorkflowEditorPath.GetPathDisplayElements(value, workflowBuilder);
+                if (workflowPath == value && flowLayoutPanel.Controls.Count > 1)
+                {
+                    RefreshDisplayNames(pathElements);
+                }
+                else
+                {
+                    workflowPath = value;
+                    SetPath(pathElements);
+                }
             }
+        }
+
+        private void RefreshDisplayNames(IEnumerable<KeyValuePair<string, WorkflowEditorPath>> pathElements)
+        {
+            SuspendLayout();
+            using var elementEnumerator = pathElements.GetEnumerator();
+            for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
+            {
+                var control = flowLayoutPanel.Controls[i];
+                if (i == 1)
+                    control.Text = editorService.GetProjectDisplayName();
+                else if (control.Tag is WorkflowEditorPath && elementEnumerator.MoveNext())
+                    control.Text = elementEnumerator.Current.Key;
+            }
+            UpdatePathWidth();
+            CompressPath();
+            ResumeLayout(true);
         }
 
         public event EventHandler<WorkflowPathMouseEventArgs> WorkflowPathMouseClick
@@ -67,7 +91,6 @@ namespace Bonsai.Editor.GraphView
         private void SetPath(IEnumerable<KeyValuePair<string, WorkflowEditorPath>> pathElements)
         {
             SuspendLayout();
-            totalPathWidth = 0;
             flowLayoutPanel.Controls.Clear();
             AddPathButton("...", null, createEvent: false, visible: false);
             AddPathButton(editorService.GetProjectDisplayName(), null);
@@ -76,8 +99,16 @@ namespace Bonsai.Editor.GraphView
                 AddPathButton(">", null, createEvent: false);
                 AddPathButton(path.Key, path.Value);
             }
+            UpdatePathWidth();
             CompressPath();
             ResumeLayout(true);
+        }
+
+        private void UpdatePathWidth()
+        {
+            totalPathWidth = 0;
+            for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
+                totalPathWidth += GetControlWidth(flowLayoutPanel.Controls[i]);
         }
 
         private void CompressPath()
@@ -90,8 +121,8 @@ namespace Bonsai.Editor.GraphView
             if (totalWidth > Width)
             {
                 // adjust for inserting the ellipsis button
-                totalWidth -= flowLayoutPanel.Controls[1].Width;
-                totalWidth += flowLayoutPanel.Controls[0].Width;
+                totalWidth -= flowLayoutPanel.Controls[1].PreferredSize.Width;
+                totalWidth += flowLayoutPanel.Controls[0].PreferredSize.Width;
                 compressPath = true;
             }
 
@@ -117,7 +148,7 @@ namespace Bonsai.Editor.GraphView
 
         private int GetControlWidth(Control control)
         {
-            return control.Width + control.Margin.Horizontal + flowLayoutPanel.Padding.Right;
+            return control.PreferredSize.Width + control.Margin.Horizontal + flowLayoutPanel.Padding.Right;
         }
 
         private BreadcrumbButtton AddPathButton(string text, WorkflowEditorPath path, bool createEvent = true, bool visible = true)
@@ -136,8 +167,6 @@ namespace Bonsai.Editor.GraphView
             breadcrumbButton.ParentChanged += BreadcrumbButton_ParentChanged;
             SetBreadcrumbTheme(breadcrumbButton, themeRenderer);
             flowLayoutPanel.Controls.Add(breadcrumbButton);
-            if (flowLayoutPanel.Controls.Count > 1)
-                totalPathWidth += GetControlWidth(breadcrumbButton);
             return breadcrumbButton;
         }
 

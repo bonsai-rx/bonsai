@@ -129,49 +129,10 @@ namespace Bonsai.Editor.GraphView
         private WorkflowDockContent CreateWorkflowDockContent(WorkflowEditorPath workflowPath, WorkflowEditor editor)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, editor);
+            workflowGraphView.Font = Font;
             var dockContent = new WorkflowDockContent(workflowGraphView, serviceProvider);
             dockContent.DockAreas = DockAreas.Float | DockAreas.Document;
-            dockContent.SuspendLayout();
-
-            workflowGraphView.BackColorChanged += (sender, e) =>
-            {
-                dockContent.BackColor = workflowGraphView.BackColor;
-            };
-            workflowGraphView.Margin = new Padding(0);
-            workflowGraphView.Dock = DockStyle.Fill;
-            workflowGraphView.Font = Font;
-            workflowGraphView.Tag = dockContent;
-
-            var breadcrumbs = new WorkflowPathNavigationControl(serviceProvider);
-            breadcrumbs.Margin = new Padding(0);
-            breadcrumbs.WorkflowPath = null;
-            breadcrumbs.WorkflowPathMouseClick += (sender, e) => workflowGraphView.WorkflowPath = e.Path;
-            workflowGraphView.WorkflowPathChanged += (sender, e) =>
-            {
-                breadcrumbs.WorkflowPath = workflowGraphView.WorkflowPath;
-                dockContent.UpdateText();
-            };
-
-            var navigationPanel = new TableLayoutPanel();
-            navigationPanel.Dock = DockStyle.Fill;
-            navigationPanel.ColumnCount = 1;
-            navigationPanel.RowCount = 2;
-            navigationPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, breadcrumbs.Height));
-            navigationPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            navigationPanel.Controls.Add(breadcrumbs);
-            navigationPanel.Controls.Add(workflowGraphView);
-            workflowGraphView.TabIndex = 0;
-            breadcrumbs.TabIndex = 1;
-
-            // TODO: This should be handled by docking, but some strange interaction prevents shrinking to min size
-            navigationPanel.Layout += (sender, e) => breadcrumbs.Width = navigationPanel.Width;
-            breadcrumbs.Width = navigationPanel.Width;
             workflowGraphView.Editor.ResetNavigation(workflowPath);
-
-            dockContent.Controls.Add(navigationPanel);
-            dockContent.BackColor = workflowGraphView.BackColor;
-            dockContent.ResumeLayout(false);
-            dockContent.PerformLayout();
             return dockContent;
         }
 
@@ -342,7 +303,7 @@ namespace Bonsai.Editor.GraphView
         {
             UpdateGraphView(selectedView, graphView => graphView.InvalidateGraphLayout(validateWorkflow: false));
             selectedView.RefreshSelection();
-            UpdateAllText();
+            RefreshNavigation();
         }
 
         internal void UpdateWatchLayout()
@@ -409,14 +370,14 @@ namespace Bonsai.Editor.GraphView
             }
         }
 
-        void UpdateAllText()
+        internal void RefreshNavigation()
         {
             for (int i = dockPanel.Contents.Count - 1; i >= 0; i--)
             {
                 if (dockPanel.Contents[i] is WorkflowDockContent workflowContent &&
                     !workflowContent.WorkflowGraphView.IsDisposed)
                 {
-                    workflowContent.UpdateText();
+                    workflowContent.UpdateNavigation();
                 }
             }
         }
