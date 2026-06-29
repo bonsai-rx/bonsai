@@ -8,6 +8,7 @@ namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowPathNavigationControl : UserControl
     {
+        const string HomeGlyph = "🏠";
         static readonly object WorkflowPathMouseClickEvent = new();
         readonly IServiceProvider serviceProvider;
         readonly IWorkflowEditorService editorService;
@@ -29,16 +30,6 @@ namespace Bonsai.Editor.GraphView
                 foreach (Control control in flowLayoutPanel.Controls)
                     _ = control.Handle;
             };
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return flowLayoutPanel.Controls.Count > 0
-                    ? flowLayoutPanel.Controls[flowLayoutPanel.Controls.Count - 1].Text
-                    : editorService.GetProjectDisplayName();
-            }
         }
 
         public WorkflowEditorPath WorkflowPath
@@ -63,13 +54,12 @@ namespace Bonsai.Editor.GraphView
         private void RefreshDisplayNames(IEnumerable<KeyValuePair<string, WorkflowEditorPath>> pathElements)
         {
             SuspendLayout();
+            flowLayoutPanel.Controls[0].AccessibleName = editorService.GetProjectDisplayName();
             using var elementEnumerator = pathElements.GetEnumerator();
             for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
             {
                 var control = flowLayoutPanel.Controls[i];
-                if (i == 1)
-                    control.Text = editorService.GetProjectDisplayName();
-                else if (control.Tag is WorkflowEditorPath && elementEnumerator.MoveNext())
+                if (control.Tag is WorkflowEditorPath && elementEnumerator.MoveNext())
                     control.Text = elementEnumerator.Current.Key;
             }
             UpdatePathWidth();
@@ -92,8 +82,9 @@ namespace Bonsai.Editor.GraphView
         {
             SuspendLayout();
             flowLayoutPanel.Controls.Clear();
+            var homeButton = AddPathButton(HomeGlyph, null);
+            homeButton.AccessibleName = editorService.GetProjectDisplayName();
             AddPathButton("...", null, createEvent: false, visible: false);
-            AddPathButton(editorService.GetProjectDisplayName(), null);
             foreach (var path in pathElements)
             {
                 AddPathButton(">", null, createEvent: false);
@@ -106,8 +97,8 @@ namespace Bonsai.Editor.GraphView
 
         private void UpdatePathWidth()
         {
-            totalPathWidth = 0;
-            for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
+            totalPathWidth = GetControlWidth(flowLayoutPanel.Controls[0]);
+            for (int i = 2; i < flowLayoutPanel.Controls.Count; i++)
                 totalPathWidth += GetControlWidth(flowLayoutPanel.Controls[i]);
         }
 
@@ -116,34 +107,31 @@ namespace Bonsai.Editor.GraphView
             if (flowLayoutPanel.Controls.Count <= 4)
                 return;
 
-            bool compressPath = false;
-            var totalWidth = totalPathWidth;
-            if (totalWidth > Width)
+            var excessWidth = totalPathWidth - Width;
+            if (excessWidth > 0)
             {
-                // adjust for inserting the ellipsis button
-                totalWidth -= flowLayoutPanel.Controls[1].PreferredSize.Width;
-                totalWidth += flowLayoutPanel.Controls[0].PreferredSize.Width;
-                compressPath = true;
+                // the home button is pinned, so the ellipsis only adds to the path width
+                excessWidth += flowLayoutPanel.Controls[1].PreferredSize.Width;
             }
 
-            var excessWidth = totalWidth - Width;
+            bool compressPath = false;
             for (int i = 2; i < flowLayoutPanel.Controls.Count - 4; i++)
             {
                 // separator and breadcrumb buttons are hidden together
-                var visible = !compressPath || excessWidth <= 0;
+                var visible = excessWidth <= 0;
                 if (i % 2 != 0) visible &= flowLayoutPanel.Controls[i - 1].Visible;
 
                 // hide excess breadcrumb levels
                 flowLayoutPanel.Controls[i].Visible = visible;
+                compressPath |= !visible;
                 if (excessWidth > 0)
                 {
                     excessWidth -= GetControlWidth(flowLayoutPanel.Controls[i]);
                 }
             }
 
-            // either the root or ellipsis button is shown
-            flowLayoutPanel.Controls[0].Visible = compressPath;
-            flowLayoutPanel.Controls[1].Visible = !compressPath;
+            // the ellipsis marks collapsed levels
+            flowLayoutPanel.Controls[1].Visible = compressPath;
         }
 
         private int GetControlWidth(Control control)
