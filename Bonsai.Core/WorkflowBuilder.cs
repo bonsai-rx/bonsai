@@ -576,10 +576,7 @@ namespace Bonsai
                         var errorMessage = string.Format(message, typeBuilder.FullName);
                         var descriptionAttributeConstructor = typeof(DescriptionAttribute).GetConstructor(new[] { typeof(string) });
                         var descriptionAttributeBuilder = new CustomAttributeBuilder(descriptionAttributeConstructor, new[] { errorMessage });
-                        var obsoleteAttributeConstructor = typeof(ObsoleteAttribute).GetConstructor(Type.EmptyTypes);
-                        var obsoleteAttributeBuilder = new CustomAttributeBuilder(obsoleteAttributeConstructor, new object[0]);
                         typeBuilder.SetCustomAttribute(descriptionAttributeBuilder);
-                        typeBuilder.SetCustomAttribute(obsoleteAttributeBuilder);
                         type = typeBuilder.CreateTypeInfo();
                         dynamicTypes.Add(typeName, type);
                     }

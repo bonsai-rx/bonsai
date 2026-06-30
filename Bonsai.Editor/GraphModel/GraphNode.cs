@@ -44,6 +44,7 @@ namespace Bonsai.Editor.GraphModel
                 }
 
                 if (obsolete) Flags |= NodeFlags.Obsolete;
+                if (workflowElement is UnknownTypeBuilder) Flags |= NodeFlags.Unknown;
                 if (expressionBuilder.IsBuildDependency()) Flags |= NodeFlags.BuildDependency;
                 Category = elementCategoryAttribute.Category;
                 Icon = new ElementIcon(workflowElement);
@@ -124,7 +125,7 @@ namespace Bonsai.Editor.GraphModel
         {
             get
             {
-                if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                if ((Flags & (NodeFlags.Obsolete | NodeFlags.Unknown)) != 0) return ObsoleteBrush;
                 else if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
                 else return null;
             }
@@ -191,7 +192,8 @@ namespace Bonsai.Editor.GraphModel
             NestedScope = 0x10,
             NestedGroup = 0x20,
             Annotation = 0x40,
-            RangeUndefined = 0x80
+            RangeUndefined = 0x80,
+            Unknown = 0x100
         }
 
         static class CategoryColors
