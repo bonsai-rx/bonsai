@@ -1,5 +1,6 @@
 ﻿using Bonsai.Design;
 using Bonsai.Editor.GraphModel;
+using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
@@ -169,10 +170,17 @@ namespace Bonsai.Editor
 
             if (!File.Exists(fileName))
             {
-                throw new ArgumentException("Specified workflow file does not exist.", nameof(fileName));
+                throw new ArgumentException(string.Format(Resources.OpenWorkflow_FileNotFound, fileName), nameof(fileName));
             }
 
-            var workflowBuilder = ElementStore.LoadWorkflow(fileName);
+            WorkflowBuilder workflowBuilder;
+            try { workflowBuilder = ElementStore.LoadWorkflow(fileName); }
+            catch (Exception ex) when (IsWorkflowFormatError(ex))
+            {
+                throw new InvalidOperationException(
+                    string.Format(Resources.OpenWorkflow_InvalidFormat, fileName), ex);
+            }
+
             var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
 
@@ -196,6 +204,17 @@ namespace Bonsai.Editor
             {
                 LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
             }
+        }
+
+        internal static bool IsWorkflowFormatError(Exception exception)
+        {
+            for (var error = exception; error != null; error = error.InnerException)
+            {
+                if (error is XmlException)
+                    return true;
+            }
+
+            return false;
         }
 
         static void LogWorkflowExceptionStackTrace(

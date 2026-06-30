@@ -341,6 +341,8 @@ namespace Bonsai
                         debugScripts = editorFlags.HasFlag(EditorFlags.DebugScripts);
                         updatePackages = editorFlags.HasFlag(EditorFlags.UpdatesAvailable);
                         initialFileName = AppResult.GetResult<string>();
+                        if (!string.IsNullOrEmpty(initialFileName) && !File.Exists(initialFileName))
+                            initialFileName = null;
                         launchResult = (EditorResult)AppResult.GetResult<int>();
                     }
                 }

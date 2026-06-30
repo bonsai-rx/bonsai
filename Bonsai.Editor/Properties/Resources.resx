@@ -194,6 +194,12 @@ Copyright (c) .NET Foundation and Contributors</value>
   <data name="OpenWorkflow_Error_Caption" xml:space="preserve">
     <value>Open Error</value>
   </data>
+  <data name="OpenWorkflow_FileNotFound" xml:space="preserve">
+    <value>The workflow file '{0}' does not exist.</value>
+  </data>
+  <data name="OpenWorkflow_InvalidFormat" xml:space="preserve">
+    <value>The file '{0}' is not a valid workflow.</value>
+  </data>
   <data name="PasteFromClipboard_Error" xml:space="preserve">
     <value>There was an error pasting the selected elements from the clipboard:
 {0}</value>
