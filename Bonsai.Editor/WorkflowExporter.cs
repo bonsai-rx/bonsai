@@ -19,7 +19,7 @@ namespace Bonsai.Editor
 
             if (!File.Exists(fileName))
             {
-                throw new ArgumentException("Specified workflow file does not exist.", nameof(fileName));
+                throw new ArgumentException(string.Format(Resources.OpenWorkflow_FileNotFound, fileName), nameof(fileName));
             }
 
             if (string.IsNullOrEmpty(imageFileName))

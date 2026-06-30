@@ -312,10 +312,8 @@ namespace Bonsai.Editor
         {
             RestoreEditorSettings();
             var initialFileName = FileName;
-            var validFileName =
-                !string.IsNullOrEmpty(initialFileName) &&
-                Path.GetExtension(initialFileName) == Project.BonsaiExtension &&
-                File.Exists(initialFileName);
+            var fileRequested = !string.IsNullOrEmpty(initialFileName);
+            var fileExists = fileRequested && File.Exists(initialFileName);
 
             Observable.Merge(
                 InitializeSubjectSourcesAsync(),
@@ -325,7 +323,7 @@ namespace Bonsai.Editor
                 .Subscribe(formCancellation.Token);
 
             var currentDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
-            var workflowBaseDirectory = validFileName ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
+            var workflowBaseDirectory = fileExists ? Project.GetWorkflowBaseDirectory(initialFileName) : currentDirectory;
             if (currentDirectoryRestricted)
             {
                 currentDirectory = workflowBaseDirectory;
@@ -341,7 +339,13 @@ namespace Bonsai.Editor
             initialization = InitializeEditorExtensionsAsync(formCancellation.Token);
             base.OnLoad(e);
 
-            await InitializeWorkflowAsync(validFileName ? initialFileName : default);
+            if (fileRequested && !fileExists)
+            {
+                var fileNotFoundMessage = string.Format(Resources.OpenWorkflow_FileNotFound, Path.GetFileName(initialFileName));
+                MessageBox.Show(this, fileNotFoundMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            await InitializeWorkflowAsync(fileExists ? initialFileName : default);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
@@ -880,14 +884,23 @@ namespace Bonsai.Editor
             try { builderCandidate = ElementStore.LoadWorkflow(fileName, out workflowVersion); }
             catch (SystemException ex) when (ex is InvalidOperationException || ex is XmlException)
             {
-                var activeException = ex.InnerException ?? ex;
-                var errorMessage = activeException.Message;
-                if (activeException.InnerException != null)
+                string errorMessage;
+                if (WorkflowRunner.IsWorkflowFormatError(ex))
                 {
-                    errorMessage += Environment.NewLine + activeException.InnerException.Message;
+                    errorMessage = string.Format(Resources.OpenWorkflow_InvalidFormat, Path.GetFileName(fileName));
+                }
+                else
+                {
+                    var activeException = ex.InnerException ?? ex;
+                    errorMessage = activeException.Message;
+                    if (activeException.InnerException != null)
+                    {
+                        errorMessage += Environment.NewLine + activeException.InnerException.Message;
+                    }
+
+                    errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(fileName), errorMessage);
                 }
 
-                errorMessage = string.Format(Resources.OpenWorkflow_Error, Path.GetFileName(fileName), errorMessage);
                 MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }

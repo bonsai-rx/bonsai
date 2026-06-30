@@ -493,6 +493,24 @@ namespace Bonsai.Editor.Properties {
                 return ResourceManager.GetString("OpenWorkflow_Error_Caption", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The workflow file &apos;{0}&apos; does not exist..
+        /// </summary>
+        internal static string OpenWorkflow_FileNotFound {
+            get {
+                return ResourceManager.GetString("OpenWorkflow_FileNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file &apos;{0}&apos; is not a valid workflow..
+        /// </summary>
+        internal static string OpenWorkflow_InvalidFormat {
+            get {
+                return ResourceManager.GetString("OpenWorkflow_InvalidFormat", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Output.
