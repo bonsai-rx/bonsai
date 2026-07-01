@@ -9,6 +9,7 @@ namespace Bonsai.Configuration
         const char OptionSeparator = ':';
         const string CommandPrefix = "--";
         readonly Dictionary<string, Delegate> commands = new Dictionary<string, Delegate>();
+        readonly Dictionary<Delegate, HashSet<int>> argumentIndices = new Dictionary<Delegate, HashSet<int>>();
         Action<string, int> defaultHandler;
 
         public void RegisterCommand(Action<string, int> handler)
@@ -59,9 +60,11 @@ namespace Bonsai.Configuration
 
         public void Parse(string[] args)
         {
+            argumentIndices.Clear();
             var hasDefaultArgument = false;
             for (int i = 0; i < args.Length; i++)
             {
+                var startIndex = i;
                 var options = args[i].Split(new[] { OptionSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
                 if (commands.TryGetValue(options[0], out Delegate handler))
                 {
@@ -76,6 +79,11 @@ namespace Bonsai.Configuration
                         }
                         command(argument);
                     }
+
+                    if (!argumentIndices.TryGetValue(handler, out HashSet<int> indices))
+                        argumentIndices.Add(handler, indices = new HashSet<int>());
+                    for (int index = startIndex; index <= i; index++)
+                        indices.Add(index);
                 }
                 else if (hasDefaultArgument)
                 {
@@ -87,6 +95,14 @@ namespace Bonsai.Configuration
                     defaultHandler?.Invoke(args[i], i);
                 }
             }
+        }
+
+        public HashSet<int> GetArgumentIndices(string command)
+        {
+            return command != null
+                && commands.TryGetValue(command, out Delegate handler)
+                && argumentIndices.TryGetValue(handler, out HashSet<int> indices)
+                ? indices : new HashSet<int>();
         }
     }
 }

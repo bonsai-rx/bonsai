@@ -261,7 +261,9 @@ namespace Bonsai
 
                 var startScreen = launchEditor;
                 var pipeName = Guid.NewGuid().ToString();
-                args = args.Where((arg, i) => arg != DebugScriptCommand && i != fileNameIndex).ToArray();
+                var propertyIndices = parser.GetArgumentIndices(PropertyCommand);
+                args = args.Where((arg, i) =>
+                    arg != DebugScriptCommand && i != fileNameIndex && !propertyIndices.Contains(i)).ToArray();
                 do
                 {
                     var editorArgs = new List<string>(args);
@@ -278,6 +280,11 @@ namespace Bonsai
                     else
                     {
                         if (debugScripts) editorArgs.Add(DebugScriptCommand);
+                        if (propertyAssignments.Count > 0)
+                        {
+                            foreach (var assignment in propertyAssignments)
+                                editorArgs.Add($"{PropertyCommand}:{assignment.Key}={assignment.Value}");
+                        }
                         if (launchResult == EditorResult.ReloadEditor) editorArgs.Add(ReloadEditorCommand);
                         else editorArgs.Add(SuppressBootstrapCommand);
                         if (!string.IsNullOrEmpty(initialFileName))
@@ -344,6 +351,7 @@ namespace Bonsai
                         if (!string.IsNullOrEmpty(initialFileName) && !File.Exists(initialFileName))
                             initialFileName = null;
                         launchResult = (EditorResult)AppResult.GetResult<int>();
+                        propertyAssignments.Clear();
                     }
                 }
                 while (launchResult != EditorResult.Exit);
