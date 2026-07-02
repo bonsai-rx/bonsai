@@ -1133,15 +1133,18 @@ namespace Bonsai.Expressions
                 }
                 else
                 {
-                    var arguments = ExpressionHelper.SelectMembers(expression, selector).ToArray();
                     var propertyType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-                    var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
-                    if (constructor.method != null)
+                    if (!propertyType.IsArray)
                     {
-                        result = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
-                        if (propertyType != targetType)
+                        var arguments = ExpressionHelper.SelectMembers(expression, selector).ToArray();
+                        var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
+                        if (constructor.method != null)
                         {
-                            result = Expression.Convert(result, targetType);
+                            result = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
+                            if (propertyType != targetType)
+                            {
+                                result = Expression.Convert(result, targetType);
+                            }
                         }
                     }
                 }
