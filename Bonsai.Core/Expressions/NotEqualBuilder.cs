@@ -24,7 +24,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            return Expression.NotEqual(left, right);
+            return TupleEqualityHelper.NotEqual(left, right);
         }
     }
 }
