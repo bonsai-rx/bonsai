@@ -311,6 +311,17 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_PropertyMappingScalarToArrayProperty_ThrowsWorkflowBuildException()
+        {
+            new TestWorkflow()
+                .AppendValue(1)
+                .AppendPropertyMapping(nameof(WorkflowProperty<int[]>.Value))
+                .AppendCombinator(new WorkflowProperty<int[]>())
+                .BuildObservable<Unit>();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void BuildObservable_InvalidWorkflowType_ThrowsInvalidOperationException()
         {
