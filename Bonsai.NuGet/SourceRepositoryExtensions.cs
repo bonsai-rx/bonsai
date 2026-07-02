@@ -91,16 +91,33 @@ namespace Bonsai.NuGet
             VersionRange version = default,
             CancellationToken token = default)
         {
-            using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
             var searchPackageResource = await repository.GetResourceAsync<PackageSearchResource>(token);
-            var tasks = packages.Select(package =>
+            if (repository.PackageSource.IsLocal)
             {
-                var updateRange = version ?? new VersionRange(package.Version, includeMinVersion: false);
-                return searchPackageResource.SearchAsync($"packageid:{package.Id}", filters, 0, 1, NullLogger.Instance, token);
-            }).ToArray();
+                var tasks = packages.Select(async package =>
+                {
+                    var updateRange = version ?? new VersionRange(package.Version, includeMinVersion: false);
+                    var results = await searchPackageResource.SearchAsync(package.Id, filters, 0, int.MaxValue, NullLogger.Instance, token);
+                    return results.Where(update =>
+                        string.Equals(update.Identity.Id, package.Id, StringComparison.OrdinalIgnoreCase)
+                        && updateRange.Satisfies(update.Identity.Version));
+                }).ToArray();
 
-            var packageUpdates = await Task.WhenAll(tasks);
-            return packageUpdates.SelectMany(package => package).ToList();
+                var localUpdates = await Task.WhenAll(tasks);
+                return localUpdates.SelectMany(update => update).ToList();
+            }
+            else
+            {
+                var tasks = packages.Select(async package =>
+                {
+                    var updateRange = version ?? new VersionRange(package.Version, includeMinVersion: false);
+                    var results = await searchPackageResource.SearchAsync($"packageid:{package.Id}", filters, 0, 1, NullLogger.Instance, token);
+                    return results.Where(update => updateRange.Satisfies(update.Identity.Version));
+                }).ToArray();
+
+                var packageUpdates = await Task.WhenAll(tasks);
+                return packageUpdates.SelectMany(update => update).ToList();
+            }
         }
 
         public static async Task<IPackageSearchMetadata> GetMetadataAsync(this SourceRepository repository, PackageIdentity identity, SourceCacheContext cacheContext, CancellationToken token = default)
