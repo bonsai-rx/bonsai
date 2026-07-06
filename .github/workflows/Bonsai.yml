@@ -305,6 +305,12 @@ jobs:
     name: Publish to NuGet.org
     runs-on: ubuntu-latest
     environment: PublicRelease
+    permissions:
+      # Needed to request the OIDC token for NuGet.org trusted publishing
+      id-token: write
+      # Needed to check out the workflow scripts and download build artifacts
+      contents: read
+      actions: read
     needs: [build-and-test, determine-changed-packages]
     # Release builds always publish packages to NuGet.org
     # Workflow dispatch builds will only publish packages if enabled and an explicit version number is given
@@ -346,8 +352,14 @@ jobs:
         run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
 
       # ----------------------------------------------------------------------- Push to NuGet.org
+      - name: Log in to NuGet.org with OIDC
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{secrets.NUGET_USER}}
+
       - name: Push to NuGet.org
-        run: dotnet nuget push "Packages/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source ${{vars.NUGET_API_URL}}
+        run: dotnet nuget push "Packages/*.nupkg" --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source ${{vars.NUGET_API_URL}}
         env:
           # This is a workaround for https://github.com/NuGet/Home/issues/9775
           DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
