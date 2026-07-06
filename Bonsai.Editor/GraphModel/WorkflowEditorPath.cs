@@ -58,6 +58,28 @@ namespace Bonsai.Editor.GraphModel
             }
         }
 
+        public static IEnumerable<KeyValuePair<string, WorkflowEditorPath>> GetSiblingDisplayElements(WorkflowEditorPath pathElement, WorkflowBuilder workflowBuilder)
+        {
+            var workflow = workflowBuilder.Workflow;
+            foreach (var ancestor in pathElement.Parent?.GetPathElements() ?? Enumerable.Empty<WorkflowEditorPath>())
+            {
+                var ancestorBuilder = workflow[ancestor.Index].Value;
+                if (ExpressionBuilder.GetWorkflowElement(ancestorBuilder) is IWorkflowExpressionBuilder nestedWorkflowBuilder)
+                    workflow = nestedWorkflowBuilder.Workflow;
+            }
+
+            for (int i = 0; i < workflow.Count; i++)
+            {
+                var builder = workflow[i].Value;
+                if (ExpressionBuilder.GetWorkflowElement(builder) is IWorkflowExpressionBuilder)
+                {
+                    yield return new(
+                        key: ExpressionBuilder.GetElementDisplayName(builder),
+                        value: new WorkflowEditorPath(i, pathElement.Parent));
+                }
+            }
+        }
+
         public ExpressionBuilder Resolve(WorkflowBuilder workflowBuilder)
         {
             return Resolve(workflowBuilder, out _);
