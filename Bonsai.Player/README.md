@@ -8,7 +8,7 @@
 
 ```
 dotnet new tool-manifest
-dotnet tool install Bonsai.Player --version 2.9.0
+dotnet tool install Bonsai.Player --version 2.9.1
 ```
 
 ### Execution
