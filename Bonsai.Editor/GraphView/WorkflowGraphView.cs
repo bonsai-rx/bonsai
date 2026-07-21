@@ -1321,6 +1321,46 @@ namespace Bonsai.Editor.GraphView
             return menuItem;
         }
 
+        private void InitializeTypeMappingMenuItems(Type memberType)
+        {
+            InitializeOutputMenuItem(createTypeOperatorToolStripMenuItem, string.Empty, memberType);
+            createTypeOperatorToolStripMenuItem.Enabled = true;
+        }
+
+        private void castToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateTypeMappingGraphNode(memberType => new Bonsai.Reactive.Cast
+            {
+                TypeMapping = CreateTypeMapping(memberType)
+            });
+        }
+
+        private void ofTypeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateTypeMappingGraphNode(memberType => new Bonsai.Reactive.OfType
+            {
+                TypeMapping = CreateTypeMapping(memberType)
+            });
+        }
+
+        static TypeMapping CreateTypeMapping(Type targetType)
+        {
+            return (TypeMapping)Activator.CreateInstance(typeof(TypeMapping<>).MakeGenericType(targetType));
+        }
+
+        private void CreateTypeMappingGraphNode(Func<Type, ExpressionBuilder> builderFactory)
+        {
+            var selectedNode = selectionModel.SelectedNodes.FirstOrDefault();
+            if (selectedNode != null && createTypeOperatorToolStripMenuItem.Tag is Type memberType)
+            {
+                var builder = builderFactory(memberType);
+                var nodeType = Control.ModifierKeys.HasFlag(Keys.Shift)
+                    ? CreateGraphNodeType.Predecessor
+                    : CreateGraphNodeType.Successor;
+                Editor.CreateGraphNode(builder, selectedNode, nodeType, branch: Control.ModifierKeys.HasFlag(Keys.Alt));
+            }
+        }
+
         private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, Type memberType, GraphNode selectedNode)
         {
             if (inspectBuilder.Builder is SubscribeSubject subscribeBuilder)
@@ -1735,6 +1775,10 @@ namespace Bonsai.Editor.GraphView
                         CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, inspectBuilder.ObservableType, selectedNode);
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
                         CreatePropertySourceMenuItems(workflowElement, createPropertySourceToolStripMenuItem);
+                        if (inspectBuilder.ObservableType != null)
+                        {
+                            InitializeTypeMappingMenuItems(inspectBuilder.ObservableType);
+                        }
                     }
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
@@ -1772,6 +1816,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             outputToolStripMenuItem.Text = Resources.OutputMenuItemLabel;
+            createTypeOperatorToolStripMenuItem.Text = Resources.CreateTypeOperatorMenuItemLabel;
             subjectTypeToolStripMenuItem.Text = Resources.CreateSourceMenuItemLabel;
             visualizerToolStripMenuItem.Text = Resources.ShowVisualizerMenuItem;
             outputToolStripMenuItem.DropDownItems.Clear();

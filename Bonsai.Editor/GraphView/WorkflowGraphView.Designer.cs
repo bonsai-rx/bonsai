@@ -31,6 +31,9 @@
             this.components = new System.ComponentModel.Container();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createTypeOperatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.castToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ofTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,6 +76,7 @@
             this.externalizeToolStripMenuItem,
             this.toolStripSeparator7,
             this.subjectTypeToolStripMenuItem,
+            this.createTypeOperatorToolStripMenuItem,
             this.createPropertySourceToolStripMenuItem,
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
@@ -112,9 +116,33 @@
             this.outputToolStripMenuItem.Name = "outputToolStripMenuItem";
             this.outputToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.outputToolStripMenuItem.Text = "Output";
-            // 
+            //
+            // createTypeOperatorToolStripMenuItem
+            //
+            this.createTypeOperatorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.castToolStripMenuItem,
+            this.ofTypeToolStripMenuItem});
+            this.createTypeOperatorToolStripMenuItem.Enabled = false;
+            this.createTypeOperatorToolStripMenuItem.Name = "createTypeOperatorToolStripMenuItem";
+            this.createTypeOperatorToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.createTypeOperatorToolStripMenuItem.Text = "Create Type Operator";
+            //
+            // castToolStripMenuItem
+            //
+            this.castToolStripMenuItem.Name = "castToolStripMenuItem";
+            this.castToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.castToolStripMenuItem.Text = "Cast";
+            this.castToolStripMenuItem.Click += new System.EventHandler(this.castToolStripMenuItem_Click);
+            //
+            // ofTypeToolStripMenuItem
+            //
+            this.ofTypeToolStripMenuItem.Name = "ofTypeToolStripMenuItem";
+            this.ofTypeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ofTypeToolStripMenuItem.Text = "OfType";
+            this.ofTypeToolStripMenuItem.Click += new System.EventHandler(this.ofTypeToolStripMenuItem_Click);
+            //
             // externalizeToolStripMenuItem
-            // 
+            //
             this.externalizeToolStripMenuItem.Enabled = false;
             this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
             this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
@@ -420,6 +448,9 @@
         private System.Windows.Forms.ToolStripMenuItem visualizerToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem outputToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createTypeOperatorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem castToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ofTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem externalizeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createPropertySourceToolStripMenuItem;
