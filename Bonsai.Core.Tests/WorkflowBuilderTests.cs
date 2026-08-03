@@ -65,6 +65,28 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Serialize_FailedSerializerConstruction_SubsequentSerializationSuccessful()
+        {
+            // a workflow that cannot be serialized should not invalidate the serializer cache
+            // for any workflow serialized afterwards
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new CombinatorBuilder { Combinator = new DuplicateXmlTypeWithProperty() });
+            workflow.Workflow.Add(new CombinatorBuilder { Combinator = new OtherDuplicateXmlTypeWithProperty() });
+            Assert.ThrowsException<InvalidOperationException>(() => SerializeWorkflow(workflow));
+
+            var value = 5;
+            var validWorkflow = new WorkflowBuilder();
+            validWorkflow.Workflow.Add(new CombinatorBuilder
+            {
+                Combinator = new UniqueXmlTypeWithProperty { Property = value }
+            });
+            var xml = SerializeWorkflow(validWorkflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var combinator = (UniqueXmlTypeWithProperty)((CombinatorBuilder)roundTrip.Workflow.First().Value).Combinator;
+            Assert.AreEqual(value, combinator.Property);
+        }
+
+        [TestMethod]
         public void Serialize_NamespacePrefixClash_RoundTripSuccessful()
         {
             var value = 10;
@@ -119,6 +141,38 @@ namespace Bonsai.Core.Tests
             {
                 return expression;
             }
+        }
+    }
+
+    [XmlType("DuplicateXmlType", Namespace = Constants.XmlNamespace)]
+    public class DuplicateXmlTypeWithProperty : Combinator
+    {
+        public int Property { get; set; }
+
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [XmlType("DuplicateXmlType", Namespace = Constants.XmlNamespace)]
+    public class OtherDuplicateXmlTypeWithProperty : Combinator
+    {
+        public int Property { get; set; }
+
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class UniqueXmlTypeWithProperty : Combinator
+    {
+        public int Property { get; set; }
+
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            throw new NotImplementedException();
         }
     }
 
