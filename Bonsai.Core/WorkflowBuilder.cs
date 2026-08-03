@@ -407,12 +407,12 @@ namespace Bonsai
             {
                 if (serializerCache == null || !types.IsSubsetOf(serializerTypes))
                 {
-                    if (serializerTypes == null) serializerTypes = types;
-                    else serializerTypes.UnionWith(types);
+                    var updatedTypes = new HashSet<Type>(types);
+                    if (serializerTypes != null) updatedTypes.UnionWith(serializerTypes);
 
-                    genericTypeCache = new Dictionary<string, GenericTypeCode>();
+                    var updatedGenericTypes = new Dictionary<string, GenericTypeCode>();
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
-                    foreach (var type in serializerTypes)
+                    foreach (var type in updatedTypes)
                     {
                         var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false);
                         var attributes = new XmlAttributes();
@@ -432,17 +432,20 @@ namespace Bonsai
                             }
 
                             var typeName = codeProvider.GetTypeOutput(typeRef);
-                            genericTypeCache.Add(typeName, typeCode);
+                            updatedGenericTypes.Add(typeName, typeCode);
                             attributes.XmlType.TypeName = typeName;
                         }
                         attributes.XmlType.Namespace = GetXmlNamespace(type);
                         overrides.Add(type, attributes);
                     }
 
-                    var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
+                    var extraTypes = updatedTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
                     AddTypeAttributeOverrides(overrides, SerializerLegacyTypes);
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
-                    serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
+                    var serializer = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
+                    serializerTypes = updatedTypes;
+                    genericTypeCache = updatedGenericTypes;
+                    serializerCache = serializer;
                 }
 
                 genericTypes = genericTypeCache;
