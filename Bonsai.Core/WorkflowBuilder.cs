@@ -265,6 +265,19 @@ namespace Bonsai
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
         static readonly Type[] SerializerLegacyTypes = GetSerializerLegacyTypes().ToArray();
+        static readonly HashSet<Type> XmlPrimitiveTypes = GetXmlPrimitiveTypes();
+
+        static HashSet<Type> GetXmlPrimitiveTypes()
+        {
+            return new HashSet<Type>
+            {
+                typeof(bool), typeof(byte), typeof(sbyte), typeof(short), typeof(ushort),
+                typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float),
+                typeof(double), typeof(decimal), typeof(char), typeof(string),
+                typeof(DateTime), typeof(TimeSpan), typeof(DateTimeOffset), typeof(Guid),
+                typeof(XmlQualifiedName), typeof(byte[])
+            };
+        }
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -370,6 +383,51 @@ namespace Bonsai
             }
         }
 
+        static void AddTypeArgumentOverrides(XmlAttributeOverrides overrides, IEnumerable<Type> types)
+        {
+            foreach (var type in types)
+            {
+                AddTypeArgumentOverrides(overrides, type);
+            }
+        }
+
+        static void AddTypeArgumentOverrides(XmlAttributeOverrides overrides, Type type)
+        {
+            if (!type.IsGenericType) return;
+            var typeArguments = type.GetGenericArguments();
+            for (int i = 0; i < typeArguments.Length; i++)
+            {
+                AddTypeNamespaceOverride(overrides, typeArguments[i]);
+            }
+        }
+
+        static bool SupportsXmlTypeOverride(Type type)
+        {
+            return !XmlPrimitiveTypes.Contains(type)
+                && !typeof(XmlNode).IsAssignableFrom(type)
+                && !typeof(IXmlSerializable).IsAssignableFrom(type);
+        }
+
+        static void AddTypeNamespaceOverride(XmlAttributeOverrides overrides, Type type)
+        {
+            if (!SupportsXmlTypeOverride(type)) return;
+            var elementType = Nullable.GetUnderlyingType(type) ?? (type.IsArray ? type.GetElementType() : null);
+            if (elementType != null)
+            {
+                AddTypeNamespaceOverride(overrides, elementType);
+                return;
+            }
+
+            if (overrides[type] != null) return;
+            var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute), inherit: false);
+            if (xmlType == null) xmlType = new XmlTypeAttribute();
+            else if (!string.IsNullOrEmpty(xmlType.Namespace)) return;
+
+            xmlType.Namespace = GetXmlNamespace(type);
+            overrides.Add(type, new XmlAttributes { XmlType = xmlType });
+            AddTypeArgumentOverrides(overrides, type);
+        }
+
         static XmlSerializer GetXmlSerializerLegacy(HashSet<Type> serializerTypes)
         {
             var overrides = new XmlAttributeOverrides();
@@ -441,6 +499,7 @@ namespace Bonsai
 
                     var extraTypes = updatedTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
                     AddTypeAttributeOverrides(overrides, SerializerLegacyTypes);
+                    AddTypeArgumentOverrides(overrides, updatedTypes);
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     var serializer = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
                     serializerTypes = updatedTypes;

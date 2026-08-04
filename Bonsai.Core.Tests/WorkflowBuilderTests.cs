@@ -65,6 +65,46 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Serialize_SameNameTypeArgumentsFromDifferentNamespaces_RoundTripSuccessful()
+        {
+            // identically named types from different namespaces are qualified by their CLR
+            // namespace when used as type arguments, so both operands can be serialized
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder
+            {
+                Operand = new WorkflowProperty<FirstNamespace.ValueKind> { Value = FirstNamespace.ValueKind.Second }
+            });
+            workflow.Workflow.Add(new HasFlagBuilder
+            {
+                Operand = new WorkflowProperty<SecondNamespace.ValueKind> { Value = SecondNamespace.ValueKind.First }
+            });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operandTypes = roundTrip.Workflow.Select(node => ((HasFlagBuilder)node.Value).Operand.GetType());
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    typeof(WorkflowProperty<FirstNamespace.ValueKind>),
+                    typeof(WorkflowProperty<SecondNamespace.ValueKind>)
+                },
+                operandTypes.ToArray());
+        }
+
+        [TestMethod]
+        public void Serialize_PrimitiveTypeArgument_RoundTripSuccessful()
+        {
+            // type arguments mapped to XML schema built-in types cannot be assigned any XML
+            // attributes, so they must be left unqualified
+            var value = 10L;
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<long> { Value = value } });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operand = (WorkflowProperty<long>)((HasFlagBuilder)roundTrip.Workflow.First().Value).Operand;
+            Assert.AreEqual(value, operand.Value);
+        }
+
+        [TestMethod]
         public void Serialize_FailedSerializerConstruction_SubsequentSerializationSuccessful()
         {
             // a workflow that cannot be serialized should not invalidate the serializer cache
@@ -141,6 +181,24 @@ namespace Bonsai.Core.Tests
             {
                 return expression;
             }
+        }
+    }
+
+    namespace FirstNamespace
+    {
+        public enum ValueKind
+        {
+            First = 1,
+            Second = 2
+        }
+    }
+
+    namespace SecondNamespace
+    {
+        public enum ValueKind
+        {
+            First = 1,
+            Second = 2
         }
     }
 
