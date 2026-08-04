@@ -265,6 +265,19 @@ namespace Bonsai
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
         static readonly Type[] SerializerLegacyTypes = GetSerializerLegacyTypes().ToArray();
+        static readonly HashSet<Type> XmlPrimitiveTypes = GetXmlPrimitiveTypes();
+
+        static HashSet<Type> GetXmlPrimitiveTypes()
+        {
+            return new HashSet<Type>
+            {
+                typeof(bool), typeof(byte), typeof(sbyte), typeof(short), typeof(ushort),
+                typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float),
+                typeof(double), typeof(decimal), typeof(char), typeof(string),
+                typeof(DateTime), typeof(TimeSpan), typeof(DateTimeOffset), typeof(Guid),
+                typeof(XmlQualifiedName), typeof(byte[])
+            };
+        }
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -306,16 +319,31 @@ namespace Bonsai
             return ClrNamespace.FromType(type).ToString();
         }
 
+        static IEnumerable<Type> GetTypeArgumentClosure(Type type)
+        {
+            while (type.IsArray)
+            {
+                type = type.GetElementType();
+                yield return type;
+            }
+
+            if (!type.IsGenericType) yield break;
+            var typeArguments = type.GetGenericArguments();
+            for (int i = 0; i < typeArguments.Length; i++)
+            {
+                yield return typeArguments[i];
+                foreach (var nestedArgument in GetTypeArgumentClosure(typeArguments[i]))
+                {
+                    yield return nestedArgument;
+                }
+            }
+        }
+
         static void GetClrNamespaces(Type type, Dictionary<ClrNamespace, Assembly> clrNamespaces)
         {
-            clrNamespaces[ClrNamespace.FromType(type)] = type.Assembly;
-            if (type.IsGenericType)
+            foreach (var closureType in GetTypeArgumentClosure(type).Prepend(type))
             {
-                var typeArguments = type.GetGenericArguments();
-                for (int i = 0; i < typeArguments.Length; i++)
-                {
-                    GetClrNamespaces(typeArguments[i], clrNamespaces);
-                }
+                clrNamespaces[ClrNamespace.FromType(closureType)] = closureType.Assembly;
             }
         }
 
@@ -370,6 +398,50 @@ namespace Bonsai
             }
         }
 
+        static void AddTypeArgumentOverrides(XmlAttributeOverrides overrides, IEnumerable<Type> types)
+        {
+            foreach (var type in types)
+            {
+                AddTypeArgumentOverrides(overrides, type);
+            }
+        }
+
+        static void AddTypeArgumentOverrides(XmlAttributeOverrides overrides, Type type)
+        {
+            foreach (var typeArgument in GetTypeArgumentClosure(type))
+            {
+                AddTypeNamespaceOverride(overrides, typeArgument);
+            }
+        }
+
+        static bool SupportsXmlTypeOverride(Type type)
+        {
+            return !XmlPrimitiveTypes.Contains(type)
+                && !typeof(XmlNode).IsAssignableFrom(type)
+                && !typeof(IXmlSerializable).IsAssignableFrom(type);
+        }
+
+        static void AddTypeNamespaceOverride(XmlAttributeOverrides overrides, Type type)
+        {
+            if (!SupportsXmlTypeOverride(type)) return;
+            if (overrides[type] != null) return;
+            var xmlType = GetXmlTypeAttribute(type);
+            if (!string.IsNullOrEmpty(xmlType.Namespace)) return;
+            AddXmlTypeOverride(overrides, type, xmlType);
+        }
+
+        static XmlTypeAttribute GetXmlTypeAttribute(Type type)
+        {
+            var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute), inherit: false);
+            return xmlType ?? new XmlTypeAttribute();
+        }
+
+        static void AddXmlTypeOverride(XmlAttributeOverrides overrides, Type type, XmlTypeAttribute xmlType)
+        {
+            xmlType.Namespace = GetXmlNamespace(type);
+            overrides.Add(type, new XmlAttributes { XmlType = xmlType });
+        }
+
         static XmlSerializer GetXmlSerializerLegacy(HashSet<Type> serializerTypes)
         {
             var overrides = new XmlAttributeOverrides();
@@ -414,33 +486,28 @@ namespace Bonsai
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in updatedTypes)
                     {
-                        var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), inherit: false);
-                        var attributes = new XmlAttributes();
-                        attributes.XmlType = xmlTypeDefined
-                            ? (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute))
-                            : new XmlTypeAttribute();
-                        
+                        var xmlType = GetXmlTypeAttribute(type);
                         if (type.IsGenericType)
                         {
                             var typeRef = new CodeTypeReference(type);
                             var typeCode = GenericTypeCode.FromType(type);
                             var genericSeparatorIndex = type.Name.LastIndexOf('`');
-                            if (xmlTypeDefined && !string.IsNullOrEmpty(attributes.XmlType.TypeName))
+                            if (!string.IsNullOrEmpty(xmlType.TypeName))
                             {
-                                typeRef.BaseType = type.Namespace + "." + attributes.XmlType.TypeName + type.Name.Substring(genericSeparatorIndex);
-                                typeCode.Name = attributes.XmlType.TypeName;
+                                typeRef.BaseType = type.Namespace + "." + xmlType.TypeName + type.Name.Substring(genericSeparatorIndex);
+                                typeCode.Name = xmlType.TypeName;
                             }
 
                             var typeName = codeProvider.GetTypeOutput(typeRef);
                             updatedGenericTypes.Add(typeName, typeCode);
-                            attributes.XmlType.TypeName = typeName;
+                            xmlType.TypeName = typeName;
                         }
-                        attributes.XmlType.Namespace = GetXmlNamespace(type);
-                        overrides.Add(type, attributes);
+                        AddXmlTypeOverride(overrides, type, xmlType);
                     }
 
                     var extraTypes = updatedTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
                     AddTypeAttributeOverrides(overrides, SerializerLegacyTypes);
+                    AddTypeArgumentOverrides(overrides, updatedTypes);
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     var serializer = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
                     serializerTypes = updatedTypes;
