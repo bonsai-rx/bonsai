@@ -2428,7 +2428,8 @@ namespace Bonsai.Editor
         {
             var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
             if (selectedElement is ICustomTypeDescriptor typeDescriptor &&
-                typeDescriptor.GetPropertyOwner(null) is object selectedOperator)
+                typeDescriptor.GetPropertyOwner(null) is object selectedOperator &&
+                selectedOperator is not WorkflowProperty)
             {
                 selectedElement = selectedOperator;
             }
