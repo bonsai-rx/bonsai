@@ -59,9 +59,24 @@ jobs:
       matrix: ${{fromJSON(needs.create-build-matrix.outputs.matrix)}}
     name: ${{matrix.platform.name}} ${{matrix.configuration}}
     runs-on: ${{matrix.platform.os}}
+    # Only the target which creates the installer signs anything, so it is the only one which needs the signing credentials and the release approval
+    # The condition is spelled out here rather than reusing WillPublishPackages below because the environment key is evaluated before any step runs
+    environment: >-
+      ${{matrix.create-installer
+      && (github.event_name == 'release'
+      || (github.event_name == 'workflow_dispatch'
+      && github.event.inputs.will_publish_packages == 'true'
+      && github.event.inputs.version != ''))
+      && 'PublicRelease' || ''}}
     env:
       IsReferenceDummyBuild: ${{matrix.dummy-build}}
       UseRepackForBootstrapperPackage: ${{matrix.collect-packages && !matrix.dummy-build}}
+      # This should be kept in sync with publish-packages-nuget-org
+      WillPublishPackages: >-
+        ${{github.event_name == 'release'
+        || (github.event_name == 'workflow_dispatch'
+        && github.event.inputs.will_publish_packages == 'true'
+        && github.event.inputs.version != '')}}
     steps:
       # ----------------------------------------------------------------------- Checkout
       - name: Checkout
@@ -115,6 +130,18 @@ jobs:
         if: matrix.create-installer || env.UseRepackForBootstrapperPackage == 'true'
         run: dotnet build Bonsai --no-restore --configuration ${{matrix.configuration}} -t:Repack -p:TargetFramework=net48
 
+      # ----------------------------------------------------------------------- Sign bootstrapper
+      # Signing here means a single signature covers every copy of the bootstrapper
+      - name: Sign bootstrapper
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
+        with:
+          files: artifacts/bin/Bonsai/${{matrix.configuration-lower}}-repacked/Bonsai.exe
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential-id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp-secret: ${{secrets.ES_TOTP_SECRET}}
+
       # ----------------------------------------------------------------------- Pack
       # Since packages are core to Bonsai functionality we always pack them even if they won't be collected
       - name: Pack
@@ -139,8 +166,7 @@ jobs:
         run: python .github/workflows/create-portable-zip.py artifacts/Bonsai.zip ${{matrix.configuration}}
         env:
           NUGET_API_URL: ${{vars.NUGET_API_URL}}
-          # This should be kept in sync with publish-packages-nuget-org
-          IS_FULL_RELEASE: ${{github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')}}
+          IS_FULL_RELEASE: ${{env.WillPublishPackages}}
 
       # ----------------------------------------------------------------------- Build setup
       - name: Restore setup
@@ -150,10 +176,60 @@ jobs:
           nuget restore Bonsai.Setup/packages.config -SolutionDir .
           nuget restore Bonsai.Setup.Bootstrapper/packages.config -SolutionDir .
 
-      - name: Build Setup
+      # The MSI and the bundle are built one at a time so the MSI can be signed before the bundle embeds it
+      - name: Build MSI
+        if: matrix.create-installer
+        run: msbuild /nologo /maxCpuCount Bonsai.Setup/Bonsai.Setup.wixproj /p:Configuration=${{matrix.configuration}} /p:Platform=x86
+
+      - name: Sign MSI
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
+        with:
+          files: artifacts/bin/Bonsai.Setup/${{matrix.configuration-lower}}-x86/Bonsai.Setup.msi
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential-id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp-secret: ${{secrets.ES_TOTP_SECRET}}
+
+      # Project references are not built so the bundle embeds the MSI produced above instead of relinking it, which would discard its signature
+      # The bundle file name carries the version, so it is resolved once here for the signing steps below
+      - name: Build installer
         id: create-installer
         if: matrix.create-installer
-        run: msbuild /nologo /maxCpuCount Bonsai.Setup.sln /p:Configuration=${{matrix.configuration}}
+        run: |
+          msbuild /nologo /maxCpuCount Bonsai.Setup.Bootstrapper/Bonsai.Setup.Bootstrapper.wixproj /p:Configuration=${{matrix.configuration}} /p:Platform=x86 /p:BuildProjectReferences=false
+          $bundle = Get-Item artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration-lower}}-x86/Bonsai-*.exe
+          "BundlePath=$($bundle.FullName)" >> $env:GITHUB_ENV
+
+      # ----------------------------------------------------------------------- Sign installer
+      # A Burn bundle takes two signatures: the engine is detached from the bundle, signed, and reattached, and only then can the bundle itself be signed
+      - name: Detach engine
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        run: packages/wix.3.14.1/tools/insignia.exe -nologo -ib ${{env.BundlePath}} -o artifacts/BundleEngine.exe
+
+      - name: Sign engine
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
+        with:
+          files: artifacts/BundleEngine.exe
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential-id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp-secret: ${{secrets.ES_TOTP_SECRET}}
+
+      - name: Reattach engine
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        run: packages/wix.3.14.1/tools/insignia.exe -nologo -ab artifacts/BundleEngine.exe ${{env.BundlePath}} -o ${{env.BundlePath}}
+
+      - name: Sign installer
+        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
+        with:
+          files: ${{env.BundlePath}}
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential-id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp-secret: ${{secrets.ES_TOTP_SECRET}}
 
       # ----------------------------------------------------------------------- Collect artifacts
       - name: Collect NuGet packages
@@ -311,7 +387,8 @@ jobs:
       # Needed to check out the workflow scripts and download build artifacts
       contents: read
       actions: read
-    needs: [build-and-test, determine-changed-packages]
+    # The push to NuGet.org cannot be undone, so we wait until every reversible part of the release has succeeded
+    needs: [build-and-test, determine-changed-packages, publish-github]
     # Release builds always publish packages to NuGet.org
     # Workflow dispatch builds will only publish packages if enabled and an explicit version number is given
     # This should be kept in sync with create-portable-zip
@@ -351,21 +428,17 @@ jobs:
       - name: Filter NuGet packages
         run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
 
-      # ----------------------------------------------------------------------- Push to NuGet.org
+      # ----------------------------------------------------------------------- Log in to NuGet.org
+      # Logging in before the docs update means a misconfigured trusted publishing policy stops the release before anything else moves
       - name: Log in to NuGet.org with OIDC
         uses: NuGet/login@v1
         id: nuget-login
         with:
           user: ${{secrets.NUGET_USER}}
 
-      - name: Push to NuGet.org
-        run: dotnet nuget push "Packages/*.nupkg" --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source ${{vars.NUGET_API_URL}}
-        env:
-          # This is a workaround for https://github.com/NuGet/Home/issues/9775
-          DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
-
       # ----------------------------------------------------------------------- Dispatch docs repo update
       # This might seem like an odd spot to do this, but we need access to the PublicRelease environment for our secrets and using it in two jobs means two approvals are needed
+      # It runs before the push because the push cannot be undone, so a credential failure here should stop the release rather than strand it half published
       - name: Update version and submodule in ${{vars.DOCS_REPO}}
         if: github.event_name == 'release' && github.event.release.prerelease == false
         run: gh workflow run --repo "$DOCS_REPO" version-bump.yml --raw-field "project=$PROJECT" --raw-field "version=$VERSION" --raw-field "project-fork-url=$PROJECT_FORK_URL"
@@ -375,6 +448,14 @@ jobs:
           PROJECT: bonsai
           VERSION: ${{github.event.release.tag_name}}
           PROJECT_FORK_URL: ${{github.server_url}}/${{github.repository}}.git
+
+      # ----------------------------------------------------------------------- Push to NuGet.org
+      # This is the only step of the release which cannot be undone, so it goes last
+      - name: Push to NuGet.org
+        run: dotnet nuget push "Packages/*.nupkg" --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source ${{vars.NUGET_API_URL}}
+        env:
+          # This is a workaround for https://github.com/NuGet/Home/issues/9775
+          DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
 
   # =====================================================================================================================================================================
   # Finish up release
