@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Bonsai.Editor.GraphModel;
+using Bonsai.Editor.Properties;
 using Bonsai.Editor.Themes;
 
 namespace Bonsai.Editor.GraphView
@@ -12,6 +16,8 @@ namespace Bonsai.Editor.GraphView
         readonly IServiceProvider serviceProvider;
         readonly IWorkflowEditorService editorService;
         readonly ThemeRenderer themeRenderer;
+        readonly Image homeImage;
+        Button homeButton;
         WorkflowEditorPath workflowPath;
         int totalPathWidth;
 
@@ -22,6 +28,7 @@ namespace Bonsai.Editor.GraphView
             themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             themeRenderer.ThemeChanged += ThemeRenderer_ThemeChanged;
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            homeImage = Resources.HomeImage;
             flowLayoutPanel.HandleCreated += (sender, e) =>
             {
                 // ensure child handles are created in collection order so changes in visibility never
@@ -29,16 +36,6 @@ namespace Bonsai.Editor.GraphView
                 foreach (Control control in flowLayoutPanel.Controls)
                     _ = control.Handle;
             };
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return flowLayoutPanel.Controls.Count > 0
-                    ? flowLayoutPanel.Controls[flowLayoutPanel.Controls.Count - 1].Text
-                    : editorService.GetProjectDisplayName();
-            }
         }
 
         public WorkflowEditorPath WorkflowPath
@@ -63,13 +60,12 @@ namespace Bonsai.Editor.GraphView
         private void RefreshDisplayNames(IEnumerable<KeyValuePair<string, WorkflowEditorPath>> pathElements)
         {
             SuspendLayout();
+            flowLayoutPanel.Controls[0].AccessibleName = editorService.GetProjectDisplayName();
             using var elementEnumerator = pathElements.GetEnumerator();
             for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
             {
                 var control = flowLayoutPanel.Controls[i];
-                if (i == 1)
-                    control.Text = editorService.GetProjectDisplayName();
-                else if (control.Tag is WorkflowEditorPath && elementEnumerator.MoveNext())
+                if (control.Tag is WorkflowEditorPath && elementEnumerator.MoveNext())
                     control.Text = elementEnumerator.Current.Key;
             }
             UpdatePathWidth();
@@ -92,13 +88,16 @@ namespace Bonsai.Editor.GraphView
         {
             SuspendLayout();
             flowLayoutPanel.Controls.Clear();
+            homeButton = AddPathButton(text: null, path: null);
+            homeButton.AccessibleName = editorService.GetProjectDisplayName();
+            UpdateHomeImage();
             AddPathButton("...", null, createEvent: false, visible: false);
-            AddPathButton(editorService.GetProjectDisplayName(), null);
             foreach (var path in pathElements)
             {
-                AddPathButton(">", null, createEvent: false);
+                AddSeparator(path.Value);
                 AddPathButton(path.Key, path.Value);
             }
+            SetSymbolButtonPadding();
             UpdatePathWidth();
             CompressPath();
             ResumeLayout(true);
@@ -106,8 +105,8 @@ namespace Bonsai.Editor.GraphView
 
         private void UpdatePathWidth()
         {
-            totalPathWidth = 0;
-            for (int i = 1; i < flowLayoutPanel.Controls.Count; i++)
+            totalPathWidth = GetControlWidth(flowLayoutPanel.Controls[0]);
+            for (int i = 2; i < flowLayoutPanel.Controls.Count; i++)
                 totalPathWidth += GetControlWidth(flowLayoutPanel.Controls[i]);
         }
 
@@ -116,34 +115,31 @@ namespace Bonsai.Editor.GraphView
             if (flowLayoutPanel.Controls.Count <= 4)
                 return;
 
-            bool compressPath = false;
-            var totalWidth = totalPathWidth;
-            if (totalWidth > Width)
+            var excessWidth = totalPathWidth - Width;
+            if (excessWidth > 0)
             {
-                // adjust for inserting the ellipsis button
-                totalWidth -= flowLayoutPanel.Controls[1].PreferredSize.Width;
-                totalWidth += flowLayoutPanel.Controls[0].PreferredSize.Width;
-                compressPath = true;
+                // the home button is pinned, so the ellipsis only adds to the path width
+                excessWidth += flowLayoutPanel.Controls[1].PreferredSize.Width;
             }
 
-            var excessWidth = totalWidth - Width;
+            bool compressPath = false;
             for (int i = 2; i < flowLayoutPanel.Controls.Count - 4; i++)
             {
                 // separator and breadcrumb buttons are hidden together
-                var visible = !compressPath || excessWidth <= 0;
+                var visible = excessWidth <= 0;
                 if (i % 2 != 0) visible &= flowLayoutPanel.Controls[i - 1].Visible;
 
                 // hide excess breadcrumb levels
                 flowLayoutPanel.Controls[i].Visible = visible;
+                compressPath |= !visible;
                 if (excessWidth > 0)
                 {
                     excessWidth -= GetControlWidth(flowLayoutPanel.Controls[i]);
                 }
             }
 
-            // either the root or ellipsis button is shown
-            flowLayoutPanel.Controls[0].Visible = compressPath;
-            flowLayoutPanel.Controls[1].Visible = !compressPath;
+            // the ellipsis marks collapsed levels
+            flowLayoutPanel.Controls[1].Visible = compressPath;
         }
 
         private int GetControlWidth(Control control)
@@ -170,6 +166,64 @@ namespace Bonsai.Editor.GraphView
             return breadcrumbButton;
         }
 
+        private void AddSeparator(WorkflowEditorPath pathElement)
+        {
+            var separator = new BreadcrumbSeparator
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Text = ">",
+                PathElement = pathElement
+            };
+            separator.MouseClick += Separator_MouseClick;
+            separator.ParentChanged += BreadcrumbButton_ParentChanged;
+            SetBreadcrumbTheme(separator, themeRenderer);
+            flowLayoutPanel.Controls.Add(separator);
+        }
+
+        private void UpdateHomeImage()
+        {
+            if (homeButton == null)
+                return;
+
+            var iconSize = new Size(homeButton.Font.Height, homeButton.Font.Height);
+            var previousImage = homeButton.Image;
+            if (themeRenderer.ActiveTheme == ColorTheme.Dark)
+            {
+                using var inverted = ThemeHelper.Invert(homeImage);
+                homeButton.Image = ScaleImage(inverted, iconSize);
+            }
+            else homeButton.Image = ScaleImage(homeImage, iconSize);
+            previousImage?.Dispose();
+        }
+
+        private void SetSymbolButtonPadding()
+        {
+            var ellipsis = flowLayoutPanel.Controls[1];
+            var referenceHeight = ellipsis.PreferredSize.Height;
+            var horizontalPadding = ellipsis.Font.Height / 4;
+            foreach (Control control in flowLayoutPanel.Controls)
+            {
+                if (control != homeButton && control != ellipsis && control is not BreadcrumbSeparator)
+                    continue;
+
+                control.Padding = Padding.Empty;
+                var verticalPadding = Math.Max(0, referenceHeight - control.PreferredSize.Height) / 2;
+                control.Padding = new Padding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+            }
+        }
+
+        private static Image ScaleImage(Image image, Size size)
+        {
+            var result = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(result))
+            {
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.DrawImage(image, 0, 0, size.Width, size.Height);
+            }
+            return result;
+        }
+
         private void BreadcrumbButton_ParentChanged(object sender, EventArgs e)
         {
             var button = (Button)sender;
@@ -182,6 +236,32 @@ namespace Bonsai.Editor.GraphView
             var button = (Button)sender;
             var path = (WorkflowEditorPath)button.Tag;
             OnWorkflowPathMouseClick(new WorkflowPathMouseEventArgs(path, e.Button, e.Clicks, e.X, e.Y, e.Delta));
+        }
+
+        private void Separator_MouseClick(object sender, MouseEventArgs e)
+        {
+            var separator = (BreadcrumbSeparator)sender;
+            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+            var siblings = WorkflowEditorPath.GetSiblingDisplayElements(separator.PathElement, workflowBuilder);
+            var menu = new ContextMenuStrip();
+            foreach (var sibling in siblings)
+            {
+                var item = new ToolStripMenuItem(sibling.Key)
+                {
+                    Tag = sibling.Value,
+                    Checked = sibling.Value == separator.PathElement
+                };
+                item.Click += SiblingItem_Click;
+                menu.Items.Add(item);
+            }
+            menu.Show(separator, new Point(0, separator.Height));
+        }
+
+        private void SiblingItem_Click(object sender, EventArgs e)
+        {
+            var item = (ToolStripMenuItem)sender;
+            var path = (WorkflowEditorPath)item.Tag;
+            OnWorkflowPathMouseClick(new WorkflowPathMouseEventArgs(path, MouseButtons.Left, 1, 0, 0, 0));
         }
 
         protected override void OnLayout(LayoutEventArgs e)
@@ -207,6 +287,7 @@ namespace Bonsai.Editor.GraphView
             {
                 SetBreadcrumbTheme(button, themeRenderer);
             }
+            UpdateHomeImage();
         }
 
         private static void SetBreadcrumbTheme(Button button, ThemeRenderer themeRenderer)
@@ -246,6 +327,11 @@ namespace Bonsai.Editor.GraphView
                     return;
                 base.OnMouseDown(mevent);
             }
+        }
+
+        class BreadcrumbSeparator : BreadcrumbButtton
+        {
+            public WorkflowEditorPath PathElement { get; set; }
         }
     }
 }
