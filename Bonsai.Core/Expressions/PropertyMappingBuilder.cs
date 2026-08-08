@@ -64,11 +64,12 @@ namespace Bonsai.Expressions
         internal virtual bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
             argument = source;
+            var nodeTree = NestedPropertyMappingNode.BuildNodeTree(PropertyMappings);
             var workflowElement = GetWorkflowElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
-            foreach (var mapping in PropertyMappings)
+            foreach (var node in nodeTree)
             {
-                argument = BuildPropertyMapping(argument, instance, mapping.Name, mapping.Selector);
+                argument = BuildNestedPropertyMapping(argument, instance, node.Name, node);
             }
 
             return false;

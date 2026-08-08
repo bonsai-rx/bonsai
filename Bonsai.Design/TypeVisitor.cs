@@ -46,6 +46,17 @@ namespace Bonsai.Design
             {
                 visitor(property, property.PropertyType);
             }
+
+            if (type is IExtendedVisitableType extendedType)
+            {
+                foreach (var member in extendedType.GetExtendedMembers())
+                {
+                    if (member is IExtendedVisitableMemberInfo extendedMemberInfo)
+                    {
+                        visitor(member, extendedMemberInfo.ExtendedVisitableMemberType);
+                    }
+                }
+            }
         }
     }
 }
