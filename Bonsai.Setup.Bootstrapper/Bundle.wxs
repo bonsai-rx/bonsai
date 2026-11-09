@@ -5,7 +5,7 @@
   <?define ProductDisplayName="Bonsai"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
   <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
-  <?define VCRTRegistryKey="SOFTWARE\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeMinimum"?>
+  <?define VCRTRegistryKey="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes"?>
 
   <Bundle Name="$(var.ProductDisplayName)"
           Version="!(bind.PackageVersion.Bonsai)"
@@ -25,17 +25,24 @@
     <Variable Name="BonsaiDisplayVersion" Type="string" Value="$(var.BonsaiDisplayVersion)"/>
     <Variable Name="InstallFolder" Type="string" Value="[LocalAppDataFolder]Bonsai\"/>
     <Variable Name="AddPathCheckbox" Type="numeric" Value="1" />
-    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRTInstalled" Win64="no"/>
-    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRT64Installed" Win64="yes"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)\x86" Value="Minor" Variable="VCRTMinor" Win64="no"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)\x86" Value="Bld" Variable="VCRTBuild" Win64="no"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)\x64" Value="Minor" Variable="VCRT64Minor" Win64="yes"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)\x64" Value="Bld" Variable="VCRT64Build" Win64="yes"/>
 
     <Chain>
       <PackageGroupRef Id="NetFx48Web"/>
-      <ExePackage Id="VCRT" SourceFile="vc_redist.x86.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="NOT VersionNT64" DetectCondition="VCRTInstalled"/>
-      <ExePackage Id="VCRT64" SourceFile="vc_redist.x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
+      <ExePackage Id="VCRT" SourceFile="$(var.VCRedistX86Path)" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="NOT VersionNT64"
+                  DetectCondition="VCRTMinor > $(var.VCRedistMinor) OR (VCRTMinor = $(var.VCRedistMinor) AND VCRTBuild >= $(var.VCRedistBuild))">
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
+      <ExePackage Id="VCRT64" SourceFile="$(var.VCRedistX64Path)" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64"
+                  DetectCondition="VCRT64Minor > $(var.VCRedistMinor) OR (VCRT64Minor = $(var.VCRedistMinor) AND VCRT64Build >= $(var.VCRedistBuild))">
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
         <MsiProperty Name="ADDPATH" Value="[AddPathCheckbox]"/>
-        <MsiProperty Name="INSTALL64" Value="VersionNT64"/>
       </MsiPackage>
     </Chain>
   </Bundle>

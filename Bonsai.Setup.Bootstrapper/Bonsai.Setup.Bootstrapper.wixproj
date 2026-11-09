@@ -58,9 +58,9 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Bonsai.Wix.vc143.redist.1.0.0\build\Bonsai.Wix.vc143.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Bonsai.Wix.vc143.redist.1.0.0\build\Bonsai.Wix.vc143.redist.targets'))" />
     <Error Condition="!Exists('..\packages\wix.3.14.1\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\wix.3.14.1\build\wix.props'))" />
   </Target>
-  <Import Project="..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets" Condition="Exists('..\packages\vc143.wixproj.redist.0.1.0\build\vc143.wixproj.redist.targets')" />
+  <Import Project="..\packages\Bonsai.Wix.vc143.redist.1.0.0\build\Bonsai.Wix.vc143.redist.targets" Condition="Exists('..\packages\Bonsai.Wix.vc143.redist.1.0.0\build\Bonsai.Wix.vc143.redist.targets')" />
   <Import Project="..\Directory.Build.targets" />
 </Project>
