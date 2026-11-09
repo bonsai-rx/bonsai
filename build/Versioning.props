@@ -6,14 +6,10 @@
     <DevVersion Condition="'$(DevVersion)' == ''">0</DevVersion>
 
     <Version>$(BonsaiVersion)-dev$(DevVersion)</Version>
-    <_FileVersionRevision>$([MSBuild]::Add(60000, $(DevVersion)))</_FileVersionRevision>
     <BuildKindConstant>BUILD_KIND_DEV</BuildKindConstant>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
-    <Version>$(BonsaiVersion)$(CiBuildVersionSuffix)</Version>
-    <Version Condition="'$(CiBuildVersion)' != ''">$(CiBuildVersion)</Version>
-    <_FileVersionRevision>0</_FileVersionRevision>
-    <_FileVersionRevision Condition="'$(CiIsForRelease)' != 'true' and '$(CiRunNumber)' != ''">$(CiRunNumber)</_FileVersionRevision>
+    <Version>$(CiBuildVersion)</Version>
 
     <BuildKindConstant Condition="'$(CiIsForRelease)' != 'true'">BUILD_KIND_UNSTABLE</BuildKindConstant>
     <BuildKindConstant Condition="'$(CiIsForRelease)' == 'true'">BUILD_KIND_OFFICIAL_RELEASE</BuildKindConstant>
@@ -33,7 +29,7 @@
     utilize GetAssemblyVersion to strip off the prerelease suffix because it only exists in the modern SDK so we have to do it manually
   -->
   <PropertyGroup>
-    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).$(_FileVersionRevision)</FileVersion>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -41,8 +37,8 @@
     <_UnchangedBonsaiFileVersion>$(FileVersion)</_UnchangedBonsaiFileVersion>
   </PropertyGroup>
 
-  <Target Name="VersionSanityChecks" BeforeTargets="build">
-    <Error Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(CiBuildVersion)' == '' and '$(CiBuildVersionSuffix)' == ''" Text="CI version info not configured." />
+  <Target Name="VersionSanityChecks" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(CiBuildVersion)' == ''" Text="CI version info not configured." />
     <Error Condition="'$(Version)' != '$(_UnchangedBonsaiVersion)'" Text="Do not manually specify Version." />
     <Error Condition="'$(FileVersion)' != '$(_UnchangedBonsaiFileVersion)'" Text="Do not manually specify FileVersion." />
     <Error Condition="'$(PackageVersion)' != '' and '$(PackageVersion)' != '$(Version)'" Text="Do not manually specify PackageVersion." />

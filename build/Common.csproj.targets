@@ -1,0 +1,32 @@
+<!--
+  Solution-specific configuration/targets should generally not be placed in this file, instead create or update Project.csproj.targets
+-->
+<Project>
+  <ItemGroup>
+    <None Include="$(PackageIconSourcePath)" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
+    <None Include="$(PackageLicenseSourcePath)" Pack="true" PackagePath="" Visible="false" />
+    <None Include="$(PackageReadmeSourcePath)" Pack="true" PackagePath="$(PackageReadmeFile)" Visible="false" />
+  </ItemGroup>
+
+  <!-- Default tool configuration -->
+  <PropertyGroup Condition="'$(PackAsTool)' == 'true'">
+    <ToolCommandName Condition="'$(ToolCommandName)' == ''">$(TargetName.ToLowerInvariant())</ToolCommandName>
+    <PackageType>DotnetTool</PackageType>
+
+    <!--
+      Disable warnings relating to missing documentation
+      (It's actually too late to easily disable documentation file generation outright, Microsoft.NET.Sdk.BeforeCommon.targets already reacted to it being enabled.)
+    -->
+    <NoWarn>1591,1573</NoWarn>
+  </PropertyGroup>
+
+  <Import Project="Project.csproj.targets" Condition="Exists('Project.csproj.targets')" />
+
+  <!-- Package versioning - Bonsai shares its versioning scheme with the installer, so it is defined separately -->
+  <Import Project="Versioning.props" />
+
+  <!-- Check for stale bin/obj directories left over from before we switched to the central artifacts folder -->
+  <Target Name="CheckForStaleOutputDirectories" AfterTargets="Build" Condition="Exists('$(ProjectDir)bin') or Exists('$(ProjectDir)obj')">
+    <Warning Text="Stale bin/obj directories exist for $(MSBuildProjectName), deleting them is strongly recommended." />
+  </Target>
+</Project>

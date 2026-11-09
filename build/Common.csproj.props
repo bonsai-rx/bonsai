@@ -1,0 +1,77 @@
+<!--
+  Solution-specific configuration/targets should generally not be placed in this file.
+  For solution-wide NuGet properties, update Package.props
+  For everything else, update or create Project.csproj.props
+-->
+<Project>
+  <!-- Default configuration and platform when not present -->
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+  </PropertyGroup>
+
+  <!-- Common C# Properties -->
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Features>strict</Features>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Build to central artifacts folder instead of scattering bin and obj throughout the solution tree -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../artifacts'))</ArtifactsPath>
+
+    <!--
+      Odd things can happen when WSL and Windows share the same output directories (IE: when building from a single clone of the repo which is shared between both.)
+      As such if we detect we're running under WSL we use different output directories.
+    -->
+    <ArtifactsPath Condition="'$(WSL_DISTRO_NAME)' != ''">$(ArtifactsPath)/wsl</ArtifactsPath>
+  </PropertyGroup>
+
+  <!-- Universal NuGet Package Properties -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageType>Dependency;BonsaiLibrary</PackageType>
+
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconSourcePath>$(MSBuildThisFileDirectory)icon.png</PackageIconSourcePath>
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseSourcePath>$(MSBuildThisFileDirectory)../LICENSE</PackageLicenseSourcePath>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeSourcePath>$(MSBuildThisFileDirectory)../docs/README.md</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(MSBuildThisFileDirectory)README.nuget.md')">$(MSBuildThisFileDirectory)README.nuget.md</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(MSBuildProjectDirectory)\README.md')">$(MSBuildProjectDirectory)\README.md</PackageReadmeSourcePath>
+    <PackageReadmeSourcePath Condition="Exists('$(MSBuildProjectDirectory)\README.nuget.md')">$(MSBuildProjectDirectory)\README.nuget.md</PackageReadmeSourcePath>
+
+    <!-- Emit modern symbol packages -->
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSymbols Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Embed untracked sources in the PDB for Source Link when building from CI -->
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <EmbedUntrackedSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--
+      Promote especially problematic warnings to errors
+      * NU1701 - Restore graph contains mismatched target frameworks
+      * CS7035 - Malformed version string
+    -->
+    <WarningsAsErrors>$(WarningsAsErrors);NU1701;CS7035</WarningsAsErrors>
+
+    <!-- Explicitly opt in to modern resource embedding (required for building .NET Framework projects from .NET SDK) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+    <!-- Enable windows targeting (required when building from non-Windows platforms) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <Import Project="Project.csproj.props" Condition="Exists('Project.csproj.props')" />
+  <Import Project="Package.props" />
+  <Import Project="Common.Tests.csproj.props" Condition="$(MSBuildProjectName.EndsWith('.Tests'))" />
+</Project>

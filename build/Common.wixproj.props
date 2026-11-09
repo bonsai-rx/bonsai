@@ -1,0 +1,28 @@
+<Project>
+  <!-- Default configuration and platform when not present -->
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+  </PropertyGroup>
+
+  <!-- Build to the same central artifacts folder used by the C# projects -->
+  <PropertyGroup>
+    <ArtifactsPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../artifacts'))</ArtifactsPath>
+    <ArtifactsPath Condition="'$(WSL_DISTRO_NAME)' != ''">$(ArtifactsPath)/wsl</ArtifactsPath>
+
+    <BaseOutputPath>$(ArtifactsPath)/bin/</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)$(MSBuildProjectName)/$(Configuration.ToLowerInvariant())-$(Platform.ToLowerInvariant())/</OutputPath>
+    <OutputDir>$(OutputPath)</OutputDir>
+    <OutDir>$(OutputPath)</OutDir>
+
+    <BaseIntermediateOutputPath>$(ArtifactsPath)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration.ToLowerInvariant())-$(Platform.ToLowerInvariant())/</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <Import Project="Versioning.props" />
+
+  <!-- Solution properties are unused and warn when these projects are built on their own -->
+  <PropertyGroup>
+    <DefineSolutionProperties>false</DefineSolutionProperties>
+  </PropertyGroup>
+</Project>

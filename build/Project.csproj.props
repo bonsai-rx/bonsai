@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>annotations</Nullable>
+
+    <!-- Always pack NuGet packages (except on CI where it will be done separately) -->
+    <GeneratePackageOnBuild Condition="'$(ContinuousIntegrationBuild)' != 'true'">true</GeneratePackageOnBuild>
+
+    <!-- For configuring launchSettings.json we cannot use property functions so we need to resolve the bootstrapper output path here -->
+    <BonsaiExecutablePath>$(ArtifactsPath)/bin/Bonsai/$(Configuration.ToLowerInvariant())/Bonsai.exe</BonsaiExecutablePath>
+  </PropertyGroup>
+</Project>

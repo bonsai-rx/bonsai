@@ -1,7 +1,8 @@
 .vs/
 /artifacts/
+**/.bonsai/Settings/
+**/.bonsai/Packages/
+**/.bonsai/Bonsai.exe*
 /packages/
 Resources/*.ico
-*.Generated.cs
 *.user
-Bonsai.Setup.Bootstrapper/vc_redist.*.exe

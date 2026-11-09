@@ -1,4 +1,3 @@
 ﻿<Project>
-  <Import Project="tooling/Common.props" />
-  <Import Project="tooling/Common$(MSBuildProjectExtension).props" Condition="Exists('tooling/Common$(MSBuildProjectExtension).props')"/>
+  <Import Project="build/Common$(MSBuildProjectExtension).props" Condition="Exists('build/Common$(MSBuildProjectExtension).props')" />
 </Project>

@@ -10,13 +10,6 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version"
-        default: ""
-      will_publish_packages:
-        description: "Publish packages?"
-        default: "false"
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -47,21 +40,8 @@ jobs:
     name: ${{matrix.platform.name}} ${{matrix.configuration}}
     runs-on: ${{matrix.platform.os}}
     # Only the target which creates the installer signs anything, so it is the only one which needs the signing credentials and the release approval
-    # The condition is spelled out here rather than reusing WillPublishPackages below because the environment key is evaluated before any step runs
-    environment: >-
-      ${{matrix.create-installer
-      && (github.event_name == 'release'
-      || (github.event_name == 'workflow_dispatch'
-      && github.event.inputs.will_publish_packages == 'true'
-      && github.event.inputs.version != ''))
-      && 'PublicRelease' || ''}}
-    env:
-      # This should be kept in sync with publish-packages-nuget-org
-      WillPublishPackages: >-
-        ${{github.event_name == 'release'
-        || (github.event_name == 'workflow_dispatch'
-        && github.event.inputs.will_publish_packages == 'true'
-        && github.event.inputs.version != '')}}
+    # The condition is spelled out here rather than reusing CiIsForRelease because the environment key is evaluated before any step runs
+    environment: ${{matrix.create-installer && github.event_name == 'release' && 'PublicRelease' || ''}}
     steps:
       # ----------------------------------------------------------------------- Checkout
       - name: Checkout
@@ -74,6 +54,7 @@ jobs:
           dotnet-version: 8.x
 
       - name: Setup Python 3.11
+        if: matrix.create-installer
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
@@ -90,15 +71,7 @@ jobs:
 
       # ----------------------------------------------------------------------- Configure build
       - name: Configure build
-        run: python .github/workflows/configure-build.py
-        env:
-          github_event_name: ${{github.event_name}}
-          github_ref: ${{github.ref}}
-          github_run_number: ${{github.run_number}}
-          release_is_prerelease: ${{github.event.release.prerelease}}
-          release_version: ${{github.event.release.tag_name}}
-          workflow_dispatch_version: ${{github.event.inputs.version}}
-          workflow_dispatch_will_publish_packages: ${{github.event.inputs.will_publish_packages}}
+        uses: bonsai-rx/configure-build@v3
 
       # ----------------------------------------------------------------------- Build
       - name: Restore
@@ -116,7 +89,7 @@ jobs:
       # ----------------------------------------------------------------------- Sign bootstrapper
       # Signing here means a single signature covers every copy of the bootstrapper
       - name: Sign bootstrapper
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
           files: artifacts/bin/Bonsai/${{matrix.configuration}}-repacked/Bonsai.exe
@@ -147,7 +120,7 @@ jobs:
         run: python .github/workflows/create-portable-zip.py artifacts/Bonsai.zip ${{matrix.configuration}}
         env:
           NUGET_API_URL: ${{vars.NUGET_API_URL}}
-          IS_FULL_RELEASE: ${{env.WillPublishPackages}}
+          IS_FULL_RELEASE: ${{env.CiIsForRelease}}
 
       # ----------------------------------------------------------------------- Build setup
       - name: Restore setup
@@ -163,7 +136,7 @@ jobs:
         run: msbuild /nologo /maxCpuCount Bonsai.Setup/Bonsai.Setup.wixproj /p:Configuration=${{matrix.configuration}} /p:Platform=x86
 
       - name: Sign MSI
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
           files: artifacts/bin/Bonsai.Setup/${{matrix.configuration}}-x86/Bonsai.Setup.msi
@@ -185,11 +158,11 @@ jobs:
       # ----------------------------------------------------------------------- Sign installer
       # A Burn bundle takes two signatures: the engine is detached from the bundle, signed, and reattached, and only then can the bundle itself be signed
       - name: Detach engine
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         run: packages/wix.3.14.1/tools/insignia.exe -nologo -ib ${{env.BundlePath}} -o artifacts/BundleEngine.exe
 
       - name: Sign engine
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
           files: artifacts/BundleEngine.exe
@@ -199,11 +172,11 @@ jobs:
           totp-secret: ${{secrets.ES_TOTP_SECRET}}
 
       - name: Reattach engine
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         run: packages/wix.3.14.1/tools/insignia.exe -nologo -ab artifacts/BundleEngine.exe ${{env.BundlePath}} -o ${{env.BundlePath}}
 
       - name: Sign installer
-        if: matrix.create-installer && env.WillPublishPackages == 'true'
+        if: matrix.create-installer && env.CiIsForRelease == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
           files: ${{env.BundlePath}}
@@ -249,10 +222,9 @@ jobs:
       # Needed to upload to GitHub Packages
       packages: write
     needs: build-and-test
-    # Pushes always publish CI packages (configure-build.py will add the branch name to the version string for branches besides main)
+    # Pushes always publish CI packages (configure-build adds the branch name to the version string for branches besides main)
     # Published releases always publish packages
-    # A manual workflow only publishes packages if explicitly enabled
-    if: github.event_name == 'push' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true')
+    if: github.event_name == 'push' || github.event_name == 'release'
     steps:
       # ----------------------------------------------------------------------- Setup tools
       - name: Setup .NET
@@ -303,15 +275,13 @@ jobs:
     permissions:
       # Needed to request the OIDC token for NuGet.org trusted publishing
       id-token: write
-      # Needed to check out the workflow scripts and download build artifacts
+      # Needed to download build artifacts
       contents: read
       actions: read
     # The push to NuGet.org cannot be undone, so we wait until every reversible part of the release has succeeded
     needs: [build-and-test, publish-github]
-    # Release builds always publish packages to NuGet.org
-    # Workflow dispatch builds will only publish packages if enabled and an explicit version number is given
-    # This should be kept in sync with create-portable-zip
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')
+    # Only release builds publish packages to NuGet.org
+    if: github.event_name == 'release'
     steps:
       # ----------------------------------------------------------------------- Setup tools
       - name: Setup .NET
@@ -362,8 +332,6 @@ jobs:
     name: Finish up release
     runs-on: ubuntu-latest
     permissions:
-      # Needed to bump tags and version numbers
-      contents: write
       # Needed to close milestones
       issues: write
     # It's important that this only happens when everything else happened successfully
@@ -372,47 +340,6 @@ jobs:
     # Only do finishing tasks when we're explicitly releasing
     if: github.event_name == 'release' && github.event.release.prerelease == false
     steps:
-      # ----------------------------------------------------------------------- Checkout
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          ref: refs/heads/main
-          ssh-key: ${{secrets.CI_DEPLOYMENT_KEY}}
-
-      # ----------------------------------------------------------------------- Verify the release happened from the main branch, otherwise skip the version bump
-      # Bumping the version number has to commit to some branch, but releases happen from tags rather than commits. Therefore we just commit to main
-      # However bumping the version on main would not be appropriate if we were releasing from another branch (such as a backport branch) or even a tag on a loose commit
-      # As such we skip bumping the version if we didn't release from the same revision as main. This is fine as bumping the version number is not a critical part of our workflow
-      # (This has the unintentional side-effect of skipping the version bump when PRs are merged during the workflow run, but we don't expect this to happen)
-      - name: Get the revision of the main branch
-        id: main-revision
-        run: python .github/workflows/gha.py set_output sha `git rev-parse refs/heads/main`
-      - name: Warn if it doesn't match the release
-        if: steps.main-revision.outputs.sha != github.sha
-        run: python .github/workflows/gha.py print_warning "The main branch is at ${{steps.main-revision.outputs.sha}} but the release was made from ${{github.sha}}, the version number will not be automatically bumped."
-
-      # ----------------------------------------------------------------------- Bump version number
-      - name: Bump version number
-        if: steps.main-revision.outputs.sha == github.sha
-        run: |
-          python .github/workflows/bump-version.py
-          git add $version_file_path
-        env:
-          version_file_path: tooling/CurrentVersion.props
-          just_released_version: ${{github.event.release.tag_name}}
-
-      # ----------------------------------------------------------------------- Commit and push changes
-      - name: Commit changes
-        if: steps.main-revision.outputs.sha == github.sha
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Bump to version \`$NEXT_VERSION\`" --allow-empty
-
-      - name: Push changes
-        if: steps.main-revision.outputs.sha == github.sha
-        run: git push
-
       # ----------------------------------------------------------------------- Close milestone
       - name: Close milestone
         uses: actions/github-script@v9

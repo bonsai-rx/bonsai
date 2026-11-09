@@ -3,14 +3,11 @@ import os
 import sys
 import zipfile
 
-import gha
-
 if len(sys.argv) != 3:
-    gha.print_error('Usage: create-portable-zip.py <output_path> <release|debug>')
-    sys.exit(1)
-else:
-    output_path = sys.argv[1]
-    configuration = sys.argv[2].lower()
+    sys.exit('Usage: create-portable-zip.py <output_path> <release|debug>')
+
+output_path = sys.argv[1]
+configuration = sys.argv[2].lower()
 
 with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as output:
     output.mkdir('Extensions')
@@ -50,5 +47,3 @@ with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
     nuget_config.append('')
 
     output.writestr('NuGet.config', '\r\n'.join(nuget_config))
-
-gha.fail_if_errors()
