@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Bonsai;
 using Bonsai.Expressions;
@@ -62,6 +63,121 @@ namespace Bonsai.Core.Tests
             var builder = roundTrip.Workflow.First().Value as CombinatorWithMapping;
             Assert.IsNotNull(builder);
             Assert.AreEqual(typeof(TypeMapping<int>), builder.TypeMapping.GetType());
+        }
+
+        [TestMethod]
+        public void Serialize_SameNameTypeArgumentsFromDifferentNamespaces_RoundTripSuccessful()
+        {
+            // identically named types from different namespaces are qualified by their CLR
+            // namespace when used as type arguments, so both operands can be serialized
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder
+            {
+                Operand = new WorkflowProperty<FirstNamespace.ValueKind> { Value = FirstNamespace.ValueKind.Second }
+            });
+            workflow.Workflow.Add(new HasFlagBuilder
+            {
+                Operand = new WorkflowProperty<SecondNamespace.ValueKind> { Value = SecondNamespace.ValueKind.First }
+            });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operandTypes = roundTrip.Workflow.Select(node => ((HasFlagBuilder)node.Value).Operand.GetType());
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    typeof(WorkflowProperty<FirstNamespace.ValueKind>),
+                    typeof(WorkflowProperty<SecondNamespace.ValueKind>)
+                },
+                operandTypes.ToArray());
+        }
+
+        [TestMethod]
+        public void Serialize_PrimitiveTypeArgument_RoundTripSuccessful()
+        {
+            // type arguments mapped to XML schema built-in types cannot be assigned any XML
+            // attributes, either directly or through a nullable wrapper
+            var value = 10L;
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<long> { Value = value } });
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<int?>() });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operand = (WorkflowProperty<long>)((HasFlagBuilder)roundTrip.Workflow.First().Value).Operand;
+            Assert.AreEqual(value, operand.Value);
+        }
+
+        [TestMethod]
+        public void Serialize_SameNameNullableTypeArguments_RoundTripSuccessful()
+        {
+            // a nullable argument is named from its underlying type, so it is the underlying
+            // type which needs to be qualified
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<FirstNamespace.NullableKind?>() });
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<SecondNamespace.NullableKind?>() });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operandTypes = roundTrip.Workflow.Select(node => ((HasFlagBuilder)node.Value).Operand.GetType());
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    typeof(WorkflowProperty<FirstNamespace.NullableKind?>),
+                    typeof(WorkflowProperty<SecondNamespace.NullableKind?>)
+                },
+                operandTypes.ToArray());
+        }
+
+        [TestMethod]
+        public void Serialize_SameNameArrayTypeArguments_RoundTripSuccessful()
+        {
+            // an array argument is named from its element type, which is not included in the
+            // generic arguments of the declaring type
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<FirstNamespace.ArrayKind[]>() });
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<SecondNamespace.ArrayKind[]>() });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operandTypes = roundTrip.Workflow.Select(node => ((HasFlagBuilder)node.Value).Operand.GetType());
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    typeof(WorkflowProperty<FirstNamespace.ArrayKind[]>),
+                    typeof(WorkflowProperty<SecondNamespace.ArrayKind[]>)
+                },
+                operandTypes.ToArray());
+        }
+
+        [TestMethod]
+        public void Serialize_SelfDescribingTypeArgument_RoundTripSuccessful()
+        {
+            // type arguments which provide their own schema, or which are represented directly
+            // as XML nodes, reject any assigned XML attributes
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<XElement>() });
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<XmlElement>() });
+            var xml = SerializeWorkflow(workflow);
+            var roundTrip = DeserializeWorkflow(xml);
+            var operandTypes = roundTrip.Workflow.Select(node => ((HasFlagBuilder)node.Value).Operand.GetType());
+            CollectionAssert.AreEquivalent(
+                new[] { typeof(WorkflowProperty<XElement>), typeof(WorkflowProperty<XmlElement>) },
+                operandTypes.ToArray());
+        }
+
+        [TestMethod]
+        public void Serialize_NestedTypeArgumentNamespaces_QualifiedTypeArguments()
+        {
+            // type arguments reachable only through a wrapper or a nested generic type still
+            // need their namespace declared, so encoded type arguments can be resolved on load
+            var workflow = new WorkflowBuilder();
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<FirstNamespace.ValueKind?>() });
+            workflow.Workflow.Add(new HasFlagBuilder { Operand = new WorkflowProperty<FirstNamespace.ValueKind[]>() });
+            workflow.Workflow.Add(new SubscribeSubject<List<FirstNamespace.ValueKind>>());
+            var xml = SerializeWorkflow(workflow);
+            var prefix = Regex.Match(xml, @"xmlns:(\w+)=""clr-namespace:Bonsai\.Core\.Tests\.FirstNamespace;").Groups[1].Value;
+            Assert.IsFalse(string.IsNullOrEmpty(prefix));
+            StringAssert.Contains(xml, $"TypeArguments=\"sys:Nullable({prefix}:ValueKind)\"");
+            StringAssert.Contains(xml, $"TypeArguments=\"{prefix}:ValueKind[]\"");
+            StringAssert.Contains(xml, $"TypeArguments=\"scg:List({prefix}:ValueKind)\"");
+            DeserializeWorkflow(xml);
         }
 
         [TestMethod]
@@ -141,6 +257,48 @@ namespace Bonsai.Core.Tests
             {
                 return expression;
             }
+        }
+    }
+
+    namespace FirstNamespace
+    {
+        public enum ValueKind
+        {
+            First = 1,
+            Second = 2
+        }
+
+        public enum NullableKind
+        {
+            First = 1,
+            Second = 2
+        }
+
+        public enum ArrayKind
+        {
+            First = 1,
+            Second = 2
+        }
+    }
+
+    namespace SecondNamespace
+    {
+        public enum ValueKind
+        {
+            First = 1,
+            Second = 2
+        }
+
+        public enum NullableKind
+        {
+            First = 1,
+            Second = 2
+        }
+
+        public enum ArrayKind
+        {
+            First = 1,
+            Second = 2
         }
     }
 
