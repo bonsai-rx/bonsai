@@ -1,42 +1,18 @@
-# Auto detect text files and normalize line endings
 * text=auto
 
-# Scripts
+# Line endings required
 *.cmd text eol=crlf
-*.ps1 text
+*.sh text eol=lf
 
-# Config
-*.gitignore text
-*.gitattributes text
-*.editorconfig text
-*.git-blame-ignore-revs text
-*.sln text
-*.proj text
-*.props text
-*.targets text
-*.csproj text
-*.wixproj text
-*.config text
-*.json text
-*.xml text
-*.yml text
-
-# Code
-*.manifest text
-*.resx text
-*.cs text
-*.bonsai text
-*.wxs text
-
-# Prevent GitHub from hiding designer files from PRs
-*.Designer.cs text linguist-generated=false
-
-# Documents
-LICENSE text
-*.md text diff=markdown
+# Language diffs
+*.md diff=markdown
+*.cs diff=csharp
+*.c diff=cpp
+*.h diff=cpp
+*.cpp diff=cpp
+*.py diff=python
 *.rtf diff=astextplain
 
-# Graphics
-*.png binary
-*.ico binary
+# Known formats
 *.svg text
+*.Designer.cs linguist-generated=false

@@ -1,4 +1,27 @@
 <Project>
+  <!-- Automatically expose internals to tests -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+    <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
+  </ItemGroup>
+
+  <Target Name="VerifyTestTargetFramework" BeforeTargets="Build" Condition="$(MSBuildProjectName.EndsWith('.Tests')) and '$(TargetFramework)' != ''">
+    <ItemGroup>
+      <!--
+        Due to limitations in `dotnet test`, tests must only target specific target frameworks which are explicitly ran by CI.
+        Do not add any target frameworks to this list without also updating the CI workflow.
+      -->
+      <_PermittedTestFramework Remove="*" />
+      <_PermittedTestFramework Include="net472" />
+      <_PermittedTestFramework Include="net8.0" />
+      <_PermittedTestFramework Include="net8.0-windows" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_IsPermittedTestFramework>false</_IsPermittedTestFramework>
+      <_IsPermittedTestFramework Condition="'%(_PermittedTestFramework.Identity)' == '$(TargetFramework)'">true</_IsPermittedTestFramework>
+    </PropertyGroup>
+    <Error Condition="'$(_IsPermittedTestFramework)' != 'true'" Text="Test project targets '$(TargetFramework)', which is not permitted for test projects." />
+  </Target>
+
   <!-- Verify each intermediate output directory is only used for a single project -->
   <PropertyGroup>
     <_RelativeProjectPathFilePath>$(BaseIntermediateOutputPath)RelativeProjectPath.txt</_RelativeProjectPathFilePath>
@@ -15,10 +38,5 @@
   </Target>
   <Target Name="CleanUpRelativeProjectPathFilePath" AfterTargets="Clean" Condition="Exists('$(_RelativeProjectPathFilePath)')">
     <Delete Files="$(_RelativeProjectPathFilePath)" />
-  </Target>
-
-  <!-- Check for stale bin/obj directories left over from before we switched to the central artifacts folder -->
-  <Target Name="CheckForStaleOutputDirectories" AfterTargets="Build" Condition="Exists('$(ProjectDir)bin') or Exists('$(ProjectDir)obj')">
-    <Warning Text="Stale bin/obj directories exist for $(MSBuildProjectName), deleting them is strongly recommended." />
   </Target>
 </Project>

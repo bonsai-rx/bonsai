@@ -1,4 +1,3 @@
 ﻿<Project>
-  <Import Project="tooling/Common.targets" />
-  <Import Project="tooling/Common$(MSBuildProjectExtension).targets" Condition="Exists('tooling/Common$(MSBuildProjectExtension).targets')" />
+  <Import Project="build/Common$(MSBuildProjectExtension).targets" Condition="Exists('build/Common$(MSBuildProjectExtension).targets')" />
 </Project>
