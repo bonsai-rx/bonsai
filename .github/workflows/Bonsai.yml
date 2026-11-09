@@ -1,7 +1,6 @@
 # =======================================================================================================================================================================
 # Bonsai CI Infrastructure
 # =======================================================================================================================================================================
-# When updating this workflow, be mindful that the `latest` tag must also build successfully under this workflow in order to determine which packages have changed.
 name: Bonsai
 on:
   push:
@@ -25,38 +24,26 @@ env:
   ContinuousIntegrationBuild: true
 jobs:
   # =====================================================================================================================================================================
-  # Determine build matrix
-  # =====================================================================================================================================================================
-  # Some of the build matrix targets are conditional, and `jobs.<job_id>.if` is evaluated before `jobs.<job_id>.strategy.matrix`
-  # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idif
-  # As such we build the matrix programmatically in its own job and feed it into `build-and-test`.
-  create-build-matrix:
-    name: Create Build Matrix
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{steps.create-matrix.outputs.matrix}}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-      - name: Create build matrix
-        id: create-matrix
-        run: python .github/workflows/create-build-matrix.py
-        env:
-          enable_package_comparison: ${{vars.ENABLE_PACKAGE_COMPARISON}}
-          will_publish_packages: ${{github.event.inputs.will_publish_packages}}
-
-  # =====================================================================================================================================================================
   # Build, test, and package
   # =====================================================================================================================================================================
   build-and-test:
-    needs: create-build-matrix
     strategy:
       fail-fast: false
-      matrix: ${{fromJSON(needs.create-build-matrix.outputs.matrix)}}
+      matrix:
+        platform:
+          - name: Windows x64
+            os: windows-latest
+            rid: win-x64
+          - name: Linux x64
+            os: ubuntu-22.04
+            rid: linux-x64
+        configuration: ['debug', 'release']
+        include:
+          - platform:
+              rid: win-x64
+            configuration: release
+            collect-packages: true
+            create-installer: true
     name: ${{matrix.platform.name}} ${{matrix.configuration}}
     runs-on: ${{matrix.platform.os}}
     # Only the target which creates the installer signs anything, so it is the only one which needs the signing credentials and the release approval
@@ -69,8 +56,6 @@ jobs:
       && github.event.inputs.version != ''))
       && 'PublicRelease' || ''}}
     env:
-      IsReferenceDummyBuild: ${{matrix.dummy-build}}
-      UseRepackForBootstrapperPackage: ${{matrix.collect-packages && !matrix.dummy-build}}
       # This should be kept in sync with publish-packages-nuget-org
       WillPublishPackages: >-
         ${{github.event_name == 'release'
@@ -81,8 +66,6 @@ jobs:
       # ----------------------------------------------------------------------- Checkout
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          ref: ${{matrix.checkout-ref}}
 
       # ----------------------------------------------------------------------- Setup tools
       - name: Setup .NET
@@ -127,7 +110,7 @@ jobs:
       # ----------------------------------------------------------------------- Repack bootstrapper
       # This happens before pack since the bootstrapper package uses it
       - name: Repack bootstrapper
-        if: matrix.create-installer || env.UseRepackForBootstrapperPackage == 'true'
+        if: matrix.create-installer || matrix.collect-packages
         run: dotnet build Bonsai --no-restore --configuration ${{matrix.configuration}} -t:Repack -p:TargetFramework=net48
 
       # ----------------------------------------------------------------------- Sign bootstrapper
@@ -136,7 +119,7 @@ jobs:
         if: matrix.create-installer && env.WillPublishPackages == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
-          files: artifacts/bin/Bonsai/${{matrix.configuration-lower}}-repacked/Bonsai.exe
+          files: artifacts/bin/Bonsai/${{matrix.configuration}}-repacked/Bonsai.exe
           username: ${{secrets.ES_USERNAME}}
           password: ${{secrets.ES_PASSWORD}}
           credential-id: ${{secrets.ES_CREDENTIAL_ID}}
@@ -150,13 +133,11 @@ jobs:
 
       # ----------------------------------------------------------------------- Test
       - name: Test .NET Framework 4.7.2
-        if: '!matrix.dummy-build'
         run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net472
       - name: Test .NET 8
-        if: '!matrix.dummy-build'
         run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net8.0
       - name: Test .NET 8 Windows
-        if: ${{!matrix.dummy-build && matrix.platform.rid == 'win-x64'}}
+        if: matrix.platform.rid == 'win-x64'
         run: dotnet test Bonsai.sln --no-restore --no-build --configuration ${{matrix.configuration}} --verbosity normal --framework net8.0-windows
 
       # ----------------------------------------------------------------------- Create portable zip
@@ -185,7 +166,7 @@ jobs:
         if: matrix.create-installer && env.WillPublishPackages == 'true'
         uses: bonsai-rx/sign@c8502c075cfa2f3133607b8a6de308347f8beda2 # v1.0.0
         with:
-          files: artifacts/bin/Bonsai.Setup/${{matrix.configuration-lower}}-x86/Bonsai.Setup.msi
+          files: artifacts/bin/Bonsai.Setup/${{matrix.configuration}}-x86/Bonsai.Setup.msi
           username: ${{secrets.ES_USERNAME}}
           password: ${{secrets.ES_PASSWORD}}
           credential-id: ${{secrets.ES_CREDENTIAL_ID}}
@@ -198,7 +179,7 @@ jobs:
         if: matrix.create-installer
         run: |
           msbuild /nologo /maxCpuCount Bonsai.Setup.Bootstrapper/Bonsai.Setup.Bootstrapper.wixproj /p:Configuration=${{matrix.configuration}} /p:Platform=x86 /p:BuildProjectReferences=false
-          $bundle = Get-Item artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration-lower}}-x86/Bonsai-*.exe
+          $bundle = Get-Item artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration}}-x86/Bonsai-*.exe
           "BundlePath=$($bundle.FullName)" >> $env:GITHUB_ENV
 
       # ----------------------------------------------------------------------- Sign installer
@@ -236,15 +217,15 @@ jobs:
         uses: actions/upload-artifact@v7
         if: matrix.collect-packages && steps.pack.outcome == 'success' && always()
         with:
-          name: Packages${{matrix.artifacts-suffix}}
+          name: Packages
           if-no-files-found: error
-          path: artifacts/package/${{matrix.configuration-lower}}/**
+          path: artifacts/package/${{matrix.configuration}}/**
 
       - name: Collect portable zip
         uses: actions/upload-artifact@v7
         if: steps.create-portable-zip.outcome == 'success' && always()
         with:
-          name: PortableZip${{matrix.artifacts-suffix}}
+          name: PortableZip
           if-no-files-found: error
           path: artifacts/Bonsai.zip
 
@@ -252,50 +233,9 @@ jobs:
         uses: actions/upload-artifact@v7
         if: steps.create-installer.outcome == 'success' && always()
         with:
-          name: Installer${{matrix.artifacts-suffix}}
+          name: Installer
           if-no-files-found: error
-          path: artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration-lower}}-x86/**
-
-  # =====================================================================================================================================================================
-  # Determine which packages need to be published
-  # =====================================================================================================================================================================
-  determine-changed-packages:
-    name: Detect changed packages
-    runs-on: ubuntu-latest
-    # We technically only need the dummy build jobs, but GitHub Actions lacks the ability to depend on specific jobs in a matrix
-    needs: build-and-test
-    if: github.event_name != 'pull_request' && vars.ENABLE_PACKAGE_COMPARISON == 'true'
-    steps:
-      # ----------------------------------------------------------------------- Checkout
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      # ----------------------------------------------------------------------- Setup tools
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      # ----------------------------------------------------------------------- Download packages for comparison
-      - name: Download packages for comparison
-        uses: actions/download-artifact@v8
-        with:
-          pattern: Packages*
-          path: artifacts
-
-      # ----------------------------------------------------------------------- Compare packages
-      - name: Compare packages
-        id: compare-packages
-        run: python .github/workflows/compare-nuget-packages.py artifacts/Packages-dummy-prev/ artifacts/Packages-dummy-next/ artifacts/Packages/ artifacts/ReleaseManifest
-
-      # ----------------------------------------------------------------------- Collect release manifest
-      - name: Collect release manifest
-        uses: actions/upload-artifact@v7
-        if: steps.compare-packages.outcome != 'skipped' && always()
-        with:
-          name: ReleaseManifest
-          if-no-files-found: error
-          path: artifacts/ReleaseManifest
+          path: artifacts/bin/Bonsai.Setup.Bootstrapper/${{matrix.configuration}}-x86/**
 
   # =====================================================================================================================================================================
   # Publish to GitHub
@@ -308,29 +248,17 @@ jobs:
       contents: write
       # Needed to upload to GitHub Packages
       packages: write
-    needs: [build-and-test, determine-changed-packages]
+    needs: build-and-test
     # Pushes always publish CI packages (configure-build.py will add the branch name to the version string for branches besides main)
     # Published releases always publish packages
     # A manual workflow only publishes packages if explicitly enabled
     if: github.event_name == 'push' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true')
     steps:
-      # ----------------------------------------------------------------------- Checkout
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          sparse-checkout: .github
-          sparse-checkout-cone-mode: false
-
       # ----------------------------------------------------------------------- Setup tools
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.x
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
 
       # ----------------------------------------------------------------------- Download artifacts
       - name: Download built packages
@@ -338,11 +266,6 @@ jobs:
         with:
           name: Packages
           path: Packages
-
-      - name: Download release manifest
-        uses: actions/download-artifact@v8
-        with:
-          name: ReleaseManifest
 
       - name: Download portable zip
         uses: actions/download-artifact@v8
@@ -356,14 +279,10 @@ jobs:
         with:
           name: Installer
 
-      # ----------------------------------------------------------------------- Filter NuGet packages
-      - name: Filter NuGet packages
-        run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
-
       # ----------------------------------------------------------------------- Upload release assets
       - name: Upload release assets
         if: github.event_name == 'release'
-        run: gh release upload ${{github.event.release.tag_name}} Bonsai.zip Bonsai-*.exe --clobber
+        run: gh release upload --repo ${{github.repository}} ${{github.event.release.tag_name}} Bonsai.zip Bonsai-*.exe --clobber
         env:
           GH_TOKEN: ${{github.token}}
 
@@ -388,29 +307,17 @@ jobs:
       contents: read
       actions: read
     # The push to NuGet.org cannot be undone, so we wait until every reversible part of the release has succeeded
-    needs: [build-and-test, determine-changed-packages, publish-github]
+    needs: [build-and-test, publish-github]
     # Release builds always publish packages to NuGet.org
     # Workflow dispatch builds will only publish packages if enabled and an explicit version number is given
     # This should be kept in sync with create-portable-zip
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.will_publish_packages == 'true' && github.event.inputs.version != '')
     steps:
-      # ----------------------------------------------------------------------- Checkout
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          sparse-checkout: .github
-          sparse-checkout-cone-mode: false
-
       # ----------------------------------------------------------------------- Setup tools
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.x
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
 
       # ----------------------------------------------------------------------- Download artifacts
       - name: Download built packages
@@ -418,15 +325,6 @@ jobs:
         with:
           name: Packages
           path: Packages
-
-      - name: Download release manifest
-        uses: actions/download-artifact@v8
-        with:
-          name: ReleaseManifest
-
-      # ----------------------------------------------------------------------- Filter NuGet packages
-      - name: Filter NuGet packages
-        run: python .github/workflows/filter-release-packages.py ReleaseManifest Packages
 
       # ----------------------------------------------------------------------- Log in to NuGet.org
       # Logging in before the docs update means a misconfigured trusted publishing policy stops the release before anything else moves
@@ -469,7 +367,6 @@ jobs:
       # Needed to close milestones
       issues: write
     # It's important that this only happens when everything else happened successfully
-    # Otherwise it's possible for a partial release to occur and re-running the job wouldn't be possible due to the latest tag having already moved
     # (This is also why this happens as its own job, it lets us ensure both publish paths happened successfully.)
     needs: [publish-github, publish-packages-nuget-org]
     # Only do finishing tasks when we're explicitly releasing
@@ -481,10 +378,6 @@ jobs:
         with:
           ref: refs/heads/main
           ssh-key: ${{secrets.CI_DEPLOYMENT_KEY}}
-
-      # ----------------------------------------------------------------------- Update `latest` tag
-      - name: Update `latest` tag
-        run: git push --force origin ${{github.sha}}:refs/tags/latest
 
       # ----------------------------------------------------------------------- Verify the release happened from the main branch, otherwise skip the version bump
       # Bumping the version number has to commit to some branch, but releases happen from tags rather than commits. Therefore we just commit to main
