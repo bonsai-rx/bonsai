@@ -66,11 +66,18 @@ public sealed class ScriptExtensionsProjectMetadataTests
         </Project>
         """, LoadOptions.PreserveWhitespace);
         var metadata = new ScriptExtensionsProjectMetadata(document);
+        var assemblyReferences = metadata.GetAssemblyReferences().ToArray();
 
         if (enabled)
-            CollectionAssert.Contains(metadata.GetAssemblyReferences().ToArray(), "System.Windows.Forms.dll");
+        {
+            CollectionAssert.Contains(assemblyReferences, "System.Windows.Forms.dll");
+            CollectionAssert.Contains(assemblyReferences, "System.Design.dll");
+        }
         else
-            CollectionAssert.DoesNotContain(metadata.GetAssemblyReferences().ToArray(), "System.Windows.Forms.dll");
+        {
+            CollectionAssert.DoesNotContain(assemblyReferences, "System.Windows.Forms.dll");
+            CollectionAssert.DoesNotContain(assemblyReferences, "System.Design.dll");
+        }
     }
 
     [TestMethod]

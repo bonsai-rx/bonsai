@@ -68,7 +68,10 @@ namespace Bonsai.Configuration
             yield return "netstandard.dll";
 
             if (GetBoolProperty(UseWindowsFormsElement))
+            {
                 yield return "System.Windows.Forms.dll";
+                yield return "System.Design.dll";
+            }
         }
 
         public IEnumerable<string> GetPackageReferences()
