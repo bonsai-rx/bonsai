@@ -2427,9 +2427,9 @@ namespace Bonsai.Editor
         private async Task OpenDocumentationAsync(ExpressionBuilder builder)
         {
             var selectedElement = ExpressionBuilder.GetWorkflowElement(builder);
-            if (selectedElement is ICustomTypeDescriptor typeDescriptor &&
-                typeDescriptor.GetPropertyOwner(null) is object selectedOperator &&
-                selectedOperator is not WorkflowProperty)
+            // TODO: This special case for binary operator operands should be avoided in the future
+            if (selectedElement is not BinaryOperatorBuilder and ICustomTypeDescriptor typeDescriptor &&
+                typeDescriptor.GetPropertyOwner(null) is object selectedOperator)
             {
                 selectedElement = selectedOperator;
             }
