@@ -1,11 +1,12 @@
 <Project>
-  <Import Project="CurrentVersion.props" />
-
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' != 'true'">
-    <!-- When making local builds, developers can override DevVersion here or on the command line if they need multiple local versions of Bonsai for whatever reason -->
+    <!--
+      When making local builds, developers can temporarily override DevVersion here or on the command line if they need multiple local versions of Bonsai for whatever reason.
+      If you feel compelled to change this version number for local testing you're almost certainly doing something wrong!
+    -->
     <DevVersion Condition="'$(DevVersion)' == ''">0</DevVersion>
 
-    <Version>$(BonsaiVersion)-dev$(DevVersion)</Version>
+    <Version>42.42.42-dev$(DevVersion)</Version>
     <BuildKindConstant>BUILD_KIND_DEV</BuildKindConstant>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">

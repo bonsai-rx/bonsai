@@ -67,7 +67,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{69C99DD4
 		build\Common.csproj.targets = build\Common.csproj.targets
 		build\Common.Tests.csproj.props = build\Common.Tests.csproj.props
 		build\Common.wixproj.props = build\Common.wixproj.props
-		build\CurrentVersion.props = build\CurrentVersion.props
 		build\icon.png = build\icon.png
 		build\Package.props = build\Package.props
 		build\Project.csproj.props = build\Project.csproj.props
