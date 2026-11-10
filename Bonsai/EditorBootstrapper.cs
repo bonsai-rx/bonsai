@@ -1,6 +1,7 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.NuGet;
 using Bonsai.NuGet.Design;
+using NuGet.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,17 @@ namespace Bonsai
             : base(path)
         {
             PackageManager.Logger = new EventLogger();
+        }
+
+        protected override bool AcceptDefaultPackageSource(PackageSource packageSource)
+        {
+            EnableVisualStyles();
+            var result = MessageBox.Show(
+                $"No package source is available to download packages. Add {packageSource.Name}?",
+                "No Package Sources",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+            return result == DialogResult.Yes;
         }
 
         protected override Task RunPackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
