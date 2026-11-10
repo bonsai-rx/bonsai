@@ -203,8 +203,8 @@ namespace Bonsai.NuGet.Design
             var packageInfo = new TreeNodePackageInfo(node);
             if (location == OperationHitTestLocation.Primary && packageInfo.HasLocalPackage)
             {
-                var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(packageInfo.LocalPackage.Identity);
-                OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
+                var localMetadata = new LocalPackageSearchMetadata(packageInfo.LocalPackage);
+                OnOperationClick(new PackageViewEventArgs(localMetadata, PackageOperationType.Uninstall));
             }
             else
             {

@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Diagnostics;
 using Bonsai.NuGet.Design.Properties;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
@@ -232,8 +233,8 @@ namespace Bonsai.NuGet.Design
 
         private void uninstallButton_Click(object sender, EventArgs e)
         {
-            var metadataBuilder = PackageSearchMetadataBuilder.FromIdentity(selectedItem.LocalPackage.Identity);
-            OnOperationClick(new PackageViewEventArgs(metadataBuilder.Build(), PackageOperationType.Uninstall));
+            var localMetadata = new LocalPackageSearchMetadata(selectedItem.LocalPackage);
+            OnOperationClick(new PackageViewEventArgs(localMetadata, PackageOperationType.Uninstall));
         }
 
         private void alternatePackageLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
