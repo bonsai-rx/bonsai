@@ -15,13 +15,15 @@ namespace Bonsai.Configuration
 {
     public class Bootstrapper
     {
+        readonly PackageSourceProvider packageSourceProvider;
         readonly RestorePackageManager packageManager;
+        bool packageSourcesChecked;
 
         public Bootstrapper(string path)
         {
             var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory);
-            var sourceProvider = new PackageSourceProvider(settings);
-            packageManager = new RestorePackageManager(sourceProvider, path);
+            packageSourceProvider = new PackageSourceProvider(settings);
+            packageManager = new RestorePackageManager(packageSourceProvider, path);
         }
 
         public LicenseAwarePackageManager PackageManager
@@ -32,6 +34,33 @@ namespace Bonsai.Configuration
         protected virtual async Task RunPackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
         {
             await operationFactory(cancellationToken);
+        }
+
+        protected virtual bool AcceptDefaultPackageSource(PackageSource packageSource)
+        {
+            return false;
+        }
+
+        void EnsurePackageSources()
+        {
+            if (packageSourcesChecked) return;
+            packageSourcesChecked = true;
+
+            if (packageSourceProvider.LoadPackageSources().Any(source => source.IsEnabled))
+                return;
+
+            var defaultSource = new PackageSource(NuGetConstants.V3FeedUrl, NuGetConstants.FeedName) { ProtocolVersion = 3 };
+            if (packageSourceProvider.IsPackageSourceEnabled(defaultSource.Name) &&
+                AcceptDefaultPackageSource(defaultSource))
+            {
+                packageSourceProvider.AddPackageSource(defaultSource);
+            }
+        }
+
+        Task RunRemotePackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
+        {
+            EnsurePackageSources();
+            return RunPackageOperationAsync(operationFactory, cancellationToken);
         }
 
         static NuGetVersion ParseVersion(string version)
@@ -86,7 +115,7 @@ namespace Bonsai.Configuration
                 };
 
                 packageManager.RestorePackages = true;
-                try { await RunPackageOperationAsync(RestoreMissingPackages, cancellationToken); }
+                try { await RunRemotePackageOperationAsync(RestoreMissingPackages, cancellationToken); }
                 finally { packageManager.RestorePackages = false; }
             }
 
@@ -109,7 +138,7 @@ namespace Bonsai.Configuration
                     editorPackage = packageManager.LocalRepository.GetLocalPackage(package.GetIdentity());
                 };
 
-                await RunPackageOperationAsync(RestoreEditorPackage, cancellationToken);
+                await RunRemotePackageOperationAsync(RestoreEditorPackage, cancellationToken);
             }
 
             if (missingPackages.Count > 0 && !restore)
@@ -132,7 +161,7 @@ namespace Bonsai.Configuration
                     }
                 };
 
-                await RunPackageOperationAsync(InstallMissingPackages, cancellationToken);
+                await RunRemotePackageOperationAsync(InstallMissingPackages, cancellationToken);
             }
         }
 
