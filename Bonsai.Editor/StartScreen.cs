@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Bonsai.Editor
@@ -93,14 +94,16 @@ namespace Bonsai.Editor
             foreach (var file in recentlyUsedFiles)
             {
                 recentFileView.Nodes.Add(Path.GetFileName(file.FileName), file.FileName);
-                if (string.IsNullOrEmpty(openWorkflowDialog.InitialDirectory))
-                {
-                    var initialDirectory = Path.GetDirectoryName(file.FileName);
-                    openWorkflowDialog.InitialDirectory = initialDirectory;
-                    openFolderDialog.SelectedPath = initialDirectory;
-                }
             }
 
+            var initialDirectory = Project.GetCurrentBaseDirectory(out bool currentDirectoryRestricted);
+            if (currentDirectoryRestricted && recentlyUsedFiles.Count > 0)
+            {
+                initialDirectory = Path.GetDirectoryName(recentlyUsedFiles.First().FileName);
+            }
+
+            openWorkflowDialog.InitialDirectory = initialDirectory;
+            openFolderDialog.SelectedPath = initialDirectory;
             openTreeView.Select();
             base.OnLoad(e);
         }
