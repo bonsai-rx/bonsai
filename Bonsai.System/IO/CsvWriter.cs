@@ -253,13 +253,12 @@ namespace Bonsai.IO
                 ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)
                 : Enumerable.Empty<Expression>();
 #pragma warning restore CS0612 // Type or member is obsolete
-            var memberAccessExpressions = legacyCharacter.Concat(MakeMemberAccess(selectedMembers))
-                .Select(memberAccess => GetDataString(memberAccess))
-                .ToArray();
+            var memberAccessExpressions = legacyCharacter.Concat(MakeMemberAccess(selectedMembers)).ToArray();
             Array.Reverse(memberAccessExpressions);
+            var dataExpressions = Array.ConvertAll(memberAccessExpressions, GetDataString);
 
-            var memberAccessArrayExpression = Expression.NewArrayInit(typeof(string), memberAccessExpressions);
-            var lineExpression = Expression.Call(stringJoinMethod, delimiterConstant, memberAccessArrayExpression);
+            var dataArrayExpression = Expression.NewArrayInit(typeof(string), dataExpressions);
+            var lineExpression = Expression.Call(stringJoinMethod, delimiterConstant, dataArrayExpression);
             if (dataParameter != inputParameter)
             {
                 var converterExpression = Expression.Lambda(lineExpression, dataParameter);
@@ -279,12 +278,9 @@ namespace Bonsai.IO
             {
                 var headerMembers = memberAccessExpressions.Select(memberAccess =>
                 {
-                    var accessExpression = memberAccess.ToString();
-                    var firstAccess = accessExpression.IndexOf(ExpressionHelper.MemberSeparator);
-                    if (firstAccess++ < 0) return string.Empty;
-                    var lastAccess = accessExpression.LastIndexOf(ExpressionHelper.MemberSeparator);
-                    if (lastAccess < firstAccess) lastAccess = accessExpression.Length;
-                    return accessExpression.Substring(firstAccess, lastAccess - firstAccess);
+                    var memberPath = memberAccess.ToString();
+                    var firstAccess = memberPath.IndexOf(ExpressionHelper.MemberSeparator);
+                    return firstAccess < 0 ? string.Empty : memberPath.Substring(firstAccess + 1);
                 }).Where(access => !string.IsNullOrEmpty(access)).ToArray();
                 header = string.Join((string)delimiterConstant.Value, headerMembers);
                 header = header.Trim();
