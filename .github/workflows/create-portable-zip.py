@@ -21,7 +21,7 @@ with zipfile.ZipFile(output_path, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as
     ]
 
     nuget_api_url = os.getenv('NUGET_API_URL')
-    if nuget_api_url is not None and nuget_api_url != 'https://api.nuget.org/v3/index.json':
+    if nuget_api_url and nuget_api_url != 'https://api.nuget.org/v3/index.json':
         nuget_config.append(f'    <add key="NuGet Package Testing Feed" value="{nuget_api_url}" />')
 
     # Unstable builds of Bonsai will automatically reference the GitHub Packages feed
