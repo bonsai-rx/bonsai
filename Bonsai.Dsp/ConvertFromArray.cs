@@ -62,14 +62,25 @@ namespace Bonsai.Dsp
             if (size.Width > 0 || size.Height > 0 || channels.HasValue)
             {
                 var elementSize = Marshal.SizeOf(typeof(TData));
-                if (!channels.HasValue) channels = 1;
+                var channelCount = channels.GetValueOrDefault(1);
+                var elementDepth = depth.GetValueOrDefault();
 
                 var rows = size.Height;
                 var cols = size.Width;
                 if (rows == 0 && cols == 0) rows = 1;
-                if (rows == 0) rows = input.Length * elementSize / (ArrHelper.ElementSize(depth.Value) * channels.Value * cols);
-                if (cols == 0) cols = input.Length * elementSize / (ArrHelper.ElementSize(depth.Value) * channels.Value * rows);
-                return Mat.FromArray(input, rows, cols, depth.Value, channels.Value);
+                if (rows == 0) rows = input.Length * elementSize / (ArrHelper.ElementSize(elementDepth) * channelCount * cols);
+                if (cols == 0) cols = input.Length * elementSize / (ArrHelper.ElementSize(elementDepth) * channelCount * rows);
+
+                var requiredBytes = (long)rows * cols * channelCount * ArrHelper.ElementSize(elementDepth);
+                var inputBytes = (long)input.Length * elementSize;
+                if (requiredBytes > inputBytes)
+                {
+                    throw new InvalidOperationException(
+                        $"The specified size, depth and number of channels require {requiredBytes} bytes, " +
+                        $"but the input array has only {inputBytes} bytes.");
+                }
+
+                return Mat.FromArray(input, rows, cols, elementDepth, channelCount);
             }
             else return null;
         }
