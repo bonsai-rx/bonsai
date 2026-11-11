@@ -89,6 +89,33 @@ public sealed class AssemblyCompilerTests
     }
 
     [TestMethod]
+    [DataRow("7.3", false)]
+    [DataRow("13.0", true)]
+    [DataRow(null, true)]
+    public void LanguageVersionLimitsAvailableSyntax(string languageVersion, bool expectedSuccess)
+    {
+        var compiler = new AssemblyCompiler { LanguageVersion = languageVersion };
+        var result = compiler.Compile(
+            new[] { CreateSource("public static class Values { public static int[] All => [1, 2, 3]; }") },
+            DefaultReferences,
+            GetOutputFileName("Versioned"));
+
+        Assert.AreEqual(expectedSuccess, result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+    }
+
+    [TestMethod]
+    public void InvalidLanguageVersionReportsError()
+    {
+        var compiler = new AssemblyCompiler { LanguageVersion = "not-a-version" };
+        var outputFileName = GetOutputFileName("Invalid");
+        var result = compiler.Compile(new[] { CreateSource("public class Valid { }") }, DefaultReferences, outputFileName);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Diagnostics.Single().Contains("not-a-version"));
+        Assert.IsFalse(File.Exists(outputFileName));
+    }
+
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void IncludeDebugInformationWritesSymbols(bool includeDebugInformation)

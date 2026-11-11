@@ -24,14 +24,16 @@ namespace Bonsai.Configuration
         const string PackageVersionAttribute = "Version";
         const string UseWindowsFormsElement = "UseWindowsForms";
         const string AllowUnsafeBlocksElement = "AllowUnsafeBlocks";
+        const string LangVersionElement = "LangVersion";
 
         private static XElement ProjectFileTemplate
             => XElement.Parse
             ("""
-            <Project Sdk="Microsoft.NET.Sdk">            
+            <Project Sdk="Microsoft.NET.Sdk">
 
               <PropertyGroup>
                 <TargetFramework>net472</TargetFramework>
+                <LangVersion>13.0</LangVersion>
               </PropertyGroup>
 
             </Project>
@@ -53,6 +55,8 @@ namespace Bonsai.Configuration
             => string.Equals(GetProperty(key)?.Value, "true", StringComparison.InvariantCultureIgnoreCase);
 
         public bool AllowUnsafeBlocks => GetBoolProperty(AllowUnsafeBlocksElement);
+
+        public string LangVersion => GetProperty(LangVersionElement)?.Value;
 
         public IEnumerable<string> GetAssemblyReferences()
         {

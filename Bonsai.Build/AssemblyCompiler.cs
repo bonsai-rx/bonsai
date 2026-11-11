@@ -36,6 +36,12 @@ namespace Bonsai.Build
         public bool AllowUnsafeBlocks { get; set; }
 
         /// <summary>
+        /// Gets or sets the C# language version used to parse the source files. If no version is
+        /// specified, the latest version supported by the compiler is used.
+        /// </summary>
+        public string LanguageVersion { get; set; }
+
+        /// <summary>
         /// Compiles the specified source files into a library assembly.
         /// </summary>
         /// <param name="sources">The source files to compile.</param>
@@ -58,7 +64,15 @@ namespace Bonsai.Build
             if (string.IsNullOrEmpty(outputFileName))
                 throw new ArgumentException("An output file name must be specified.", nameof(outputFileName));
 
-            var parseOptions = new CSharpParseOptions(LanguageVersion.Latest);
+            var languageVersion = Microsoft.CodeAnalysis.CSharp.LanguageVersion.Latest;
+            if (!string.IsNullOrEmpty(LanguageVersion) &&
+                !LanguageVersionFacts.TryParse(LanguageVersion, out languageVersion))
+            {
+                var message = $"Invalid language version '{LanguageVersion}'.";
+                return new CompilerResult(false, new[] { message });
+            }
+
+            var parseOptions = new CSharpParseOptions(languageVersion);
             var syntaxTrees = sources.Select(source => CSharpSyntaxTree.ParseText(
                 SourceText.From(source.Text, Encoding.UTF8),
                 parseOptions,

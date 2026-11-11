@@ -48,7 +48,8 @@ namespace Bonsai
             {
                 AssemblyName = OutputAssemblyName,
                 IncludeDebugInformation = includeDebugInformation,
-                AllowUnsafeBlocks = projectMetadata.AllowUnsafeBlocks
+                AllowUnsafeBlocks = projectMetadata.AllowUnsafeBlocks,
+                LanguageVersion = projectMetadata.LangVersion
             };
 
             var assemblyFile = Path.Combine(assemblyDirectory, OutputAssemblyName + AssemblyExtension);
