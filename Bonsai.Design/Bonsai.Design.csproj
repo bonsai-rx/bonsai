@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides common visualizer and editor infrastructure for the Bonsai programming language.</Description>
-    <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
+    <PackageTags>$(PackageTags) Reactive Design</PackageTags>
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
