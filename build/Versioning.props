@@ -25,23 +25,20 @@
     <WarningsAsErrors>$(WarningsAsErrors);CS7035</WarningsAsErrors>
   </PropertyGroup>
 
-  <!--
-    This explicit FileVersion mainly exists for the installer, which can't take a prerelease suffix or build metadata and also can't
-    utilize GetAssemblyVersion to strip off the prerelease suffix because it only exists in the modern SDK so we have to do it manually
-  -->
-  <PropertyGroup>
-    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).0</FileVersion>
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(UseFileVersionRevision)' == 'true'">
+    <_FileVersionRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse('2011-12-09'))).Days)</_FileVersionRevision>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace('$(Version)', '[\-\+].+$', '')).$(_FileVersionRevision)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <_UnchangedBonsaiVersion>$(Version)</_UnchangedBonsaiVersion>
-    <_UnchangedBonsaiFileVersion>$(FileVersion)</_UnchangedBonsaiFileVersion>
+    <_UnchangedVersion>$(Version)</_UnchangedVersion>
+    <_UnchangedFileVersion>$(FileVersion)</_UnchangedFileVersion>
   </PropertyGroup>
 
   <Target Name="VersionSanityChecks" BeforeTargets="PrepareForBuild">
     <Error Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(CiBuildVersion)' == ''" Text="CI version info not configured." />
-    <Error Condition="'$(Version)' != '$(_UnchangedBonsaiVersion)'" Text="Do not manually specify Version." />
-    <Error Condition="'$(FileVersion)' != '$(_UnchangedBonsaiFileVersion)'" Text="Do not manually specify FileVersion." />
+    <Error Condition="'$(Version)' != '$(_UnchangedVersion)'" Text="Do not manually specify Version." />
+    <Error Condition="'$(FileVersion)' != '$(_UnchangedFileVersion)'" Text="Do not manually specify FileVersion." />
     <Error Condition="'$(PackageVersion)' != '' and '$(PackageVersion)' != '$(Version)'" Text="Do not manually specify PackageVersion." />
   </Target>
 </Project>
