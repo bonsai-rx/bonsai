@@ -8,6 +8,7 @@
     <OutputType>Exe</OutputType>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
+    <UseFileVersionRevision>true</UseFileVersionRevision>
 
     <!-- The installer and CI scripts rely on the output path, don't include the target framework in the pivot for the primary target  -->
     <ArtifactsPivots Condition="'$(TargetFramework)' == 'net48'">$(Configuration.ToLowerInvariant())</ArtifactsPivots>
