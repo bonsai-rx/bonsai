@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides type visualizers and editors for image processing operators.</Description>
-    <PackageTags>Bonsai Rx Vision Visualizers</PackageTags>
+    <PackageTags>$(PackageTags) Vision Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

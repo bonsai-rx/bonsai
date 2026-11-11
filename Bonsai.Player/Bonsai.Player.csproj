@@ -4,7 +4,7 @@
     <ToolCommandName>bonsai</ToolCommandName>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <Description>A tool for running Bonsai workflows from the command-line.</Description>
-    <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
+    <PackageTags>$(PackageTags) Player</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageLicenseUrl></PackageLicenseUrl>

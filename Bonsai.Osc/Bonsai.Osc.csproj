@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides operators to communicate with devices implementing the Open Sound Control specification.</Description>
-    <PackageTags>Bonsai Rx Osc</PackageTags>
+    <PackageTags>$(PackageTags) Osc</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>

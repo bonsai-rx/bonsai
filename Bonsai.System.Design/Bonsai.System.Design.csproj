@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides editors for IO and other system configurations.</Description>
-    <PackageTags>Bonsai Rx Reactive Extensions IO Resources Design</PackageTags>
+    <PackageTags>$(PackageTags) IO Resources Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

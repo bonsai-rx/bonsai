@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides operators for graphics rendering and dynamic control of OpenGL shader stages.</Description>
-    <PackageTags>Bonsai Rx Shaders Graphics OpenGL</PackageTags>
+    <PackageTags>$(PackageTags) Shaders Graphics OpenGL</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>

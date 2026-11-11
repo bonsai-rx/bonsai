@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides operators for rendering complex 3D scenes.</Description>
-    <PackageTags>Bonsai Rx Shaders Rendering Assets Graphics OpenGL</PackageTags>
+    <PackageTags>$(PackageTags) Shaders Rendering Assets Graphics OpenGL</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>

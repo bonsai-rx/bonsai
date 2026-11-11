@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides reactive operators for sound capture and playback.</Description>
-    <PackageTags>Bonsai Rx Audio</PackageTags>
+    <PackageTags>$(PackageTags) Audio</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>

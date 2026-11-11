@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides visualizers for time series and other common data streams.</Description>
-    <PackageTags>Bonsai Rx Visualizers</PackageTags>
+    <PackageTags>$(PackageTags) Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

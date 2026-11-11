@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides type visualizers and editors for signal processing operators.</Description>
-    <PackageTags>Bonsai Rx Dsp Visualizers</PackageTags>
+    <PackageTags>$(PackageTags) Dsp Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>

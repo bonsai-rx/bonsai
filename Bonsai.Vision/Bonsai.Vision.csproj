@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides operators for real-time computer vision and image processing.</Description>
-    <PackageTags>Bonsai Rx Image Processing Computer Vision</PackageTags>
+    <PackageTags>$(PackageTags) Image Processing Computer Vision</PackageTags>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>

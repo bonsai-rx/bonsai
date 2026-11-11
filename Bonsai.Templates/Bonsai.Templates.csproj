@@ -4,7 +4,7 @@
     <PackageType>Template</PackageType>
     <PackageId>Bonsai.Templates</PackageId>
     <Description>Templates for creating a Bonsai C# package or bootstrapping a Bonsai environment.</Description>
-    <PackageTags>Bonsai Rx Package Environment Templates</PackageTags>
+    <PackageTags>$(PackageTags) Package Environment Templates</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeContentInPack>true</IncludeContentInPack>
     <ContentTargetFolders>content</ContentTargetFolders>

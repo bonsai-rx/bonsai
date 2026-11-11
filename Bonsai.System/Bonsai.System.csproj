@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This package provides operators to interface with the underlying operating system.</Description>
-    <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
+    <PackageTags>$(PackageTags) IO Serial Port Resources</PackageTags>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
