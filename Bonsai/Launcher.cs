@@ -180,6 +180,30 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
+        internal static int LaunchWorkflowCheck(string fileName, Dictionary<string, string> propertyAssignments)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.Error.WriteLine(Resources.WorkflowFileNotSpecifiedWarning);
+                return Program.ErrorExitCode;
+            }
+
+            try
+            {
+                return WorkflowRunner.Check(fileName, propertyAssignments)
+                    ? Program.NormalExitCode
+                    : Program.ErrorExitCode;
+            }
+            catch (Exception ex) when (
+                ex is ArgumentException ||
+                ex is InvalidOperationException ||
+                ex is KeyNotFoundException)
+            {
+                Console.Error.WriteLine(ex.Message);
+                return Program.ErrorExitCode;
+            }
+        }
+
         static int ShowManifestReadError(string path, string message)
         {
             MessageBox.Show(

@@ -163,24 +163,7 @@ namespace Bonsai.Editor
             string layoutPath,
             bool debugger)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
-
-            if (!File.Exists(fileName))
-            {
-                throw new ArgumentException(string.Format(Resources.OpenWorkflow_FileNotFound, fileName), nameof(fileName));
-            }
-
-            WorkflowBuilder workflowBuilder;
-            try { workflowBuilder = ElementStore.LoadWorkflow(fileName); }
-            catch (Exception ex) when (IsWorkflowFormatError(ex))
-            {
-                throw new InvalidOperationException(
-                    string.Format(Resources.OpenWorkflow_InvalidFormat, fileName), ex);
-            }
-
+            var workflowBuilder = LoadWorkflow(fileName);
             var settingsPath = Project.GetWorkflowSettingsDirectory(fileName);
             layoutPath ??= LayoutHelper.GetCompatibleLayoutPath(settingsPath, fileName);
 
@@ -203,6 +186,46 @@ namespace Bonsai.Editor
             catch (WorkflowException ex)
             {
                 LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
+            }
+        }
+
+        public static bool Check(string fileName, Dictionary<string, string> propertyAssignments)
+        {
+            var workflowBuilder = LoadWorkflow(fileName);
+            var exceptionCache = new WorkflowRuntimeExceptionCache();
+            try
+            {
+                BuildAssignProperties(workflowBuilder, propertyAssignments);
+
+                // Assigned properties can change the build result
+                if (propertyAssignments.Count > 0)
+                    workflowBuilder.Workflow.Build();
+                return true;
+            }
+            catch (WorkflowException ex)
+            {
+                LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
+                return false;
+            }
+        }
+
+        static WorkflowBuilder LoadWorkflow(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+
+            if (!File.Exists(fileName))
+            {
+                throw new ArgumentException(string.Format(Resources.OpenWorkflow_FileNotFound, fileName), nameof(fileName));
+            }
+
+            try { return ElementStore.LoadWorkflow(fileName); }
+            catch (Exception ex) when (IsWorkflowFormatError(ex))
+            {
+                throw new InvalidOperationException(
+                    string.Format(Resources.OpenWorkflow_InvalidFormat, fileName), ex);
             }
         }
 
