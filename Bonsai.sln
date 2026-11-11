@@ -6,6 +6,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai", "Bonsai\Bonsai.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Audio", "Bonsai.Audio\Bonsai.Audio.csproj", "{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Build", "Bonsai.Build\Bonsai.Build.csproj", "{FDA01606-64FC-49EB-AD5F-61E303F34169}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Build.Tests", "Bonsai.Build.Tests\Bonsai.Build.Tests.csproj", "{09ADD648-05B6-4B8F-A9B1-BC798CF2AF01}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Configuration", "Bonsai.Configuration\Bonsai.Configuration.csproj", "{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Configuration.Tests", "Bonsai.Configuration.Tests\Bonsai.Configuration.Tests.csproj", "{024A09F4-7525-4EE3-B07F-4097A9415C89}"
@@ -92,6 +96,14 @@ Global
 		{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA01606-64FC-49EB-AD5F-61E303F34169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA01606-64FC-49EB-AD5F-61E303F34169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA01606-64FC-49EB-AD5F-61E303F34169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA01606-64FC-49EB-AD5F-61E303F34169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09ADD648-05B6-4B8F-A9B1-BC798CF2AF01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09ADD648-05B6-4B8F-A9B1-BC798CF2AF01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09ADD648-05B6-4B8F-A9B1-BC798CF2AF01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09ADD648-05B6-4B8F-A9B1-BC798CF2AF01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}.Release|Any CPU.ActiveCfg = Release|Any CPU
