@@ -26,12 +26,6 @@
             "valueTransform": "replaceDotsWithSpaces",
             "replaces": "$title$"
         },
-        "folder-name": {
-            "type": "parameter",
-            "defaultValue": "docs",
-            "fileRename": "docs",
-            "description": "The name of the generated docs folder."
-        },
         "base-url": {
             "type": "parameter",
             "defaultValue": "",

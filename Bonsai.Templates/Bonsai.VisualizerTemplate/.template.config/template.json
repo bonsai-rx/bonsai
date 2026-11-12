@@ -27,8 +27,22 @@
         "csharp-only": {
             "type": "project-capability",
             "args": "CSharp"
-        }  
+        }
     },
+    "postActions": [{
+        "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
+        "description": "Adds a reference to the Bonsai.Design package.",
+        "continueOnError": true,
+        "manualInstructions": [{
+            "text": "Add a package reference to Bonsai.Design."
+        }],
+        "args": {
+            "referenceType": "package",
+            "reference": "Bonsai.Design",
+            "version": "2.9.2",
+            "projectFileExtensions": ".csproj"
+        }
+    }],
     "shortName": "bonsaivisualizer",
     "defaultName": "Visualizer1",
     "preferDefaultName": true

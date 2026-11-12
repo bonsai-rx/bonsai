@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Bonsai",
+    "classifications": [ "Bonsai", "LibraryInfo" ],
+    "description": "A file used to declare the XML namespace prefix and icon of a Bonsai library",
+    "identity": "Bonsai.LibraryInfoTemplate",
+    "name": "Bonsai Library Info",
+    "tags": {
+        "language": "C#",
+        "type": "item"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "rename": {
+                        "AssemblyInfo.cs": "Properties/AssemblyInfo.cs"
+                    }
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "namespace": {
+            "type": "bind",
+            "binding": "msbuild:RootNamespace",
+            "replaces": "$rootnamespace$"
+        },
+        "prefix": {
+            "type": "parameter",
+            "datatype": "string",
+            "isRequired": true,
+            "replaces": "$prefix$",
+            "description": "The XML namespace prefix used for operators of the library in workflow files."
+        },
+        "icon": {
+            "type": "parameter",
+            "datatype": "string",
+            "defaultValue": "",
+            "description": "The built-in editor icon used for operators of the library, or the full name of a custom icon resource.\nBuilt-in icons:\n  Audio       Audio processing\n  CSharp      C# scripting\n  Daq         Data acquisition\n  Dsp         Digital signal processing\n  Hid         Human interface devices\n  IO          Input and output\n  ML          Machine learning\n  Net         Networking\n  Neuro       Neuroscience\n  Numerics    Numerical computation\n  Physics     Physics simulation\n  Reactive    Reactive operators\n  Scripting   Scripting\n  Shaders     Graphics shaders\n  Video       Video\n  Vision      Computer vision\n  Visualizer  Visualizers"
+        },
+        "iconName": {
+            "type": "generated",
+            "generator": "regex",
+            "replaces": "$icon$",
+            "parameters": {
+                "source": "icon",
+                "steps": [
+                    {
+                        "regex": "^([A-Za-z0-9]+)$",
+                        "replacement": "Bonsai:ElementIcon.$1"
+                    }
+                ]
+            }
+        },
+        "HasIcon": {
+            "type": "computed",
+            "value": "(icon != \"\")"
+        }
+    },
+    "constraints": {
+        "csharp-only": {
+            "type": "project-capability",
+            "args": "CSharp"
+        }
+    },
+    "shortName": "bonsailibinfo"
+}

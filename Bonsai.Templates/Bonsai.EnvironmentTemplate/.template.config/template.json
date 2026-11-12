@@ -10,16 +10,16 @@
     },
     "postActions": [{
         "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
-        "description": "Initializes the bonsai environment.",
+        "description": "Restores the environment packages using the installed Bonsai bootstrapper.",
+        "continueOnError": true,
         "manualInstructions": [{
-            "text": "Run the 'Setup.ps1' or 'Setup.cmd' scripts."
+            "text": "Open Bonsai from this folder, or open any workflow inside it, to restore the environment. This requires Bonsai 2.9.0 or later."
         }],
         "args": {
-            "executable": "powershell",
-            "args": "-File .bonsai/Setup.ps1",
+            "executable": "bonsai",
+            "args": "--no-editor",
             "redirectStandardOutput": false
-        },
-        "applyFileRenamesToArgs": [ "args" ]
+        }
     }],
     "shortName": "bonsaienv",
     "preferNameDirectory": false
