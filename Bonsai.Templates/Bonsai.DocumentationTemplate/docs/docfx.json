@@ -39,10 +39,6 @@
           "workflows/**/*.{bonsai,svg}",
           "{articles,tutorials,examples}/**/*.{bonsai,svg}"
         ]
-      },
-      {
-        "src": "../build/",
-        "files": "icon.png"
       }
     ],
     "overwrite": [
@@ -64,8 +60,6 @@
       "_appName": "$projectname$",
       "_appTitle": "$projectname$",
       "_appFooter": "$copyright$Made with <a href=\"https://dotnet.github.io/docfx\">docfx</a>",
-      "_appLogoPath": "logo.svg",
-      "_appFaviconPath": "icon.png",
       "_enableNewTab": true,
       "_enableSearch": true,
       "_gitContribute": {

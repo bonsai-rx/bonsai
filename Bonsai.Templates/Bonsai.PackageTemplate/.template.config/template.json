@@ -18,8 +18,7 @@
                         "template.Directory.Build.targets": "Directory.Build.targets",
                         "template.editorconfig": ".editorconfig",
                         "template.gitattributes": ".gitattributes",
-                        "template.gitignore": ".gitignore",
-                        "template.README.md": "README.md"
+                        "template.gitignore": ".gitignore"
                     }
                 }
             ]

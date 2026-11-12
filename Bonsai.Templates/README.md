@@ -1,13 +1,13 @@
 ## About
 
-`Bonsai.Templates` provides templates for creating a package or bootstrapping an environment for the [Bonsai visual reactive programming language](https://bonsai-rx.org).
+`Bonsai.Templates` provides templates for creating packages, operators and environments for the [Bonsai visual reactive programming language](https://bonsai-rx.org).
 
 ## How to Use
 
 ### Installation
 
 ```
-dotnet new install Bonsai.Templates::2.9.1
+dotnet new install Bonsai.Templates::2.9.2
 ```
 
 ### Creating a Package Project
@@ -22,9 +22,24 @@ dotnet new bonsaipackage
 dotnet new bonsaienv
 ```
 
+### Available Templates
+
+| Template | Short name |
+| --- | --- |
+| Bonsai Package | `bonsaipackage` |
+| Bonsai Library | `bonsailib` |
+| Bonsai Documentation | `bonsaidocs` |
+| Bonsai Environment | `bonsaienv` |
+| Bonsai Source | `bonsaisource` |
+| Bonsai Transform | `bonsaitransform` |
+| Bonsai Sink | `bonsaisink` |
+| Bonsai Visualizer | `bonsaivisualizer` |
+| Bonsai Library Info | `bonsailibinfo` |
+| Bonsai Workflow | `bonsaiworkflow` |
+
 ## Additional Documentation
 
-For additional documentation and examples, refer to the [official Bonsai documentation](https://bonsai-rx.org/docs/articles/environments.html).
+For additional documentation and examples, refer to the [official Bonsai documentation](https://bonsai-rx.org/docs/articles/create-package.html).
 
 ## Feedback & Contributing
 

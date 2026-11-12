@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <Description>$projectname$ Bonsai library.</Description>
-    <PackageTags>Bonsai Rx $tags$</PackageTags>
+    <PackageTags>$(PackageTags) $tags$</PackageTags>
     <TargetFrameworks>net472</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bonsai.Core" Version="2.9.1" />
+    <PackageReference Include="Bonsai.Core" Version="2.9.2" />
   </ItemGroup>
 
 </Project>

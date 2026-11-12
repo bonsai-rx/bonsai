@@ -17,9 +17,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSymbols>false</IncludeSymbols>
 
-    <!-- Ignore warnings about Setup.ps1 as it is not meant to be a NuGet setup script -->
-    <NoWarn>$(NoWarn);NU5110;NU5111</NoWarn>
-
     <!--
       Suppressing package dependencies to avoid triggering NU5128
       https://github.com/NuGet/Home/issues/8583
@@ -28,6 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Bonsai.LibraryInfoTemplate\**\*" />
     <Content Include="Bonsai.PackageTemplate\**\*" />
     <Content Include="Bonsai.EnvironmentTemplate\**\*" />
     <Content Include="Bonsai.DocumentationTemplate\**\*" />

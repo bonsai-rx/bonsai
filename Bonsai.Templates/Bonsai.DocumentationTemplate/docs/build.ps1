@@ -9,6 +9,7 @@ Push-Location $PSScriptRoot
 try {
     $libPaths = @()
     $libPaths += Get-ChildItem "..\artifacts\bin\*\release_net4*" -Directory | Select-Object -Expand FullName
+    $libPaths += "..\artifacts\package\release"
 
     ./export-images.ps1 $libPaths
     dotnet docfx metadata
