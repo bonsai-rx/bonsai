@@ -130,7 +130,7 @@ public static class EnvironmentSelector
 
     static string TryInitializeLocalBootstrapper(string bootstrapperDirectory)
     {
-        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.GetFileName(defaultBootstrapper.Path));
+        var bootstrapperPath = Path.Combine(bootstrapperDirectory, Path.ChangeExtension(BonsaiConfig, ".exe"));
         File.Copy(defaultBootstrapper.Path, bootstrapperPath);
         try
         {
