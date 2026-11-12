@@ -213,6 +213,15 @@ namespace Bonsai.Editor.Properties {
                 return ResourceManager.GetString("CreateTypeNode_Error", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create Type Operator.
+        /// </summary>
+        internal static string CreateTypeOperatorMenuItemLabel {
+            get {
+                return ResourceManager.GetString("CreateTypeOperatorMenuItemLabel", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
