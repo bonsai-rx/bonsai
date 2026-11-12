@@ -24,7 +24,7 @@ namespace Bonsai.Configuration
 
         public string ProjectFileName { get; private set; }
 
-        public AssemblyName AssemblyName { get; internal set; }
+        public AssemblyName AssemblyName { get; private set; }
 
         public bool DebugScripts { get; set; }
 
@@ -35,6 +35,15 @@ namespace Bonsai.Configuration
 
             using var stream = File.OpenRead(ProjectFileName);
             return new ScriptExtensionsProjectMetadata(stream);
+        }
+
+        public void RegisterAssembly(string assemblyFile)
+        {
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+            var assemblyUri = new Uri(assemblyFile).AbsoluteUri;
+            packageConfiguration.AssemblyReferences.Add(assemblyName.Name);
+            packageConfiguration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyUri);
+            AssemblyName = assemblyName;
         }
 
         public void UpdateProjectMetadata(ScriptExtensionsProjectMetadata projectMetadata)

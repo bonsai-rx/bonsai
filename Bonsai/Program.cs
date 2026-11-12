@@ -175,8 +175,8 @@ namespace Bonsai
 
                     ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
                     libFolders.ForEach(path => ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                    using var scriptExtensions = ScriptExtensionsProvider.CompileAssembly(Launcher.ProjectFramework, packageConfiguration, editorRepositoryPath, debugScripts);
                     ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    using var scriptExtensions = ScriptExtensionsCompiler.CompileAssembly(Launcher.ProjectFramework, packageConfiguration, editorRepositoryPath, debugScripts);
                     if (exportImage) return Launcher.LaunchExportImage(initialFileName, imageFileName, packageConfiguration);
                     if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, layoutPath, packageConfiguration, propertyAssignments, debugging);
                     else return Launcher.LaunchWorkflowEditor(

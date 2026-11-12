@@ -16,15 +16,17 @@ public sealed class ScriptExtensionsProjectMetadataTests
         ScriptExtensionsProjectMetadata metadata = useNullXDocument ? new((XDocument)null) : default;
         Assert.IsFalse(metadata.Exists);
         Assert.IsFalse(metadata.AllowUnsafeBlocks);
+        Assert.IsNull(metadata.LangVersion);
         CollectionAssert.DoesNotContain(metadata.GetAssemblyReferences().ToArray(), "System.Windows.Forms.dll"); // Winforms is not enabled by default
         Assert.AreEqual(0, metadata.GetPackageReferences().Count());
         Assert.AreEqual
         (
             """
-            <Project Sdk="Microsoft.NET.Sdk">            
+            <Project Sdk="Microsoft.NET.Sdk">
 
               <PropertyGroup>
                 <TargetFramework>net472</TargetFramework>
+                <LangVersion>13.0</LangVersion>
               </PropertyGroup>
 
             </Project>
@@ -49,6 +51,22 @@ public sealed class ScriptExtensionsProjectMetadataTests
         """, LoadOptions.PreserveWhitespace);
         var metadata = new ScriptExtensionsProjectMetadata(document);
         Assert.AreEqual(enabled, metadata.AllowUnsafeBlocks);
+    }
+
+    [TestMethod]
+    public void LangVersion()
+    {
+        var document = XDocument.Parse
+        ("""
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <TargetFramework>net472</TargetFramework>
+            <LangVersion>12.0</LangVersion>
+          </PropertyGroup>
+        </Project>
+        """, LoadOptions.PreserveWhitespace);
+        var metadata = new ScriptExtensionsProjectMetadata(document);
+        Assert.AreEqual("12.0", metadata.LangVersion);
     }
 
     [TestMethod]
