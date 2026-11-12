@@ -20,6 +20,7 @@ namespace Bonsai.Editor
 
         internal EditorSettings(string path)
         {
+            EditorScale = 1.0f;
             AnnotationPanelSize = 400;
             settingsPath = path;
         }
@@ -28,6 +29,8 @@ namespace Bonsai.Editor
         {
             get { return instance.Value; }
         }
+
+        public float EditorScale { get; set; }
 
         public Rectangle DesktopBounds { get; set; }
 
@@ -61,7 +64,15 @@ namespace Bonsai.Editor
                         while (reader.Read())
                         {
                             if (reader.NodeType != XmlNodeType.Element) continue;
-                            if (reader.Name == nameof(WindowState))
+                            if (reader.Name == nameof(EditorScale))
+                            {
+                                if (float.TryParse(reader.ReadElementContentAsString(), NumberStyles.Float, CultureInfo.InvariantCulture, out float editorScale) &&
+                                    editorScale > 0 && !float.IsInfinity(editorScale))
+                                {
+                                    settings.EditorScale = editorScale;
+                                }
+                            }
+                            else if (reader.Name == nameof(WindowState))
                             {
                                 Enum.TryParse(reader.ReadElementContentAsString(), out FormWindowState windowState);
                                 settings.WindowState = windowState;
@@ -128,6 +139,7 @@ namespace Bonsai.Editor
                 writer.WriteElementString(nameof(EditorTheme), EditorTheme.ToString());
                 writer.WriteElementString(nameof(AnnotationPanelSize), AnnotationPanelSize.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(nameof(ExplorerSplitterDistance), ExplorerSplitterDistance.ToString(CultureInfo.InvariantCulture));
+                writer.WriteElementString(nameof(EditorScale), EditorScale.ToString(CultureInfo.InvariantCulture));
 
                 writer.WriteStartElement(nameof(DesktopBounds));
                 writer.WriteElementString(nameof(Rectangle.X), DesktopBounds.X.ToString(CultureInfo.InvariantCulture));

@@ -57,7 +57,7 @@ namespace Bonsai
             var createEnvironment = false;
             var displayEnvironmentInfo = false;
             var debugScripts = false;
-            var editorScale = 1.0f;
+            float? editorScale = null;
             var exportImage = false;
             var updatePackages = false;
             var launchResult = default(EditorResult);
