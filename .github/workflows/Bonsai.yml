@@ -42,6 +42,8 @@ jobs:
     # Only the target which creates the installer signs anything, so it is the only one which needs the signing credentials and the release approval
     # The condition is spelled out here rather than reusing CiIsForRelease because the environment key is evaluated before any step runs
     environment: ${{matrix.create-installer && github.event_name == 'release' && 'PublicRelease' || ''}}
+    env:
+      UseRepackForBootstrapperPackage: ${{matrix.collect-packages}}
     steps:
       # ----------------------------------------------------------------------- Checkout
       - name: Checkout
@@ -184,6 +186,13 @@ jobs:
           password: ${{secrets.ES_PASSWORD}}
           credential-id: ${{secrets.ES_CREDENTIAL_ID}}
           totp-secret: ${{secrets.ES_TOTP_SECRET}}
+
+      # ----------------------------------------------------------------------- Verify bootstrapper
+      - name: Verify bootstrapper
+        if: matrix.create-installer
+        run: python .github/workflows/verify-bootstrapper.py ${{matrix.configuration}}
+        env:
+          IS_FULL_RELEASE: ${{env.CiIsForRelease}}
 
       # ----------------------------------------------------------------------- Collect artifacts
       - name: Collect NuGet packages
