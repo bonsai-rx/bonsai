@@ -126,7 +126,7 @@ namespace Bonsai
                 using var pipeWriter = AppResult.OpenWrite(pipeClient);
                 if (launchResult == EditorResult.Exit)
                 {
-                    if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
+                    if (!string.IsNullOrEmpty(initialFileName) || check) launchResult = EditorResult.ReloadEditor;
                     else if (launchEditor)
                     {
                         ConfigurationHelper.SetAssemblyResolve(packageConfiguration);

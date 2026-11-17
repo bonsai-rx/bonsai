@@ -192,7 +192,6 @@ namespace Bonsai.Editor
         public static bool Check(string fileName, Dictionary<string, string> propertyAssignments)
         {
             var workflowBuilder = LoadWorkflow(fileName);
-            var exceptionCache = new WorkflowRuntimeExceptionCache();
             try
             {
                 BuildAssignProperties(workflowBuilder, propertyAssignments);
@@ -204,7 +203,11 @@ namespace Bonsai.Editor
             }
             catch (WorkflowException ex)
             {
-                LogWorkflowExceptionStackTrace(fileName, workflowBuilder, exceptionCache, ex);
+                var sb = new StringBuilder();
+                sb.AppendLine(ex.Message);
+                if (ex.Builder != null)
+                    WriteWorkflowExceptionStackTrace(fileName, ex, workflowBuilder, sb);
+                Console.Error.Write(sb);
                 return false;
             }
         }

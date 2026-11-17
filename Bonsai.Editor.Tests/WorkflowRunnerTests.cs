@@ -46,6 +46,7 @@ namespace Bonsai.Editor.Tests
             var output = CaptureError(() => Assert.IsFalse(WorkflowRunner.Check(fileName, new())));
             StringAssert.Matches(output, new Regex($@"at .+ in {Regex.Escape(nestedPath)}:line \d+"));
             StringAssert.Matches(output, new Regex($@"at .+ in {Regex.Escape(fileName)}:line \d+"));
+            StringAssert.DoesNotMatch(output, new Regex(@"^\s+at \S+\(.*\)", RegexOptions.Multiline));
         }
 
         [TestMethod]

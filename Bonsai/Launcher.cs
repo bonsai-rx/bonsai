@@ -197,9 +197,13 @@ namespace Bonsai
             catch (Exception ex) when (
                 ex is ArgumentException ||
                 ex is InvalidOperationException ||
-                ex is KeyNotFoundException)
+                ex is KeyNotFoundException ||
+                ex is FormatException)
             {
-                Console.Error.WriteLine(ex.Message);
+                var message = ex is FormatException fex && fex.InnerException is not null
+                    ? $"{ex.Message} {ex.InnerException.Message}"
+                    : ex.Message;
+                Console.Error.WriteLine(message);
                 return Program.ErrorExitCode;
             }
         }
