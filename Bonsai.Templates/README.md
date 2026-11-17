@@ -7,7 +7,7 @@
 ### Installation
 
 ```
-dotnet new install Bonsai.Templates::2.9.2
+dotnet new install Bonsai.Templates::2.9.3
 ```
 
 ### Creating a Package Project
