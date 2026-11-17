@@ -2,6 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bonsai.Build.Tests;
@@ -31,7 +34,12 @@ public sealed class AssemblyCompilerTests
 
     string GetOutputFileName(string assemblyName) => Path.Combine(outputDirectory, assemblyName + ".dll");
 
-    static SourceFile CreateSource(string text) => new("Script.cs", text);
+    string CreateSource(string text, string fileName = "Script.cs")
+    {
+        var path = Path.Combine(outputDirectory, fileName);
+        File.WriteAllText(path, text);
+        return path;
+    }
 
     [TestMethod]
     public void CompileValidSourceWritesAssembly()
@@ -53,7 +61,7 @@ public sealed class AssemblyCompilerTests
         var compiler = new AssemblyCompiler();
         var outputFileName = GetOutputFileName("Invalid");
         var result = compiler.Compile(
-            new[] { new SourceFile("Broken.cs", "public class Broken { int Value => missing; }") },
+            new[] { CreateSource("public class Broken { int Value => missing; }", "Broken.cs") },
             DefaultReferences,
             outputFileName);
 
@@ -90,7 +98,7 @@ public sealed class AssemblyCompilerTests
 
     [TestMethod]
     [DataRow("7.3", false)]
-    [DataRow("13.0", true)]
+    [DataRow("12.0", true)]
     [DataRow(null, true)]
     public void LanguageVersionLimitsAvailableSyntax(string languageVersion, bool expectedSuccess)
     {
@@ -126,6 +134,44 @@ public sealed class AssemblyCompilerTests
 
         Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
         Assert.AreEqual(includeDebugInformation, File.Exists(Path.ChangeExtension(outputFileName, ".pdb")));
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void DebugSymbolsChecksumMatchesSourceFile(bool byteOrderMark)
+    {
+        var text = Encoding.UTF8.GetBytes("public class Checksum { }\r\n");
+        var contents = byteOrderMark ? Encoding.UTF8.GetPreamble().Concat(text).ToArray() : text;
+        var sourcePath = Path.Combine(outputDirectory, "Checksum.cs");
+        File.WriteAllBytes(sourcePath, contents);
+
+        var compiler = new AssemblyCompiler { IncludeDebugInformation = true };
+        var outputFileName = GetOutputFileName("Checksum");
+        var result = compiler.Compile(new[] { sourcePath }, DefaultReferences, outputFileName);
+        Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+
+        using var symbolsStream = File.OpenRead(Path.ChangeExtension(outputFileName, ".pdb"));
+        using var symbolsProvider = MetadataReaderProvider.FromPortablePdbStream(symbolsStream);
+        var symbolsReader = symbolsProvider.GetMetadataReader();
+        var document = symbolsReader.GetDocument(symbolsReader.Documents.Single());
+        using var sha256 = SHA256.Create();
+        CollectionAssert.AreEqual(sha256.ComputeHash(contents), symbolsReader.GetBlobBytes(document.Hash));
+    }
+
+    [TestMethod]
+    public void MissingReferenceReportsWarning()
+    {
+        var missingReference = Path.Combine(outputDirectory, "Missing.dll");
+        var compiler = new AssemblyCompiler();
+        var result = compiler.Compile(
+            new[] { CreateSource("public class Valid { }") },
+            DefaultReferences.Append(missingReference),
+            GetOutputFileName("Valid"));
+
+        Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.IsTrue(result.Diagnostics.Any(diagnostic =>
+            diagnostic.StartsWith("warning") && diagnostic.Contains(missingReference)));
     }
 
     [TestMethod]

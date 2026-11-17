@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -44,8 +43,14 @@ namespace Bonsai.Build
         /// <summary>
         /// Compiles the specified source files into a library assembly.
         /// </summary>
-        /// <param name="sources">The source files to compile.</param>
-        /// <param name="references">The paths of the assemblies referenced by the source files.</param>
+        /// <param name="sourceFiles">
+        /// The paths of the source files to compile. The checksum written to debug symbols is
+        /// computed from the contents of each file.
+        /// </param>
+        /// <param name="references">
+        /// The paths of the assemblies referenced by the source files. Paths that do not exist are
+        /// skipped and reported as warnings.
+        /// </param>
         /// <param name="outputFileName">The path of the assembly file to write.</param>
         /// <returns>
         /// A <see cref="CompilerResult"/> describing whether the compilation succeeded, and the
@@ -53,12 +58,12 @@ namespace Bonsai.Build
         /// compilation succeeds.
         /// </returns>
         public CompilerResult Compile(
-            IEnumerable<SourceFile> sources,
+            IEnumerable<string> sourceFiles,
             IEnumerable<string> references,
             string outputFileName)
         {
-            if (sources is null)
-                throw new ArgumentNullException(nameof(sources));
+            if (sourceFiles is null)
+                throw new ArgumentNullException(nameof(sourceFiles));
             if (references is null)
                 throw new ArgumentNullException(nameof(references));
             if (string.IsNullOrEmpty(outputFileName))
@@ -73,11 +78,18 @@ namespace Bonsai.Build
             }
 
             var parseOptions = new CSharpParseOptions(languageVersion);
-            var syntaxTrees = sources.Select(source => CSharpSyntaxTree.ParseText(
-                SourceText.From(source.Text, Encoding.UTF8),
-                parseOptions,
-                source.Path));
-            var metadataReferences = references.Select(path => MetadataReference.CreateFromFile(path));
+            var syntaxTrees = sourceFiles.Select(sourceFile =>
+            {
+                var path = Path.GetFullPath(sourceFile);
+                var contents = File.ReadAllBytes(path);
+                var sourceText = SourceText.From(contents, contents.Length, checksumAlgorithm: SourceHashAlgorithm.Sha256);
+                return CSharpSyntaxTree.ParseText(sourceText, parseOptions, path);
+            });
+            var referencePaths = references.ToArray();
+            var missingReferences = referencePaths.Where(path => !File.Exists(path)).ToArray();
+            var metadataReferences = referencePaths
+                .Except(missingReferences)
+                .Select(path => MetadataReference.CreateFromFile(path));
             var compilationOptions = new CSharpCompilationOptions(
                 OutputKind.DynamicallyLinkedLibrary,
                 optimizationLevel: IncludeDebugInformation ? OptimizationLevel.Debug : OptimizationLevel.Release,
@@ -95,9 +107,11 @@ namespace Bonsai.Build
                 debugInformationFormat: DebugInformationFormat.PortablePdb,
                 pdbFilePath: IncludeDebugInformation ? symbolsFileName : null);
             var emitResult = compilation.Emit(assemblyStream, symbolsStream, options: emitOptions);
-            var diagnostics = emitResult.Diagnostics
-                .Where(diagnostic => diagnostic.Severity >= DiagnosticSeverity.Warning)
-                .Select(diagnostic => diagnostic.ToString())
+            var diagnostics = missingReferences
+                .Select(path => $"warning: Metadata file '{path}' could not be found.")
+                .Concat(emitResult.Diagnostics
+                    .Where(diagnostic => diagnostic.Severity >= DiagnosticSeverity.Warning)
+                    .Select(diagnostic => diagnostic.ToString()))
                 .ToArray();
 
             if (emitResult.Success)

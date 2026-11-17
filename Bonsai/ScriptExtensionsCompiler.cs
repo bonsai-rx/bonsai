@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bonsai.Build;
@@ -34,15 +35,7 @@ namespace Bonsai
             var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
             var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
             var projectMetadata = scriptEnvironment.LoadProjectMetadata();
-            var packageReferences = ImplicitPackageReferences.Concat(projectMetadata.GetPackageReferences());
-            var assemblyReferences = FrameworkReferences
-                .GetReferencePaths(projectMetadata.GetAssemblyReferences())
-                .Concat(ScriptExtensionsProvider.GetPackageAssemblyLocations(
-                    projectFramework,
-                    configuration,
-                    editorRepositoryPath,
-                    packageReferences))
-                .Distinct(StringComparer.OrdinalIgnoreCase);
+            var assemblyReferences = GetAssemblyReferences(projectFramework, configuration, editorRepositoryPath, projectMetadata);
 
             var compiler = new AssemblyCompiler
             {
@@ -53,7 +46,7 @@ namespace Bonsai
             };
 
             var assemblyFile = Path.Combine(assemblyDirectory, OutputAssemblyName + AssemblyExtension);
-            var result = compiler.Compile(scriptFiles.Select(SourceFile.FromFile), assemblyReferences, assemblyFile);
+            var result = compiler.Compile(scriptFiles, assemblyReferences, assemblyFile);
             if (!result.Success)
             {
                 try
@@ -70,6 +63,48 @@ namespace Bonsai
 
             scriptEnvironment.RegisterAssembly(assemblyFile);
             return scriptEnvironment;
+        }
+
+        static IEnumerable<string> GetAssemblyReferences(
+            NuGetFramework projectFramework,
+            PackageConfiguration configuration,
+            string editorRepositoryPath,
+            ScriptExtensionsProjectMetadata projectMetadata)
+        {
+            var packageReferences = ImplicitPackageReferences.Concat(projectMetadata.GetPackageReferences());
+            var packageAssemblyNames = ScriptExtensionsProvider.GetPackageAssemblyNames(
+                projectFramework,
+                editorRepositoryPath,
+                packageReferences);
+
+            var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
+            var packageAssemblyLocations = new List<string>();
+            var unresolvedAssemblyNames = new List<string>();
+            foreach (var assemblyName in packageAssemblyNames)
+            {
+                var assemblyLocation = configuration.GetAssemblyLocation(assemblyName);
+                if (assemblyLocation is null)
+                    unresolvedAssemblyNames.Add(assemblyName);
+                else
+                    packageAssemblyLocations.Add(Path.IsPathRooted(assemblyLocation)
+                        ? assemblyLocation
+                        : Path.Combine(configurationRoot, assemblyLocation));
+            }
+
+            var frameworkReferences = FrameworkReferences
+                .GetReferencePaths(projectMetadata.GetAssemblyReferences().Concat(unresolvedAssemblyNames))
+                .ToArray();
+            var frameworkAssemblyNames = new HashSet<string>(
+                frameworkReferences.Select(Path.GetFileNameWithoutExtension),
+                StringComparer.OrdinalIgnoreCase);
+            var missingReferences = unresolvedAssemblyNames
+                .Where(assemblyName => !frameworkAssemblyNames.Contains(assemblyName))
+                .Select(assemblyName => assemblyName + AssemblyExtension);
+
+            return frameworkReferences
+                .Concat(packageAssemblyLocations)
+                .Concat(missingReferences)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
         }
     }
 }

@@ -69,9 +69,8 @@ namespace Bonsai.Configuration
             }
         }
 
-        public static IEnumerable<string> GetPackageAssemblyLocations(
+        public static IEnumerable<string> GetPackageAssemblyNames(
             NuGetFramework projectFramework,
-            PackageConfiguration configuration,
             string editorRepositoryPath,
             IEnumerable<string> packageIds)
         {
@@ -79,32 +78,17 @@ namespace Bonsai.Configuration
             var packageRepository = new SourceRepository(packageSource, Repository.Provider.GetCoreV3());
             var dependencyResource = packageRepository.GetResource<DependencyInfoResource>();
             var localPackageResource = packageRepository.GetResource<FindLocalPackagesResource>();
-            HashSet<string> assemblyNames;
-            using (var cacheContext = new SourceCacheContext())
-            {
-                assemblyNames = new HashSet<string>(
-                    from id in packageIds
-                    from assemblyReference in FindAssemblyReferences(
-                        projectFramework,
-                        dependencyResource,
-                        localPackageResource,
-                        cacheContext,
-                        packageId: id)
-                    select Path.GetFileNameWithoutExtension(assemblyReference),
-                    StringComparer.OrdinalIgnoreCase);
-            }
-
-            var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
-            foreach (var assemblyName in assemblyNames)
-            {
-                var assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName);
-                if (assemblyLocation is null)
-                    continue;
-
-                yield return Path.IsPathRooted(assemblyLocation)
-                    ? assemblyLocation
-                    : Path.Combine(configurationRoot, assemblyLocation);
-            }
+            using var cacheContext = new SourceCacheContext();
+            return new HashSet<string>(
+                from id in packageIds
+                from assemblyReference in FindAssemblyReferences(
+                    projectFramework,
+                    dependencyResource,
+                    localPackageResource,
+                    cacheContext,
+                    packageId: id)
+                select Path.GetFileNameWithoutExtension(assemblyReference),
+                StringComparer.OrdinalIgnoreCase);
         }
     }
 }

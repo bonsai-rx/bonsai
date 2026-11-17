@@ -33,7 +33,7 @@ namespace Bonsai.Configuration
 
               <PropertyGroup>
                 <TargetFramework>net472</TargetFramework>
-                <LangVersion>13.0</LangVersion>
+                <LangVersion>12.0</LangVersion>
               </PropertyGroup>
 
             </Project>

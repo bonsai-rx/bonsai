@@ -25,7 +25,9 @@ namespace Bonsai.Build
         /// </param>
         /// <returns>
         /// The paths of the requested assemblies together with the core library and the other
-        /// framework assemblies they depend on.
+        /// framework assemblies they depend on. A shared framework other than the core framework
+        /// is included only if it provides a requested assembly that the core framework does not,
+        /// matching the framework references of an SDK project.
         /// </returns>
         public static IEnumerable<string> GetReferencePaths(IEnumerable<string> assemblyNames)
         {
@@ -69,12 +71,25 @@ namespace Bonsai.Build
             foreach (var sharedFramework in sharedFrameworks)
             {
                 var isCoreFramework = string.Equals(sharedFramework.Key, coreDirectory, StringComparison.OrdinalIgnoreCase);
-                if (isCoreFramework || sharedFramework.Any(location => names.Contains(Path.GetFileNameWithoutExtension(location))))
+                if (isCoreFramework || sharedFramework.Any(location =>
+                    names.Contains(Path.GetFileNameWithoutExtension(location)) &&
+                    !File.Exists(GetCoreFrameworkPath(location))))
                 {
                     foreach (var location in sharedFramework)
                         yield return location;
                 }
+                else
+                {
+                    foreach (var location in sharedFramework)
+                    {
+                        var corePath = GetCoreFrameworkPath(location);
+                        if (File.Exists(corePath))
+                            yield return corePath;
+                    }
+                }
             }
+
+            string GetCoreFrameworkPath(string location) => Path.Combine(coreDirectory, Path.GetFileName(location));
         }
 #endif
     }
