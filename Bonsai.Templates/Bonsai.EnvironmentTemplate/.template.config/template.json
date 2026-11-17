@@ -13,7 +13,7 @@
         "description": "Restores the environment packages using the installed Bonsai bootstrapper.",
         "continueOnError": true,
         "manualInstructions": [{
-            "text": "Open Bonsai from this folder, or open any workflow inside it, to restore the environment. This requires Bonsai 2.9.0 or later."
+            "text": "Open Bonsai from this folder, or open any workflow inside it, to restore the environment. This requires an installed Bonsai at least as recent as the version used by the environment."
         }],
         "args": {
             "executable": "bonsai",
