@@ -30,6 +30,7 @@ public static class EnvironmentSelector
     static readonly BootstrapperInfo defaultBootstrapper = GetDefaultBootstrapper();
     static readonly Dictionary<string, string> knownChecksums = new()
     {
+        { "2.9.2", "4abdc6d7440a6ada8c06828f918607868629551a8b06ce01bcf4ab3a155eb9dc" },
         { "2.9.1", "f4ad11e95a5138fe339d6796b618ac94d597d1e95cdaaf2b00a2e2aab9f05d80" },
         { "2.9.0", "61dfb52a8ce2bb4e1581588593218e3db93bf76ed742b850fc9f3610450a6d08" },
         { "2.8.5", "30293da62cf6df08581235b5d9a468c9005007bf4b6315b8a79eedc34080f192" },
