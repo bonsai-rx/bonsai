@@ -187,7 +187,7 @@ namespace Bonsai
             ScriptExtensions scriptExtensions,
             string editorRepositoryPath,
             string initialFileName,
-            float editorScale,
+            float? editorScale,
             bool start,
             bool debugging,
             Dictionary<string, string> propertyAssignments)
@@ -230,7 +230,9 @@ namespace Bonsai
             var documentationProvider = new DocumentationProvider(packageConfiguration, packageManager);
             serviceContainer.AddService(typeof(IScriptEnvironment), scriptEnvironment);
             serviceContainer.AddService(typeof(IDocumentationProvider), documentationProvider);
-            using var mainForm = new EditorForm(elementProvider, visualizerProvider, serviceContainer, editorScale);
+            using var mainForm = editorScale.HasValue
+                ? new EditorForm(elementProvider, visualizerProvider, serviceContainer, editorScale.Value)
+                : new EditorForm(elementProvider, visualizerProvider, serviceContainer);
             try
             {
                 updatesAvailable.ContinueWith(
