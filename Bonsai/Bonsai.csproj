@@ -70,14 +70,9 @@
     </ItemGroup>
   </Target>
 
-  <!--
-    The script compiler runs out of process and is shipped under tools/ in the build output and the package,
-    as the portable build output for any platform and a ReadyToRun build for Windows x64, published only on Windows
-  -->
+  <!-- The script compiler runs out of process and is shipped under tools/ in the build output and the package -->
   <PropertyGroup>
-    <PublishScriptCompilerReadyToRun>$([MSBuild]::IsOSPlatform('Windows'))</PublishScriptCompilerReadyToRun>
     <ScriptCompilerOutputDir>$(ArtifactsPath)/bin/Bonsai.Build/$(Configuration.ToLowerInvariant())/</ScriptCompilerOutputDir>
-    <ScriptCompilerPublishDir>$(ArtifactsPath)/publish/Bonsai.Build/$(Configuration.ToLowerInvariant())_win-x64/</ScriptCompilerPublishDir>
     <ScriptCompilerToolPath>tools/net8.0/</ScriptCompilerToolPath>
   </PropertyGroup>
 
@@ -89,25 +84,19 @@
                       PrivateAssets="all" />
   </ItemGroup>
 
-  <Target Name="PublishScriptCompiler">
-    <MSBuild Projects="..\Bonsai.Build\Bonsai.Build.csproj"
-             Targets="Publish"
-             Properties="RuntimeIdentifier=win-x64"
-             RemoveProperties="TargetFramework"
-             Condition="'$(PublishScriptCompilerReadyToRun)' == 'true'" />
+  <Target Name="GetScriptCompilerFiles">
     <ItemGroup>
-      <_ScriptCompilerFile Include="$(ScriptCompilerOutputDir)*" ToolPath="$(ScriptCompilerToolPath)any/" />
-      <_ScriptCompilerFile Include="$(ScriptCompilerPublishDir)*" ToolPath="$(ScriptCompilerToolPath)win-x64/" Condition="'$(PublishScriptCompilerReadyToRun)' == 'true'" />
+      <_ScriptCompilerFile Include="$(ScriptCompilerOutputDir)*" />
     </ItemGroup>
   </Target>
 
-  <Target Name="CopyScriptCompiler" AfterTargets="Build" DependsOnTargets="PublishScriptCompiler" Condition="'$(TargetFramework)' != ''">
-    <Copy SourceFiles="@(_ScriptCompilerFile)" DestinationFolder="$(OutDir)%(_ScriptCompilerFile.ToolPath)" SkipUnchangedFiles="true" />
+  <Target Name="CopyScriptCompiler" AfterTargets="Build" DependsOnTargets="GetScriptCompilerFiles" Condition="'$(TargetFramework)' != ''">
+    <Copy SourceFiles="@(_ScriptCompilerFile)" DestinationFolder="$(OutDir)$(ScriptCompilerToolPath)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="PackScriptCompiler" BeforeTargets="_GetPackageFiles" DependsOnTargets="PublishScriptCompiler">
+  <Target Name="PackScriptCompiler" BeforeTargets="_GetPackageFiles" DependsOnTargets="GetScriptCompilerFiles">
     <ItemGroup>
-      <None Include="@(_ScriptCompilerFile)" Pack="true" PackagePath="%(_ScriptCompilerFile.ToolPath)" />
+      <None Include="@(_ScriptCompilerFile)" Pack="true" PackagePath="$(ScriptCompilerToolPath)" />
     </ItemGroup>
   </Target>
 
