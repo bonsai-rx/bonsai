@@ -15,6 +15,7 @@ namespace Bonsai.Editor
         internal const string LayoutExtension = ".layout";
         internal const string EditorExtension = ".editor";
         internal const string SettingsDirectory = "Settings";
+        internal const string BuildDirectory = "Build";
         internal const string ExtensionsDirectory = "Extensions";
         internal const string DefinitionsDirectory = "Definitions";
 
@@ -78,7 +79,16 @@ namespace Bonsai.Editor
 
         public static string GetWorkflowSettingsDirectory(string fileName)
         {
-            var baseDirectory = GetWorkflowBaseDirectory(fileName);
+            return GetProjectDirectory(GetWorkflowBaseDirectory(fileName), SettingsDirectory);
+        }
+
+        public static string GetBuildDirectory(string baseDirectory)
+        {
+            return GetProjectDirectory(baseDirectory, BuildDirectory);
+        }
+
+        static string GetProjectDirectory(string baseDirectory, string directoryName)
+        {
             var appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             if (!string.IsNullOrEmpty(appBaseDirectory))
             {
@@ -86,11 +96,11 @@ namespace Bonsai.Editor
                 var parentRelativePath = GetParentRelativePath(appDirectoryInfo, baseDirectory);
                 if (!ReferenceEquals(parentRelativePath, baseDirectory))
                 {
-                    return Path.Combine(appBaseDirectory, SettingsDirectory, parentRelativePath);
+                    return Path.Combine(appBaseDirectory, directoryName, parentRelativePath);
                 }
             }
 
-            return Path.Combine(baseDirectory, BonsaiExtension, SettingsDirectory);
+            return Path.Combine(baseDirectory, BonsaiExtension, directoryName);
         }
 
         public static string GetLayoutSettingsPath(string settingsDirectory, string fileName)

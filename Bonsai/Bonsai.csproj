@@ -70,6 +70,36 @@
     </ItemGroup>
   </Target>
 
+  <!-- The script compiler runs out of process and is shipped under tools/ in the build output and the package -->
+  <PropertyGroup>
+    <ScriptCompilerOutputDir>$(ArtifactsPath)/bin/Bonsai.Build/$(Configuration.ToLowerInvariant())/</ScriptCompilerOutputDir>
+    <ScriptCompilerToolPath>tools/net8.0/</ScriptCompilerToolPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Build\Bonsai.Build.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      GlobalPropertiesToRemove="TargetFramework;RuntimeIdentifier"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="GetScriptCompilerFiles">
+    <ItemGroup>
+      <_ScriptCompilerFile Include="$(ScriptCompilerOutputDir)*" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyScriptCompiler" AfterTargets="Build" DependsOnTargets="GetScriptCompilerFiles" Condition="'$(TargetFramework)' != ''">
+    <Copy SourceFiles="@(_ScriptCompilerFile)" DestinationFolder="$(OutDir)$(ScriptCompilerToolPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="PackScriptCompiler" BeforeTargets="_GetPackageFiles" DependsOnTargets="GetScriptCompilerFiles">
+    <ItemGroup>
+      <None Include="@(_ScriptCompilerFile)" Pack="true" PackagePath="$(ScriptCompilerToolPath)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="NuGetConfig" AfterTargets="Build">
     <WriteLinesToFile File="$(OutputPath)NuGet.config"
                       Lines="$([System.IO.File]::ReadAllText('Properties\NuGet.config').Replace('%PackageDir%','$(PackageOutputPath)'))"
