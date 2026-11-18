@@ -27,7 +27,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Build\Bonsai.Build.csproj" />
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
     <ProjectReference Include="..\Bonsai.Editor\Bonsai.Editor.csproj" />
@@ -68,6 +67,47 @@
       <_ProjectReferencesWithVersions>
         <ProjectVersion>[%(ProjectVersion)]</ProjectVersion>
       </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
+  <!--
+    The script compiler runs out of process and is shipped under tools/ in the build output and the package,
+    as the portable build output for any platform and a ReadyToRun build for Windows x64, published only on Windows
+  -->
+  <PropertyGroup>
+    <PublishScriptCompilerReadyToRun>$([MSBuild]::IsOSPlatform('Windows'))</PublishScriptCompilerReadyToRun>
+    <ScriptCompilerOutputDir>$(ArtifactsPath)/bin/Bonsai.Build/$(Configuration.ToLowerInvariant())/</ScriptCompilerOutputDir>
+    <ScriptCompilerPublishDir>$(ArtifactsPath)/publish/Bonsai.Build/$(Configuration.ToLowerInvariant())_win-x64/</ScriptCompilerPublishDir>
+    <ScriptCompilerToolPath>tools/net8.0/</ScriptCompilerToolPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Build\Bonsai.Build.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      GlobalPropertiesToRemove="TargetFramework;RuntimeIdentifier"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="PublishScriptCompiler">
+    <MSBuild Projects="..\Bonsai.Build\Bonsai.Build.csproj"
+             Targets="Publish"
+             Properties="RuntimeIdentifier=win-x64"
+             RemoveProperties="TargetFramework"
+             Condition="'$(PublishScriptCompilerReadyToRun)' == 'true'" />
+    <ItemGroup>
+      <_ScriptCompilerFile Include="$(ScriptCompilerOutputDir)*" ToolPath="$(ScriptCompilerToolPath)any/" />
+      <_ScriptCompilerFile Include="$(ScriptCompilerPublishDir)*" ToolPath="$(ScriptCompilerToolPath)win-x64/" Condition="'$(PublishScriptCompilerReadyToRun)' == 'true'" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyScriptCompiler" AfterTargets="Build" DependsOnTargets="PublishScriptCompiler" Condition="'$(TargetFramework)' != ''">
+    <Copy SourceFiles="@(_ScriptCompilerFile)" DestinationFolder="$(OutDir)%(_ScriptCompilerFile.ToolPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="PackScriptCompiler" BeforeTargets="_GetPackageFiles" DependsOnTargets="PublishScriptCompiler">
+    <ItemGroup>
+      <None Include="@(_ScriptCompilerFile)" Pack="true" PackagePath="%(_ScriptCompilerFile.ToolPath)" />
     </ItemGroup>
   </Target>
 

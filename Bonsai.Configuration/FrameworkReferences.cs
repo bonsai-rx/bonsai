@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 #endif
 
-namespace Bonsai.Build
+namespace Bonsai.Configuration
 {
     /// <summary>
     /// Provides methods for locating the framework assemblies of the running process.

@@ -1,8 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>This package provides the compiler infrastructure for building Bonsai extensions.</Description>
-    <PackageTags>$(PackageTags) Build Compiler</PackageTags>
-    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Description>The compiler used by the Bonsai editor to build extension scripts.</Description>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <UseAppHost Condition="'$(RuntimeIdentifier)' == ''">false</UseAppHost>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <SelfContained>false</SelfContained>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />

@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bonsai.Build.Tests;
+namespace Bonsai.Configuration.Tests;
 
 [TestClass]
 public sealed class FrameworkReferencesTests

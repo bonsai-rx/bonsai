@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Bonsai.Build;
+using Bonsai.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bonsai.Tests;
