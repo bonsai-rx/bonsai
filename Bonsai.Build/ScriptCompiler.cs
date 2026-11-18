@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Bonsai.Build
@@ -56,7 +57,8 @@ namespace Bonsai.Build
                 arguments.CompilationOptions);
 
             using var assemblyStream = new MemoryStream();
-            using var symbolsStream = arguments.EmitPdb ? new MemoryStream() : null;
+            var embedSymbols = arguments.EmitOptions.DebugInformationFormat == DebugInformationFormat.Embedded;
+            using var symbolsStream = arguments.EmitPdb && !embedSymbols ? new MemoryStream() : null;
             var symbolsPath = arguments.PdbPath ?? Path.ChangeExtension(outputPath, ".pdb");
             var emitOptions = arguments.EmitOptions.WithPdbFilePath(symbolsPath);
             var emitResult = compilation.Emit(assemblyStream, symbolsStream, options: emitOptions);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -163,6 +164,18 @@ public sealed class ScriptCompilerTests
     }
 
     [TestMethod]
+    public void EmbeddedDebugInformationWritesNoSymbolsFile()
+    {
+        var outputFileName = GetOutputFileName("Embedded");
+        var args = GetArguments(outputFileName, [CreateSource("public class Embedded { }")], "/debug:embedded");
+
+        Assert.AreEqual(ScriptCompiler.SuccessExitCode, Compile(args, out var output), output);
+        Assert.IsFalse(File.Exists(Path.ChangeExtension(outputFileName, ".pdb")));
+        using var peReader = new PEReader(File.OpenRead(outputFileName));
+        Assert.IsTrue(peReader.ReadDebugDirectory().Any(entry => entry.Type == DebugDirectoryEntryType.EmbeddedPortablePdb));
+    }
+
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void DebugSymbolsChecksumMatchesSourceFile(bool byteOrderMark)
@@ -173,11 +186,12 @@ public sealed class ScriptCompilerTests
         File.WriteAllBytes(sourcePath, contents);
 
         var outputFileName = GetOutputFileName("Checksum");
-        var args = GetArguments(outputFileName, [sourcePath], "/debug:portable", "/checksumalgorithm:sha256");
+        var args = GetArguments(outputFileName, [sourcePath], "/debug:embedded", "/checksumalgorithm:sha256");
         Assert.AreEqual(ScriptCompiler.SuccessExitCode, Compile(args, out var output), output);
 
-        using var symbolsStream = File.OpenRead(Path.ChangeExtension(outputFileName, ".pdb"));
-        using var symbolsProvider = MetadataReaderProvider.FromPortablePdbStream(symbolsStream);
+        using var peReader = new PEReader(File.OpenRead(outputFileName));
+        var embeddedSymbols = peReader.ReadDebugDirectory().Single(entry => entry.Type == DebugDirectoryEntryType.EmbeddedPortablePdb);
+        using var symbolsProvider = peReader.ReadEmbeddedPortablePdbDebugDirectoryData(embeddedSymbols);
         var symbolsReader = symbolsProvider.GetMetadataReader();
         var document = symbolsReader.GetDocument(symbolsReader.Documents.Single());
         CollectionAssert.AreEqual(SHA256.HashData(contents), symbolsReader.GetBlobBytes(document.Hash));

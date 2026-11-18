@@ -198,7 +198,7 @@ namespace Bonsai
             yield return "/checksumalgorithm:sha256";
             if (includeDebugInformation)
             {
-                yield return "/debug:portable";
+                yield return "/debug:embedded";
                 yield return "/optimize-";
             }
             else yield return "/optimize+";
