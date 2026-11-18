@@ -29,12 +29,87 @@ namespace Bonsai
         internal static readonly NuGetFramework ProjectFramework = NuGetFramework.ParseFolder("net8.0-windows7.0");
 #endif
 
+        internal static int LaunchBootstrapper(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            PackageIdentity editorPackageName,
+            bool launchEditor)
+        {
+            var bootstrapper = launchEditor
+                ? (Bootstrapper)new EditorBootstrapper(editorRepositoryPath)
+                : new ConsoleBootstrapper(editorRepositoryPath);
+            try
+            {
+                try
+                {
+                    bootstrapper.RunAsync(ProjectFramework, packageConfiguration, editorPath, editorPackageName).GetAwaiter().GetResult();
+                    return Program.NormalExitCode;
+                }
+                catch (IncompatiblePackageException ex)
+                {
+                    if (!launchEditor)
+                    {
+                        Console.Error.WriteLine(ex.Message);
+                        Console.Error.WriteLine(Resources.IncompatiblePackageCommandLineMessage, editorPath);
+                        return Program.ErrorExitCode;
+                    }
+
+                    return ResolveIncompatiblePackages(
+                        bootstrapper,
+                        ex,
+                        packageConfiguration,
+                        editorRepositoryPath,
+                        editorPath,
+                        editorPackageName)
+                        ? Program.NormalExitCode
+                        : Program.ErrorExitCode;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return Program.ErrorExitCode;
+            }
+        }
+
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
             PackageIdentity editorPackageName,
             bool updatePackages)
+        {
+            try
+            {
+                RestoreMissingPackages(
+                    new EditorBootstrapper(editorRepositoryPath),
+                    packageConfiguration,
+                    editorPath,
+                    editorPackageName);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return Program.ErrorExitCode;
+            }
+
+            ConfigurationHelper.SetAssemblyResolve(packageConfiguration, assemblyLock: false);
+            ShowPackageManager(
+                packageConfiguration,
+                editorRepositoryPath,
+                editorPath,
+                editorPackageName,
+                updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Browse);
+            return Program.NormalExitCode;
+        }
+
+        static void ShowPackageManager(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            PackageIdentity editorPackageName,
+            PackageManagerTab defaultTab)
         {
             EditorBootstrapper.EnableVisualStyles();
             using (var packageManagerDialog = new PackageManagerDialog(ProjectFramework, editorRepositoryPath))
@@ -45,13 +120,65 @@ namespace Bonsai
                 editorPath,
                 editorPackageName))
             {
-                packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Browse;
+                packageManagerDialog.DefaultTab = defaultTab;
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
                 {
                     AppResult.SetResult(packageManagerDialog.InstallPath);
                 }
+            }
+        }
 
-                return Program.NormalExitCode;
+        static void RestoreMissingPackages(
+            Bootstrapper bootstrapper,
+            PackageConfiguration packageConfiguration,
+            string editorPath,
+            PackageIdentity editorPackageName)
+        {
+            bootstrapper.AllowIncompatiblePackages = true;
+            try { bootstrapper.RunAsync(ProjectFramework, packageConfiguration, editorPath, editorPackageName).GetAwaiter().GetResult(); }
+            finally { bootstrapper.AllowIncompatiblePackages = false; }
+        }
+
+        static bool ResolveIncompatiblePackages(
+            Bootstrapper bootstrapper,
+            IncompatiblePackageException error,
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            PackageIdentity editorPackageName)
+        {
+            EditorBootstrapper.EnableVisualStyles();
+            ConfigurationHelper.SetAssemblyResolve(packageConfiguration, assemblyLock: false);
+            while (true)
+            {
+                var result = MessageBox.Show(
+                    string.Format(Resources.IncompatiblePackageMessage, error.Message),
+                    Resources.IncompatiblePackageCaption,
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning);
+                if (result != DialogResult.OK)
+                    return false;
+
+                RestoreMissingPackages(bootstrapper, packageConfiguration, editorPath, editorPackageName);
+                using (AppResult.OpenWrite(null))
+                {
+                    ShowPackageManager(
+                        packageConfiguration,
+                        editorRepositoryPath,
+                        editorPath,
+                        editorPackageName,
+                        PackageManagerTab.Installed);
+                }
+
+                try
+                {
+                    bootstrapper.ValidatePackageConfigurationAsync(ProjectFramework, packageConfiguration).GetAwaiter().GetResult();
+                    return true;
+                }
+                catch (IncompatiblePackageException ex)
+                {
+                    error = ex;
+                }
             }
         }
 

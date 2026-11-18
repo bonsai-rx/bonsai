@@ -20,8 +20,12 @@ namespace Bonsai.Configuration
         bool packageSourcesChecked;
 
         public Bootstrapper(string path)
+            : this(path, Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory))
         {
-            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory);
+        }
+
+        internal Bootstrapper(string path, ISettings settings)
+        {
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManager = new RestorePackageManager(packageSourceProvider, path);
         }
@@ -30,6 +34,8 @@ namespace Bonsai.Configuration
         {
             get { return packageManager; }
         }
+
+        public bool AllowIncompatiblePackages { get; set; }
 
         protected virtual async Task RunPackageOperationAsync(Func<CancellationToken, Task> operationFactory, CancellationToken cancellationToken)
         {
@@ -69,6 +75,25 @@ namespace Bonsai.Configuration
             return NuGetVersion.Parse(version);
         }
 
+        static IEnumerable<PackageIdentity> GetConfigurationPackages(PackageConfiguration packageConfiguration)
+        {
+            return from package in packageConfiguration.Packages
+                   let version = ParseVersion(package.Version)
+                   where version != null
+                   select new PackageIdentity(package.Id, version);
+        }
+
+        public Task ValidatePackageConfigurationAsync(
+            NuGetFramework projectFramework,
+            PackageConfiguration packageConfiguration,
+            CancellationToken cancellationToken = default)
+        {
+            return packageManager.ValidatePackageDependenciesAsync(
+                GetConfigurationPackages(packageConfiguration),
+                projectFramework,
+                cancellationToken);
+        }
+
         static IEnumerable<PackageReference> GetMissingPackages(PackageConfiguration packageConfiguration, SourceRepository repository)
         {
             return from package in packageConfiguration.Packages
@@ -98,6 +123,17 @@ namespace Bonsai.Configuration
             {
                 async Task RestoreMissingPackages(CancellationToken cancellationToken)
                 {
+                    var configurationPackages = GetConfigurationPackages(packageConfiguration);
+                    if (AllowIncompatiblePackages)
+                    {
+                        var conflicts = await packageManager.GetDependencyConflictsAsync(configurationPackages, projectFramework, cancellationToken);
+                        foreach (var conflict in conflicts)
+                        {
+                            packageManager.Logger.LogWarning($"Incompatible package dependency: {conflict}.");
+                        }
+                    }
+                    else await packageManager.ValidatePackageDependenciesAsync(configurationPackages, projectFramework, cancellationToken);
+
                     using var monitor = new PackageConfigurationUpdater(
                         projectFramework,
                         packageConfiguration,

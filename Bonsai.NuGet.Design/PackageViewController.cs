@@ -373,9 +373,17 @@ namespace Bonsai.NuGet.Design
 
                     operationSequence = Observable.FromAsync(async token =>
                     {
-                        foreach (var package in packages)
+                        if (handleDependencies)
                         {
-                            await PackageManager.InstallPackageAsync(package.Identity, ProjectFramework, !handleDependencies, token);
+                            var targetPackages = packages.Select(package => package.Identity);
+                            await PackageManager.InstallPackagesAsync(targetPackages, ProjectFramework, token);
+                        }
+                        else
+                        {
+                            foreach (var package in packages)
+                            {
+                                await PackageManager.InstallPackageAsync(package.Identity, ProjectFramework, ignoreDependencies: true, token);
+                            }
                         }
                     });
                 }

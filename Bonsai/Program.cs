@@ -154,7 +154,6 @@ namespace Bonsai
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
-                    ConfigurationHelper.SetAssemblyResolve(packageConfiguration, assemblyLock: false);
                     return Launcher.LaunchPackageManager(
                         packageConfiguration,
                         editorRepositoryPath,
@@ -254,14 +253,14 @@ namespace Bonsai
             }
             else
             {
-                var bootstrapper = launchEditor ? (Bootstrapper)new EditorBootstrapper(editorRepositoryPath) : new ConsoleBootstrapper(editorRepositoryPath);
-                try { bootstrapper.RunAsync(Launcher.ProjectFramework, packageConfiguration, editorPath, editorPackageName).Wait(); }
-                catch (AggregateException ex)
-                {
-                    var error = ex.InnerExceptions.Count == 1 ? ex.InnerExceptions[0] : ex;
-                    Console.Error.WriteLine(error);
-                    return ErrorExitCode;
-                }
+                var bootstrapperExitCode = Launcher.LaunchBootstrapper(
+                    packageConfiguration,
+                    editorRepositoryPath,
+                    editorPath,
+                    editorPackageName,
+                    launchEditor);
+                if (bootstrapperExitCode != NormalExitCode)
+                    return bootstrapperExitCode;
 
                 var startScreen = launchEditor;
                 var pipeName = Guid.NewGuid().ToString();

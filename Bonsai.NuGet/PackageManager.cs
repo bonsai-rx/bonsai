@@ -69,22 +69,30 @@ namespace Bonsai.NuGet
             return true;
         }
 
+        private async Task<DownloadResourceResult> DownloadPackage(
+            SourcePackageDependencyInfo packageInfo,
+            SourceCacheContext cacheContext,
+            ILogger logger,
+            CancellationToken token)
+        {
+            logger.LogInformation($"Downloading package '{packageInfo.Id} {packageInfo.Version}'.");
+            var downloadResource = await packageInfo.Source.GetResourceAsync<DownloadResource>(token);
+            return await downloadResource.GetDownloadResourceResultAsync(
+                packageInfo,
+                new PackageDownloadContext(cacheContext),
+                SettingsUtility.GetGlobalPackagesFolder(Settings),
+                logger, token);
+        }
+
         private async Task<PackageReaderBase> ExtractPackage(
             SourcePackageDependencyInfo packageInfo,
+            DownloadResourceResult downloadResult,
             NuGetFramework projectFramework,
-            SourceCacheContext cacheContext,
             PackageExtractionContext packageExtractionContext,
             ILogger logger,
             CancellationToken token)
         {
             logger.LogInformation($"Installing package '{packageInfo.Id} {packageInfo.Version}'.");
-            var downloadResource = await packageInfo.Source.GetResourceAsync<DownloadResource>(token);
-            var downloadResult = await downloadResource.GetDownloadResourceResultAsync(
-                packageInfo,
-                new PackageDownloadContext(cacheContext),
-                SettingsUtility.GetGlobalPackagesFolder(Settings),
-                logger, token);
-
             var installPath = PathResolver.GetInstallPath(packageInfo);
             foreach (var plugin in PackageManagerPlugins)
             {
@@ -171,46 +179,71 @@ namespace Bonsai.NuGet
 
         public async Task<PackageReaderBase> InstallPackageAsync(PackageIdentity package, NuGetFramework projectFramework, bool ignoreDependencies, CancellationToken token)
         {
+            var installedPath = PathResolver.GetInstalledPath(package);
+            if (installedPath != null)
+            {
+                return new PackageFolderReader(installedPath);
+            }
+
+            var targetPackages = await InstallPackagesCoreAsync(new[] { package }, projectFramework, ignoreDependencies, token);
+            targetPackages.TryGetValue(package, out PackageReaderBase packageReader);
+            return packageReader;
+        }
+
+        public async Task InstallPackagesAsync(IEnumerable<PackageIdentity> packages, NuGetFramework projectFramework, CancellationToken token)
+        {
+            var targetPackages = packages.Where(package => PathResolver.GetInstalledPath(package) == null).ToList();
+            if (targetPackages.Count > 0)
+            {
+                await InstallPackagesCoreAsync(targetPackages, projectFramework, ignoreDependencies: false, token);
+            }
+        }
+
+        async Task<Dictionary<PackageIdentity, PackageReaderBase>> InstallPackagesCoreAsync(
+            IReadOnlyCollection<PackageIdentity> packages,
+            NuGetFramework projectFramework,
+            bool ignoreDependencies,
+            CancellationToken token)
+        {
             using (var cacheContext = new SourceCacheContext())
             {
                 var logger = Logger;
-                var installedPath = PathResolver.GetInstalledPath(package);
-                if (installedPath != null)
-                {
-                    return new PackageFolderReader(installedPath);
-                }
-
                 var repositories = SourceRepositoryProvider.GetRepositories();
                 var dependencyInfoResource = await LocalRepository.GetResourceAsync<DependencyInfoResource>(token);
                 var installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
                 var localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, projectFramework);
                 var sourcePackages = localPackages.ToDictionary(dependencyInfo => dependencyInfo, PackageIdentityComparer.Default);
-                var packageVersion = ignoreDependencies
-                    ? new VersionRange(package.Version, maxVersion: package.Version, includeMaxVersion: true)
-                    : new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
-                await GetPackageDependencies(package.Id, packageVersion, projectFramework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
+                foreach (var package in packages)
+                {
+                    var packageVersion = ignoreDependencies
+                        ? new VersionRange(package.Version, maxVersion: package.Version, includeMaxVersion: true)
+                        : new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
+                    await GetPackageDependencies(package.Id, packageVersion, projectFramework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
+                }
 
                 var resolverContext = new PackageResolverContext(
                     dependencyBehavior: ignoreDependencies ? DependencyBehavior.Ignore : DependencyBehavior,
-                    targetIds: new[] { package.Id },
+                    targetIds: packages.Select(package => package.Id),
                     requiredPackageIds: Enumerable.Empty<string>(),
                     packagesConfig: Enumerable.Empty<PackageReference>(),
-                    preferredVersions: new[] { package },
+                    preferredVersions: packages,
                     availablePackages: sourcePackages.Values,
                     packageSources: repositories.Select(repository => repository.PackageSource),
                     log: NullLogger.Instance);
 
                 var resolver = new PackageResolver();
                 var installOperations = resolver.Resolve(resolverContext, token);
+                var packagesToInstall = new List<SourcePackageDependencyInfo>();
                 var packagesToRemove = new List<PackageIdentity>();
                 var licensePackages = new List<RequiringLicenseAcceptancePackageInfo>();
                 var findLocalPackageResource = await LocalRepository.GetResourceAsync<FindPackageByIdResource>(token);
                 foreach (var identity in installOperations)
                 {
-                    installedPath = PathResolver.GetInstalledPath(identity);
+                    var installedPath = PathResolver.GetInstalledPath(identity);
                     if (installedPath == null)
                     {
                         var packageInfo = sourcePackages[identity];
+                        packagesToInstall.Add(packageInfo);
                         var packageMetadataResource = await packageInfo.Source.GetResourceAsync<PackageMetadataResource>(token);
                         var packageMetadata = await packageMetadataResource.GetMetadataAsync(identity, cacheContext, NullLogger.Instance, token);
                         if (packageMetadata.RequireLicenseAcceptance)
@@ -231,13 +264,45 @@ namespace Bonsai.NuGet
                     }
                 }
 
+                var targetNames = string.Join(", ", packages);
+                if (!ignoreDependencies && packagesToRemove.Count > 0)
+                {
+                    var replacedIds = new HashSet<string>(packagesToRemove.Select(package => package.Id), StringComparer.OrdinalIgnoreCase);
+                    var conflicts = GetDependencyConflicts(
+                        installOperations.Where(package => replacedIds.Contains(package.Id)),
+                        localPackages.Where(package => !packagesToRemove.Contains(package, PackageIdentityComparer.Default)));
+                    if (conflicts.Count > 0)
+                    {
+                        var quotedTargetNames = string.Join(", ", packages.Select(package => $"'{package.Id} {package.Version}'"));
+                        var message = $"Installing {quotedTargetNames} would break the dependencies of installed packages: {string.Join("; ", conflicts)}.";
+                        throw new IncompatiblePackageException(message, conflicts);
+                    }
+                }
+
                 if (licensePackages.Count > 0 && !AcceptLicenseAgreement(licensePackages))
                 {
                     token.ThrowIfCancellationRequested();
                     var pluralSuffix = licensePackages.Count == 1 ? "s" : "";
                     var requiringPackages = string.Join(", ", licensePackages.Select(info => info.Package.Identity));
-                    var message = $"Unable to install package '{package}' because '{requiringPackages}' require{pluralSuffix} license acceptance.";
+                    var message = $"Unable to install package '{targetNames}' because '{requiringPackages}' require{pluralSuffix} license acceptance.";
                     throw new InvalidOperationException(message);
+                }
+
+                var downloadResults = new Dictionary<PackageIdentity, DownloadResourceResult>(PackageIdentityComparer.Default);
+                try
+                {
+                    foreach (var packageInfo in packagesToInstall)
+                    {
+                        downloadResults.Add(packageInfo, await DownloadPackage(packageInfo, cacheContext, logger, token));
+                    }
+                }
+                catch
+                {
+                    foreach (var downloadResult in downloadResults.Values)
+                    {
+                        downloadResult.Dispose();
+                    }
+                    throw;
                 }
 
                 // Get dependencies from removed packages while they are still installed
@@ -247,7 +312,7 @@ namespace Bonsai.NuGet
                     await DeletePackages(packagesToRemove, projectFramework, logger, token);
                 }
 
-                var targetPackage = default(PackageReaderBase);
+                var targetPackages = new Dictionary<PackageIdentity, PackageReaderBase>(PackageIdentityComparer.Default);
                 var packageExtractionContext = new PackageExtractionContext(
                     PackageSaveMode,
                     XmlDocFileSaveMode.None,
@@ -256,20 +321,19 @@ namespace Bonsai.NuGet
                 foreach (var identity in installOperations)
                 {
                     PackageReaderBase packageReader;
-                    installedPath = PathResolver.GetInstalledPath(identity);
-                    if (installedPath == null)
+                    if (downloadResults.TryGetValue(identity, out DownloadResourceResult downloadResult))
                     {
                         var packageInfo = sourcePackages[identity];
-                        packageReader = await ExtractPackage(packageInfo, projectFramework, cacheContext, packageExtractionContext, logger, token);
+                        packageReader = await ExtractPackage(packageInfo, downloadResult, projectFramework, packageExtractionContext, logger, token);
                     }
                     else
                     {
-                        packageReader = new PackageFolderReader(installedPath);
+                        packageReader = new PackageFolderReader(PathResolver.GetInstalledPath(identity));
                     }
 
-                    if (PackageIdentityComparer.Default.Equals(package, identity))
+                    if (packages.Contains(identity, PackageIdentityComparer.Default))
                     {
-                        targetPackage = packageReader;
+                        targetPackages.Add(identity, packageReader);
                     }
                 }
 
@@ -284,8 +348,69 @@ namespace Bonsai.NuGet
                     await DeletePackages(uninstallOperations, projectFramework, logger, token);
                 }
 
-                return targetPackage;
+                return targetPackages;
             }
+        }
+
+        public async Task ValidatePackageDependenciesAsync(IEnumerable<PackageIdentity> packages, NuGetFramework projectFramework, CancellationToken token)
+        {
+            var conflicts = await GetDependencyConflictsAsync(packages, projectFramework, token);
+            if (conflicts.Count > 0)
+            {
+                var message = $"The specified packages are incompatible: {string.Join("; ", conflicts)}.";
+                throw new IncompatiblePackageException(message, conflicts);
+            }
+        }
+
+        public async Task<IReadOnlyList<PackageDependencyConflict>> GetDependencyConflictsAsync(IEnumerable<PackageIdentity> packages, NuGetFramework projectFramework, CancellationToken token)
+        {
+            using (var cacheContext = new SourceCacheContext())
+            {
+                var targetPackages = packages.ToList();
+                var repositories = new[] { LocalRepository }.Concat(SourceRepositoryProvider.GetRepositories());
+                var dependencyInfo = new List<PackageDependencyInfo>();
+                foreach (var package in targetPackages)
+                {
+                    foreach (var repository in repositories)
+                    {
+                        var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>(token);
+                        var packageInfo = default(SourcePackageDependencyInfo);
+                        try { packageInfo = await dependencyInfoResource.ResolvePackage(package, projectFramework, cacheContext, NullLogger.Instance, token); }
+                        catch (NuGetProtocolException) { }
+                        if (packageInfo != null)
+                        {
+                            dependencyInfo.Add(packageInfo);
+                            break;
+                        }
+                    }
+                }
+
+                return GetDependencyConflicts(targetPackages, dependencyInfo);
+            }
+        }
+
+        static List<PackageDependencyConflict> GetDependencyConflicts(
+            IEnumerable<PackageIdentity> resolvedPackages,
+            IEnumerable<PackageDependencyInfo> dependentPackages)
+        {
+            var resolvedVersions = resolvedPackages.ToDictionary(package => package.Id, StringComparer.OrdinalIgnoreCase);
+            var conflicts = new List<PackageDependencyConflict>();
+            foreach (var package in dependentPackages)
+            {
+                foreach (var dependency in package.Dependencies)
+                {
+                    if (resolvedVersions.TryGetValue(dependency.Id, out PackageIdentity resolvedPackage) &&
+                        !dependency.VersionRange.Satisfies(resolvedPackage.Version))
+                    {
+                        conflicts.Add(new PackageDependencyConflict(
+                            new PackageIdentity(package.Id, package.Version),
+                            dependency,
+                            resolvedPackage));
+                    }
+                }
+            }
+
+            return conflicts;
         }
 
         static async Task GetPackageDependencies(

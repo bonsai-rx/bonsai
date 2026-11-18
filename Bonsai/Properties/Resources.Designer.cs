@@ -97,7 +97,36 @@ namespace Bonsai.Properties {
                 return ResourceManager.GetString("ImageFileNotSpecifiedWarning", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Incompatible Packages.
+        /// </summary>
+        internal static string IncompatiblePackageCaption {
+            get {
+                return ResourceManager.GetString("IncompatiblePackageCaption", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to To update the incompatible packages, run &quot;{0}&quot; --package-manager.
+        /// </summary>
+        internal static string IncompatiblePackageCommandLineMessage {
+            get {
+                return ResourceManager.GetString("IncompatiblePackageCommandLineMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}
+        ///
+        ///The package manager will now open so the incompatible packages can be updated..
+        /// </summary>
+        internal static string IncompatiblePackageMessage {
+            get {
+                return ResourceManager.GetString("IncompatiblePackageMessage", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close..
         /// </summary>

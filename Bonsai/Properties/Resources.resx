@@ -131,6 +131,17 @@
   <data name="ImageFileNotSpecifiedWarning" xml:space="preserve">
     <value>No image file was specified.</value>
   </data>
+  <data name="IncompatiblePackageCaption" xml:space="preserve">
+    <value>Incompatible Packages</value>
+  </data>
+  <data name="IncompatiblePackageCommandLineMessage" xml:space="preserve">
+    <value>To update the incompatible packages, run "{0}" --package-manager</value>
+  </data>
+  <data name="IncompatiblePackageMessage" xml:space="preserve">
+    <value>{0}
+
+The package manager will now open so the incompatible packages can be updated.</value>
+  </data>
   <data name="InstallEditorPackageError" xml:space="preserve">
     <value>Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
   </data>

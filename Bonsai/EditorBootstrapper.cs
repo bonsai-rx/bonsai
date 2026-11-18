@@ -65,12 +65,9 @@ namespace Bonsai
                 var operation = operationFactory(cancellationToken);
                 operation.ContinueWith(task =>
                 {
-                    if (task.IsFaulted)
+                    if (task.IsFaulted && task.Exception.InnerException is not IncompatiblePackageException)
                     {
-                        if (task.Exception is AggregateException ex)
-                        {
-                            PackageManager.Logger.LogError(ex.InnerException.Message);
-                        }
+                        PackageManager.Logger.LogError(task.Exception.InnerException.Message);
                     }
                     else dialog.BeginInvoke((Action)dialog.Close);
                 }, cancellationToken);
