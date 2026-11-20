@@ -7,6 +7,9 @@ using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using System.Linq.Expressions;
+using System.Collections.Generic;
+using System.Reflection;
+
 
 namespace Bonsai.Design
 {
@@ -18,6 +21,7 @@ namespace Bonsai.Design
     {
         readonly bool isMultiMemberSelector;
         readonly Func<Expression, Type> getType;
+        readonly bool isDataSourceSelector;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MemberSelectorEditor"/> class.
@@ -35,8 +39,25 @@ namespace Bonsai.Design
         /// Indicates whether the interface allows selecting multiple members.
         /// </param>
         public MemberSelectorEditor(bool allowMultiSelection)
-            : this(expression => expression.Type.GetGenericArguments()[0], allowMultiSelection)
+            :this(allowMultiSelection, true)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemberSelectorEditor"/> class
+        /// using either a multi- or single-selection dialog for either the data
+        /// source of the element or the members of the following element
+        /// </summary>
+        /// <param name="allowMultiSelection">
+        /// Indicates whether the interface allows selecting multiple members.
+        /// </param>
+        /// <param name="fromDataSource">
+        /// Indicates wether the editor retrieves the data from the source node or the susccessor
+        /// </param>
+        public MemberSelectorEditor(bool allowMultiSelection, bool fromDataSource)
+            : this(expression => expression.Type.GetGenericArguments()[0], allowMultiSelection, fromDataSource)
+        {
+
         }
 
         /// <summary>
@@ -51,10 +72,16 @@ namespace Bonsai.Design
         /// Indicates whether the interface allows selecting multiple members.
         /// </param>
         public MemberSelectorEditor(Func<Expression, Type> typeSelector, bool allowMultiSelection)
+            : this(typeSelector, allowMultiSelection, true) 
+        {
+        }
+
+        private MemberSelectorEditor(Func<Expression, Type> typeSelector, bool allowMultiSelection, bool fromDataSource)
             : base(DataSource.Input, typeof(void))
         {
             getType = typeSelector ?? throw new ArgumentNullException(nameof(typeSelector));
             isMultiMemberSelector = allowMultiSelection;
+            this.isDataSourceSelector = fromDataSource;
         }
 
         /// <inheritdoc/>
@@ -90,8 +117,21 @@ namespace Bonsai.Design
             if (builderNode == null) return null;
 
             return nodeBuilderGraph.Predecessors(builderNode)
-                                   .Where(node => !node.Value.IsBuildDependency())
-                                   .SingleOrDefault()?.Value;
+                .Where(node => !node.Value.IsBuildDependency())
+               .SingleOrDefault()?.Value;
+        }
+
+        static IEnumerable<ExpressionBuilder> GetPropertyMappingSuccessors(PropertyMapping mapping, IServiceProvider provider)
+        {
+            var nodeBuilderGraph = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
+            if (nodeBuilderGraph == null) return Enumerable.Empty<ExpressionBuilder>();
+
+            var builderNode = GetPropertyMappingBuilderNode(mapping, nodeBuilderGraph, out nodeBuilderGraph);
+            if (builderNode == null) return Enumerable.Empty<ExpressionBuilder>();
+
+            return nodeBuilderGraph.Successors(builderNode)
+                    .Where(node => !node.Value.IsBuildDependency())
+                   .Select(n => n.Value);
         }
 
         static Node<ExpressionBuilder, ExpressionBuilderArgument> GetPropertyMappingBuilderNode(
@@ -121,6 +161,17 @@ namespace Bonsai.Design
             return null;
         }
 
+        static IEnumerable<MemberInfo> GetWorkflowBuilderProperties(IWorkflowExpressionBuilder workflowBuilder)
+        {
+              Attribute[] ExternalizableAttributes =
+              [
+                  ExternalizableAttribute.Default,
+                  DesignTimeVisibleAttribute.Yes
+              ];
+
+              return TypeDescriptor.GetProperties(workflowBuilder, ExternalizableAttributes).OfType<ExternalizedPropertyDescriptor>().Select(p => new ExternalizedPropertyInfo(p));
+        }
+
         /// <inheritdoc/>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
@@ -128,32 +179,109 @@ namespace Bonsai.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && workflowBuilder != null && editorService != null)
             {
+                Type expressionType = null;
                 var mapping = GetPropertyMapping(context);
-                var source = mapping != null
-                    ? GetPropertyMappingBuilder(mapping, provider)
-                    : GetDataSource(context, provider);
-
-                if (source != null)
+                var selector = value as string ?? string.Empty;
+                if (isDataSourceSelector)
                 {
-                    var selector = value as string ?? string.Empty;
-                    var expression = workflowBuilder.Workflow.Build(source);
-                    var expressionType = getType(expression);
-                    if (expressionType == null) return base.EditValue(context, provider, value);
-                    using (var editorDialog = isMultiMemberSelector ?
-                           (IMemberSelectorEditorDialog)
-                           new MultiMemberSelectorEditorDialog(expressionType) :
-                           new MemberSelectorEditorDialog(expressionType))
+                    var source = mapping != null
+                        ? GetPropertyMappingBuilder(mapping, provider)
+                        : GetDataSource(context, provider);
+
+                    if (source != null)
                     {
-                        editorDialog.Selector = selector;
-                        if (editorService.ShowDialog((Form)editorDialog) == DialogResult.OK)
+                        var expression = workflowBuilder.Workflow.Build(source);
+                        expressionType = getType(expression);
+                    }
+                }
+                else
+                {
+                    var successors = GetPropertyMappingSuccessors(mapping, provider)
+                        .Select(ExpressionBuilder.GetWorkflowElement).ToList();
+                    if (successors.Count() > 0)
+                    {
+                        if (successors.Count() > 1)
                         {
-                            return editorDialog.Selector;
+                            var properties = successors.Select(succesor =>
+                                succesor switch
+                                {
+                                    IWorkflowExpressionBuilder builder => GetWorkflowBuilderProperties(builder),
+                                    _ => succesor.GetType().GetProperties()
+                                });
+
+                            HashSet<MemberInfo> propertySet = null;
+                            foreach (var group in properties)
+                            {
+                                if (propertySet == null)
+                                {
+                                    propertySet = new HashSet<MemberInfo>(group, MemberInfoComparer.Instance);
+                                }
+                                else propertySet.IntersectWith(group);
+                            }
+
+                            expressionType = new MemberCollection(propertySet, "Collection");
+                            
                         }
+                        else
+                        {
+                            var singleSuccessor = successors.First();
+                            if (singleSuccessor is IWorkflowExpressionBuilder builder)
+                            {
+                                var properties = GetWorkflowBuilderProperties(builder);
+                                expressionType = new MemberCollection(properties, builder.ToString());
+                            }
+                            else
+                            {
+                                expressionType = singleSuccessor.GetType();
+                            }
+                        }
+                    }
+                }
+                if (expressionType == null) return base.EditValue(context, provider, value);
+                using (var editorDialog = isMultiMemberSelector ?
+                       (IMemberSelectorEditorDialog)
+                       new MultiMemberSelectorEditorDialog(expressionType) :
+                       new MemberSelectorEditorDialog(expressionType))
+                {
+                    editorDialog.Selector = selector;
+                    if (editorService.ShowDialog((Form)editorDialog) == DialogResult.OK)
+                    {
+                        return editorDialog.Selector;
                     }
                 }
             }
 
             return base.EditValue(context, provider, value);
+        }
+
+        class MemberInfoComparer : IEqualityComparer<MemberInfo>
+        {
+            public static readonly MemberInfoComparer Instance = new MemberInfoComparer();
+
+            public bool Equals(MemberInfo x, MemberInfo y)
+            {
+                if (x == null) return y == null;
+                else return y != null && x.Name == y.Name && GetType(x) == GetType(y);
+            }
+
+            Type GetType(MemberInfo info)
+            {
+                return info switch
+                {
+                    PropertyInfo propertyInfo => propertyInfo.PropertyType,
+                    FieldInfo fieldInfo => fieldInfo.FieldType,
+                    IExtendedVisitableMemberInfo extendedVisitableMemberInfo => extendedVisitableMemberInfo.ExtendedVisitableMemberType,
+                    _ => throw new NotSupportedException("Invalid Member")
+                };
+            }
+
+            public int GetHashCode(MemberInfo obj)
+            {
+                var hash = 313;
+                hash = hash * 523 + EqualityComparer<string>.Default.GetHashCode(obj.Name);
+                hash = hash * 523 + EqualityComparer<Type>.Default.GetHashCode(GetType(obj));
+                return hash;
+            }
         }
     }
 }

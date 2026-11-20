@@ -1054,7 +1054,7 @@ namespace Bonsai.Expressions
             return BuildPropertyMapping(source, instance, propertyName, string.Empty);
         }
 
-        internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName, string sourceSelector)
+        internal static Expression UnwrapNestedWorkflowProperty(Expression source, ConstantExpression instance, string propertyName, Func<Expression, ConstantExpression, string, Expression> propertyMappingBuilderDelegate)
         {
             var element = instance.Value;
             if (element is IWorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow != null)
@@ -1080,13 +1080,20 @@ namespace Bonsai.Expressions
                 {
                     var successorElement = GetWorkflowElement(successor.Target.Value);
                     var successorInstance = Expression.Constant(successorElement);
-                    argument = BuildPropertyMapping(argument, successorInstance, inputBuilder.workflowProperty.Name, sourceSelector);
+                    argument = propertyMappingBuilderDelegate(argument, successorInstance, inputBuilder.workflowProperty.Name);
                 }
                 return argument;
             }
+            return null;
+        }
+
+        internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName, string sourceSelector)
+        {
+            var argument = UnwrapNestedWorkflowProperty(source, instance, propertyName, (source, instance, propertyName) => BuildPropertyMapping(source, instance, propertyName, sourceSelector));
+            if (argument != null) { return argument; }
 
             MemberExpression property = default;
-            if (element is ICustomTypeDescriptor typeDescriptor)
+            if (instance.Value is ICustomTypeDescriptor typeDescriptor)
             {
                 var propertyInfo = instance.Type.GetProperty(propertyName);
                 if (propertyInfo == null)
@@ -1115,6 +1122,77 @@ namespace Bonsai.Expressions
                 new[] { sourceType },
                 source,
                 action);
+        }
+
+        internal static Expression BuildNestedPropertyMapping(Expression source, ConstantExpression instance, string propertyName, NestedPropertyMappingNode root)
+        {
+            var argument = UnwrapNestedWorkflowProperty(source, instance, propertyName, (source, instance, propertyName) => BuildNestedPropertyMapping(source, instance, propertyName, root));
+            if (argument != null) { return argument; }
+
+            root.Name = propertyName; //If there were nested workflows with externalized properties with custom display names, replace name with the actual property name
+            MemberExpression property = default;
+            if (instance.Value is ICustomTypeDescriptor typeDescriptor)
+            {
+                var propertyInfo = instance.Type.GetProperty(root.Name);
+                if (propertyInfo == null)
+                {
+                    var propertyOwner = typeDescriptor.GetPropertyOwner(null);
+                    if (propertyOwner != instance.Value)
+                    {
+                        instance = Expression.Constant(propertyOwner);
+                    }
+                }
+                else property = Expression.Property(instance, propertyInfo);
+            }
+
+            if (source == EmptyExpression.Instance) return source;
+
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var parameter = Expression.Parameter(sourceType);
+
+            var body = BuildNestedAssignmentExpression(instance, parameter, root);
+
+            var actionType = Expression.GetActionType(parameter.Type);
+            var action = Expression.Lambda(actionType, body, parameter);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                nameof(PropertyMapping),
+                new[] { sourceType },
+                source,
+                action);
+
+        }
+
+        internal static Expression BuildNestedAssignmentExpression(Expression parent, ParameterExpression sourceType, NestedPropertyMappingNode node)
+        {
+            var member = Expression.PropertyOrField(parent, node.Name);
+            List<Expression> body = new List<Expression>();
+            if (node.Children.Count == 0)
+            {
+                var selectorValue = BuildTypeMapping(sourceType, member.Type, node.Selector);
+                return Expression.Assign(member, selectorValue);
+
+            }
+            else if (member.Type.IsValueType)
+            {
+                var tmp = Expression.Variable(member.Type, "tmp");
+                body.Add(Expression.Assign(tmp, member));
+                foreach (var child in node.Children)
+                {
+                    body.Add(BuildNestedAssignmentExpression(tmp, sourceType, child));
+                }
+                body.Add(Expression.Assign(member, tmp));
+                return Expression.Block(new[] { tmp }, body);
+
+            }
+            else
+            {
+                foreach (var child in node.Children)
+                {
+                    body.Add(BuildNestedAssignmentExpression(member, sourceType, child));
+                }
+                return Expression.Block(body);
+            }
         }
 
         internal static Expression BuildTypeMapping(Expression expression, Type targetType, string selector)
