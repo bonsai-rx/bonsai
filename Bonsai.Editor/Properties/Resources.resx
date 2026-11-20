@@ -365,6 +365,14 @@ Do you want to delete the layout file?</value>
 
 Do you want to continue assigning any remaining properties and/or running the workflow?</value>
   </data>
+  <data name="HomeImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAM1BMVEUAAAD29vb29vb29vb////2
+        9va/v7/w7/H29vZCQkJKSkrY2NhGRka7u7y5uLnNzc1ISEhqdJaBAAAABnRSTlMApQMAANxLsSZm
+        AAAAVElEQVQY052ISxaAMAjEoLXQv97/tJY+RNyazUwCsAmIARwBiXxZXqsr4mO8ZTuzFXUr5k9B
+        6pOV2Qmh1cJGuRqkJqEsZM4ER94v68SfQcg6Ej7EG30TBeUiKb9tAAAAAElFTkSuQmCC
+</value>
+  </data>
   <data name="BrowseDirectoryMenuImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
