@@ -84,9 +84,14 @@ namespace Bonsai.Expressions
 
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameters = variables.Select(variable => variable.Parameter).Reverse();
-            var disposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IDisposable[]) });
-            var disposableParameters = parameters.Select(parameter => Expression.Convert(parameter, typeof(IDisposable)));
-            var disposableExpression = Expression.New(disposableConstructor, Expression.NewArrayInit(typeof(IDisposable), disposableParameters));
+            var completeExpression = Expression.Block(parameters.Select(parameter => Expression.Call(
+                typeof(BuildContext),
+                nameof(Complete),
+                new[] { parameter.Type.GetGenericArguments()[0] },
+                parameter)));
+            var disposableExpression = Expression.Call(
+                typeof(Disposable).GetMethod(nameof(Disposable.Create), new[] { typeof(Action) }),
+                Expression.Lambda<Action>(completeExpression));
             var finallyExpression = (Expression)Expression.Call(
                 typeof(BuildContext),
                 nameof(Finally),
@@ -96,6 +101,15 @@ namespace Bonsai.Expressions
                 parameters,
                 variables.Select(variable => Expression.Assign(variable.Parameter, variable.Factory))
                          .Concat(Enumerable.Repeat(finallyExpression, 1)));
+        }
+
+        static void Complete<T>(IObserver<T> subject)
+        {
+            subject.OnCompleted();
+            if (subject is IContextCallback callback)
+            {
+                callback.OnContextClosed();
+            }
         }
 
         internal static IObservable<TSource> Finally<TSource>(IObservable<TSource> source, IDisposable disposable)

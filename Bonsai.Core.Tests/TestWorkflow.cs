@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Bonsai.Dag;
 using Bonsai.Expressions;
 
@@ -74,6 +75,16 @@ namespace Bonsai.Core.Tests
         {
             var workflowProperty = new WorkflowProperty<TValue> { Value = value };
             return AppendCombinator(workflowProperty);
+        }
+
+        public TestWorkflow AppendSource<T>(IObservable<T> source)
+        {
+            return Append(new CombinatorBuilder { Combinator = new ObservableSource<T>(source) });
+        }
+
+        public TestWorkflow AppendThrow<T>(Exception error)
+        {
+            return AppendSource(Observable.Throw<T>(error));
         }
 
         public TestWorkflow AppendUnit()
