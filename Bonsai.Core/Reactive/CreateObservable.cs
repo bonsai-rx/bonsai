@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reactive.Linq;
+using System.Threading;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
@@ -27,11 +28,6 @@ namespace Bonsai.Reactive
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Defer" &&
-                                                                                m.GetParameters()[0].ParameterType
-                                                                                 .GetGenericArguments()[0]
-                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateObservable"/> class.
@@ -88,19 +84,22 @@ namespace Bonsai.Reactive
 
             return BuildWorkflow(arguments, inputParameter, selectorBody =>
             {
+                var factory = Expression.Lambda(selectorBody);
+                var sourceType = selectorBody.Type.GetGenericArguments()[0];
+                selectorBody = Expression.Call(typeof(CreateObservable), nameof(CreateResubscribable), new[] { sourceType }, factory);
                 if (selectorParameter != null)
                 {
                     var selector = Expression.Lambda(selectorBody, selectorParameter);
                     return Expression.Call(selectMethod.MakeGenericMethod(selectorParameter.Type, selector.ReturnType), source, selector);
                 }
-                else
-                {
-                    var selector = Expression.Lambda(selectorBody);
-                    var sourceType = selectorBody.Type.GetGenericArguments()[0];
-                    selectorBody = Expression.Call(deferMethod.MakeGenericMethod(sourceType), selector);
-                    return Expression.Call(returnMethod.MakeGenericMethod(selectorBody.Type), selectorBody);
-                }
+                else return Expression.Call(returnMethod.MakeGenericMethod(selectorBody.Type), selectorBody);
             });
+        }
+
+        static IObservable<TSource> CreateResubscribable<TSource>(Func<IObservable<TSource>> factory)
+        {
+            var source = factory();
+            return Observable.Defer(() => Interlocked.Exchange(ref source, null) ?? factory());
         }
     }
 }
