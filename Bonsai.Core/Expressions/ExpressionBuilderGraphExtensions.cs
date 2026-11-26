@@ -1444,6 +1444,122 @@ namespace Bonsai.Expressions
             }
         }
 
+        /// <summary>
+        /// Returns the nodes local to this workflow, where each group node is replaced by the nodes
+        /// local to its group workflow. Disabled nodes are not included in the result.
+        /// </summary>
+        /// <remarks>
+        /// Group nodes are nodes of type <see cref="GroupWorkflowBuilder"/> or
+        /// <see cref="IncludeWorkflowBuilder"/>. An include node whose
+        /// <see cref="IncludeWorkflowBuilder.Workflow"/> is <see langword="null"/> contributes no nodes.
+        /// Any <see cref="WorkflowExpressionBuilder"/> in the result specifies a nested workflow whose
+        /// local nodes cannot be referred to from this workflow.
+        /// </remarks>
+        /// <param name="source">The expression builder workflow to search.</param>
+        /// <returns>An enumerable sequence of all the nodes local to this workflow.</returns>
+        public static IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> LocalNodes(this ExpressionBuilderGraph source)
+        {
+            return SelectLevelNodes(source).Where(node => ExpressionBuilder.Unwrap(node.Value) is not IGroupWorkflowBuilder);
+        }
+
+        /// <summary>
+        /// Returns the nodes which can be referred to from the specified workflow, in lookup order.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The local nodes of the target workflow come first, followed by the local nodes of each outer
+        /// workflow in turn, ending with the local nodes of this workflow. Taking the first node in the
+        /// result which satisfies a condition therefore finds the match nearest to the target.
+        /// </para>
+        /// <para>
+        /// Group workflows are never listed on their own, since their nodes are local to the workflow
+        /// containing the group. If the target is the workflow of a group node, the result starts with
+        /// all the local nodes of the workflow containing that group.
+        /// </para>
+        /// </remarks>
+        /// <param name="source">The expression builder workflow to search.</param>
+        /// <param name="target">The workflow where the lookup starts.</param>
+        /// <returns>
+        /// An enumerable sequence of the nodes which can be referred to from the target workflow, in lookup
+        /// order, or an empty sequence if the target workflow is not found in this workflow.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.
+        /// </exception>
+        public static IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> LookupNodes(this ExpressionBuilderGraph source, ExpressionBuilderGraph target)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            var enclosingWorkflows = new Stack<ExpressionBuilderGraph>();
+            if (!FindEnclosingWorkflows(source, target, enclosingWorkflows))
+            {
+                return Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            }
+
+            return enclosingWorkflows.SelectMany(LocalNodes);
+        }
+
+        static IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> SelectLevelNodes(ExpressionBuilderGraph source)
+        {
+            var stack = new Stack<IEnumerator<Node<ExpressionBuilder, ExpressionBuilderArgument>>>();
+            stack.Push(source.GetEnumerator());
+
+            while (stack.Count > 0)
+            {
+                var nodeEnumerator = stack.Peek();
+                if (!nodeEnumerator.MoveNext())
+                {
+                    stack.Pop();
+                    continue;
+                }
+
+                var node = nodeEnumerator.Current;
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                if (builder is DisableBuilder) continue;
+                yield return node;
+
+                if (builder is IGroupWorkflowBuilder groupBuilder && groupBuilder.Workflow is not null)
+                {
+                    stack.Push(groupBuilder.Workflow.GetEnumerator());
+                }
+            }
+        }
+
+        static bool FindEnclosingWorkflows(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> enclosingWorkflows)
+        {
+            enclosingWorkflows.Push(source);
+            if (source == target)
+            {
+                return true;
+            }
+
+            foreach (var node in SelectLevelNodes(source))
+            {
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                if (builder is IGroupWorkflowBuilder groupBuilder)
+                {
+                    if (groupBuilder.Workflow == target)
+                        return true;
+                }
+                else if (builder is WorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow is not null)
+                {
+                    if (FindEnclosingWorkflows(workflowBuilder.Workflow, target, enclosingWorkflows))
+                        return true;
+                }
+            }
+
+            enclosingWorkflows.Pop();
+            return false;
+        }
+
         #endregion
     }
 }

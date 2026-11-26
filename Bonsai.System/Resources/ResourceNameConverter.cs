@@ -1,6 +1,5 @@
 ﻿using Bonsai.Expressions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
@@ -38,59 +37,6 @@ namespace Bonsai.Resources
             return resource.Type == targetType;
         }
 
-        static bool IsGroup(IWorkflowExpressionBuilder builder)
-        {
-            return builder is GroupWorkflowBuilder || builder is IncludeWorkflowBuilder;
-        }
-
-        static IEnumerable<ExpressionBuilder> SelectContextElements(ExpressionBuilderGraph source)
-        {
-            foreach (var node in source)
-            {
-                var element = ExpressionBuilder.Unwrap(node.Value);
-                if (element is DisableBuilder) continue;
-                yield return element;
-
-                if (element is IWorkflowExpressionBuilder workflowBuilder && IsGroup(workflowBuilder))
-                {
-                    var workflow = workflowBuilder.Workflow;
-                    if (workflow == null) continue;
-                    foreach (var groupElement in SelectContextElements(workflow))
-                    {
-                        yield return groupElement;
-                    }
-                }
-            }
-        }
-
-        static bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
-        {
-            context.Push(source);
-            if (source == target)
-            {
-                return true;
-            }
-
-            foreach (var element in SelectContextElements(source))
-            {
-                if (element is IWorkflowExpressionBuilder groupBuilder && IsGroup(groupBuilder))
-                {
-                    if (groupBuilder.Workflow == target)
-                        return true;
-                }
-                else if (element is WorkflowExpressionBuilder workflowBuilder)
-                {
-                    if (GetCallContext(workflowBuilder.Workflow, target, context))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            context.Pop();
-            return false;
-        }
-
         /// <inheritdoc/>
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
@@ -98,7 +44,7 @@ namespace Bonsai.Resources
         }
 
         /// <summary>
-        /// Returns a collection of resource names which are available in the call context
+        /// Returns a collection of resource names which can be referred to from the workflow
         /// of this type converter request.
         /// </summary>
         /// <returns>
@@ -115,19 +61,14 @@ namespace Bonsai.Resources
                 var nodeBuilderGraph = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
                 if (workflowBuilder != null && nodeBuilderGraph != null)
                 {
-                    var callContext = new Stack<ExpressionBuilderGraph>();
-                    if (GetCallContext(workflowBuilder.Workflow, nodeBuilderGraph, callContext))
-                    {
-                        var names = (from level in callContext
-                                     from element in SelectContextElements(level)
-                                     let loader = ExpressionBuilder.GetWorkflowElement(element) as ResourceLoader
-                                     where loader != null
-                                     from resource in loader.GetResources().Where(IsResourceSupported)
-                                     select resource.Name)
-                                     .Distinct()
-                                     .ToList();
-                        return new StandardValuesCollection(names);
-                    }
+                    var names = (from node in workflowBuilder.Workflow.LookupNodes(nodeBuilderGraph)
+                                 let loader = ExpressionBuilder.GetWorkflowElement(node.Value) as ResourceLoader
+                                 where loader != null
+                                 from resource in loader.GetResources().Where(IsResourceSupported)
+                                 select resource.Name)
+                                 .Distinct()
+                                 .ToList();
+                    return new StandardValuesCollection(names);
                 }
             }
 
