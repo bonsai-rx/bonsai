@@ -39,10 +39,7 @@ namespace Bonsai.Editor.GraphModel
                 return _ => false;
 
             var references = definition
-                .GetDependentExpressions()
-                .SelectMany(context => context)
-                .Where(element => element.Builder.MatchSubjectReference(definition.Subject.Name))
-                .Select(element => ExpressionBuilder.Unwrap(element.Builder))
+                .GetSubjectReferences()
                 .Prepend(definition.Subject)
                 .ToHashSet();
             return references.Contains;

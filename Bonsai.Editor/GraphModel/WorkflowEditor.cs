@@ -2068,19 +2068,17 @@ namespace Bonsai.Editor.GraphModel
             }
 
             var currentName = definition.Subject.Name;
+            var readOnlyElements = definition.WorkflowBuilder.GetReadOnlyElements();
             var subscribeDependents = new List<SubscribeSubject>();
             var multicastDependents = new List<MulticastSubject>();
-            foreach (var dependent in definition.GetDependentExpressions()
-                                                .SelectMany(context => context)
-                                                .Where(element => element.Builder is INamedElement namedElement &&
-                                                    namedElement.Name == definition.Subject.Name))
+            foreach (var dependent in definition.GetSubjectReferences())
             {
-                if (dependent.IsReadOnly) continue;
-                else if (dependent.Builder is SubscribeSubject subscribeSubject)
+                if (readOnlyElements.Contains(dependent)) continue;
+                else if (dependent is SubscribeSubject subscribeSubject)
                 {
                     subscribeDependents.Add(subscribeSubject);
                 }
-                else if (dependent.Builder is MulticastSubject multicastSubject)
+                else if (dependent is MulticastSubject multicastSubject)
                 {
                     multicastDependents.Add(multicastSubject);
                 }
