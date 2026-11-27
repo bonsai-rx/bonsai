@@ -61,7 +61,8 @@ namespace Bonsai.Resources
                 var nodeBuilderGraph = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
                 if (workflowBuilder != null && nodeBuilderGraph != null)
                 {
-                    var names = (from node in workflowBuilder.Workflow.LookupNodes(nodeBuilderGraph)
+                    var names = (from level in workflowBuilder.LookupNodes(nodeBuilderGraph)
+                                 from node in level
                                  let loader = ExpressionBuilder.GetWorkflowElement(node.Value) as ResourceLoader
                                  where loader != null
                                  from resource in loader.GetResources().Where(IsResourceSupported)

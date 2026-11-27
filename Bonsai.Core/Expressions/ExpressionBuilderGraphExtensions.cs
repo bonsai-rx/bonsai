@@ -1463,30 +1463,35 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Returns the nodes which can be referred to from the specified workflow, in lookup order.
+        /// Returns the nodes which can be referred to from the specified workflow, grouped by the workflow
+        /// they are local to, in lookup order.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The local nodes of the target workflow come first, followed by the local nodes of each outer
-        /// workflow in turn, ending with the local nodes of this workflow. Taking the first node in the
-        /// result which satisfies a condition therefore finds the match nearest to the target.
+        /// The first group holds the local nodes of the target workflow, followed by one group for each
+        /// outer workflow in turn, ending with the local nodes of the workflow of this builder. The key of
+        /// each group is the builder containing its workflow. Taking the first node in the flattened result
+        /// which satisfies a condition therefore finds the match nearest to the target.
         /// </para>
         /// <para>
         /// Group workflows are never listed on their own, since their nodes are local to the workflow
-        /// containing the group. If the target is the workflow of a group node, the result starts with
-        /// all the local nodes of the workflow containing that group.
+        /// containing the group. If the target is the workflow of a group node, the first group holds the
+        /// local nodes of the workflow containing that group.
         /// </para>
         /// </remarks>
-        /// <param name="source">The expression builder workflow to search.</param>
+        /// <param name="source">The workflow builder to search.</param>
         /// <param name="target">The workflow where the lookup starts.</param>
         /// <returns>
-        /// An enumerable sequence of the nodes which can be referred to from the target workflow, in lookup
-        /// order, or an empty sequence if the target workflow is not found in this workflow.
+        /// An enumerable sequence of groups of the nodes which can be referred to from the target workflow,
+        /// in lookup order, or an empty sequence if the target workflow is not found in the workflow of
+        /// this builder.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.
         /// </exception>
-        public static IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> LookupNodes(this ExpressionBuilderGraph source, ExpressionBuilderGraph target)
+        public static IEnumerable<IGrouping<IWorkflowBuilder, Node<ExpressionBuilder, ExpressionBuilderArgument>>> LookupNodes(
+            this WorkflowBuilder source,
+            ExpressionBuilderGraph target)
         {
             if (source == null)
             {
@@ -1498,13 +1503,13 @@ namespace Bonsai.Expressions
                 throw new ArgumentNullException(nameof(target));
             }
 
-            var enclosingWorkflows = new Stack<ExpressionBuilderGraph>();
+            var enclosingWorkflows = new Stack<LocalNodeGrouping>();
             if (!FindEnclosingWorkflows(source, target, enclosingWorkflows))
             {
-                return Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+                return Enumerable.Empty<LocalNodeGrouping>();
             }
 
-            return enclosingWorkflows.SelectMany(LocalNodes);
+            return enclosingWorkflows;
         }
 
         static IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> SelectLevelNodes(ExpressionBuilderGraph source)
@@ -1533,15 +1538,19 @@ namespace Bonsai.Expressions
             }
         }
 
-        static bool FindEnclosingWorkflows(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> enclosingWorkflows)
+        static bool FindEnclosingWorkflows(
+            IWorkflowBuilder source,
+            ExpressionBuilderGraph target,
+            Stack<LocalNodeGrouping> enclosingWorkflows)
         {
-            enclosingWorkflows.Push(source);
-            if (source == target)
+            var workflow = source.Workflow;
+            enclosingWorkflows.Push(new LocalNodeGrouping(source));
+            if (workflow == target)
             {
                 return true;
             }
 
-            foreach (var node in SelectLevelNodes(source))
+            foreach (var node in SelectLevelNodes(workflow))
             {
                 var builder = ExpressionBuilder.Unwrap(node.Value);
                 if (builder is IGroupWorkflowBuilder groupBuilder)
@@ -1551,13 +1560,36 @@ namespace Bonsai.Expressions
                 }
                 else if (builder is WorkflowExpressionBuilder workflowBuilder && workflowBuilder.Workflow is not null)
                 {
-                    if (FindEnclosingWorkflows(workflowBuilder.Workflow, target, enclosingWorkflows))
+                    if (FindEnclosingWorkflows(workflowBuilder, target, enclosingWorkflows))
                         return true;
                 }
             }
 
             enclosingWorkflows.Pop();
             return false;
+        }
+
+        class LocalNodeGrouping : IGrouping<IWorkflowBuilder, Node<ExpressionBuilder, ExpressionBuilderArgument>>
+        {
+            readonly ExpressionBuilderGraph workflow;
+
+            public LocalNodeGrouping(IWorkflowBuilder key)
+            {
+                Key = key;
+                workflow = key.Workflow;
+            }
+
+            public IWorkflowBuilder Key { get; }
+
+            public IEnumerator<Node<ExpressionBuilder, ExpressionBuilderArgument>> GetEnumerator()
+            {
+                return workflow.LocalNodes().GetEnumerator();
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
         #endregion

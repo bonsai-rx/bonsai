@@ -29,7 +29,8 @@ namespace Bonsai.Expressions
                     }
                     else targetType = componentType.IsGenericType ? componentType.GetGenericArguments()[0] : null;
 
-                    var names = (from node in workflowBuilder.Workflow.LookupNodes(workflow)
+                    var names = (from level in workflowBuilder.LookupNodes(workflow)
+                                 from node in level
                                  let inspectBuilder = node.Value as InspectBuilder
                                  let subjectBuilder = inspectBuilder?.Builder as SubjectExpressionBuilder
                                  where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&

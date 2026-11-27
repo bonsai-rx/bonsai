@@ -24,7 +24,7 @@ namespace Bonsai
     /// <summary>
     /// Represents an XML serializable expression builder workflow container.
     /// </summary>
-    public class WorkflowBuilder : IXmlSerializable
+    public class WorkflowBuilder : IXmlSerializable, IWorkflowBuilder
     {
         readonly ExpressionBuilderGraph workflow;
         const string DynamicAssemblyPrefix = "@Dynamic";
