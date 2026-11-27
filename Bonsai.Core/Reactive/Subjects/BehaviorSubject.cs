@@ -51,7 +51,7 @@ namespace Bonsai.Reactive
             return new Subject();
         }
 
-        internal class Subject : ISubject<T>, IDisposable
+        internal class Subject : ISubject<T>, IContextCallback
         {
             readonly Rx.ReplaySubject<T> subject = new Rx.ReplaySubject<T>(1);
 
@@ -73,9 +73,9 @@ namespace Bonsai.Reactive
                 return subject.Subscribe(observer);
             }
 
-            public void Dispose()
+            public void OnContextClosed()
             {
-                subject.Dispose();
+                subject.OnCompleted();
             }
         }
     }

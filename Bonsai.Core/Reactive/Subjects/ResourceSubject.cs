@@ -54,7 +54,7 @@ namespace Bonsai.Reactive
             return new Subject();
         }
 
-        internal class Subject : ISubject<T>, IDisposable
+        internal class Subject : ISubject<T>, IContextCallback
         {
             readonly Rx.AsyncSubject<T> subject = new Rx.AsyncSubject<T>();
 
@@ -78,7 +78,7 @@ namespace Bonsai.Reactive
                 return subject.Subscribe(observer);
             }
 
-            public void Dispose()
+            public void OnContextClosed()
             {
                 if (subject.IsCompleted)
                 {
@@ -92,8 +92,6 @@ namespace Bonsai.Reactive
                     }
                     catch { /* source terminated exceptionally */ }
                 }
-
-                subject.Dispose();
             }
         }
     }
