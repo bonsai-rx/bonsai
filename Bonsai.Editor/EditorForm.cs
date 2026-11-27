@@ -99,7 +99,7 @@ namespace Bonsai.Editor
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             IServiceProvider provider)
-            : this(elementProvider, visualizerProvider, provider, DefaultEditorScale)
+            : this(elementProvider, visualizerProvider, provider, EditorSettings.Instance.EditorScale)
         {
         }
 
@@ -109,6 +109,7 @@ namespace Bonsai.Editor
             IServiceProvider provider,
             float editorScale)
         {
+            EditorSettings.Instance.EditorScale = editorScale;
             if (editorScale != DefaultEditorScale)
             {
                 Font = new Font(Font.FontFamily, Font.SizeInPoints * editorScale);
