@@ -45,7 +45,8 @@ namespace Bonsai.Core.Tests
             foreach (var (scope, reference) in references)
             {
                 var name = ((SubscribeSubject)reference.Builder).Name;
-                var declaration = root.LookupNodes(scope)
+                var declaration = new WorkflowBuilder(root).LookupNodes(scope)
+                    .SelectMany(level => level)
                     .Select(node => (InspectBuilder)node.Value)
                     .First(builder => builder.Builder is SubjectExpressionBuilder subject && subject.Name == name);
                 Assert.AreEqual(declaration.ObservableType, reference.ObservableType);
@@ -128,9 +129,24 @@ namespace Bonsai.Core.Tests
                 .AppendUnit()
                 .Append(new SelectMany(nestedWorkflow))
                 .Workflow;
-            var result = GetBuilders(workflow.LookupNodes(nestedWorkflow));
+            var workflowBuilder = new WorkflowBuilder(workflow);
+            var result = GetBuilders(workflowBuilder.LookupNodes(nestedWorkflow).SelectMany(level => level));
             var expected = GetBuilders(nestedWorkflow.LocalNodes().Concat(workflow.LocalNodes()));
             CollectionAssert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void LookupNodes_NestedWorkflow_ReturnsWorkflowContainerGroups()
+        {
+            var nestedWorkflow = new TestWorkflow().AppendUnit().Workflow;
+            var selectMany = new SelectMany(nestedWorkflow);
+            var workflow = new TestWorkflow()
+                .AppendUnit()
+                .Append(selectMany)
+                .Workflow;
+            var workflowBuilder = new WorkflowBuilder(workflow);
+            var keys = workflowBuilder.LookupNodes(nestedWorkflow).Select(level => level.Key).ToArray();
+            CollectionAssert.AreEqual(new IWorkflowBuilder[] { selectMany, workflowBuilder }, keys);
         }
 
         [TestMethod]
@@ -142,15 +158,18 @@ namespace Bonsai.Core.Tests
                 .ResetCursor()
                 .Append(new GroupWorkflowBuilder(groupWorkflow))
                 .Workflow;
-            var result = GetBuilders(workflow.LookupNodes(groupWorkflow));
-            CollectionAssert.AreEqual(GetBuilders(workflow.LocalNodes()), result);
+            var workflowBuilder = new WorkflowBuilder(workflow);
+            var levels = workflowBuilder.LookupNodes(groupWorkflow).ToArray();
+            Assert.AreEqual(1, levels.Length);
+            Assert.AreSame(workflowBuilder, levels[0].Key);
+            CollectionAssert.AreEqual(GetBuilders(workflow.LocalNodes()), GetBuilders(levels[0]));
         }
 
         [TestMethod]
         public void LookupNodes_UnreachableTarget_ReturnsEmpty()
         {
-            var workflow = new TestWorkflow().AppendUnit().Workflow;
-            var result = workflow.LookupNodes(new ExpressionBuilderGraph());
+            var workflowBuilder = new WorkflowBuilder(new TestWorkflow().AppendUnit().Workflow);
+            var result = workflowBuilder.LookupNodes(new ExpressionBuilderGraph());
             Assert.AreEqual(0, result.Count());
         }
 
@@ -161,7 +180,7 @@ namespace Bonsai.Core.Tests
             var workflow = new TestWorkflow()
                 .Append(new DisableBuilder(new SelectMany(nestedWorkflow)))
                 .Workflow;
-            var result = workflow.LookupNodes(nestedWorkflow);
+            var result = new WorkflowBuilder(workflow).LookupNodes(nestedWorkflow);
             Assert.AreEqual(0, result.Count());
         }
 
@@ -169,8 +188,8 @@ namespace Bonsai.Core.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void LookupNodes_NullTarget_ThrowsArgumentNullExceptionOnCall()
         {
-            var workflow = new TestWorkflow().Workflow;
-            workflow.LookupNodes(null);
+            var workflowBuilder = new WorkflowBuilder();
+            workflowBuilder.LookupNodes(null);
         }
 
         [TestMethod]

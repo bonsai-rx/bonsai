@@ -35,8 +35,9 @@ namespace Bonsai.Editor.GraphModel
 
         public static SubjectDefinition GetSubjectDefinition(this WorkflowBuilder source, ExpressionBuilderGraph target, string name)
         {
-            var subject = source.Workflow
+            var subject = source
                 .LookupNodes(target)
+                .SelectMany(level => level)
                 .Select(node => ExpressionBuilder.Unwrap(node.Value))
                 .OfType<SubjectExpressionBuilder>()
                 .FirstOrDefault(declaration => declaration.Name == name);
